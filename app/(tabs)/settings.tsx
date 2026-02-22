@@ -93,15 +93,18 @@ export default function SettingsScreen() {
             icon="person-outline"
             title="Profile"
             value="user@example.com"
+            onPress={() => router.push('/settings/profile')}
           />
           <SettingsRow
             icon="card-outline"
             title="Billing Methods"
+            onPress={() => router.push('/settings/billing')}
           />
           <SettingsRow
             isLast
             icon="lock-closed-outline"
             title="Change Password"
+            onPress={() => router.push('/settings/password')}
           />
         </View>
 
@@ -133,6 +136,7 @@ export default function SettingsScreen() {
             icon="cash-outline"
             title="Default Currency"
             value="JPY (¥)"
+            onPress={() => router.push('/settings/currency')}
           />
         </View>
 
@@ -143,10 +147,12 @@ export default function SettingsScreen() {
             isFirst
             icon="help-circle-outline"
             title="Help & Support"
+            onPress={() => router.push('/settings/support')}
           />
           <SettingsRow
             icon="document-text-outline"
             title="Terms of Service"
+            onPress={() => router.push('/settings/tos')}
           />
           <SettingsRow
             isLast
