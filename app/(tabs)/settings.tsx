@@ -6,7 +6,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 
 // Component for a section header
 const SectionHeader = ({ title }: { title: string }) => (
-  <Text className="text-xs font-bold text-neutral-500 dark:text-neutral-400 ml-4 mb-2 mt-6">
+  <Text className="text-base font-bold text-neutral-500 dark:text-neutral-400 ml-4 mb-2 mt-6">
     {title}
   </Text>
 );
