@@ -72,7 +72,8 @@ export default function LoginScreen() {
                         <TextInput
                             placeholder="パスワードを入力"
                             placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
-                            className="w-full bg-white dark:bg-[#1C1C1E] border border-neutral-200 dark:border-neutral-800 rounded-xl px-4 py-4 text-base text-neutral-900 dark:text-white"
+                            className="w-full bg-white dark:bg-[#1C1C1E] border border-neutral-200 dark:border-neutral-800 rounded-xl px-4 py-4 text-neutral-900 dark:text-white"
+                            style={{ fontSize: 16 }}
                             value={password}
                             onChangeText={setPassword}
                             secureTextEntry
