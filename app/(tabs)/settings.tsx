@@ -115,6 +115,11 @@ export default function SettingsScreen() {
             onToggle={() => { }} // Hooked up to system theme usually or custom provider
           />
           <SettingsRow
+            icon="language-outline"
+            title="Language"
+            value="English"
+          />
+          <SettingsRow
             type="toggle"
             icon="notifications-outline"
             title="Push Notifications"
