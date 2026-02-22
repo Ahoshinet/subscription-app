@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Pressable, useColorScheme, KeyboardAvoidingView, ScrollView, Platform, Alert, ActivityIndicator, Image } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSubscriptionStore } from '../store/useSubscriptionStore';
 import { useAddFormStore, BILLING_CYCLES, PAYMENT_METHODS } from '../store/useAddFormStore';
@@ -8,10 +8,14 @@ import { uploadApi } from '../lib/api';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 
-export default function AddSubscriptionModal() {
+export default function EditSubscriptionScreen() {
     const router = useRouter();
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
+    const { id } = useLocalSearchParams<{ id: string }>();
+
+    const { subscriptions, updateSubscription } = useSubscriptionStore();
+    const subscription = subscriptions.find(s => s.id === Number(id));
 
     const [serviceName, setServiceName] = useState('');
     const [planName, setPlanName] = useState('');
@@ -21,8 +25,30 @@ export default function AddSubscriptionModal() {
     const [iconUri, setIconUri] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const { billingCycle, paymentMethod } = useAddFormStore();
-    const { addSubscription } = useSubscriptionStore();
+    const { billingCycle, paymentMethod, setBillingCycle, setPaymentMethod } = useAddFormStore();
+
+    useEffect(() => {
+        if (subscription) {
+            setServiceName(subscription.service_name);
+            setPlanName(subscription.plan_name || '');
+            setAmount(String(subscription.amount));
+            setNextPaymentDate(new Date(subscription.next_payment_date));
+            setBillingCycle(subscription.billing_cycle);
+            setPaymentMethod(subscription.payment_method);
+            if ((subscription as any).icon_url) {
+                setIconUri((subscription as any).icon_url);
+            }
+        }
+    }, [subscription?.id]);
+
+    if (!subscription) {
+        return (
+            <View className="flex-1 bg-neutral-50 dark:bg-neutral-950 items-center justify-center">
+                <Stack.Screen options={{ title: 'Not Found' }} />
+                <Text className="text-neutral-500 dark:text-neutral-400 text-lg">サブスクリプションが見つかりません</Text>
+            </View>
+        );
+    }
 
     const handleSave = async () => {
         if (!serviceName || !amount) {
@@ -32,12 +58,13 @@ export default function AddSubscriptionModal() {
 
         setIsSubmitting(true);
         try {
-            let iconUrl: string | undefined;
-            if (iconUri) {
+            let iconUrl: string | undefined = (subscription as any).icon_url;
+            // Only upload if the uri changed and isn't already a server URL
+            if (iconUri && !iconUri.startsWith('/uploads')) {
                 const uploadResult = await uploadApi.uploadIcon(iconUri);
                 iconUrl = uploadResult.url;
             }
-            await addSubscription({
+            await updateSubscription(subscription.id, {
                 service_name: serviceName,
                 plan_name: planName,
                 amount: Number(amount) || 0,
@@ -45,24 +72,19 @@ export default function AddSubscriptionModal() {
                 billing_cycle: billingCycle,
                 payment_method: paymentMethod,
                 next_payment_date: nextPaymentDate.toISOString(),
-                status: 'active',
                 icon_url: iconUrl,
             });
             router.back();
         } catch (error: any) {
-            Alert.alert('エラー', error.message || 'サブスクリプションの追加に失敗しました');
+            Alert.alert('エラー', error.message || '更新に失敗しました');
         } finally {
             setIsSubmitting(false);
         }
     };
 
     const onDateChange = (_event: DateTimePickerEvent, selectedDate?: Date) => {
-        if (Platform.OS === 'android') {
-            setShowDatePicker(false);
-        }
-        if (selectedDate) {
-            setNextPaymentDate(selectedDate);
-        }
+        if (Platform.OS === 'android') setShowDatePicker(false);
+        if (selectedDate) setNextPaymentDate(selectedDate);
     };
 
     const billingCycleLabel = BILLING_CYCLES.find(c => c.value === billingCycle)?.label || billingCycle;
@@ -84,7 +106,6 @@ export default function AddSubscriptionModal() {
         }
     };
 
-    // Shared row style for perfect vertical centering
     const rowStyle = { height: 48 };
     const labelStyle = { fontSize: 15, width: 90 };
     const inputStyle = { fontSize: 15, height: 48, paddingTop: 0, paddingBottom: 0 };
@@ -96,7 +117,7 @@ export default function AddSubscriptionModal() {
         >
             <Stack.Screen
                 options={{
-                    title: '新規登録',
+                    title: '編集',
                     headerBackVisible: false,
                     headerLeft: () => (
                         <Pressable onPress={() => router.back()} className="px-2" disabled={isSubmitting}>
@@ -108,7 +129,7 @@ export default function AddSubscriptionModal() {
                             {isSubmitting ? (
                                 <ActivityIndicator size="small" color={isDark ? '#60A5FA' : '#3B82F6'} />
                             ) : (
-                                <Text className="text-blue-500 dark:text-blue-400 text-lg font-semibold">追加</Text>
+                                <Text className="text-blue-500 dark:text-blue-400 text-lg font-semibold">保存</Text>
                             )}
                         </Pressable>
                     ),
@@ -158,7 +179,6 @@ export default function AddSubscriptionModal() {
                                 style={inputStyle}
                                 value={serviceName}
                                 onChangeText={setServiceName}
-                                autoFocus
                             />
                         </View>
                         <View className="border-b border-neutral-200 dark:border-neutral-800 px-4 flex-row items-center" style={rowStyle}>
@@ -232,17 +252,6 @@ export default function AddSubscriptionModal() {
                                 <Ionicons name="chevron-forward" size={20} color={isDark ? "#52525B" : "#A1A1AA"} />
                             </View>
                         </Pressable>
-                    </View>
-
-                    {/* Memo / Notes Group */}
-                    <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6">
-                        <TextInput
-                            placeholder="メモ..."
-                            placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
-                            multiline
-                            className="text-base text-neutral-900 dark:text-white p-4 min-h-[120px]"
-                            textAlignVertical="top"
-                        />
                     </View>
                 </View>
             </ScrollView>

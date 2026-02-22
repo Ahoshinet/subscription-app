@@ -85,6 +85,11 @@ export default function DetailScreen() {
                     headerStyle: { backgroundColor: isDark ? '#1C1C1E' : '#F2F2F7' },
                     headerTintColor: isDark ? '#FFFFFF' : '#000000',
                     headerShadowVisible: false,
+                    headerRight: () => (
+                        <Pressable onPress={() => router.push(`/edit?id=${subscription.id}` as any)} className="px-2">
+                            <Text className="text-blue-500 dark:text-blue-400 text-lg font-semibold">編集</Text>
+                        </Pressable>
+                    ),
                 }}
             />
 

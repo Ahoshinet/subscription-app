@@ -119,7 +119,7 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise
 
     // Handle empty responses
     const text = await response.text();
-    return text ? JSON.parse(text) : {};
+    return text ? JSON.parse(text) : {} as unknown as T;
 }
 
 // Auth Endpoints
