@@ -4,7 +4,6 @@ import { View, StyleSheet, Pressable, Platform, useColorScheme } from 'react-nat
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { Text } from 'react-native';
 
 /**
@@ -32,18 +31,14 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
 
             let iconName: keyof typeof Ionicons.glyphMap = 'help';
             if (route.name === 'index') iconName = isFocused ? 'home' : 'home-outline';
-            // The 'add' route is technically a dummy route just to trigger the bottom sheet
-            if (route.name === 'add') iconName = 'add-circle';
+            if (route.name === 'calendar') iconName = isFocused ? 'calendar' : 'calendar-outline';
             if (route.name === 'settings') iconName = isFocused ? 'settings' : 'settings-outline';
 
             const color = isFocused
               ? (isDark ? '#FFFFFF' : '#000000')
               : (isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)');
 
-            // Highlight the 'Add' button specially
-            const isAddBtn = route.name === 'add';
-            const iconSize = isAddBtn ? 42 : 28;
-            const finalColor = isAddBtn ? '#3B82F6' : color; // Blue accent for Add
+            const iconSize = 28;
 
             const onPress = () => {
               const event = navigation.emit({
@@ -63,9 +58,7 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
                 onPress={onPress}
                 style={styles.tabItem}
               >
-                <View style={isAddBtn ? styles.addButtonWrap : null}>
-                  <Ionicons name={iconName} size={iconSize} color={finalColor} />
-                </View>
+                <Ionicons name={iconName} size={iconSize} color={color} />
               </Pressable>
             );
           })}
@@ -78,12 +71,6 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const bottomSheetRef = useRef<BottomSheet>(null);
-
-  // Handle snapping BottomSheet
-  const handleOpenSheet = useCallback(() => {
-    bottomSheetRef.current?.expand();
-  }, []);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -91,9 +78,6 @@ export default function TabLayout() {
         tabBar={(props) => <CustomTabBar {...props} />}
         screenOptions={{
           headerShown: false,
-          // 1. 【デフォルト装飾の完全リセット】
-          // Make sure the internal container of Expo Tabs is completely transparent
-          // to let our custom absolute positioned tab bar handle all styling.
           tabBarStyle: {
             position: 'absolute',
             backgroundColor: 'transparent',
@@ -104,46 +88,9 @@ export default function TabLayout() {
         }}
       >
         <Tabs.Screen name="index" />
-
-        {/* Dummy Add Route - intercepts tabPress to open modal instead of navigating */}
-        <Tabs.Screen
-          name="add"
-          options={{ title: 'Add' }}
-          listeners={{
-            tabPress: (e) => {
-              // Prevent default navigation
-              e.preventDefault();
-              // Open Bottom Sheet
-              handleOpenSheet();
-            },
-          }}
-        />
-
+        <Tabs.Screen name="calendar" />
         <Tabs.Screen name="settings" />
       </Tabs>
-
-      {/* Global Add Item Bottom Sheet Placeholder */}
-      <BottomSheet
-        ref={bottomSheetRef}
-        index={-1} // Closed by default
-        snapPoints={['50%', '90%']}
-        enablePanDownToClose={true}
-        backgroundStyle={{
-          backgroundColor: isDark ? '#1c1c1e' : '#ffffff',
-        }}
-        handleIndicatorStyle={{
-          backgroundColor: isDark ? '#ffffff50' : '#00000050',
-        }}
-      >
-        <BottomSheetView style={styles.sheetContainer} className="p-6">
-          <Text className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">
-            Add Subscription
-          </Text>
-          <Text className="text-neutral-500 dark:text-neutral-400">
-            This is a placeholder for the future subscription creation form.
-          </Text>
-        </BottomSheetView>
-      </BottomSheet>
     </GestureHandlerRootView>
   );
 }
