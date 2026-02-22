@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Pressable, useColorScheme } from 'react-native';
+import { View, Text, Pressable, useColorScheme, Image } from 'react-native';
 import Animated, {
     useAnimatedStyle,
     useSharedValue,
@@ -7,8 +7,10 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
+import { useRouter } from 'expo-router';
 
 interface SubscriptionCardProps {
+    id: number;
     serviceName: string;
     planName: string;
     amount: number;
@@ -17,21 +19,25 @@ interface SubscriptionCardProps {
     daysRemaining: number;
     color?: string;
     iconName?: keyof typeof Ionicons.glyphMap;
+    iconUrl?: string;
 }
 
 export function SubscriptionCard({
+    id,
     serviceName,
     planName,
     amount,
     currency = '¥',
     nextPaymentDate,
     daysRemaining,
-    color = '#E50914', // Default brand color
+    color = '#E50914',
     iconName = 'play-circle',
+    iconUrl,
 }: SubscriptionCardProps) {
     const scale = useSharedValue(1);
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
+    const router = useRouter();
 
     const animatedStyle = useAnimatedStyle(() => {
         return {
@@ -47,6 +53,10 @@ export function SubscriptionCard({
         scale.value = withSpring(1, { damping: 15, stiffness: 250 });
     };
 
+    const handlePress = () => {
+        router.push({ pathname: '/detail' as any, params: { id: String(id) } });
+    };
+
     // Calculate generic progress percentage (0-30 days max for visual)
     const progressPercent = Math.max(0, Math.min(100, (1 - daysRemaining / 30) * 100));
 
@@ -55,8 +65,7 @@ export function SubscriptionCard({
     const accessibleColor = isUrgent ? '#F97316' : '#3B82F6'; // Tailwind Orange-500 : Blue-500
     const accessibleIcon = isUrgent ? 'warning' : 'hourglass-outline';
 
-    // Fallback semi-transparent colors needed because bare BlurView might be perfectly transparent
-    // We add a soft dark gray (#1c1c1e) instead of pure black for dark mode to prevent flatness.
+    // Fallback semi-transparent colors
     const blurBackgroundColor = isDark ? 'rgba(28, 28, 30, 0.45)' : 'rgba(255, 255, 255, 0.6)';
     const blurTint = isDark ? 'dark' : 'light';
 
@@ -64,6 +73,7 @@ export function SubscriptionCard({
         <Pressable
             onPressIn={handlePressIn}
             onPressOut={handlePressOut}
+            onPress={handlePress}
             className="mb-5"
         >
             <Animated.View
@@ -83,7 +93,14 @@ export function SubscriptionCard({
                             className="w-14 h-14 rounded-2xl items-center justify-center mr-4"
                             style={{ backgroundColor: `${color}20` }}
                         >
-                            <Ionicons name={iconName} size={32} color={color} />
+                            {iconUrl ? (
+                                <Image
+                                    source={{ uri: iconUrl }}
+                                    style={{ width: 40, height: 40, borderRadius: 10 }}
+                                />
+                            ) : (
+                                <Ionicons name={iconName} size={32} color={color} />
+                            )}
                         </View>
 
                         {/* Service Info */}

@@ -83,13 +83,15 @@ export default function HomeScreen() {
               return (
                 <SubscriptionCard
                   key={sub.id}
+                  id={sub.id}
                   serviceName={sub.service_name}
                   planName={sub.plan_name || 'Standard Plan'}
                   amount={sub.amount}
                   nextPaymentDate={sub.next_payment_date}
                   daysRemaining={daysRemaining}
-                  color="#3B82F6" // Default accent color, can map dynamically later
-                  iconName="cube" // Default icon
+                  color="#3B82F6"
+                  iconName="cube"
+                  iconUrl={(sub as any).icon_url}
                 />
               );
             })}

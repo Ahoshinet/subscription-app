@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, useColorScheme, KeyboardAvoidingView, ScrollView, Platform, Alert, ActivityIndicator, ActionSheetIOS } from 'react-native';
+import { View, Text, TextInput, Pressable, useColorScheme, KeyboardAvoidingView, ScrollView, Platform, Alert, ActivityIndicator, ActionSheetIOS, Image } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSubscriptionStore } from '../store/useSubscriptionStore';
+import { uploadApi } from '../lib/api';
+import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 
 const BILLING_CYCLES = [
@@ -31,6 +33,7 @@ export default function AddSubscriptionModal() {
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [billingCycle, setBillingCycle] = useState('monthly');
     const [paymentMethod, setPaymentMethod] = useState('credit_card');
+    const [iconUri, setIconUri] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const { addSubscription } = useSubscriptionStore();
@@ -43,6 +46,11 @@ export default function AddSubscriptionModal() {
 
         setIsSubmitting(true);
         try {
+            let iconUrl: string | undefined;
+            if (iconUri) {
+                const uploadResult = await uploadApi.uploadIcon(iconUri);
+                iconUrl = uploadResult.url;
+            }
             await addSubscription({
                 service_name: serviceName,
                 plan_name: planName,
@@ -52,6 +60,7 @@ export default function AddSubscriptionModal() {
                 payment_method: paymentMethod,
                 next_payment_date: nextPaymentDate.toISOString(),
                 status: 'active',
+                icon_url: iconUrl,
             });
             router.back();
         } catch (error: any) {
@@ -118,6 +127,18 @@ export default function AddSubscriptionModal() {
         return `${date.getFullYear()}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
     };
 
+    const pickIcon = async () => {
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+        });
+        if (!result.canceled && result.assets[0]) {
+            setIconUri(result.assets[0].uri);
+        }
+    };
+
     return (
         <KeyboardAvoidingView
             style={{ flex: 1 }}
@@ -154,6 +175,28 @@ export default function AddSubscriptionModal() {
                 keyboardShouldPersistTaps="handled"
             >
                 <View className="px-4">
+                    {/* Icon Picker */}
+                    <View className="items-center mb-6">
+                        <Pressable onPress={pickIcon} className="items-center">
+                            <View
+                                className="w-20 h-20 rounded-3xl items-center justify-center mb-2"
+                                style={{ backgroundColor: isDark ? '#2C2C2E' : '#E5E5EA' }}
+                            >
+                                {iconUri ? (
+                                    <Image
+                                        source={{ uri: iconUri }}
+                                        style={{ width: 56, height: 56, borderRadius: 14 }}
+                                    />
+                                ) : (
+                                    <Ionicons name="camera" size={32} color={isDark ? '#8E8E93' : '#636366'} />
+                                )}
+                            </View>
+                            <Text className="text-blue-500 text-sm font-medium">
+                                {iconUri ? 'アイコンを変更' : 'アイコンを追加'}
+                            </Text>
+                        </Pressable>
+                    </View>
+
                     {/* Main Form Group */}
                     <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6">
                         <View className="border-b border-neutral-200 dark:border-neutral-800 px-4 flex-row items-center" style={{ minHeight: 44 }}>

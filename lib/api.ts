@@ -35,6 +35,7 @@ export interface Subscription {
     billing_cycle: string;
     payment_method: string;
     payment_details?: string;
+    icon_url?: string;
     next_payment_date: string;
     status: string;
     created_at?: string;
@@ -49,6 +50,7 @@ export interface CreateSubscriptionPayload {
     billing_cycle?: string;
     payment_method?: string;
     payment_details?: string;
+    icon_url?: string;
     next_payment_date: string;
     status?: string;
 }
@@ -154,4 +156,49 @@ export const subscriptionApi = {
     delete: (id: number) => fetchAPI<{ message: string }>(`/subscriptions/${id}`, {
         method: 'DELETE',
     }),
+};
+
+// Helper to get the server base URL (without /api)
+export const getServerBaseUrl = () => {
+    const SERVER_PORT = 3000;
+    if (__DEV__) {
+        const hostUri = Constants.expoConfig?.hostUri;
+        if (hostUri) {
+            const host = hostUri.split(':')[0];
+            return `http://${host}:${SERVER_PORT}`;
+        }
+        if (Platform.OS === 'android') return `http://10.0.2.2:${SERVER_PORT}`;
+        return `http://localhost:${SERVER_PORT}`;
+    }
+    return 'https://your-production-api.com';
+};
+
+// Upload Endpoints
+export const uploadApi = {
+    uploadIcon: async (uri: string): Promise<{ url: string }> => {
+        const token = await getToken();
+        const formData = new FormData();
+        const filename = uri.split('/').pop() || 'icon.png';
+        const ext = filename.split('.').pop() || 'png';
+        const mimeType = ext === 'png' ? 'image/png' : 'image/jpeg';
+        formData.append('file', {
+            uri,
+            name: filename,
+            type: mimeType,
+        } as any);
+
+        const response = await fetch(`${API_BASE_URL}/upload/icon`, {
+            method: 'POST',
+            headers: {
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: formData,
+        });
+
+        if (!response.ok) {
+            throw new Error(`Upload failed with status ${response.status}`);
+        }
+
+        return response.json();
+    },
 };
