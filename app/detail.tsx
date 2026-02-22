@@ -82,6 +82,7 @@ export default function DetailScreen() {
             <Stack.Screen
                 options={{
                     title: subscription.service_name,
+                    headerBackTitle: '',
                     headerStyle: { backgroundColor: isDark ? '#1C1C1E' : '#F2F2F7' },
                     headerTintColor: isDark ? '#FFFFFF' : '#000000',
                     headerShadowVisible: false,

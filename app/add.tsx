@@ -100,13 +100,19 @@ export default function AddSubscriptionModal() {
                     headerBackVisible: false,
                     headerLeft: () => (
                         <Pressable onPress={() => router.back()} className="px-2" disabled={isSubmitting}>
-                            <Text className="text-blue-500 dark:text-blue-400 text-lg font-normal">キャンセル</Text>
+                            {Platform.OS === 'ios' ? (
+                                <Ionicons name="close" size={28} color={isDark ? "#60A5FA" : "#3B82F6"} />
+                            ) : (
+                                <Text className="text-blue-500 dark:text-blue-400 text-lg font-normal">キャンセル</Text>
+                            )}
                         </Pressable>
                     ),
                     headerRight: () => (
                         <Pressable onPress={handleSave} className="px-2" disabled={isSubmitting}>
                             {isSubmitting ? (
                                 <ActivityIndicator size="small" color={isDark ? '#60A5FA' : '#3B82F6'} />
+                            ) : Platform.OS === 'ios' ? (
+                                <Ionicons name="checkmark" size={28} color={isDark ? "#60A5FA" : "#3B82F6"} />
                             ) : (
                                 <Text className="text-blue-500 dark:text-blue-400 text-lg font-semibold">追加</Text>
                             )}
