@@ -136,6 +136,7 @@ export default function EditSubscriptionScreen() {
                     headerStyle: { backgroundColor: isDark ? '#1C1C1E' : '#F2F2F7' },
                     headerTintColor: isDark ? '#FFFFFF' : '#000000',
                     headerShadowVisible: false,
+                    headerShown: true,
                 }}
             />
 
