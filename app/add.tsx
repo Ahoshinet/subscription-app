@@ -80,37 +80,37 @@ export default function AddSubscriptionModal() {
                 <View className="px-4">
                     {/* Main Form Group */}
                     <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6">
-                        <View className="border-b border-neutral-200 dark:border-neutral-800 p-4 pl-4 flex-row items-center">
-                            <Text className="text-neutral-900 dark:text-white w-24 text-base">サービス名:</Text>
+                        <View className="border-b border-neutral-200 dark:border-neutral-800 px-4 flex-row items-center" style={{ minHeight: 44 }}>
+                            <Text className="text-neutral-900 dark:text-white" style={{ width: 90, fontSize: 15, lineHeight: 20 }}>サービス名:</Text>
                             <TextInput
                                 placeholder="例: Netflix"
                                 placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
-                                className="flex-1 text-base text-neutral-900 dark:text-white py-0 m-0"
-                                style={{ paddingVertical: 0 }}
+                                className="flex-1 text-neutral-900 dark:text-white"
+                                style={{ fontSize: 15, lineHeight: 20, paddingVertical: 12 }}
                                 value={serviceName}
                                 onChangeText={setServiceName}
                                 autoFocus
                             />
                         </View>
-                        <View className="border-b border-neutral-200 dark:border-neutral-800 p-4 pl-4 flex-row items-center">
-                            <Text className="text-neutral-900 dark:text-white w-24 text-base">プラン名:</Text>
+                        <View className="border-b border-neutral-200 dark:border-neutral-800 px-4 flex-row items-center" style={{ minHeight: 44 }}>
+                            <Text className="text-neutral-900 dark:text-white" style={{ width: 90, fontSize: 15, lineHeight: 20 }}>プラン名:</Text>
                             <TextInput
                                 placeholder="例: Premium"
                                 placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
-                                className="flex-1 text-base text-neutral-900 dark:text-white py-0 m-0"
-                                style={{ paddingVertical: 0 }}
+                                className="flex-1 text-neutral-900 dark:text-white"
+                                style={{ fontSize: 15, lineHeight: 20, paddingVertical: 12 }}
                                 value={planName}
                                 onChangeText={setPlanName}
                             />
                         </View>
-                        <View className="p-4 pl-4 flex-row items-center">
-                            <Text className="text-neutral-900 dark:text-white w-24 text-base">料金:</Text>
+                        <View className="px-4 flex-row items-center" style={{ minHeight: 44 }}>
+                            <Text className="text-neutral-900 dark:text-white" style={{ width: 90, fontSize: 15, lineHeight: 20 }}>料金:</Text>
                             <TextInput
                                 placeholder="¥ 0"
                                 keyboardType="numeric"
                                 placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
-                                className="flex-1 text-base text-neutral-900 dark:text-white py-0 m-0"
-                                style={{ paddingVertical: 0 }}
+                                className="flex-1 text-neutral-900 dark:text-white"
+                                style={{ fontSize: 15, lineHeight: 20, paddingVertical: 12 }}
                                 value={amount}
                                 onChangeText={setAmount}
                             />
