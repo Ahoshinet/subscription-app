@@ -1,9 +1,26 @@
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 
-// For Android emulator, localhost is 10.0.2.2. For iOS it's localhost.
-// Make sure your Rust server is running on the correct port and bound to 0.0.0.0 if testing on a real device.
-const API_BASE_URL = Platform.OS === 'android' ? 'http://10.0.2.2:3000/api' : 'http://localhost:3000/api';
+const getApiBaseUrl = () => {
+    const SERVER_PORT = 3000;
+
+    if (__DEV__) {
+        const hostUri = Constants.expoConfig?.hostUri;
+        if (hostUri) {
+            const host = hostUri.split(':')[0];
+            return `http://${host}:${SERVER_PORT}/api`;
+        }
+        if (Platform.OS === 'android') {
+            return `http://10.0.2.2:${SERVER_PORT}/api`;
+        }
+        return `http://localhost:${SERVER_PORT}/api`;
+    }
+
+    return `https://your-production-api.com/api`;
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 const TOKEN_KEY = 'auth_token';
 
