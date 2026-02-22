@@ -195,7 +195,7 @@ export default function AddSubscriptionModal() {
                             <Text className="text-neutral-900 dark:text-white text-base">次回支払日</Text>
                             <View className="flex-row items-center">
                                 <Text className="text-neutral-500 dark:text-neutral-400 text-base mr-2">{formatDate(nextPaymentDate)}</Text>
-                                <Ionicons name="chevron-forward" size={20} color={isDark ? "#52525B" : "#A1A1AA"} />
+                                <Ionicons name={showDatePicker ? "chevron-down" : "chevron-forward"} size={20} color={isDark ? "#52525B" : "#A1A1AA"} />
                             </View>
                         </Pressable>
 
