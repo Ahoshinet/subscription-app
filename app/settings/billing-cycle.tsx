@@ -20,7 +20,7 @@ export default function BillingCyclePickerScreen() {
             <Stack.Screen
                 options={{
                     title: '支払サイクル',
-                    headerBackTitle: '',
+                    headerBackTitle: ' ',
                     headerStyle: { backgroundColor: isDark ? '#1C1C1E' : '#F2F2F7' },
                     headerTintColor: isDark ? '#FFFFFF' : '#000000',
                     headerShadowVisible: false,

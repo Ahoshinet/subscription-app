@@ -11,7 +11,7 @@ export default function BillingScreen() {
             <Stack.Screen
                 options={{
                     title: 'Billing Methods',
-                    headerBackTitle: '',
+                    headerBackTitle: ' ',
                     headerStyle: { backgroundColor: isDark ? '#000000' : '#ffffff' },
                     headerTintColor: isDark ? '#ffffff' : '#000000',
                 }}

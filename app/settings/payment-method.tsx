@@ -20,7 +20,7 @@ export default function PaymentMethodPickerScreen() {
             <Stack.Screen
                 options={{
                     title: '支払方法',
-                    headerBackTitle: '',
+                    headerBackTitle: ' ',
                     headerStyle: { backgroundColor: isDark ? '#1C1C1E' : '#F2F2F7' },
                     headerTintColor: isDark ? '#FFFFFF' : '#000000',
                     headerShadowVisible: false,

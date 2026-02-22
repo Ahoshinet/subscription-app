@@ -11,7 +11,7 @@ export default function TosScreen() {
             <Stack.Screen
                 options={{
                     title: 'Terms of Service',
-                    headerBackTitle: '',
+                    headerBackTitle: ' ',
                     headerStyle: { backgroundColor: isDark ? '#000000' : '#ffffff' },
                     headerTintColor: isDark ? '#ffffff' : '#000000',
                 }}

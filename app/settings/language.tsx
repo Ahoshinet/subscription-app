@@ -33,7 +33,7 @@ export default function LanguageSettingsScreen() {
             <Stack.Screen
                 options={{
                     title: 'Language',
-                    headerBackTitle: '',
+                    headerBackTitle: ' ',
                     // Use standard iOS header colors
                     headerStyle: { backgroundColor: isDark ? '#000000' : '#ffffff' },
                     headerTintColor: isDark ? '#ffffff' : '#000000',
