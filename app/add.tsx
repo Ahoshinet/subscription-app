@@ -85,7 +85,8 @@ export default function AddSubscriptionModal() {
                             <TextInput
                                 placeholder="例: Netflix"
                                 placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
-                                className="flex-1 text-base text-neutral-900 dark:text-white"
+                                className="flex-1 text-base text-neutral-900 dark:text-white py-0 m-0"
+                                style={{ paddingVertical: 0 }}
                                 value={serviceName}
                                 onChangeText={setServiceName}
                                 autoFocus
@@ -96,7 +97,8 @@ export default function AddSubscriptionModal() {
                             <TextInput
                                 placeholder="例: Premium"
                                 placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
-                                className="flex-1 text-base text-neutral-900 dark:text-white"
+                                className="flex-1 text-base text-neutral-900 dark:text-white py-0 m-0"
+                                style={{ paddingVertical: 0 }}
                                 value={planName}
                                 onChangeText={setPlanName}
                             />
@@ -107,7 +109,8 @@ export default function AddSubscriptionModal() {
                                 placeholder="¥ 0"
                                 keyboardType="numeric"
                                 placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
-                                className="flex-1 text-base text-neutral-900 dark:text-white"
+                                className="flex-1 text-base text-neutral-900 dark:text-white py-0 m-0"
+                                style={{ paddingVertical: 0 }}
                                 value={amount}
                                 onChangeText={setAmount}
                             />
