@@ -45,7 +45,7 @@ export default function RegisterScreen() {
                     headerTransparent: true,
                     title: '',
                     headerLeft: () => (
-                        <Pressable onPress={() => router.back()} className="p-2 ml-2 bg-neutral-200/50 dark:bg-neutral-800/50 rounded-full">
+                        <Pressable onPress={() => router.back()} className="w-10 h-10 ml-2 items-center justify-center bg-neutral-200/50 dark:bg-neutral-800/50 rounded-full">
                             <Ionicons name="arrow-back" size={24} color={isDark ? "white" : "black"} />
                         </Pressable>
                     )
