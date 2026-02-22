@@ -11,7 +11,7 @@ export default function SupportScreen() {
             <Stack.Screen
                 options={{
                     title: 'Help & Support',
-                    headerBackTitle: 'Settings',
+                    headerBackTitle: '',
                     headerStyle: { backgroundColor: isDark ? '#000000' : '#ffffff' },
                     headerTintColor: isDark ? '#ffffff' : '#000000',
                 }}

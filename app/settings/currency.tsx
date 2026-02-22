@@ -11,7 +11,7 @@ export default function CurrencyScreen() {
             <Stack.Screen
                 options={{
                     title: 'Default Currency',
-                    headerBackTitle: 'Settings',
+                    headerBackTitle: '',
                     headerStyle: { backgroundColor: isDark ? '#000000' : '#ffffff' },
                     headerTintColor: isDark ? '#ffffff' : '#000000',
                 }}

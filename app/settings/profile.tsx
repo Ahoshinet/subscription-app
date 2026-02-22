@@ -11,7 +11,7 @@ export default function ProfileScreen() {
             <Stack.Screen
                 options={{
                     title: 'Profile',
-                    headerBackTitle: 'Settings',
+                    headerBackTitle: '',
                     headerStyle: { backgroundColor: isDark ? '#000000' : '#ffffff' },
                     headerTintColor: isDark ? '#ffffff' : '#000000',
                 }}
