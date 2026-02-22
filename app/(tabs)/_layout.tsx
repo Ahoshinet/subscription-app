@@ -16,60 +16,62 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
   const isDark = colorScheme === 'dark';
 
   return (
-    <View style={styles.tabBarContainer}>
-      <BlurView
-        intensity={isDark ? 50 : 80}
-        tint={isDark ? 'dark' : 'light'}
-        style={[
-          styles.tabBar,
-          { backgroundColor: isDark ? 'rgba(30, 30, 32, 0.45)' : 'rgba(255, 255, 255, 0.65)' }
-        ]}
-        className="border border-neutral-200/50 dark:border-white/10"
-      >
-        {state.routes.map((route: any, index: number) => {
-          const { options } = descriptors[route.key];
-          const isFocused = state.index === index;
+    <View style={styles.tabBarShadowContainer}>
+      <View style={styles.tabBarInnerContainer}>
+        <BlurView
+          intensity={isDark ? 50 : 80}
+          tint={isDark ? 'dark' : 'light'}
+          style={[
+            styles.tabBar,
+            { backgroundColor: isDark ? 'rgba(30, 30, 32, 0.45)' : 'rgba(255, 255, 255, 0.65)' }
+          ]}
+          className="border border-neutral-200/50 dark:border-white/10"
+        >
+          {state.routes.map((route: any, index: number) => {
+            const { options } = descriptors[route.key];
+            const isFocused = state.index === index;
 
-          let iconName: keyof typeof Ionicons.glyphMap = 'help';
-          if (route.name === 'index') iconName = isFocused ? 'home' : 'home-outline';
-          // The 'add' route is technically a dummy route just to trigger the bottom sheet
-          if (route.name === 'add') iconName = 'add-circle';
-          if (route.name === 'settings') iconName = isFocused ? 'settings' : 'settings-outline';
+            let iconName: keyof typeof Ionicons.glyphMap = 'help';
+            if (route.name === 'index') iconName = isFocused ? 'home' : 'home-outline';
+            // The 'add' route is technically a dummy route just to trigger the bottom sheet
+            if (route.name === 'add') iconName = 'add-circle';
+            if (route.name === 'settings') iconName = isFocused ? 'settings' : 'settings-outline';
 
-          const color = isFocused
-            ? (isDark ? '#FFFFFF' : '#000000')
-            : (isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)');
+            const color = isFocused
+              ? (isDark ? '#FFFFFF' : '#000000')
+              : (isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)');
 
-          // Highlight the 'Add' button specially
-          const isAddBtn = route.name === 'add';
-          const iconSize = isAddBtn ? 42 : 28;
-          const finalColor = isAddBtn ? '#3B82F6' : color; // Blue accent for Add
+            // Highlight the 'Add' button specially
+            const isAddBtn = route.name === 'add';
+            const iconSize = isAddBtn ? 42 : 28;
+            const finalColor = isAddBtn ? '#3B82F6' : color; // Blue accent for Add
 
-          const onPress = () => {
-            const event = navigation.emit({
-              type: 'tabPress',
-              target: route.key,
-              canPreventDefault: true,
-            });
+            const onPress = () => {
+              const event = navigation.emit({
+                type: 'tabPress',
+                target: route.key,
+                canPreventDefault: true,
+              });
 
-            if (!isFocused && !event.defaultPrevented) {
-              navigation.navigate(route.name);
-            }
-          };
+              if (!isFocused && !event.defaultPrevented) {
+                navigation.navigate(route.name);
+              }
+            };
 
-          return (
-            <Pressable
-              key={route.key}
-              onPress={onPress}
-              style={styles.tabItem}
-            >
-              <View style={isAddBtn ? styles.addButtonWrap : null}>
-                <Ionicons name={iconName} size={iconSize} color={finalColor} />
-              </View>
-            </Pressable>
-          );
-        })}
-      </BlurView>
+            return (
+              <Pressable
+                key={route.key}
+                onPress={onPress}
+                style={styles.tabItem}
+              >
+                <View style={isAddBtn ? styles.addButtonWrap : null}>
+                  <Ionicons name={iconName} size={iconSize} color={finalColor} />
+                </View>
+              </Pressable>
+            );
+          })}
+        </BlurView>
+      </View>
     </View>
   );
 }
@@ -148,25 +150,30 @@ export default function TabLayout() {
 }
 
 const styles = StyleSheet.create({
-  tabBarContainer: {
+  // Outer container: Handles positioning and drop shadow (must NOT overflow: hidden)
+  tabBarShadowContainer: {
     position: 'absolute',
     bottom: 20,
     marginHorizontal: 20,
     left: 0,
     right: 0,
-    // Ensure height is fixed and exact corners are rounded
     height: 60,
-    borderRadius: 30,
-    // 2. 【BlurViewのはみ出し防止】
-    overflow: 'hidden',
     zIndex: 100,
-    // Drop shadow applied to container wrapper on iOS
+
+    // Drop shadow (works because overflow is visible here)
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
     elevation: 5,
   },
+  // Inner container: Enforces the border radius and strictly clips the BlurView
+  tabBarInnerContainer: {
+    flex: 1,
+    borderRadius: 30,
+    overflow: 'hidden',
+  },
+  // The glassmorphism layer itself
   tabBar: {
     ...StyleSheet.absoluteFillObject,
     flexDirection: 'row',
