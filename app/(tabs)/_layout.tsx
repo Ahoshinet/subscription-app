@@ -17,7 +17,7 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
 
   return (
     <View style={styles.tabBarShadowContainer}>
-      <View style={styles.tabBarInnerContainer}>
+      <View style={styles.tabBarInnerContainer} className="border border-neutral-200/50 dark:border-white/10">
         <BlurView
           intensity={isDark ? 50 : 80}
           tint={isDark ? 'dark' : 'light'}
@@ -25,7 +25,6 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
             styles.tabBar,
             { backgroundColor: isDark ? 'rgba(30, 30, 32, 0.45)' : 'rgba(255, 255, 255, 0.65)' }
           ]}
-          className="border border-neutral-200/50 dark:border-white/10"
         >
           {state.routes.map((route: any, index: number) => {
             const { options } = descriptors[route.key];
@@ -176,6 +175,8 @@ const styles = StyleSheet.create({
   // The glassmorphism layer itself
   tabBar: {
     ...StyleSheet.absoluteFillObject,
+    borderRadius: 30,
+    overflow: 'hidden',
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',

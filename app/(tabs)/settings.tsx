@@ -1,112 +1,162 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Text, Switch, Pressable, ScrollView, useColorScheme } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
-import { Collapsible } from '@/components/ui/collapsible';
-import { ExternalLink } from '@/components/external-link';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
+// Component for a section header
+const SectionHeader = ({ title }: { title: string }) => (
+  <Text className="text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider ml-4 mb-2 mt-6">
+    {title}
+  </Text>
+);
 
-export default function TabTwoScreen() {
+// Component for a single settings row
+const SettingsRow = ({
+  icon,
+  title,
+  value,
+  type = 'link',
+  isFirst = false,
+  isLast = false,
+  onPress,
+  toggleValue = false,
+  onToggle
+}: any) => {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          Explore
-        </ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image
-          source={require('@/assets/images/react-logo.png')}
-          style={{ width: 100, height: 100, alignSelf: 'center' }}
-        />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful{' '}
-          <ThemedText type="defaultSemiBold" style={{ fontFamily: Fonts.mono }}>
-            react-native-reanimated
-          </ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <Pressable
+      onPress={type === 'link' ? onPress : undefined}
+      className={`
+        bg-white dark:bg-[#1C1C1E] flex-row items-center justify-between p-4
+        ${!isLast ? 'border-b border-neutral-100 dark:border-white/5' : ''}
+        ${isFirst ? 'rounded-t-2xl' : ''}
+        ${isLast ? 'rounded-b-2xl' : ''}
+      `}
+    >
+      <View className="flex-row items-center">
+        <View className="w-8 h-8 rounded-lg bg-neutral-100 dark:bg-white/10 items-center justify-center mr-3">
+          <Ionicons name={icon} size={18} color="#808080" />
+        </View>
+        <Text className="text-base font-medium text-neutral-900 dark:text-white">
+          {title}
+        </Text>
+      </View>
+
+      <View className="flex-row items-center">
+        {value && (
+          <Text className="text-base text-neutral-500 dark:text-neutral-400 mr-2">
+            {value}
+          </Text>
+        )}
+
+        {type === 'link' && (
+          <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+        )}
+
+        {type === 'toggle' && (
+          <Switch
+            value={toggleValue}
+            onValueChange={onToggle}
+            trackColor={{ false: '#3f3f46', true: '#3B82F6' }}
+            thumbColor={'#ffffff'}
+          />
+        )}
+      </View>
+    </Pressable>
+  );
+};
+
+export default function SettingsScreen() {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+
+  return (
+    <View className="flex-1 bg-neutral-50 dark:bg-black pt-16">
+      {/* Header */}
+      <View className="px-6 mb-4">
+        <Text className="text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
+          Settings
+        </Text>
+      </View>
+
+      <ScrollView
+        className="flex-1 px-4"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }} // padding for bottom tab bar
+      >
+
+        {/* Account Section */}
+        <SectionHeader title="Account" />
+        <View className="rounded-2xl overflow-hidden shadow-sm shadow-neutral-200/50 dark:shadow-none border border-neutral-200/50 dark:border-white/10">
+          <SettingsRow
+            isFirst
+            icon="person-outline"
+            title="Profile"
+            value="user@example.com"
+          />
+          <SettingsRow
+            icon="card-outline"
+            title="Billing Methods"
+          />
+          <SettingsRow
+            isLast
+            icon="lock-closed-outline"
+            title="Change Password"
+          />
+        </View>
+
+        {/* Preferences Section */}
+        <SectionHeader title="Preferences" />
+        <View className="rounded-2xl overflow-hidden shadow-sm shadow-neutral-200/50 dark:shadow-none border border-neutral-200/50 dark:border-white/10">
+          <SettingsRow
+            isFirst
+            type="toggle"
+            icon="moon-outline"
+            title="Dark Mode"
+            toggleValue={isDark}
+            onToggle={() => { }} // Hooked up to system theme usually or custom provider
+          />
+          <SettingsRow
+            type="toggle"
+            icon="notifications-outline"
+            title="Push Notifications"
+            toggleValue={true}
+          />
+          <SettingsRow
+            isLast
+            icon="cash-outline"
+            title="Default Currency"
+            value="JPY (¥)"
+          />
+        </View>
+
+        {/* App Section */}
+        <SectionHeader title="App Info" />
+        <View className="rounded-2xl overflow-hidden shadow-sm shadow-neutral-200/50 dark:shadow-none border border-neutral-200/50 dark:border-white/10 mb-6">
+          <SettingsRow
+            isFirst
+            icon="help-circle-outline"
+            title="Help & Support"
+          />
+          <SettingsRow
+            icon="document-text-outline"
+            title="Terms of Service"
+          />
+          <SettingsRow
+            isLast
+            icon="information-circle-outline"
+            title="Version"
+            value="1.0.0"
+            type="info"
+          />
+        </View>
+
+        {/* Logout Button */}
+        <Pressable className="mt-4 mb-8 items-center py-4 rounded-xl bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-900/50">
+          <Text className="text-red-600 dark:text-red-400 font-bold text-base">
+            Log Out
+          </Text>
+        </Pressable>
+
+      </ScrollView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-});
