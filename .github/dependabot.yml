@@ -1,0 +1,40 @@
+version: 2
+updates:
+  # Enable version updates for pnpm
+  - package-ecosystem: "pnpm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "darui3018823"
+    assignees:
+      - "darui3018823"
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
+    groups:
+      all-deps:
+        patterns:
+          - "*"
+    
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "darui3018823"
+    assignees:
+      - "darui3018823"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
