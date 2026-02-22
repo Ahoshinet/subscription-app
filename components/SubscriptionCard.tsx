@@ -40,11 +40,11 @@ export function SubscriptionCard({
     });
 
     const handlePressIn = () => {
-        scale.value = withSpring(0.96, { damping: 10, stiffness: 200 });
+        scale.value = withSpring(0.98, { damping: 15, stiffness: 250 });
     };
 
     const handlePressOut = () => {
-        scale.value = withSpring(1, { damping: 10, stiffness: 200 });
+        scale.value = withSpring(1, { damping: 15, stiffness: 250 });
     };
 
     // Calculate generic progress percentage (0-30 days max for visual)
