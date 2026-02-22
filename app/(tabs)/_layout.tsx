@@ -16,15 +16,15 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
   const isDark = colorScheme === 'dark';
 
   return (
-    <View style={styles.tabBarContainer} className="px-6 pb-6">
+    <View style={styles.tabBarContainer}>
       <BlurView
-        intensity={80}
+        intensity={isDark ? 50 : 80}
         tint={isDark ? 'dark' : 'light'}
         style={[
           styles.tabBar,
-          { backgroundColor: isDark ? 'rgba(30, 30, 32, 0.65)' : 'rgba(255, 255, 255, 0.75)' }
+          { backgroundColor: isDark ? 'rgba(30, 30, 32, 0.45)' : 'rgba(255, 255, 255, 0.65)' }
         ]}
-        className="rounded-full flex-row justify-around items-center border border-neutral-200/50 dark:border-white/10 shadow-lg"
+        className="border border-neutral-200/50 dark:border-white/10"
       >
         {state.routes.map((route: any, index: number) => {
           const { options } = descriptors[route.key];
@@ -62,9 +62,10 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
               key={route.key}
               onPress={onPress}
               style={styles.tabItem}
-              className={isAddBtn ? '-mt-6' : ''} // Make the add button float slightly higher
             >
-              <Ionicons name={iconName} size={iconSize} color={finalColor} />
+              <View style={isAddBtn ? styles.addButtonWrap : null}>
+                <Ionicons name={iconName} size={iconSize} color={finalColor} />
+              </View>
             </Pressable>
           );
         })}
@@ -89,6 +90,16 @@ export default function TabLayout() {
         tabBar={(props) => <CustomTabBar {...props} />}
         screenOptions={{
           headerShown: false,
+          // 1. 【デフォルト装飾の完全リセット】
+          // Make sure the internal container of Expo Tabs is completely transparent
+          // to let our custom absolute positioned tab bar handle all styling.
+          tabBarStyle: {
+            position: 'absolute',
+            backgroundColor: 'transparent',
+            borderTopWidth: 0,
+            elevation: 0,
+            shadowOpacity: 0,
+          },
         }}
       >
         <Tabs.Screen name="index" />
@@ -96,6 +107,7 @@ export default function TabLayout() {
         {/* Dummy Add Route - intercepts tabPress to open modal instead of navigating */}
         <Tabs.Screen
           name="add"
+          options={{ title: 'Add' }}
           listeners={{
             tabPress: (e) => {
               // Prevent default navigation
@@ -138,17 +150,38 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   tabBarContainer: {
     position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    zIndex: 100, // Ensure it floats above content
+    bottom: 20,
+    marginHorizontal: 20,
+    left: 0,
+    right: 0,
+    // Ensure height is fixed and exact corners are rounded
+    height: 60,
+    borderRadius: 30,
+    // 2. 【BlurViewのはみ出し防止】
+    overflow: 'hidden',
+    zIndex: 100,
+    // Drop shadow applied to container wrapper on iOS
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
   },
   tabBar: {
-    height: 70,
+    ...StyleSheet.absoluteFillObject,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
   },
   tabItem: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    height: '100%',
+  },
+  addButtonWrap: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   sheetContainer: {
     flex: 1,
