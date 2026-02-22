@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Text, Pressable, useColorScheme } from 'react-native';
 import Animated, {
     useAnimatedStyle,
     useSharedValue,
     withSpring,
-    interpolateColor
 } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 
 interface SubscriptionCardProps {
     serviceName: string;
@@ -26,10 +26,12 @@ export function SubscriptionCard({
     currency = '¥',
     nextPaymentDate,
     daysRemaining,
-    color = '#E50914', // Default to Netflix red
+    color = '#E50914', // Default brand color
     iconName = 'play-circle',
 }: SubscriptionCardProps) {
     const scale = useSharedValue(1);
+    const colorScheme = useColorScheme();
+    const isDark = colorScheme === 'dark';
 
     const animatedStyle = useAnimatedStyle(() => {
         return {
@@ -48,73 +50,96 @@ export function SubscriptionCard({
     // Calculate generic progress percentage (0-30 days max for visual)
     const progressPercent = Math.max(0, Math.min(100, (1 - daysRemaining / 30) * 100));
 
+    // Accessibility and Colorblind-safe formatting
+    const isUrgent = daysRemaining <= 3;
+    const accessibleColor = isUrgent ? '#F97316' : '#3B82F6'; // Tailwind Orange-500 : Blue-500
+    const accessibleIcon = isUrgent ? 'warning' : 'hourglass-outline';
+
+    // Fallback semi-transparent colors needed because bare BlurView might be perfectly transparent
+    // We add a soft dark gray (#1c1c1e) instead of pure black for dark mode to prevent flatness.
+    const blurBackgroundColor = isDark ? 'rgba(28, 28, 30, 0.45)' : 'rgba(255, 255, 255, 0.6)';
+    const blurTint = isDark ? 'dark' : 'light';
+
     return (
         <Pressable
             onPressIn={handlePressIn}
             onPressOut={handlePressOut}
-            className="mb-4"
+            className="mb-5"
         >
             <Animated.View
                 style={[animatedStyle]}
-                className="overflow-hidden rounded-3xl border border-white/10 dark:border-white/5 bg-white/70 dark:bg-black/40 shadow-sm"
+                className="overflow-hidden rounded-3xl"
             >
-                {/* Main Content Area */}
-                <View className="p-5 flex-row items-center">
-
-                    {/* Icon Badge */}
-                    <View
-                        className="w-14 h-14 rounded-2xl items-center justify-center mr-4"
-                        style={{ backgroundColor: `${color}20` }}
-                    >
-                        <Ionicons name={iconName} size={32} color={color} />
-                    </View>
-
-                    {/* Service Info */}
-                    <View className="flex-1">
-                        <Text className="text-xl font-bold text-neutral-900 dark:text-white mb-1">
-                            {serviceName}
-                        </Text>
-                        <Text className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
-                            {planName}
-                        </Text>
-                    </View>
-
-                    {/* Pricing Info */}
-                    <View className="items-end">
-                        <Text className="text-xl font-bold text-neutral-900 dark:text-white">
-                            {currency}{amount.toLocaleString()}
-                        </Text>
-                        <Text className="text-xs font-medium text-neutral-500 dark:text-neutral-400 mt-1">
-                            /mo
-                        </Text>
-                    </View>
-                </View>
-
-                {/* Bottom Status / Timeline Area */}
-                <View className="px-5 pb-5 mt-2">
-                    <View className="flex-row justify-between mb-2">
-                        <Text className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                            Next Payment
-                        </Text>
-                        <Text className="text-xs font-bold text-neutral-700 dark:text-neutral-300">
-                            {daysRemaining === 0 ? 'Today' : `in ${daysRemaining} days`}
-                        </Text>
-                    </View>
-
-                    {/* Progress Bar Background */}
-                    <View className="h-1.5 w-full bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden">
-                        {/* Progress Bar Fill */}
+                <BlurView
+                    intensity={100}
+                    tint={blurTint}
+                    style={{ backgroundColor: blurBackgroundColor }}
+                    className="border border-neutral-200 dark:border-white/10"
+                >
+                    {/* Main Content Area */}
+                    <View className="p-5 flex-row items-center">
+                        {/* Icon Badge */}
                         <View
-                            className="h-full rounded-full"
-                            style={{
-                                width: `${progressPercent}%`,
-                                backgroundColor: color,
-                                opacity: 0.8
-                            }}
-                        />
-                    </View>
-                </View>
+                            className="w-14 h-14 rounded-2xl items-center justify-center mr-4"
+                            style={{ backgroundColor: `${color}20` }}
+                        >
+                            <Ionicons name={iconName} size={32} color={color} />
+                        </View>
 
+                        {/* Service Info */}
+                        <View className="flex-1">
+                            <Text className="text-xl font-bold text-neutral-900 dark:text-neutral-100 mb-1">
+                                {serviceName}
+                            </Text>
+                            <Text className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                                {planName}
+                            </Text>
+                        </View>
+
+                        {/* Pricing Info */}
+                        <View className="items-end">
+                            <Text className="text-xl font-bold text-neutral-900 dark:text-neutral-100">
+                                {currency}{amount.toLocaleString()}
+                            </Text>
+                            <Text className="text-xs font-medium text-neutral-500 dark:text-neutral-400 mt-1">
+                                /mo
+                            </Text>
+                        </View>
+                    </View>
+
+                    {/* Bottom Status / Timeline Area */}
+                    <View className="px-5 pb-5 mt-1">
+                        <View className="flex-row justify-between items-center mb-3">
+                            <View className="flex-row items-center">
+                                <Ionicons name={accessibleIcon} size={14} color={accessibleColor} style={{ marginRight: 4 }} />
+                                <Text className="text-xs font-bold uppercase tracking-wider" style={{ color: accessibleColor }}>
+                                    {isUrgent ? 'Action Required Soon' : 'Next Payment'}
+                                </Text>
+                            </View>
+
+                            <Text className="text-sm text-neutral-700 dark:text-neutral-300">
+                                {daysRemaining === 0 ? (
+                                    <Text className="font-extrabold" style={{ color: accessibleColor }}>Today</Text>
+                                ) : (
+                                    <Text>in <Text className="font-extrabold" style={{ color: accessibleColor }}>{daysRemaining} days</Text></Text>
+                                )}
+                            </Text>
+                        </View>
+
+                        {/* Progress Bar Background */}
+                        <View className="h-2 w-full bg-neutral-200/50 dark:bg-black/40 rounded-full overflow-hidden">
+                            {/* Progress Bar Fill */}
+                            <View
+                                className="h-full rounded-full"
+                                style={{
+                                    width: `${progressPercent}%`,
+                                    backgroundColor: accessibleColor,
+                                    opacity: 0.9
+                                }}
+                            />
+                        </View>
+                    </View>
+                </BlurView>
             </Animated.View>
         </Pressable>
     );
