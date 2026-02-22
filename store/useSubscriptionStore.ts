@@ -1,0 +1,77 @@
+import { create } from 'zustand';
+import { subscriptionApi, Subscription, CreateSubscriptionPayload } from '../lib/api';
+
+interface SubscriptionState {
+    subscriptions: Subscription[];
+    isLoading: boolean;
+    error: string | null;
+
+    // Actions
+    fetchSubscriptions: () => Promise<void>;
+    addSubscription: (data: CreateSubscriptionPayload) => Promise<void>;
+    updateSubscription: (id: number, data: Partial<Subscription>) => Promise<void>;
+    deleteSubscription: (id: number) => Promise<void>;
+    clearError: () => void;
+}
+
+export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
+    subscriptions: [],
+    isLoading: false,
+    error: null,
+
+    fetchSubscriptions: async () => {
+        set({ isLoading: true, error: null });
+        try {
+            const data = await subscriptionApi.getAll();
+            set({ subscriptions: data, isLoading: false });
+        } catch (err: any) {
+            set({ error: err.message || 'Failed to fetch subscriptions', isLoading: false });
+        }
+    },
+
+    addSubscription: async (data: CreateSubscriptionPayload) => {
+        set({ isLoading: true, error: null });
+        try {
+            const newSub = await subscriptionApi.create(data);
+            set((state) => ({
+                subscriptions: [...state.subscriptions, newSub],
+                isLoading: false,
+            }));
+        } catch (err: any) {
+            set({ error: err.message || 'Failed to add subscription', isLoading: false });
+            throw err; // throw to handle it in UI (e.g., closing modal)
+        }
+    },
+
+    updateSubscription: async (id: number, data: Partial<Subscription>) => {
+        set({ isLoading: true, error: null });
+        try {
+            const updatedSub = await subscriptionApi.update(id, data);
+            set((state) => ({
+                subscriptions: state.subscriptions.map((sub) =>
+                    sub.id === id ? { ...sub, ...updatedSub } : sub
+                ),
+                isLoading: false,
+            }));
+        } catch (err: any) {
+            set({ error: err.message || 'Failed to update subscription', isLoading: false });
+            throw err;
+        }
+    },
+
+    deleteSubscription: async (id: number) => {
+        set({ isLoading: true, error: null });
+        try {
+            await subscriptionApi.delete(id);
+            set((state) => ({
+                subscriptions: state.subscriptions.filter((sub) => sub.id !== id),
+                isLoading: false,
+            }));
+        } catch (err: any) {
+            set({ error: err.message || 'Failed to delete subscription', isLoading: false });
+            throw err;
+        }
+    },
+
+    clearError: () => set({ error: null }),
+}));

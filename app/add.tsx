@@ -1,12 +1,46 @@
-import React from 'react';
-import { View, Text, TextInput, Pressable, useColorScheme, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, Pressable, useColorScheme, KeyboardAvoidingView, ScrollView, Platform, Alert, ActivityIndicator } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useSubscriptionStore } from '../store/useSubscriptionStore';
 
 export default function AddSubscriptionModal() {
     const router = useRouter();
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
+
+    const [serviceName, setServiceName] = useState('');
+    const [planName, setPlanName] = useState('');
+    const [amount, setAmount] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const { addSubscription } = useSubscriptionStore();
+
+    const handleSave = async () => {
+        if (!serviceName || !amount) {
+            Alert.alert('入力エラー', 'サービス名と料金は必須です');
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            await addSubscription({
+                service_name: serviceName,
+                plan_name: planName,
+                amount: Number(amount) || 0,
+                currency: 'JPY',
+                billing_cycle: 'monthly',
+                payment_method: 'credit_card',
+                next_payment_date: new Date().toISOString(), // Mocking "today" for now
+                status: 'active',
+            });
+            router.back();
+        } catch (error: any) {
+            Alert.alert('エラー', error.message || 'サブスクリプションの追加に失敗しました');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
         <KeyboardAvoidingView
@@ -18,13 +52,17 @@ export default function AddSubscriptionModal() {
                     title: '新規登録',
                     headerBackVisible: false,
                     headerLeft: () => (
-                        <Pressable onPress={() => router.back()} className="px-2">
+                        <Pressable onPress={() => router.back()} className="px-2" disabled={isSubmitting}>
                             <Text className="text-blue-500 dark:text-blue-400 text-lg font-normal">キャンセル</Text>
                         </Pressable>
                     ),
                     headerRight: () => (
-                        <Pressable onPress={() => router.back()} className="px-2">
-                            <Text className="text-blue-500 dark:text-blue-400 text-lg font-semibold">追加</Text>
+                        <Pressable onPress={handleSave} className="px-2" disabled={isSubmitting}>
+                            {isSubmitting ? (
+                                <ActivityIndicator size="small" color={isDark ? '#60A5FA' : '#3B82F6'} />
+                            ) : (
+                                <Text className="text-blue-500 dark:text-blue-400 text-lg font-semibold">追加</Text>
+                            )}
                         </Pressable>
                     ),
                     headerStyle: { backgroundColor: isDark ? '#1C1C1E' : '#F2F2F7' },
@@ -48,6 +86,8 @@ export default function AddSubscriptionModal() {
                                 placeholder="例: Netflix"
                                 placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
                                 className="flex-1 text-base text-neutral-900 dark:text-white"
+                                value={serviceName}
+                                onChangeText={setServiceName}
                                 autoFocus
                             />
                         </View>
@@ -57,6 +97,8 @@ export default function AddSubscriptionModal() {
                                 placeholder="例: Premium"
                                 placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
                                 className="flex-1 text-base text-neutral-900 dark:text-white"
+                                value={planName}
+                                onChangeText={setPlanName}
                             />
                         </View>
                         <View className="p-4 pl-4 flex-row items-center">
@@ -66,6 +108,8 @@ export default function AddSubscriptionModal() {
                                 keyboardType="numeric"
                                 placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
                                 className="flex-1 text-base text-neutral-900 dark:text-white"
+                                value={amount}
+                                onChangeText={setAmount}
                             />
                         </View>
                     </View>

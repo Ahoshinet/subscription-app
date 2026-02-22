@@ -1,0 +1,109 @@
+import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
+
+// For Android emulator, localhost is 10.0.2.2. For iOS it's localhost.
+// Make sure your Rust server is running on the correct port and bound to 0.0.0.0 if testing on a real device.
+const API_BASE_URL = Platform.OS === 'android' ? 'http://10.0.2.2:3000/api' : 'http://localhost:3000/api';
+
+const TOKEN_KEY = 'auth_token';
+
+// Types
+export interface Subscription {
+    id: number;
+    user_id: string;
+    service_name: string;
+    plan_name?: string;
+    amount: number;
+    currency: string;
+    billing_cycle: string;
+    payment_method: string;
+    payment_details?: string;
+    next_payment_date: string;
+    status: string;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface CreateSubscriptionPayload {
+    service_name: string;
+    plan_name?: string;
+    amount: number;
+    currency?: string;
+    billing_cycle?: string;
+    payment_method?: string;
+    payment_details?: string;
+    next_payment_date: string;
+    status?: string;
+}
+
+// Token Management
+export const getToken = async () => {
+    try {
+        return await SecureStore.getItemAsync(TOKEN_KEY);
+    } catch (error) {
+        console.error('Failed to get token:', error);
+        return null;
+    }
+};
+
+export const setToken = async (token: string) => {
+    try {
+        await SecureStore.setItemAsync(TOKEN_KEY, token);
+    } catch (error) {
+        console.error('Failed to save token:', error);
+    }
+};
+
+export const clearToken = async () => {
+    try {
+        await SecureStore.deleteItemAsync(TOKEN_KEY);
+    } catch (error) {
+        console.error('Failed to clear token:', error);
+    }
+};
+
+// Custom Fetch Wrapper
+async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const token = await getToken();
+
+    const headers = {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...options.headers,
+    };
+
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        ...options,
+        headers,
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Request failed with status ${response.status}`);
+    }
+
+    // Handle empty responses
+    const text = await response.text();
+    return text ? JSON.parse(text) : {};
+}
+
+// Subscription Endpoints
+export const subscriptionApi = {
+    getAll: () => fetchAPI<Subscription[]>('/subscriptions/list'),
+    getUpcoming: () => fetchAPI<Subscription[]>('/subscriptions/upcoming'),
+    create: (data: CreateSubscriptionPayload) => fetchAPI<Subscription>('/subscriptions', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    }),
+    update: (id: number, data: Partial<Subscription>) => fetchAPI<Subscription>(`/subscriptions/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+    }),
+    updateStatus: (id: number, status: string) => fetchAPI<Subscription>(`/subscriptions/${id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status }),
+    }),
+    delete: (id: number) => fetchAPI<{ message: string }>(`/subscriptions/${id}`, {
+        method: 'DELETE',
+    }),
+};

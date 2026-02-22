@@ -1,13 +1,30 @@
-import { View, Text, ScrollView, SafeAreaView, Pressable, useColorScheme } from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, Pressable, useColorScheme, ActivityIndicator } from 'react-native';
 import { SubscriptionCard } from '@/components/SubscriptionCard';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
+import { useCallback } from 'react';
+import { useSubscriptionStore } from '@/store/useSubscriptionStore';
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const router = useRouter();
+
+  const { subscriptions, isLoading, error, fetchSubscriptions } = useSubscriptionStore();
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchSubscriptions();
+    }, [])
+  );
+
+  const totalMonthlySpent = subscriptions
+    .filter(sub => sub.status === 'active') // Assuming you have active status
+    .reduce((total, sub) => {
+      // Simple total calculation for now. Could be adjusted based on billing_cycle
+      return total + Number(sub.amount || 0);
+    }, 0);
 
   return (
     <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-neutral-950">
@@ -22,7 +39,7 @@ export default function HomeScreen() {
               My Subscriptions
             </Text>
             <Text className="text-base text-neutral-500 dark:text-neutral-400 mt-2 font-medium">
-              You are spending ¥5,260 this month
+              You are spending ¥{totalMonthlySpent.toLocaleString()} this month
             </Text>
           </View>
 
@@ -34,36 +51,50 @@ export default function HomeScreen() {
           </Pressable>
         </View>
 
-        {/* Dummy Data Showcase */}
-        <SubscriptionCard
-          serviceName="Netflix"
-          planName="Premium Plan"
-          amount={1980}
-          nextPaymentDate="2026-03-01T00:00:00Z"
-          daysRemaining={7}
-          color="#E50914"
-          iconName="film"
-        />
+        {error ? (
+          <View className="bg-red-100 dark:bg-red-900/30 p-4 rounded-xl mb-6 border border-red-200 dark:border-red-900/50">
+            <Text className="text-red-600 dark:text-red-400 font-medium">
+              Failed to load: {error}
+              {'\n'}Make sure the Rust backend is running & auth token is set.
+            </Text>
+          </View>
+        ) : null}
 
-        <SubscriptionCard
-          serviceName="Spotify"
-          planName="Individual"
-          amount={980}
-          nextPaymentDate="2026-02-25T00:00:00Z"
-          daysRemaining={3}
-          color="#1DB954"
-          iconName="musical-notes"
-        />
+        {isLoading && subscriptions.length === 0 ? (
+          <View className="py-10 items-center">
+            <ActivityIndicator size="large" color="#3B82F6" />
+          </View>
+        ) : (
+          <>
+            {subscriptions.length === 0 && !error && (
+              <View className="py-10 items-center">
+                <Text className="text-neutral-500 dark:text-neutral-400 font-medium">
+                  No subscriptions found. Tap the + to add one.
+                </Text>
+              </View>
+            )}
 
-        <SubscriptionCard
-          serviceName="Adobe CC"
-          planName="Creative Cloud All Apps"
-          amount={2300}
-          nextPaymentDate="2026-03-10T00:00:00Z"
-          daysRemaining={16}
-          color="#FF0000"
-          iconName="color-palette"
-        />
+            {subscriptions.map((sub) => {
+              // Calculate rough days remaining logic or default to next_payment_date diff
+              const nextPaymentDate = new Date(sub.next_payment_date);
+              const diffTime = Math.abs(nextPaymentDate.getTime() - new Date().getTime());
+              const daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+              return (
+                <SubscriptionCard
+                  key={sub.id}
+                  serviceName={sub.service_name}
+                  planName={sub.plan_name || 'Standard Plan'}
+                  amount={sub.amount}
+                  nextPaymentDate={sub.next_payment_date}
+                  daysRemaining={daysRemaining}
+                  color="#3B82F6" // Default accent color, can map dynamically later
+                  iconName="cube" // Default icon
+                />
+              );
+            })}
+          </>
+        )}
 
         <View className="mt-8 pb-32 items-center">
           <Text className="text-sm font-medium text-neutral-400 dark:text-neutral-600">
