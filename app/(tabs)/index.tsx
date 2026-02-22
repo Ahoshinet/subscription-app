@@ -2,17 +2,12 @@ import { View, Text, ScrollView, SafeAreaView, Pressable, useColorScheme } from 
 import { SubscriptionCard } from '@/components/SubscriptionCard';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import { useCallback, useRef } from 'react';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import { useRouter } from 'expo-router';
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const bottomSheetRef = useRef<BottomSheet>(null);
-
-  const handleOpenSheet = useCallback(() => {
-    bottomSheetRef.current?.expand();
-  }, []);
+  const router = useRouter();
 
   return (
     <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-neutral-950">
@@ -32,7 +27,7 @@ export default function HomeScreen() {
           </View>
 
           <Pressable
-            onPress={handleOpenSheet}
+            onPress={() => router.push('/add')}
             className="w-12 h-12 bg-blue-500 rounded-full items-center justify-center shadow-lg shadow-blue-500/30"
           >
             <Ionicons name="add" size={28} color="#ffffff" />
@@ -76,29 +71,6 @@ export default function HomeScreen() {
           </Text>
         </View>
       </ScrollView>
-
-      {/* Global Add Item Bottom Sheet Placeholder */}
-      <BottomSheet
-        ref={bottomSheetRef}
-        index={-1} // Closed by default
-        snapPoints={['50%', '90%']}
-        enablePanDownToClose={true}
-        backgroundStyle={{
-          backgroundColor: isDark ? '#1c1c1e' : '#ffffff',
-        }}
-        handleIndicatorStyle={{
-          backgroundColor: isDark ? '#ffffff50' : '#00000050',
-        }}
-      >
-        <BottomSheetView className="p-6 flex-1">
-          <Text className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">
-            Add Subscription
-          </Text>
-          <Text className="text-neutral-500 dark:text-neutral-400">
-            This is a placeholder for the future subscription creation form.
-          </Text>
-        </BottomSheetView>
-      </BottomSheet>
     </SafeAreaView>
   );
 }
