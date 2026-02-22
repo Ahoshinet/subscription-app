@@ -17,13 +17,8 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="add"
-          options={{
-            presentation: 'modal',
-            headerShown: false // We will draw our own header inside the modal
-          }}
-        />
+        <Stack.Screen name="add" options={{ presentation: 'formSheet' }} />
+        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
