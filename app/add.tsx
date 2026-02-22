@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TextInput, Pressable, useColorScheme, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function AddSubscriptionModal() {
     const router = useRouter();
@@ -67,6 +68,31 @@ export default function AddSubscriptionModal() {
                                 className="flex-1 text-base text-neutral-900 dark:text-white"
                             />
                         </View>
+                    </View>
+
+                    {/* Payment Details Group */}
+                    <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6">
+                        <Pressable className="border-b border-neutral-200 dark:border-neutral-800 p-4 pl-4 flex-row items-center justify-between">
+                            <Text className="text-neutral-900 dark:text-white text-base">次回支払日</Text>
+                            <View className="flex-row items-center">
+                                <Text className="text-neutral-500 dark:text-neutral-400 text-base mr-2">今日</Text>
+                                <Ionicons name="chevron-forward" size={20} color={isDark ? "#52525B" : "#A1A1AA"} />
+                            </View>
+                        </Pressable>
+                        <Pressable className="border-b border-neutral-200 dark:border-neutral-800 p-4 pl-4 flex-row items-center justify-between">
+                            <Text className="text-neutral-900 dark:text-white text-base">支払サイクル</Text>
+                            <View className="flex-row items-center">
+                                <Text className="text-neutral-500 dark:text-neutral-400 text-base mr-2">月額 (Monthly)</Text>
+                                <Ionicons name="chevron-forward" size={20} color={isDark ? "#52525B" : "#A1A1AA"} />
+                            </View>
+                        </Pressable>
+                        <Pressable className="p-4 pl-4 flex-row items-center justify-between">
+                            <Text className="text-neutral-900 dark:text-white text-base">支払方法</Text>
+                            <View className="flex-row items-center">
+                                <Text className="text-neutral-500 dark:text-neutral-400 text-base mr-2">クレジットカード</Text>
+                                <Ionicons name="chevron-forward" size={20} color={isDark ? "#52525B" : "#A1A1AA"} />
+                            </View>
+                        </Pressable>
                     </View>
 
                     {/* Memo / Notes Group */}
