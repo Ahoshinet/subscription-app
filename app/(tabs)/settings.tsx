@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { View, Text, Switch, Pressable, ScrollView, useColorScheme, Modal } from 'react-native';
+import React from 'react';
+import { View, Text, Switch, Pressable, ScrollView, useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
+import { useRouter } from 'expo-router';
 
 // Component for a section header
 const SectionHeader = ({ title }: { title: string }) => (
@@ -24,7 +24,7 @@ const SettingsRow = ({
 }: any) => {
   return (
     <Pressable
-      onPress={onPress}
+      onPress={type === 'link' ? onPress : undefined}
       className={`
         bg-white dark:bg-[#1C1C1E] flex-row items-center justify-between p-4
         ${!isLast ? 'border-b border-neutral-100 dark:border-white/5' : ''}
@@ -68,15 +68,7 @@ const SettingsRow = ({
 export default function SettingsScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-
-  // Language Picker State
-  const [language, setLanguage] = useState('English');
-  const [showLangModal, setShowLangModal] = useState(false);
-
-  const selectLanguage = (lang: string) => {
-    setLanguage(lang);
-    setShowLangModal(false);
-  };
+  const router = useRouter();
 
   return (
     <View className="flex-1 bg-neutral-50 dark:bg-black pt-16">
@@ -127,8 +119,8 @@ export default function SettingsScreen() {
           <SettingsRow
             icon="language-outline"
             title="Language"
-            value={language}
-            onPress={() => setShowLangModal(true)}
+            value="English"
+            onPress={() => router.push('/settings/language')}
           />
           <SettingsRow
             type="toggle"
@@ -173,60 +165,6 @@ export default function SettingsScreen() {
         </Pressable>
 
       </ScrollView>
-
-      {/* Language Selection Modal (Action Sheet Style) */}
-      <Modal
-        visible={showLangModal}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowLangModal(false)}
-      >
-        <Pressable
-          className="flex-1 justify-end bg-black/50"
-          onPress={() => setShowLangModal(false)}
-        >
-          <Pressable
-            className="bg-white dark:bg-[#1C1C1E] m-4 rounded-2xl overflow-hidden shadow-lg border border-neutral-200 dark:border-white/10 pb-4"
-            onPress={(e) => e.stopPropagation()} // Prevent tap-through closing
-          >
-            <View className="items-center py-4 border-b border-neutral-100 dark:border-white/5">
-              <Text className="text-sm font-bold text-neutral-500 dark:text-neutral-400">
-                Select Language
-              </Text>
-            </View>
-
-            <Pressable
-              className={`p-4 flex-row items-center justify-between border-b border-neutral-100 dark:border-white/5 ${language === 'English' ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
-              onPress={() => selectLanguage('English')}
-            >
-              <Text className={`text-lg ${language === 'English' ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-neutral-900 dark:text-white font-medium'}`}>
-                English
-              </Text>
-              {language === 'English' && <Ionicons name="checkmark" size={24} color="#3B82F6" />}
-            </Pressable>
-
-            <Pressable
-              className={`p-4 flex-row items-center justify-between ${language === '日本語' ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
-              onPress={() => selectLanguage('日本語')}
-            >
-              <Text className={`text-lg ${language === '日本語' ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-neutral-900 dark:text-white font-medium'}`}>
-                日本語
-              </Text>
-              {language === '日本語' && <Ionicons name="checkmark" size={24} color="#3B82F6" />}
-            </Pressable>
-          </Pressable>
-
-          <Pressable
-            className="bg-white dark:bg-[#1C1C1E] rounded-2xl mx-4 mb-8 overflow-hidden items-center justify-center p-4 border border-neutral-200 dark:border-white/10 shadow-lg"
-            onPress={() => setShowLangModal(false)}
-          >
-            <Text className="text-lg font-bold text-neutral-900 dark:text-white">
-              Cancel
-            </Text>
-          </Pressable>
-        </Pressable>
-      </Modal>
-
     </View>
   );
 }
