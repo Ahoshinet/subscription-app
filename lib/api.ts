@@ -36,6 +36,22 @@ export interface CreateSubscriptionPayload {
     status?: string;
 }
 
+// Auth Types
+export interface AuthPayload {
+    username: string;
+    password?: string; // used for requests
+}
+
+export interface User {
+    id: string;
+    username: string;
+}
+
+export interface AuthResponse {
+    token: string;
+    user: User;
+}
+
 // Token Management
 export const getToken = async () => {
     try {
@@ -86,6 +102,21 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise
     const text = await response.text();
     return text ? JSON.parse(text) : {};
 }
+
+// Auth Endpoints
+export const authApi = {
+    register: (data: AuthPayload) => fetchAPI<AuthResponse>('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    }),
+    login: (data: AuthPayload) => fetchAPI<AuthResponse>('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    }),
+    me: () => fetchAPI<User>('/auth/me', {
+        method: 'GET',
+    }),
+};
 
 // Subscription Endpoints
 export const subscriptionApi = {

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Switch, Pressable, ScrollView, useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useAuthStore } from '@/store/useAuthStore';
 
 // Component for a section header
 const SectionHeader = ({ title }: { title: string }) => (
@@ -69,6 +70,7 @@ export default function SettingsScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const router = useRouter();
+  const { logout } = useAuthStore();
 
   return (
     <View className="flex-1 bg-neutral-50 dark:bg-black pt-16">
@@ -164,7 +166,13 @@ export default function SettingsScreen() {
         </View>
 
         {/* Logout Button */}
-        <Pressable className="mt-4 mb-8 items-center py-4 rounded-xl bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-900/50">
+        <Pressable
+          onPress={async () => {
+            await logout();
+            router.replace('/login');
+          }}
+          className="mt-4 mb-8 items-center py-4 rounded-xl bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-900/50"
+        >
           <Text className="text-red-600 dark:text-red-400 font-bold text-base">
             Log Out
           </Text>
