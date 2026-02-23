@@ -37,6 +37,12 @@
         "title": "支払方法",
         "add_new": "新しい支払方法を追加"
     },
+    "support": {
+        "title": "ヘルプとサポート",
+        "faq": "よくある質問",
+        "contact": "お問い合わせ",
+        "report_bug": "バグを報告"
+    },
     "billing_cycle": {
         "title": "支払サイクル",
         "monthly": "月額",

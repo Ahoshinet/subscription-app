@@ -37,6 +37,12 @@
         "title": "Billing Methods",
         "add_new": "Add New Payment Method"
     },
+    "support": {
+        "title": "Help & Support",
+        "faq": "FAQ",
+        "contact": "Contact Us",
+        "report_bug": "Report a Bug"
+    },
     "billing_cycle": {
         "title": "Billing Cycle",
         "monthly": "Monthly",
