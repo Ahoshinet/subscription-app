@@ -16,6 +16,12 @@
         "version": "バージョン",
         "log_out": "ログアウト"
     },
+    "profile": {
+        "title": "プロフィール",
+        "name": "氏名",
+        "email": "メールアドレス",
+        "save": "変更を保存"
+    },
     "billing_cycle": {
         "title": "支払サイクル",
         "monthly": "月額",

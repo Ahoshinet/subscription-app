@@ -16,6 +16,12 @@
         "version": "Version",
         "log_out": "Log Out"
     },
+    "profile": {
+        "title": "Profile",
+        "name": "Name",
+        "email": "Email Address",
+        "save": "Save Changes"
+    },
     "billing_cycle": {
         "title": "Billing Cycle",
         "monthly": "Monthly",
