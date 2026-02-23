@@ -33,6 +33,10 @@
         "title": "デフォルト通貨",
         "select": "通貨を選択"
     },
+    "billing": {
+        "title": "支払方法",
+        "add_new": "新しい支払方法を追加"
+    },
     "billing_cycle": {
         "title": "支払サイクル",
         "monthly": "月額",

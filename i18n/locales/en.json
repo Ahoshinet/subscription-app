@@ -33,6 +33,10 @@
         "title": "Default Currency",
         "select": "Select Currency"
     },
+    "billing": {
+        "title": "Billing Methods",
+        "add_new": "Add New Payment Method"
+    },
     "billing_cycle": {
         "title": "Billing Cycle",
         "monthly": "Monthly",
