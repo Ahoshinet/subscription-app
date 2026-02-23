@@ -29,6 +29,10 @@
         "confirm": "Confirm New Password",
         "update": "Update Password"
     },
+    "currency": {
+        "title": "Default Currency",
+        "select": "Select Currency"
+    },
     "billing_cycle": {
         "title": "Billing Cycle",
         "monthly": "Monthly",
