@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, Pressable, ScrollView, useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
+import { useSettingsStore, Language } from '@/store/useSettingsStore';
 
 const languages = [
     { id: 'en', name: 'English', localName: 'English' },
@@ -12,12 +14,12 @@ export default function LanguageSettingsScreen() {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
     const router = useRouter();
-
-    // This will eventually be connected to a global state/store (Zustand/Context)
-    const [selectedLang, setSelectedLang] = useState('en');
+    const { t, i18n } = useTranslation();
+    const { language, setLanguage } = useSettingsStore();
 
     const handleSelect = (id: string) => {
-        setSelectedLang(id);
+        setLanguage(id as Language);
+        i18n.changeLanguage(id);
         // Add a slight delay before going back to let the user see the checkmark
         setTimeout(() => {
             if (router.canGoBack()) {
@@ -32,7 +34,7 @@ export default function LanguageSettingsScreen() {
         <>
             <Stack.Screen
                 options={{
-                    title: 'Language',
+                    title: t('settings.language'),
                     headerBackTitle: ' ',
                     // Use standard iOS header colors
                     headerStyle: { backgroundColor: isDark ? '#000000' : '#ffffff' },
@@ -49,7 +51,7 @@ export default function LanguageSettingsScreen() {
 
                     <View className="rounded-2xl overflow-hidden shadow-sm shadow-neutral-200/50 dark:shadow-none border border-neutral-200/50 dark:border-white/10">
                         {languages.map((lang, index) => {
-                            const isSelected = selectedLang === lang.id;
+                            const isSelected = language === lang.id;
                             const isLast = index === languages.length - 1;
 
                             return (

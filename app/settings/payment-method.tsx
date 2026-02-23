@@ -2,9 +2,11 @@ import React from 'react';
 import { View, Text, Pressable, useColorScheme } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { useAddFormStore, PAYMENT_METHODS } from '../../store/useAddFormStore';
 
 export default function PaymentMethodPickerScreen() {
+    const { t } = useTranslation();
     const router = useRouter();
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
@@ -19,7 +21,7 @@ export default function PaymentMethodPickerScreen() {
         <View className="flex-1 bg-[#F2F2F7] dark:bg-black pt-6">
             <Stack.Screen
                 options={{
-                    title: '支払方法',
+                    title: t('payment_method.title'),
                     headerBackTitle: ' ',
                     headerStyle: { backgroundColor: isDark ? '#1C1C1E' : '#F2F2F7' },
                     headerTintColor: isDark ? '#FFFFFF' : '#000000',
@@ -30,13 +32,13 @@ export default function PaymentMethodPickerScreen() {
                 <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden">
                     {PAYMENT_METHODS.map((method, index) => (
                         <Pressable
-                            key={method.value}
-                            onPress={() => handleSelect(method.value)}
+                            key={method}
+                            onPress={() => handleSelect(method)}
                             className={`px-4 py-3.5 flex-row items-center justify-between ${index < PAYMENT_METHODS.length - 1 ? 'border-b border-neutral-200 dark:border-neutral-800' : ''
                                 }`}
                         >
-                            <Text className="text-neutral-900 dark:text-white text-base">{method.label}</Text>
-                            {paymentMethod === method.value && (
+                            <Text className="text-neutral-900 dark:text-white text-base">{t(`payment_method.${method}`)}</Text>
+                            {paymentMethod === method && (
                                 <Ionicons name="checkmark" size={22} color="#3B82F6" />
                             )}
                         </Pressable>

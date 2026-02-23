@@ -7,11 +7,13 @@ import { useAddFormStore, BILLING_CYCLES, PAYMENT_METHODS } from '../store/useAd
 import { uploadApi } from '../lib/api';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import { useTranslation } from 'react-i18next';
 
 export default function AddSubscriptionModal() {
     const router = useRouter();
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
+    const { t } = useTranslation();
 
     const [serviceName, setServiceName] = useState('');
     const [planName, setPlanName] = useState('');
@@ -65,8 +67,8 @@ export default function AddSubscriptionModal() {
         }
     };
 
-    const billingCycleLabel = BILLING_CYCLES.find(c => c.value === billingCycle)?.label || billingCycle;
-    const paymentMethodLabel = PAYMENT_METHODS.find(m => m.value === paymentMethod)?.label || paymentMethod;
+    const billingCycleLabel = t(`billing_cycle.${billingCycle}`);
+    const paymentMethodLabel = t(`payment_method.${paymentMethod}`);
 
     const formatDate = (date: Date) => {
         return `${date.getFullYear()}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
