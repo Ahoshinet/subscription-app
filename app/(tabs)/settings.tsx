@@ -3,6 +3,8 @@ import { View, Text, Switch, Pressable, ScrollView, useColorScheme } from 'react
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useTranslation } from 'react-i18next';
+import { useSettingsStore } from '@/store/useSettingsStore';
 
 // Component for a section header
 const SectionHeader = ({ title }: { title: string }) => (
@@ -68,16 +70,22 @@ const SettingsRow = ({
 
 export default function SettingsScreen() {
   const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
   const router = useRouter();
   const { logout } = useAuthStore();
+  const { t } = useTranslation();
+  const { theme, setTheme, pushNotifications, setPushNotifications, currency, language } = useSettingsStore();
+
+  // If theme is system, fallback to colorScheme, else use theme preference
+  const isDark = theme === 'system' ? colorScheme === 'dark' : theme === 'dark';
+
+  const languageLabel = language === 'en' ? 'English' : '日本語';
 
   return (
     <View className="flex-1 bg-neutral-50 dark:bg-black pt-16">
       {/* Header */}
       <View className="px-6 mb-4">
         <Text className="text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
-          Settings
+          {t('settings.title')}
         </Text>
       </View>
 
@@ -88,78 +96,79 @@ export default function SettingsScreen() {
       >
 
         {/* Account Section */}
-        <SectionHeader title="Account" />
+        <SectionHeader title={t('settings.account')} />
         <View className="rounded-2xl overflow-hidden shadow-sm shadow-neutral-200/50 dark:shadow-none border border-neutral-200/50 dark:border-white/10">
           <SettingsRow
             isFirst
             icon="person-outline"
-            title="Profile"
+            title={t('settings.profile')}
             value="user@example.com"
             onPress={() => router.push('/settings/profile')}
           />
           <SettingsRow
             icon="card-outline"
-            title="Billing Methods"
+            title={t('settings.billing_methods')}
             onPress={() => router.push('/settings/billing')}
           />
           <SettingsRow
             isLast
             icon="lock-closed-outline"
-            title="Change Password"
+            title={t('settings.change_password')}
             onPress={() => router.push('/settings/password')}
           />
         </View>
 
         {/* Preferences Section */}
-        <SectionHeader title="Preferences" />
+        <SectionHeader title={t('settings.preferences')} />
         <View className="rounded-2xl overflow-hidden shadow-sm shadow-neutral-200/50 dark:shadow-none border border-neutral-200/50 dark:border-white/10">
           <SettingsRow
             isFirst
             type="toggle"
             icon="moon-outline"
-            title="Dark Mode"
+            title={t('settings.dark_mode')}
             toggleValue={isDark}
-            onToggle={() => { }} // Hooked up to system theme usually or custom provider
+            onToggle={() => setTheme(isDark ? 'light' : 'dark')}
           />
           <SettingsRow
             icon="language-outline"
-            title="Language"
-            value="English"
+            title={t('settings.language')}
+            value={languageLabel}
             onPress={() => router.push('/settings/language')}
           />
           <SettingsRow
             type="toggle"
             icon="notifications-outline"
-            title="Push Notifications"
-            toggleValue={true}
+            title={t('settings.push_notifications')}
+            toggleValue={pushNotifications}
+            onToggle={(val: boolean) => setPushNotifications(val)}
           />
           <SettingsRow
             isLast
             icon="cash-outline"
-            title="Default Currency"
-            value="JPY (¥)"
+            title={t('settings.default_currency')}
+            value={currency}
             onPress={() => router.push('/settings/currency')}
           />
         </View>
 
         {/* App Section */}
-        <SectionHeader title="App Info" />
+        <SectionHeader title={t('settings.app_info')} />
         <View className="rounded-2xl overflow-hidden shadow-sm shadow-neutral-200/50 dark:shadow-none border border-neutral-200/50 dark:border-white/10 mb-6">
           <SettingsRow
             isFirst
             icon="help-circle-outline"
-            title="Help & Support"
+            title={t('settings.help_support')}
             onPress={() => router.push('/settings/support')}
           />
           <SettingsRow
             icon="document-text-outline"
-            title="Terms of Service"
+            title={t('settings.terms_of_service')}
             onPress={() => router.push('/settings/tos')}
           />
           <SettingsRow
             isLast
             icon="information-circle-outline"
-            title="Version"
+            title={t('settings.version')}
             value="1.0.0"
             type="info"
           />
@@ -174,7 +183,7 @@ export default function SettingsScreen() {
           className="mt-4 mb-8 items-center py-4 rounded-xl bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-900/50"
         >
           <Text className="text-red-600 dark:text-red-400 font-bold text-base">
-            Log Out
+            {t('settings.log_out')}
           </Text>
         </Pressable>
 
