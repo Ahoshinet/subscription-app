@@ -43,6 +43,11 @@
         "contact": "Contact Us",
         "report_bug": "Report a Bug"
     },
+    "tos": {
+        "title": "Terms of Service",
+        "intro": "1. Introduction\n\nThis is a placeholder for the application's terms of service and privacy policy. Real legal text will be placed here before production release.",
+        "data_handling": "2. User Data handling\n\nAll subscription data is synced securely. You have the right to delete your account at any time."
+    },
     "billing_cycle": {
         "title": "Billing Cycle",
         "monthly": "Monthly",
