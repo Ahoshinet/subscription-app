@@ -1,0 +1,33 @@
+{
+    "settings": {
+        "title": "Settings",
+        "account": "Account",
+        "profile": "Profile",
+        "billing_methods": "Billing Methods",
+        "change_password": "Change Password",
+        "preferences": "Preferences",
+        "dark_mode": "Dark Mode",
+        "language": "Language",
+        "push_notifications": "Push Notifications",
+        "default_currency": "Default Currency",
+        "app_info": "App Info",
+        "help_support": "Help & Support",
+        "terms_of_service": "Terms of Service",
+        "version": "Version",
+        "log_out": "Log Out"
+    },
+    "billing_cycle": {
+        "title": "Billing Cycle",
+        "monthly": "Monthly",
+        "yearly": "Yearly",
+        "weekly": "Weekly"
+    },
+    "payment_method": {
+        "title": "Payment Method",
+        "credit_card": "Credit Card",
+        "debit_card": "Debit Card",
+        "bank_transfer": "Bank Transfer",
+        "paypal": "PayPal",
+        "other": "Other"
+    }
+}

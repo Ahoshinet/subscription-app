@@ -7,6 +7,9 @@ import '../global.css';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useEffect } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useSettingsStore } from '@/store/useSettingsStore';
+import '@/i18n';
+import { useTranslation } from 'react-i18next';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -17,12 +20,21 @@ export default function RootLayout() {
   const isDark = colorScheme === 'dark';
   const screenBg = isDark ? '#0a0a0a' : '#fafafa';
   const { isAuthenticated, isInitializing, checkAuth } = useAuthStore();
+  const { language } = useSettingsStore();
+  const { i18n } = useTranslation();
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
     checkAuth();
   }, []);
+
+  useEffect(() => {
+    // Ensure the language specified in settings is applied
+    if (i18n.language !== language) {
+      i18n.changeLanguage(language);
+    }
+  }, [language, i18n]);
 
   useEffect(() => {
     if (isInitializing) return;

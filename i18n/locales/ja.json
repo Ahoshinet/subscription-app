@@ -1,0 +1,33 @@
+{
+    "settings": {
+        "title": "設定",
+        "account": "アカウント",
+        "profile": "プロフィール",
+        "billing_methods": "支払方法",
+        "change_password": "パスワード変更",
+        "preferences": "環境設定",
+        "dark_mode": "ダークモード",
+        "language": "言語",
+        "push_notifications": "プッシュ通知",
+        "default_currency": "デフォルト通貨",
+        "app_info": "アプリ情報",
+        "help_support": "ヘルプとサポート",
+        "terms_of_service": "利用規約",
+        "version": "バージョン",
+        "log_out": "ログアウト"
+    },
+    "billing_cycle": {
+        "title": "支払サイクル",
+        "monthly": "月額",
+        "yearly": "年額",
+        "weekly": "週額"
+    },
+    "payment_method": {
+        "title": "支払方法",
+        "credit_card": "クレジットカード",
+        "debit_card": "デビットカード",
+        "bank_transfer": "銀行振込",
+        "paypal": "PayPal",
+        "other": "その他"
+    }
+}
