@@ -22,6 +22,13 @@
         "email": "メールアドレス",
         "save": "変更を保存"
     },
+    "password": {
+        "title": "パスワード変更",
+        "current": "現在のパスワード",
+        "new": "新しいパスワード",
+        "confirm": "新しいパスワード(確認)",
+        "update": "パスワードを更新"
+    },
     "billing_cycle": {
         "title": "支払サイクル",
         "monthly": "月額",

@@ -22,6 +22,13 @@
         "email": "Email Address",
         "save": "Save Changes"
     },
+    "password": {
+        "title": "Change Password",
+        "current": "Current Password",
+        "new": "New Password",
+        "confirm": "Confirm New Password",
+        "update": "Update Password"
+    },
     "billing_cycle": {
         "title": "Billing Cycle",
         "monthly": "Monthly",
