@@ -58,12 +58,13 @@ export default function LanguageSettingsScreen() {
                                 <Pressable
                                     key={lang.id}
                                     onPress={() => handleSelect(lang.id)}
+                                    style={{ minHeight: 56 }}
                                     className={`
-                    bg-white dark:bg-[#1C1C1E] flex-row items-center justify-between p-4
+                    bg-white dark:bg-[#1C1C1E] flex-row items-center justify-between px-4 py-3
                     ${!isLast ? 'border-b border-neutral-100 dark:border-white/5' : ''}
                   `}
                                 >
-                                    <View>
+                                    <View className="flex-1">
                                         <Text className="text-base font-medium text-neutral-900 dark:text-white">
                                             {lang.localName}
                                         </Text>

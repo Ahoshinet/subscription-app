@@ -55,9 +55,10 @@ export default function CurrencyScreen() {
                                 <Pressable
                                     key={c.id}
                                     onPress={() => handleSelect(c.id)}
-                                    className={`flex-row items-center justify-between p-4 ${!isLast ? 'border-b border-neutral-100 dark:border-white/5' : ''}`}
+                                    style={{ minHeight: 56 }}
+                                    className={`flex-row items-center justify-between px-4 ${!isLast ? 'border-b border-neutral-100 dark:border-white/5' : ''}`}
                                 >
-                                    <View className="flex-row items-center">
+                                    <View className="flex-row items-center flex-1">
                                         <Text className="text-base font-medium text-neutral-900 dark:text-white mr-2">
                                             {c.id} ({c.symbol})
                                         </Text>
