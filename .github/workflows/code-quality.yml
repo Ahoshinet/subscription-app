@@ -19,6 +19,12 @@ jobs:
       uses: actions/checkout@v6
       with:
         fetch-depth: 0
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 10
+        run_install: false
         
     - name: Setup Node.js
       uses: actions/setup-node@v6
@@ -27,9 +33,6 @@ jobs:
         cache: 'pnpm'
         cache-dependency-path: pnpm-lock.yaml
 
-    - name: Enable Corepack
-      run: corepack enable
-        
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
       
@@ -70,6 +73,12 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v6
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 10
+        run_install: false
       
     - name: Setup Node.js
       uses: actions/setup-node@v6
@@ -78,9 +87,6 @@ jobs:
         cache: 'pnpm'
         cache-dependency-path: pnpm-lock.yaml
 
-    - name: Enable Corepack
-      run: corepack enable
-        
     - name: Check for outdated packages
       run: |
         pnpm install --frozen-lockfile
@@ -109,6 +115,12 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v6
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 10
+        run_install: false
       
     - name: Setup Node.js
       uses: actions/setup-node@v6
@@ -117,9 +129,6 @@ jobs:
         cache: 'pnpm'
         cache-dependency-path: pnpm-lock.yaml
 
-    - name: Enable Corepack
-      run: corepack enable
-        
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
       
