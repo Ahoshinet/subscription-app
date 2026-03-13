@@ -71,6 +71,23 @@ export interface AuthResponse {
     user: User;
 }
 
+export interface UserSettings {
+    user_id: string;
+    language: string;
+    currency: string;
+    push_notifications: boolean;
+    theme: string;
+}
+
+export interface ChangePasswordPayload {
+    current_password: string;
+    new_password: string;
+}
+
+export interface UpdateProfilePayload {
+    username: string;
+}
+
 // Token Management
 export const getToken = async () => {
     try {
@@ -135,6 +152,24 @@ export const authApi = {
     me: () => fetchAPI<User>('/auth/me', {
         method: 'GET',
     }),
+    changePassword: (data: ChangePasswordPayload) => fetchAPI<void>('/auth/password', {
+        method: 'PUT',
+        body: JSON.stringify(data),
+    }),
+    updateProfile: (data: UpdateProfilePayload) => fetchAPI<User>('/auth/profile', {
+        method: 'PUT',
+        body: JSON.stringify(data),
+    }),
+};
+
+// Settings Endpoints
+export const settingsApi = {
+    get: () => fetchAPI<UserSettings>('/settings'),
+    update: (data: Partial<Omit<UserSettings, 'user_id' | 'updated_at'>>) =>
+        fetchAPI<UserSettings>('/settings', {
+            method: 'PUT',
+            body: JSON.stringify(data),
+        }),
 };
 
 // Subscription Endpoints

@@ -71,7 +71,7 @@ const SettingsRow = ({
 export default function SettingsScreen() {
   const colorScheme = useColorScheme();
   const router = useRouter();
-  const { logout } = useAuthStore();
+  const { logout, user } = useAuthStore();
   const { t } = useTranslation();
   const { theme, setTheme, pushNotifications, setPushNotifications, currency, language } = useSettingsStore();
 
@@ -102,7 +102,7 @@ export default function SettingsScreen() {
             isFirst
             icon="person-outline"
             title={t('settings.profile')}
-            value="user@example.com"
+            value={user?.username ?? ''}
             onPress={() => router.push('/settings/profile')}
           />
           <SettingsRow

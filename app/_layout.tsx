@@ -16,12 +16,15 @@ export const unstable_settings = {
 };
 
 export default function RootLayout() {
-    const colorScheme = useColorScheme();
-    const isDark = colorScheme === 'dark';
-    const screenBg = isDark ? '#0a0a0a' : '#fafafa';
+    const systemColorScheme = useColorScheme();
     const { isAuthenticated, isInitializing, checkAuth } = useAuthStore();
-    const { language } = useSettingsStore();
+    const { language, theme } = useSettingsStore();
     const { i18n } = useTranslation();
+
+    // Apply user's theme preference
+    const effectiveColorScheme = theme === 'system' ? systemColorScheme : theme;
+    const isDark = effectiveColorScheme === 'dark';
+    const screenBg = isDark ? '#0a0a0a' : '#fafafa';
     const segments = useSegments();
     const router = useRouter();
 
@@ -54,7 +57,7 @@ export default function RootLayout() {
     }
 
     return (
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
             <Stack screenOptions={{ headerBackTitle: ' ' }}>
                 <Stack.Screen name="(tabs)" options={{ headerShown: false, title: '' }} />
                 <Stack.Screen name="login" options={{ headerShown: false, contentStyle: { backgroundColor: screenBg } }} />

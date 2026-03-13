@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { authApi, AuthPayload, User, setToken, clearToken, getToken } from '../lib/api';
+import { useSettingsStore } from './useSettingsStore';
 
 interface AuthState {
     user: User | null;
@@ -33,6 +34,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 isAuthenticated: true,
                 isLoading: false
             });
+            // Sync settings from server after login
+            useSettingsStore.getState().syncFromServer();
         } catch (err: any) {
             set({ error: err.message || 'Login failed', isLoading: false });
             throw err;
@@ -49,6 +52,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 isAuthenticated: true,
                 isLoading: false
             });
+            // Sync settings from server after register
+            useSettingsStore.getState().syncFromServer();
         } catch (err: any) {
             set({ error: err.message || 'Registration failed', isLoading: false });
             throw err;
@@ -85,6 +90,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 isAuthenticated: true,
                 isInitializing: false
             });
+            // Sync settings from server on app startup
+            useSettingsStore.getState().syncFromServer();
         } catch (err: any) {
             // Token might be invalid or expired
             await clearToken();

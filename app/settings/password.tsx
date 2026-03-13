@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, useColorScheme, TextInput, ScrollView, Pressable, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, useColorScheme, TextInput, ScrollView, Pressable, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { authApi } from '@/lib/api';
 
 export default function PasswordScreen() {
     const colorScheme = useColorScheme();
@@ -12,6 +13,7 @@ export default function PasswordScreen() {
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
 
     return (
         <KeyboardAvoidingView
@@ -67,11 +69,38 @@ export default function PasswordScreen() {
 
                     <Pressable
                         className="bg-blue-500 rounded-xl p-4 items-center"
-                        onPress={() => router.back()}
+                        disabled={isSaving}
+                        onPress={async () => {
+                            if (newPassword !== confirmPassword) {
+                                Alert.alert('Error', 'New passwords do not match');
+                                return;
+                            }
+                            if (newPassword.length < 6) {
+                                Alert.alert('Error', 'Password must be at least 6 characters');
+                                return;
+                            }
+                            setIsSaving(true);
+                            try {
+                                await authApi.changePassword({
+                                    current_password: currentPassword,
+                                    new_password: newPassword,
+                                });
+                                Alert.alert('Success', 'Password updated successfully');
+                                router.back();
+                            } catch (err: any) {
+                                Alert.alert('Error', err.message || 'Failed to update password');
+                            } finally {
+                                setIsSaving(false);
+                            }
+                        }}
                     >
-                        <Text className="text-white font-bold text-base">
-                            {t('password.update')}
-                        </Text>
+                        {isSaving ? (
+                            <ActivityIndicator color="#ffffff" />
+                        ) : (
+                            <Text className="text-white font-bold text-base">
+                                {t('password.update')}
+                            </Text>
+                        )}
                     </Pressable>
                 </View>
             </ScrollView>
