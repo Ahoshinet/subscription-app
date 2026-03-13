@@ -12,59 +12,59 @@ import '@/i18n';
 import { useTranslation } from 'react-i18next';
 
 export const unstable_settings = {
-  anchor: '(tabs)',
+    anchor: '(tabs)',
 };
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
-  const screenBg = isDark ? '#0a0a0a' : '#fafafa';
-  const { isAuthenticated, isInitializing, checkAuth } = useAuthStore();
-  const { language } = useSettingsStore();
-  const { i18n } = useTranslation();
-  const segments = useSegments();
-  const router = useRouter();
+    const colorScheme = useColorScheme();
+    const isDark = colorScheme === 'dark';
+    const screenBg = isDark ? '#0a0a0a' : '#fafafa';
+    const { isAuthenticated, isInitializing, checkAuth } = useAuthStore();
+    const { language } = useSettingsStore();
+    const { i18n } = useTranslation();
+    const segments = useSegments();
+    const router = useRouter();
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
+    useEffect(() => {
+        checkAuth();
+    }, []);
 
-  useEffect(() => {
-    // Ensure the language specified in settings is applied
-    if (i18n.language !== language) {
-      i18n.changeLanguage(language);
+    useEffect(() => {
+        // Ensure the language specified in settings is applied
+        if (i18n.language !== language) {
+            i18n.changeLanguage(language);
+        }
+    }, [language, i18n]);
+
+    useEffect(() => {
+        if (isInitializing) return;
+
+        const inAuthGroup = segments[0] === 'login' || segments[0] === 'register';
+
+        if (!isAuthenticated && !inAuthGroup) {
+            router.replace('/login');
+        } else if (isAuthenticated && inAuthGroup) {
+            router.replace('/(tabs)');
+        }
+    }, [isAuthenticated, isInitializing, segments]);
+
+    if (isInitializing) {
+        // Return null or a splash screen while checking token
+        return null;
     }
-  }, [language, i18n]);
 
-  useEffect(() => {
-    if (isInitializing) return;
-
-    const inAuthGroup = segments[0] === 'login' || segments[0] === 'register';
-
-    if (!isAuthenticated && !inAuthGroup) {
-      router.replace('/login');
-    } else if (isAuthenticated && inAuthGroup) {
-      router.replace('/(tabs)');
-    }
-  }, [isAuthenticated, isInitializing, segments]);
-
-  if (isInitializing) {
-    // Return null or a splash screen while checking token
-    return null;
-  }
-
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ headerBackTitle: ' ' }}>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false, title: '' }} />
-        <Stack.Screen name="login" options={{ headerShown: false, contentStyle: { backgroundColor: screenBg } }} />
-        <Stack.Screen name="register" options={{ headerShown: false, contentStyle: { backgroundColor: screenBg } }} />
-        <Stack.Screen name="add" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="detail" />
-        <Stack.Screen name="edit" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
-  );
+    return (
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+            <Stack screenOptions={{ headerBackTitle: ' ' }}>
+                <Stack.Screen name="(tabs)" options={{ headerShown: false, title: '' }} />
+                <Stack.Screen name="login" options={{ headerShown: false, contentStyle: { backgroundColor: screenBg } }} />
+                <Stack.Screen name="register" options={{ headerShown: false, contentStyle: { backgroundColor: screenBg } }} />
+                <Stack.Screen name="add" options={{ presentation: 'modal' }} />
+                <Stack.Screen name="detail" />
+                <Stack.Screen name="edit" options={{ presentation: 'modal' }} />
+                <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+            </Stack>
+            <StatusBar style="auto" />
+        </ThemeProvider>
+    );
 }
