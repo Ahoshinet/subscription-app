@@ -24,27 +24,27 @@ jobs:
       uses: actions/setup-node@v6
       with:
         node-version: '22.x'
-        cache: 'pnpm'
+        cache: 'npm'
         
     - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      run: npm install --frozen-lockfile
       
     - name: Run ESLint with reporting
       run: |
-        pnpm exec eslint . --ext .js,.jsx,.ts,.tsx --format json --output-file eslint-report.json || true
-        pnpm exec eslint . --ext .js,.jsx,.ts,.tsx
+        npm exec eslint . --ext .js,.jsx,.ts,.tsx --format json --output-file eslint-report.json || true
+        npm exec eslint . --ext .js,.jsx,.ts,.tsx
         
     - name: Run Prettier check
-      run: pnpm exec prettier --check "**/*.{js,jsx,ts,tsx,json,css,md}"
+      run: npm exec prettier --check "**/*.{js,jsx,ts,tsx,json,css,md}"
       continue-on-error: true
       
     - name: Check TypeScript
-      run: pnpm exec tsc --noEmit
+      run: npm exec tsc --noEmit
       
     - name: Bundle analyzer
       run: |
-        pnpm run build
-        pnpm exec @next/bundle-analyzer
+        npm run build
+        npm exec @next/bundle-analyzer
       continue-on-error: true
       
     - name: Upload ESLint report
@@ -67,18 +67,18 @@ jobs:
       uses: actions/setup-node@v6
       with:
         node-version: '22.x'
-        cache: 'pnpm'
+        cache: 'npm'
         
     - name: Check for outdated packages
       run: |
-        pnpm install --frozen-lockfile
-        pnpm outdated --json > outdated-packages.json || true
+        npm install --frozen-lockfile
+        npm outdated --json > outdated-packages.json || true
         cat outdated-packages.json
         
     - name: Check package vulnerabilities
       run: |
-        pnpm audit --json > security-audit.json || true
-        pnpm audit
+        npm audit --json > security-audit.json || true
+        npm audit
         
     - name: Upload dependency reports
       uses: actions/upload-artifact@v6
@@ -102,13 +102,13 @@ jobs:
       uses: actions/setup-node@v6
       with:
         node-version: '22.x'
-        cache: 'pnpm'
+        cache: 'npm'
         
     - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      run: npm install --frozen-lockfile
       
     - name: Build project
-      run: pnpm run build
+      run: npm run build
       
     - name: Analyze bundle size
       run: |
