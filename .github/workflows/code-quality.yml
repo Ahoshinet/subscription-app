@@ -24,27 +24,35 @@ jobs:
       uses: actions/setup-node@v6
       with:
         node-version: '22.x'
-        cache: 'npm'
+        cache: 'pnpm'
+        cache-dependency-path: pnpm-lock.yaml
+
+    - name: Enable Corepack
+      run: corepack enable
         
     - name: Install dependencies
-      run: npm install --frozen-lockfile
+      run: pnpm install --frozen-lockfile
       
     - name: Run ESLint with reporting
       run: |
-        npm exec eslint . --ext .js,.jsx,.ts,.tsx --format json --output-file eslint-report.json || true
-        npm exec eslint . --ext .js,.jsx,.ts,.tsx
+        pnpm exec eslint . --ext .js,.jsx,.ts,.tsx --format json --output-file eslint-report.json || true
+        pnpm exec eslint . --ext .js,.jsx,.ts,.tsx
         
     - name: Run Prettier check
-      run: npm exec prettier --check "**/*.{js,jsx,ts,tsx,json,css,md}"
+      run: pnpm exec prettier --check "**/*.{js,jsx,ts,tsx,json,css,md}"
       continue-on-error: true
       
     - name: Check TypeScript
-      run: npm exec tsc --noEmit
+      run: pnpm exec tsc --noEmit
       
     - name: Bundle analyzer
       run: |
-        npm run build
-        npm exec @next/bundle-analyzer
+        if pnpm run | grep -q " build"; then
+          pnpm run build
+          pnpm exec @next/bundle-analyzer || true
+        else
+          echo "No build script found. Skipping bundle analyzer."
+        fi
       continue-on-error: true
       
     - name: Upload ESLint report
@@ -67,18 +75,22 @@ jobs:
       uses: actions/setup-node@v6
       with:
         node-version: '22.x'
-        cache: 'npm'
+        cache: 'pnpm'
+        cache-dependency-path: pnpm-lock.yaml
+
+    - name: Enable Corepack
+      run: corepack enable
         
     - name: Check for outdated packages
       run: |
-        npm install --frozen-lockfile
-        npm outdated --json > outdated-packages.json || true
+        pnpm install --frozen-lockfile
+        pnpm outdated --format json > outdated-packages.json || true
         cat outdated-packages.json
         
     - name: Check package vulnerabilities
       run: |
-        npm audit --json > security-audit.json || true
-        npm audit
+        pnpm audit --json > security-audit.json || true
+        pnpm audit
         
     - name: Upload dependency reports
       uses: actions/upload-artifact@v6
@@ -102,22 +114,36 @@ jobs:
       uses: actions/setup-node@v6
       with:
         node-version: '22.x'
-        cache: 'npm'
+        cache: 'pnpm'
+        cache-dependency-path: pnpm-lock.yaml
+
+    - name: Enable Corepack
+      run: corepack enable
         
     - name: Install dependencies
-      run: npm install --frozen-lockfile
+      run: pnpm install --frozen-lockfile
       
     - name: Build project
-      run: npm run build
+      run: |
+        if pnpm run | grep -q " build"; then
+          pnpm run build
+        else
+          echo "No build script found. Skipping build."
+        fi
       
     - name: Analyze bundle size
       run: |
-        du -sh .next/static/chunks/* | sort -hr > bundle-size-report.txt
-        echo "=== Bundle Size Report ===" >> bundle-analysis.txt
-        cat bundle-size-report.txt >> bundle-analysis.txt
-        echo "" >> bundle-analysis.txt
-        echo "=== Page Sizes ===" >> bundle-analysis.txt
-        find .next/static -name "*.js" -exec wc -c {} + | sort -nr >> bundle-analysis.txt
+        if [ -d .next/static ]; then
+          du -sh .next/static/chunks/* | sort -hr > bundle-size-report.txt
+          echo "=== Bundle Size Report ===" >> bundle-analysis.txt
+          cat bundle-size-report.txt >> bundle-analysis.txt
+          echo "" >> bundle-analysis.txt
+          echo "=== Page Sizes ===" >> bundle-analysis.txt
+          find .next/static -name "*.js" -exec wc -c {} + | sort -nr >> bundle-analysis.txt
+        else
+          echo "No .next/static directory found. Performance report skipped." > bundle-analysis.txt
+          echo "No bundle-size-report generated." > bundle-size-report.txt
+        fi
         
     - name: Upload performance report
       uses: actions/upload-artifact@v6
