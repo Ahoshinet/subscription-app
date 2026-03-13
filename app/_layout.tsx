@@ -4,7 +4,8 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import '../global.css';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useColorScheme as useRNColorScheme } from 'react-native';
+import { useColorScheme as useNativeWindColorScheme } from 'nativewind';
 import { useEffect } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
@@ -16,7 +17,8 @@ export const unstable_settings = {
 };
 
 export default function RootLayout() {
-    const systemColorScheme = useColorScheme();
+    const systemColorScheme = useRNColorScheme();
+    const { setColorScheme } = useNativeWindColorScheme();
     const { isAuthenticated, isInitializing, checkAuth } = useAuthStore();
     const { language, theme } = useSettingsStore();
     const { i18n } = useTranslation();
@@ -38,6 +40,11 @@ export default function RootLayout() {
             i18n.changeLanguage(language);
         }
     }, [language, i18n]);
+
+    useEffect(() => {
+        // Sync NativeWind color scheme with settings
+        setColorScheme(theme === 'system' ? (systemColorScheme ?? 'light') : theme);
+    }, [theme, systemColorScheme]);
 
     useEffect(() => {
         if (isInitializing) return;

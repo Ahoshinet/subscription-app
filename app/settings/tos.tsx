@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, useColorScheme, ScrollView } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 

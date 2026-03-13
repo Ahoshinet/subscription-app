@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, ScrollView, useColorScheme } from 'react-native';
+import { View, Text, Pressable, ScrollView } from 'react-native';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -45,7 +46,7 @@ export default function LanguageSettingsScreen() {
             <View className="flex-1 bg-neutral-50 dark:bg-black pt-6">
                 <ScrollView className="flex-1 px-4">
 
-                    <Text className="text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider ml-4 mb-2">
+                    <Text className="text-xs font-bold text-neutral-500 dark:text-neutral-400 tracking-wider ml-4 mb-2">
                         Select Language
                     </Text>
 
@@ -68,11 +69,6 @@ export default function LanguageSettingsScreen() {
                                         <Text className="text-base font-medium text-neutral-900 dark:text-white">
                                             {lang.localName}
                                         </Text>
-                                        {lang.name !== lang.localName && (
-                                            <Text className="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
-                                                {lang.name}
-                                            </Text>
-                                        )}
                                     </View>
 
                                     {isSelected && (

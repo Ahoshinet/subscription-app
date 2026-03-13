@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, Switch, Pressable, ScrollView, useColorScheme } from 'react-native';
+import { View, Text, Switch, Pressable, ScrollView } from 'react-native';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -78,7 +79,7 @@ export default function SettingsScreen() {
   const { theme, setTheme, pushNotifications, setPushNotifications, currency, language } = useSettingsStore();
 
   // If theme is system, fallback to colorScheme, else use theme preference
-  const isDark = theme === 'system' ? colorScheme === 'dark' : theme === 'dark';
+  const isDark = colorScheme === 'dark';
 
   const languageLabel = language === 'en' ? 'English' : '日本語';
 

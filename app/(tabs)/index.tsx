@@ -1,4 +1,5 @@
-import { View, Text, ScrollView, SafeAreaView, Pressable, useColorScheme, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, Pressable, ActivityIndicator } from 'react-native';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { SubscriptionCard } from '@/components/SubscriptionCard';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
