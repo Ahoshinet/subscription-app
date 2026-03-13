@@ -28,14 +28,15 @@ const SettingsRow = ({
   return (
     <Pressable
       onPress={type === 'link' ? onPress : undefined}
+      style={{ minHeight: 56 }}
       className={`
-        bg-white dark:bg-[#1C1C1E] flex-row items-center justify-between p-4
+        bg-white dark:bg-[#1C1C1E] flex-row items-center justify-between px-4
         ${!isLast ? 'border-b border-neutral-100 dark:border-white/5' : ''}
         ${isFirst ? 'rounded-t-2xl' : ''}
         ${isLast ? 'rounded-b-2xl' : ''}
       `}
     >
-      <View className="flex-row items-center">
+      <View className="flex-row items-center flex-1">
         <View className="w-8 h-8 rounded-lg bg-neutral-100 dark:bg-white/10 items-center justify-center mr-3">
           <Ionicons name={icon} size={18} color="#808080" />
         </View>
@@ -44,9 +45,9 @@ const SettingsRow = ({
         </Text>
       </View>
 
-      <View className="flex-row items-center">
+      <View className="flex-row items-center shrink-0">
         {value && (
-          <Text className="text-base text-neutral-500 dark:text-neutral-400 mr-2">
+          <Text className="text-base text-neutral-500 dark:text-neutral-400 mr-2" numberOfLines={1}>
             {value}
           </Text>
         )}
@@ -61,6 +62,7 @@ const SettingsRow = ({
             onValueChange={onToggle}
             trackColor={{ false: '#3f3f46', true: '#3B82F6' }}
             thumbColor={'#ffffff'}
+            style={{ transform: [{ scaleX: 0.85 }, { scaleY: 0.85 }] }}
           />
         )}
       </View>
