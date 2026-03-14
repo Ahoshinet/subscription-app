@@ -176,5 +176,53 @@
         "report_issue": "バグを報告",
         "role_developer": "開発者",
         "role_org": "Organization"
+    },
+    "common": {
+        "cancel": "キャンセル",
+        "error": "エラー"
+    },
+    "subscription_form": {
+        "error_title": "入力エラー",
+        "error_required": "サービス名と料金は必須です",
+        "service_name": "サービス名",
+        "service_name_placeholder": "例: Netflix",
+        "plan_name": "プラン名",
+        "plan_name_placeholder": "例: Premium",
+        "amount": "料金",
+        "next_payment_date": "次回支払日",
+        "billing_cycle_label": "支払サイクル",
+        "payment_method_label": "支払方法",
+        "memo_placeholder": "メモ...",
+        "icon_add": "アイコンを追加",
+        "icon_change": "アイコンを変更"
+    },
+    "add": {
+        "title": "新規登録",
+        "submit": "追加",
+        "error_failed": "サブスクリプションの追加に失敗しました"
+    },
+    "edit": {
+        "title": "編集",
+        "submit": "保存",
+        "error_failed": "更新に失敗しました",
+        "not_found": "サブスクリプションが見つかりません"
+    },
+    "detail": {
+        "edit_button": "編集",
+        "delete_button": "このサブスクを削除",
+        "delete_title": "削除確認",
+        "delete_message": "{{name}} を削除してもよろしいですか？",
+        "delete_confirm": "削除",
+        "error_delete_failed": "削除に失敗しました",
+        "label_service_name": "サービス名",
+        "label_plan_name": "プラン名",
+        "label_next_payment": "次回支払日",
+        "label_billing_cycle": "支払サイクル",
+        "label_payment_method": "支払方法",
+        "label_created_at": "登録日",
+        "label_updated_at": "最終更新",
+        "status_active": "アクティブ",
+        "status_inactive": "非アクティブ",
+        "status_cancelled": "キャンセル済"
     }
 }

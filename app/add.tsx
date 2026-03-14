@@ -42,7 +42,7 @@ export default function AddSubscriptionModal() {
 
     const handleSave = async () => {
         if (!serviceName || !amount) {
-            Alert.alert('入力エラー', 'サービス名と料金は必須です');
+            Alert.alert(t('subscription_form.error_title'), t('subscription_form.error_required'));
             return;
         }
 
@@ -72,7 +72,7 @@ export default function AddSubscriptionModal() {
             });
             router.back();
         } catch (error: any) {
-            Alert.alert('エラー', error.message || 'サブスクリプションの追加に失敗しました');
+            Alert.alert(t('common.error'), error.message || t('add.error_failed'));
         } finally {
             setIsSubmitting(false);
         }
@@ -115,10 +115,10 @@ export default function AddSubscriptionModal() {
     };
 
     const openIconSourcePicker = () => {
-        Alert.alert('アイコンを追加', '追加方法を選択してください。', [
-            { text: 'キャンセル', style: 'cancel' },
-            { text: 'アップロード', onPress: () => { void pickIcon(); } },
-            { text: '用意済みアイコンから選ぶ', onPress: () => setShowIconPickerModal(true) },
+        Alert.alert(t('billing.icon_source_title'), t('billing.icon_source_message'), [
+            { text: t('billing.cancel'), style: 'cancel' },
+            { text: t('billing.icon_source_upload'), onPress: () => { void pickIcon(); } },
+            { text: t('billing.icon_source_library'), onPress: () => setShowIconPickerModal(true) },
         ]);
     };
 
@@ -144,14 +144,14 @@ export default function AddSubscriptionModal() {
         >
             <Stack.Screen
                 options={{
-                    title: '新規登録',
+                    title: t('add.title'),
                     headerBackVisible: false,
                     headerLeft: () => (
                         <Pressable onPress={() => router.back()} className="px-2" disabled={isSubmitting}>
                             {Platform.OS === 'ios' ? (
                                 <Ionicons name="close" size={28} color={isDark ? "#60A5FA" : "#3B82F6"} />
                             ) : (
-                                <Text className="text-blue-500 dark:text-blue-400 text-lg font-normal">キャンセル</Text>
+                                <Text className="text-blue-500 dark:text-blue-400 text-lg font-normal">{t('billing.cancel')}</Text>
                             )}
                         </Pressable>
                     ),
@@ -162,7 +162,7 @@ export default function AddSubscriptionModal() {
                             ) : Platform.OS === 'ios' ? (
                                 <Ionicons name="checkmark" size={28} color={isDark ? "#60A5FA" : "#3B82F6"} />
                             ) : (
-                                <Text className="text-blue-500 dark:text-blue-400 text-lg font-semibold">追加</Text>
+                                <Text className="text-blue-500 dark:text-blue-400 text-lg font-semibold">{t('add.submit')}</Text>
                             )}
                         </Pressable>
                     ),
@@ -200,7 +200,7 @@ export default function AddSubscriptionModal() {
                                 )}
                             </View>
                             <Text className="text-blue-500 text-sm font-medium">
-                                {(iconUri || selectedPresetIcon) ? 'アイコンを変更' : 'アイコンを追加'}
+                                {(iconUri || selectedPresetIcon) ? t('subscription_form.icon_change') : t('subscription_form.icon_add')}
                             </Text>
                         </Pressable>
                     </View>
@@ -208,9 +208,9 @@ export default function AddSubscriptionModal() {
                     {/* Main Form Group */}
                     <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6">
                         <View className="border-b border-neutral-200 dark:border-neutral-800 px-4 flex-row items-center" style={rowStyle}>
-                            <Text className="text-neutral-900 dark:text-white" style={labelStyle}>サービス名:</Text>
+                            <Text className="text-neutral-900 dark:text-white" style={labelStyle}>{t('subscription_form.service_name')}:</Text>
                             <TextInput
-                                placeholder="例: Netflix"
+                                placeholder={t('subscription_form.service_name_placeholder')}
                                 placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
                                 className="flex-1 text-neutral-900 dark:text-white"
                                 style={inputStyle}
@@ -220,9 +220,9 @@ export default function AddSubscriptionModal() {
                             />
                         </View>
                         <View className="border-b border-neutral-200 dark:border-neutral-800 px-4 flex-row items-center" style={rowStyle}>
-                            <Text className="text-neutral-900 dark:text-white" style={labelStyle}>プラン名:</Text>
+                            <Text className="text-neutral-900 dark:text-white" style={labelStyle}>{t('subscription_form.plan_name')}:</Text>
                             <TextInput
-                                placeholder="例: Premium"
+                                placeholder={t('subscription_form.plan_name_placeholder')}
                                 placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
                                 className="flex-1 text-neutral-900 dark:text-white"
                                 style={inputStyle}
@@ -231,7 +231,7 @@ export default function AddSubscriptionModal() {
                             />
                         </View>
                         <View className="px-4 flex-row items-center" style={rowStyle}>
-                            <Text className="text-neutral-900 dark:text-white" style={labelStyle}>料金:</Text>
+                            <Text className="text-neutral-900 dark:text-white" style={labelStyle}>{t('subscription_form.amount')}:</Text>
                             <TextInput
                                 placeholder="¥ 0"
                                 keyboardType="numeric"
@@ -250,7 +250,7 @@ export default function AddSubscriptionModal() {
                             onPress={() => setShowDatePicker(!showDatePicker)}
                             className="border-b border-neutral-200 dark:border-neutral-800 p-4 pl-4 flex-row items-center justify-between"
                         >
-                            <Text className="text-neutral-900 dark:text-white text-base">次回支払日</Text>
+                            <Text className="text-neutral-900 dark:text-white text-base">{t('subscription_form.next_payment_date')}</Text>
                             <View className="flex-row items-center">
                                 <Text className="text-neutral-500 dark:text-neutral-400 text-base mr-2">{formatDate(nextPaymentDate)}</Text>
                                 <Ionicons name={showDatePicker ? "chevron-down" : "chevron-forward"} size={20} color={isDark ? "#52525B" : "#A1A1AA"} />
@@ -274,7 +274,7 @@ export default function AddSubscriptionModal() {
                             onPress={() => router.push('/settings/billing-cycle' as any)}
                             className="border-b border-neutral-200 dark:border-neutral-800 p-4 pl-4 flex-row items-center justify-between"
                         >
-                            <Text className="text-neutral-900 dark:text-white text-base">支払サイクル</Text>
+                            <Text className="text-neutral-900 dark:text-white text-base">{t('subscription_form.billing_cycle_label')}</Text>
                             <View className="flex-row items-center">
                                 <Text className="text-neutral-500 dark:text-neutral-400 text-base mr-2">{billingCycleLabel}</Text>
                                 <Ionicons name="chevron-forward" size={20} color={isDark ? "#52525B" : "#A1A1AA"} />
@@ -284,7 +284,7 @@ export default function AddSubscriptionModal() {
                             onPress={() => router.push('/settings/payment-method' as any)}
                             className="p-4 pl-4 flex-row items-center justify-between"
                         >
-                            <Text className="text-neutral-900 dark:text-white text-base">支払方法</Text>
+                            <Text className="text-neutral-900 dark:text-white text-base">{t('subscription_form.payment_method_label')}</Text>
                             <View className="flex-row items-center">
                                 <Text className="text-neutral-500 dark:text-neutral-400 text-base mr-2">{paymentMethodLabel}</Text>
                                 <Ionicons name="chevron-forward" size={20} color={isDark ? "#52525B" : "#A1A1AA"} />
@@ -295,7 +295,7 @@ export default function AddSubscriptionModal() {
                     {/* Memo / Notes Group */}
                     <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6">
                         <TextInput
-                            placeholder="メモ..."
+                            placeholder={t('subscription_form.memo_placeholder')}
                             placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
                             multiline
                             className="text-base text-neutral-900 dark:text-white p-4 min-h-[120px]"
@@ -329,7 +329,7 @@ export default function AddSubscriptionModal() {
                         }}
                     >
                         <Text style={{ fontSize: 16, fontWeight: '700', color: isDark ? '#FFFFFF' : '#111827', marginBottom: 12 }}>
-                            アイコンを選択
+                            {t('billing.pick_icon_title')}
                         </Text>
 
                         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 4 }}>
@@ -366,7 +366,7 @@ export default function AddSubscriptionModal() {
                             style={{ marginTop: 10, alignItems: 'center', paddingVertical: 8 }}
                         >
                             <Text style={{ color: '#3B82F6', fontSize: 14, fontWeight: '600' }}>
-                                キャンセル
+                                {t('billing.cancel')}
                             </Text>
                         </Pressable>
                     </View>

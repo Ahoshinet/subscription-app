@@ -1,15 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Pressable, useColorScheme, KeyboardAvoidingView, ScrollView, Platform, Alert, ActivityIndicator, Image } from 'react-native';
+import { View, Text, TextInput, Pressable, useColorScheme, KeyboardAvoidingView, ScrollView, Platform, Alert, ActivityIndicator, Image, Modal, Dimensions } from 'react-native';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useSubscriptionStore } from '../store/useSubscriptionStore';
 import { useAddFormStore, BILLING_CYCLES, PAYMENT_METHODS } from '../store/useAddFormStore';
 import { uploadApi } from '../lib/api';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
-import { FontAwesome5 } from '@expo/vector-icons';
-import { isSubscriptionPresetIconValue, parseSubscriptionPresetIconValue } from '../lib/subscriptionIcon';
+import {
+    isSubscriptionPresetIconValue,
+    parseSubscriptionPresetIconValue,
+    SUBSCRIPTION_ICON_PRESETS,
+    SubscriptionIconPack,
+    buildSubscriptionPresetIconValue,
+} from '../lib/subscriptionIcon';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const ICON_PICKER_WIDTH = Math.min(SCREEN_WIDTH - 32, 360);
+const ICON_PICKER_GAP = 10;
+const ICON_PICKER_TILE_SIZE = Math.floor((ICON_PICKER_WIDTH - 28 - ICON_PICKER_GAP * 2) / 3);
 
 export default function EditSubscriptionScreen() {
     const router = useRouter();
@@ -27,6 +37,7 @@ export default function EditSubscriptionScreen() {
     const [nextPaymentDate, setNextPaymentDate] = useState(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [iconUri, setIconUri] = useState<string | null>(null);
+    const [showIconPickerModal, setShowIconPickerModal] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const { billingCycle, paymentMethod, setBillingCycle, setPaymentMethod } = useAddFormStore();
@@ -49,14 +60,14 @@ export default function EditSubscriptionScreen() {
         return (
             <View className="flex-1 bg-neutral-50 dark:bg-neutral-950 items-center justify-center">
                 <Stack.Screen options={{ title: 'Not Found' }} />
-                <Text className="text-neutral-500 dark:text-neutral-400 text-lg">サブスクリプションが見つかりません</Text>
+                <Text className="text-neutral-500 dark:text-neutral-400 text-lg">{t('edit.not_found')}</Text>
             </View>
         );
     }
 
     const handleSave = async () => {
         if (!serviceName || !amount) {
-            Alert.alert('入力エラー', 'サービス名と料金は必須です');
+            Alert.alert(t('subscription_form.error_title'), t('subscription_form.error_required'));
             return;
         }
 
@@ -82,7 +93,7 @@ export default function EditSubscriptionScreen() {
             });
             router.back();
         } catch (error: any) {
-            Alert.alert('エラー', error.message || '更新に失敗しました');
+            Alert.alert(t('common.error'), error.message || t('edit.error_failed'));
         } finally {
             setIsSubmitting(false);
         }
@@ -112,6 +123,19 @@ export default function EditSubscriptionScreen() {
         }
     };
 
+    const handleSelectPresetIcon = (pack: SubscriptionIconPack, name: string, color: string) => {
+        setIconUri(buildSubscriptionPresetIconValue(pack, name, color));
+        setShowIconPickerModal(false);
+    };
+
+    const openIconSourcePicker = () => {
+        Alert.alert(t('billing.icon_source_title'), t('billing.icon_source_message'), [
+            { text: t('billing.cancel'), style: 'cancel' },
+            { text: t('billing.icon_source_upload'), onPress: () => { void pickIcon(); } },
+            { text: t('billing.icon_source_library'), onPress: () => setShowIconPickerModal(true) },
+        ]);
+    };
+
     const rowStyle = { height: 48 };
     const labelStyle = { fontSize: 15, width: 90 };
     const inputStyle = { fontSize: 15, height: 48, paddingTop: 0, paddingBottom: 0 };
@@ -124,14 +148,14 @@ export default function EditSubscriptionScreen() {
         >
             <Stack.Screen
                 options={{
-                    title: '編集',
+                    title: t('edit.title'),
                     headerBackVisible: false,
                     headerLeft: () => (
                         <Pressable onPress={() => router.back()} className="px-2" disabled={isSubmitting}>
                             {Platform.OS === 'ios' ? (
                                 <Ionicons name="close" size={28} color={isDark ? "#60A5FA" : "#3B82F6"} />
                             ) : (
-                                <Text className="text-blue-500 dark:text-blue-400 text-lg font-normal">キャンセル</Text>
+                                <Text className="text-blue-500 dark:text-blue-400 text-lg font-normal">{t('billing.cancel')}</Text>
                             )}
                         </Pressable>
                     ),
@@ -142,7 +166,7 @@ export default function EditSubscriptionScreen() {
                             ) : Platform.OS === 'ios' ? (
                                 <Ionicons name="checkmark" size={28} color={isDark ? "#60A5FA" : "#3B82F6"} />
                             ) : (
-                                <Text className="text-blue-500 dark:text-blue-400 text-lg font-semibold">保存</Text>
+                                <Text className="text-blue-500 dark:text-blue-400 text-lg font-semibold">{t('edit.submit')}</Text>
                             )}
                         </Pressable>
                     ),
@@ -163,7 +187,7 @@ export default function EditSubscriptionScreen() {
                 <View className="px-4">
                     {/* Icon Picker */}
                     <View className="items-center mb-6">
-                        <Pressable onPress={pickIcon} className="items-center">
+                        <Pressable onPress={openIconSourcePicker} className="items-center">
                             <View
                                 className="w-20 h-20 rounded-3xl items-center justify-center mb-2"
                                 style={{ backgroundColor: isDark ? '#2C2C2E' : '#E5E5EA' }}
@@ -184,7 +208,7 @@ export default function EditSubscriptionScreen() {
                                 )}
                             </View>
                             <Text className="text-blue-500 text-sm font-medium">
-                                {iconUri ? 'アイコンを変更' : 'アイコンを追加'}
+                                {iconUri ? t('subscription_form.icon_change') : t('subscription_form.icon_add')}
                             </Text>
                         </Pressable>
                     </View>
@@ -192,9 +216,9 @@ export default function EditSubscriptionScreen() {
                     {/* Main Form Group */}
                     <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6">
                         <View className="border-b border-neutral-200 dark:border-neutral-800 px-4 flex-row items-center" style={rowStyle}>
-                            <Text className="text-neutral-900 dark:text-white" style={labelStyle}>サービス名:</Text>
+                            <Text className="text-neutral-900 dark:text-white" style={labelStyle}>{t('subscription_form.service_name')}:</Text>
                             <TextInput
-                                placeholder="例: Netflix"
+                                placeholder={t('subscription_form.service_name_placeholder')}
                                 placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
                                 className="flex-1 text-neutral-900 dark:text-white"
                                 style={inputStyle}
@@ -203,9 +227,9 @@ export default function EditSubscriptionScreen() {
                             />
                         </View>
                         <View className="border-b border-neutral-200 dark:border-neutral-800 px-4 flex-row items-center" style={rowStyle}>
-                            <Text className="text-neutral-900 dark:text-white" style={labelStyle}>プラン名:</Text>
+                            <Text className="text-neutral-900 dark:text-white" style={labelStyle}>{t('subscription_form.plan_name')}:</Text>
                             <TextInput
-                                placeholder="例: Premium"
+                                placeholder={t('subscription_form.plan_name_placeholder')}
                                 placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
                                 className="flex-1 text-neutral-900 dark:text-white"
                                 style={inputStyle}
@@ -214,7 +238,7 @@ export default function EditSubscriptionScreen() {
                             />
                         </View>
                         <View className="px-4 flex-row items-center" style={rowStyle}>
-                            <Text className="text-neutral-900 dark:text-white" style={labelStyle}>料金:</Text>
+                            <Text className="text-neutral-900 dark:text-white" style={labelStyle}>{t('subscription_form.amount')}:</Text>
                             <TextInput
                                 placeholder="¥ 0"
                                 keyboardType="numeric"
@@ -233,7 +257,7 @@ export default function EditSubscriptionScreen() {
                             onPress={() => setShowDatePicker(!showDatePicker)}
                             className="border-b border-neutral-200 dark:border-neutral-800 p-4 pl-4 flex-row items-center justify-between"
                         >
-                            <Text className="text-neutral-900 dark:text-white text-base">次回支払日</Text>
+                            <Text className="text-neutral-900 dark:text-white text-base">{t('subscription_form.next_payment_date')}</Text>
                             <View className="flex-row items-center">
                                 <Text className="text-neutral-500 dark:text-neutral-400 text-base mr-2">{formatDate(nextPaymentDate)}</Text>
                                 <Ionicons name={showDatePicker ? "chevron-down" : "chevron-forward"} size={20} color={isDark ? "#52525B" : "#A1A1AA"} />
@@ -257,7 +281,7 @@ export default function EditSubscriptionScreen() {
                             onPress={() => router.push('/settings/billing-cycle' as any)}
                             className="border-b border-neutral-200 dark:border-neutral-800 p-4 pl-4 flex-row items-center justify-between"
                         >
-                            <Text className="text-neutral-900 dark:text-white text-base">支払サイクル</Text>
+                            <Text className="text-neutral-900 dark:text-white text-base">{t('subscription_form.billing_cycle_label')}</Text>
                             <View className="flex-row items-center">
                                 <Text className="text-neutral-500 dark:text-neutral-400 text-base mr-2">{billingCycleLabel}</Text>
                                 <Ionicons name="chevron-forward" size={20} color={isDark ? "#52525B" : "#A1A1AA"} />
@@ -267,7 +291,7 @@ export default function EditSubscriptionScreen() {
                             onPress={() => router.push('/settings/payment-method' as any)}
                             className="p-4 pl-4 flex-row items-center justify-between"
                         >
-                            <Text className="text-neutral-900 dark:text-white text-base">支払方法</Text>
+                            <Text className="text-neutral-900 dark:text-white text-base">{t('subscription_form.payment_method_label')}</Text>
                             <View className="flex-row items-center">
                                 <Text className="text-neutral-500 dark:text-neutral-400 text-base mr-2">{paymentMethodLabel}</Text>
                                 <Ionicons name="chevron-forward" size={20} color={isDark ? "#52525B" : "#A1A1AA"} />
@@ -276,6 +300,74 @@ export default function EditSubscriptionScreen() {
                     </View>
                 </View>
             </ScrollView>
+
+            <Modal
+                transparent
+                animationType="fade"
+                visible={showIconPickerModal}
+                onRequestClose={() => setShowIconPickerModal(false)}
+            >
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.45)' }}>
+                    <Pressable
+                        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+                        onPress={() => setShowIconPickerModal(false)}
+                    />
+
+                    <View
+                        style={{
+                            width: ICON_PICKER_WIDTH,
+                            borderRadius: 16,
+                            backgroundColor: isDark ? '#1C1C1E' : '#FFFFFF',
+                            paddingHorizontal: 14,
+                            paddingTop: 14,
+                            paddingBottom: 12,
+                            maxHeight: '72%',
+                        }}
+                    >
+                        <Text style={{ fontSize: 16, fontWeight: '700', color: isDark ? '#FFFFFF' : '#111827', marginBottom: 12 }}>
+                            {t('billing.pick_icon_title')}
+                        </Text>
+
+                        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 4 }}>
+                            <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                                {SUBSCRIPTION_ICON_PRESETS.map((icon, index) => (
+                                    <Pressable
+                                        key={icon.id}
+                                        onPress={() => handleSelectPresetIcon(icon.pack, icon.name, icon.color)}
+                                        style={{
+                                            width: ICON_PICKER_TILE_SIZE,
+                                            height: ICON_PICKER_TILE_SIZE,
+                                            borderRadius: 12,
+                                            backgroundColor: isDark ? '#2C2C2E' : '#F3F4F6',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            borderWidth: 1,
+                                            borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
+                                            marginRight: index % 3 === 2 ? 0 : ICON_PICKER_GAP,
+                                            marginBottom: ICON_PICKER_GAP,
+                                        }}
+                                    >
+                                        {icon.pack === 'fontawesome5' ? (
+                                            <FontAwesome5 name={icon.name as any} size={24} color={icon.color} />
+                                        ) : (
+                                            <Ionicons name={icon.name as any} size={24} color={icon.color} />
+                                        )}
+                                    </Pressable>
+                                ))}
+                            </View>
+                        </ScrollView>
+
+                        <Pressable
+                            onPress={() => setShowIconPickerModal(false)}
+                            style={{ marginTop: 10, alignItems: 'center', paddingVertical: 8 }}
+                        >
+                            <Text style={{ color: '#3B82F6', fontSize: 14, fontWeight: '600' }}>
+                                {t('billing.cancel')}
+                            </Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </Modal>
         </KeyboardAvoidingView>
     );
 }

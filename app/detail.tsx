@@ -3,26 +3,13 @@ import { View, Text, ScrollView, Pressable, useColorScheme, Alert, Image } from 
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useSubscriptionStore } from '../store/useSubscriptionStore';
+import { useTranslation } from 'react-i18next';
 import { parseSubscriptionPresetIconValue } from '../lib/subscriptionIcon';
 
-const BILLING_CYCLE_LABELS: Record<string, string> = {
-    monthly: '月額 (Monthly)',
-    yearly: '年額 (Yearly)',
-    weekly: '週額 (Weekly)',
-};
-
-const PAYMENT_METHOD_LABELS: Record<string, string> = {
-    credit_card: 'クレジットカード',
-    debit_card: 'デビットカード',
-    bank_transfer: '銀行振込',
-    paypal: 'PayPal',
-    other: 'その他',
-};
-
-const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-    active: { label: 'アクティブ', color: '#22C55E' },
-    inactive: { label: '非アクティブ', color: '#EAB308' },
-    cancelled: { label: 'キャンセル済', color: '#EF4444' },
+const STATUS_COLORS: Record<string, string> = {
+    active: '#22C55E',
+    inactive: '#EAB308',
+    cancelled: '#EF4444',
 };
 
 export default function DetailScreen() {
@@ -33,17 +20,19 @@ export default function DetailScreen() {
 
     const { subscriptions, deleteSubscription } = useSubscriptionStore();
     const subscription = subscriptions.find(s => s.id === Number(id));
+    const { t } = useTranslation();
 
     if (!subscription) {
         return (
             <View className="flex-1 bg-neutral-50 dark:bg-neutral-950 items-center justify-center">
                 <Stack.Screen options={{ title: 'Not Found' }} />
-                <Text className="text-neutral-500 dark:text-neutral-400 text-lg">サブスクリプションが見つかりません</Text>
+                <Text className="text-neutral-500 dark:text-neutral-400 text-lg">{t('edit.not_found')}</Text>
             </View>
         );
     }
 
-    const statusInfo = STATUS_LABELS[subscription.status] || { label: subscription.status, color: '#808080' };
+    const statusColor = STATUS_COLORS[subscription.status] ?? '#808080';
+    const statusLabel = t(`detail.status_${subscription.status}`, { defaultValue: subscription.status });
 
     const formatDate = (dateStr: string) => {
         try {
@@ -56,19 +45,19 @@ export default function DetailScreen() {
 
     const handleDelete = () => {
         Alert.alert(
-            '削除確認',
-            `${subscription.service_name} を削除してもよろしいですか？`,
+            t('detail.delete_title'),
+            t('detail.delete_message', { name: subscription.service_name }),
             [
-                { text: 'キャンセル', style: 'cancel' },
+                { text: t('billing.cancel'), style: 'cancel' },
                 {
-                    text: '削除',
+                    text: t('detail.delete_confirm'),
                     style: 'destructive',
                     onPress: async () => {
                         try {
                             await deleteSubscription(subscription.id);
                             router.back();
                         } catch (e: any) {
-                            Alert.alert('エラー', e.message || '削除に失敗しました');
+                            Alert.alert(t('common.error'), e.message || t('detail.error_delete_failed'));
                         }
                     },
                 },
@@ -90,7 +79,7 @@ export default function DetailScreen() {
                     headerShadowVisible: false,
                     headerRight: () => (
                         <Pressable onPress={() => router.push(`/edit?id=${subscription.id}` as any)} className="px-2">
-                            <Text className="text-blue-500 dark:text-blue-400 text-lg font-semibold">編集</Text>
+                            <Text className="text-blue-500 dark:text-blue-400 text-lg font-semibold">{t('detail.edit_button')}</Text>
                         </Pressable>
                     ),
                 }}
@@ -125,27 +114,27 @@ export default function DetailScreen() {
                         {subscription.currency === 'JPY' ? '¥' : subscription.currency}{subscription.amount.toLocaleString()}
                     </Text>
                     <Text className="text-neutral-500 dark:text-neutral-400 text-base mt-1">
-                        {BILLING_CYCLE_LABELS[subscription.billing_cycle] || subscription.billing_cycle}
+                        {t(`billing_cycle.${subscription.billing_cycle}`, { defaultValue: subscription.billing_cycle })}
                     </Text>
-                    <View className="mt-3 px-3 py-1 rounded-full" style={{ backgroundColor: statusInfo.color + '20' }}>
-                        <Text style={{ color: statusInfo.color, fontWeight: '600', fontSize: 13 }}>{statusInfo.label}</Text>
+                    <View className="mt-3 px-3 py-1 rounded-full" style={{ backgroundColor: statusColor + '20' }}>
+                        <Text style={{ color: statusColor, fontWeight: '600', fontSize: 13 }}>{statusLabel}</Text>
                     </View>
                 </View>
 
                 <View className="px-4">
                     {/* Details Group */}
                     <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6">
-                        <DetailRow label="サービス名" value={subscription.service_name} isFirst />
-                        <DetailRow label="プラン名" value={subscription.plan_name || '—'} />
-                        <DetailRow label="次回支払日" value={formatDate(subscription.next_payment_date)} />
-                        <DetailRow label="支払サイクル" value={BILLING_CYCLE_LABELS[subscription.billing_cycle] || subscription.billing_cycle} />
-                        <DetailRow label="支払方法" value={PAYMENT_METHOD_LABELS[subscription.payment_method] || subscription.payment_method} isLast />
+                        <DetailRow label={t('detail.label_service_name')} value={subscription.service_name} isFirst />
+                        <DetailRow label={t('detail.label_plan_name')} value={subscription.plan_name || '—'} />
+                        <DetailRow label={t('detail.label_next_payment')} value={formatDate(subscription.next_payment_date)} />
+                        <DetailRow label={t('detail.label_billing_cycle')} value={t(`billing_cycle.${subscription.billing_cycle}`, { defaultValue: subscription.billing_cycle })} />
+                        <DetailRow label={t('detail.label_payment_method')} value={t(`payment_method.${subscription.payment_method}`, { defaultValue: subscription.payment_method })} isLast />
                     </View>
 
                     {/* Info Group */}
                     <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6">
-                        <DetailRow label="登録日" value={formatDate(subscription.created_at || '')} isFirst />
-                        <DetailRow label="最終更新" value={formatDate(subscription.updated_at || '')} isLast />
+                        <DetailRow label={t('detail.label_created_at')} value={formatDate(subscription.created_at || '')} isFirst />
+                        <DetailRow label={t('detail.label_updated_at')} value={formatDate(subscription.updated_at || '')} isLast />
                     </View>
 
                     {/* Action Buttons */}
@@ -153,7 +142,7 @@ export default function DetailScreen() {
                         onPress={handleDelete}
                         className="items-center py-4 rounded-xl bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-900/50"
                     >
-                        <Text className="text-red-600 dark:text-red-400 font-bold text-base">このサブスクを削除</Text>
+                        <Text className="text-red-600 dark:text-red-400 font-bold text-base">{t('detail.delete_button')}</Text>
                     </Pressable>
                 </View>
             </ScrollView>
