@@ -192,7 +192,8 @@ export default function AboutScreen() {
                 </View>
 
                 <View className="rounded-2xl overflow-hidden shadow-sm shadow-neutral-200/50 dark:shadow-none border border-neutral-200/50 dark:border-white/10 bg-white dark:bg-[#1C1C1E]">
-                    <InfoRow icon="person-outline" label={t('about.developer')} value="Ahoshinet" />
+                    <InfoRow icon="person-outline" label={t('about.developer')} value="darui3018823 / Ahoshinet" />
+                    <InfoRow icon="document-text-outline" label={t('about.license')} value="BSD 2-Clause" />
                     <LinkRow
                         icon="logo-github"
                         label="GitHub Repository"

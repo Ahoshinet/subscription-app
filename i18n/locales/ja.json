@@ -127,6 +127,7 @@
         "unavailable": "未取得",
         "section_credits": "開発者・クレジット",
         "developer": "開発者",
+        "license": "ライセンス",
         "report_issue": "バグを報告",
         "role_developer": "開発者",
         "role_org": "Organization"
