@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-ios:
-    runs-on: macos-15
+    runs-on: macos-latest
     permissions:
       contents: write # Release への書き込み権限
 
@@ -32,10 +32,10 @@ jobs:
           node-version: '22.x'
           cache: 'pnpm'
 
-      - name: Select Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: '16.3'
+      - name: Show Xcode environment
+        run: |
+          xcodebuild -version
+          xcodebuild -showsdks
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -44,27 +44,32 @@ jobs:
         # --clean で生成物差分を排除し、--no-install で再インストールを避ける
         run: npx expo prebuild -p ios --clean --no-install
 
+      - name: Disable New Architecture for CI build
+        run: |
+          node -e "const fs=require('fs');const path='ios/Podfile.properties.json';const data=JSON.parse(fs.readFileSync(path,'utf8'));data.newArchEnabled='false';fs.writeFileSync(path, JSON.stringify(data, null, 2) + '\n');"
+          type ios\Podfile.properties.json
+
       - name: Install CocoaPods dependencies
-        run: pod install --repo-update
+        run: RCT_NEW_ARCH_ENABLED=0 pod install --repo-update
         working-directory: ios
 
-      - name: Build Xcode Archive (Unsigned)
+      - name: Build Xcode App (Unsigned)
         run: |
           set -o pipefail
           cd ios
           PROJECT_NAME=$(ls -d *.xcodeproj | sed 's/\.xcodeproj//')
-          xcodebuild archive \
+          xcodebuild \
             -workspace "${PROJECT_NAME}.xcworkspace" \
             -scheme "${PROJECT_NAME}" \
             -configuration Release \
-            -destination 'generic/platform=iOS' \
-            -archivePath build/${PROJECT_NAME}.xcarchive \
+            -sdk iphoneos \
             -derivedDataPath build \
+            RCT_NEW_ARCH_ENABLED=0 \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_ENTITLEMENTS="" \
             CODE_SIGNING_INJECT_BASE_ENTITLEMENTS=NO \
-            clean archive 2>&1 | tee xcodebuild.log
+            clean build 2>&1 | tee xcodebuild.log
 
       - name: Extract xcodebuild errors on failure
         if: failure()
@@ -79,7 +84,7 @@ jobs:
       - name: Create IPA Package
         run: |
           mkdir -p Payload
-          cp -r ios/build/*.xcarchive/Products/Applications/*.app Payload/
+          cp -r ios/build/Build/Products/Release-iphoneos/*.app Payload/
           zip -r subscription-app-unsigned.ipa Payload
 
       - name: Upload xcodebuild logs
@@ -90,6 +95,7 @@ jobs:
           path: |
             ios/xcodebuild.log
             ios/build/**/*.xcresult
+            ios/Podfile.properties.json
           if-no-files-found: ignore
           retention-days: 7
 
