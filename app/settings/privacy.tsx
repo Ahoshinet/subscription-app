@@ -77,3 +77,6 @@ export default function PrivacyScreen() {
         </>
     );
 }
+
+// Claude: 正解だと思います笑
+// と絶賛する神コード！
