@@ -9,7 +9,12 @@ import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
 import { usePaymentMethodStore } from '@/store/usePaymentMethodStore';
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
+const SHEET_HORIZONTAL_PADDING = 20;
+const BRAND_GRID_GAP = 10;
+const BRAND_TILE_SIZE = Math.floor(
+    (SCREEN_WIDTH - SHEET_HORIZONTAL_PADDING * 2 - BRAND_GRID_GAP * 2) / 3
+);
 
 export const PRESET_BRANDS = [
     { id: 'paypal',       label: 'PayPal',         iconName: 'logo-paypal',  color: '#003087' },
@@ -253,24 +258,54 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                     >
                         {/* ── Brand ── */}
                         {section === 'brand' && !selectedBrand && (
-                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    flexWrap: 'wrap',
+                                    justifyContent: 'space-between',
+                                    rowGap: BRAND_GRID_GAP,
+                                }}
+                            >
                                 {PRESET_BRANDS.map((brand) => (
                                     <Pressable
                                         key={brand.id}
                                         onPress={() => handleSelectBrand(brand)}
                                         style={{
-                                            width: '30%', aspectRatio: 1,
-                                            borderRadius: 16, alignItems: 'center', justifyContent: 'center',
+                                            width: BRAND_TILE_SIZE,
+                                            height: BRAND_TILE_SIZE,
+                                            borderRadius: 16,
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
                                             backgroundColor: `${brand.color}15`,
                                             borderWidth: 1.5,
                                             borderColor: borderCol,
+                                            paddingHorizontal: 8,
+                                            paddingTop: 12,
+                                            paddingBottom: 12,
                                         }}
                                     >
-                                        <Ionicons name={brand.iconName as any} size={28} color={brand.color} />
-                                        <Text
+                                        <View
                                             style={{
-                                                fontSize: 10, color: textSub,
-                                                marginTop: 6, fontWeight: '500', textAlign: 'center',
+                                                flex: 1,
+                                                width: '100%',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                            }}
+                                        >
+                                            <Ionicons name={brand.iconName as any} size={30} color={brand.color} />
+                                        </View>
+                                        <Text
+                                            numberOfLines={1}
+                                            adjustsFontSizeToFit
+                                            minimumFontScale={0.78}
+                                            style={{
+                                                fontSize: 10,
+                                                lineHeight: 13,
+                                                color: textSub,
+                                                fontWeight: '500',
+                                                textAlign: 'center',
+                                                width: '100%',
+                                                marginTop: 8,
                                             }}
                                         >
                                             {brand.label}
