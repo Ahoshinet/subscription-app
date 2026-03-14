@@ -15,6 +15,9 @@ const BRAND_GRID_GAP = 10;
 const BRAND_TILE_SIZE = Math.floor(
     (SCREEN_WIDTH - SHEET_HORIZONTAL_PADDING * 2 - BRAND_GRID_GAP * 2) / 3
 );
+const ICON_PICKER_WIDTH = Math.min(SCREEN_WIDTH - 32, 340);
+const ICON_PICKER_GAP = 10;
+const ICON_PICKER_TILE_SIZE = Math.floor((ICON_PICKER_WIDTH - 28 - ICON_PICKER_GAP * 2) / 3);
 
 export const PRESET_BRANDS = [
     { id: 'paypal',       label: 'PayPal',         iconName: 'logo-paypal',  color: '#003087' },
@@ -647,7 +650,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
 
                     <View
                         style={{
-                            width: '84%',
+                            width: ICON_PICKER_WIDTH,
                             borderRadius: 16,
                             backgroundColor: bg,
                             paddingHorizontal: 14,
@@ -659,20 +662,22 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                             {t('billing.pick_icon_title')}
                         </Text>
 
-                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 10 }}>
-                            {CUSTOM_ICON_PRESETS.map((icon) => (
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                            {CUSTOM_ICON_PRESETS.map((icon, index) => (
                                 <Pressable
                                     key={icon.id}
                                     onPress={() => handleSelectPresetIcon(icon.iconName, icon.color)}
                                     style={{
-                                        width: '31%',
-                                        aspectRatio: 1,
+                                        width: ICON_PICKER_TILE_SIZE,
+                                        height: ICON_PICKER_TILE_SIZE,
                                         borderRadius: 12,
                                         backgroundColor: segBg,
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         borderWidth: 1,
                                         borderColor: borderCol,
+                                        marginRight: index % 3 === 2 ? 0 : ICON_PICKER_GAP,
+                                        marginBottom: ICON_PICKER_GAP,
                                     }}
                                 >
                                     <Ionicons name={icon.iconName as any} size={24} color={icon.color} />
