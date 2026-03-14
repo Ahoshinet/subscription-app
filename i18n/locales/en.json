@@ -61,5 +61,12 @@
         "bank_transfer": "Bank Transfer",
         "paypal": "PayPal",
         "other": "Other"
+    },
+    "home": {
+        "title": "My Subscriptions",
+        "monthly_spending": "You are spending {{amount}} this month",
+        "error_load": "Failed to load: {{error}}\nMake sure the backend is running & auth token is set.",
+        "empty": "No subscriptions found. Tap the + to add one.",
+        "standard_plan": "Standard Plan"
     }
 }

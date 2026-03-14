@@ -5,12 +5,14 @@ import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSubscriptionStore } from '@/store/useSubscriptionStore';
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const router = useRouter();
+  const { t } = useTranslation();
 
   const { subscriptions, isLoading, error, fetchSubscriptions } = useSubscriptionStore();
 
@@ -37,10 +39,10 @@ export default function HomeScreen() {
         <View className="mt-8 mb-10 flex-row justify-between items-start">
           <View>
             <Text className="text-4xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
-              My Subscriptions
+              {t('home.title')}
             </Text>
             <Text className="text-base text-neutral-500 dark:text-neutral-400 mt-2 font-medium">
-              You are spending ¥{totalMonthlySpent.toLocaleString()} this month
+              {t('home.monthly_spending', { amount: `¥${totalMonthlySpent.toLocaleString()}` })}
             </Text>
           </View>
 
@@ -55,8 +57,7 @@ export default function HomeScreen() {
         {error ? (
           <View className="bg-red-100 dark:bg-red-900/30 p-4 rounded-xl mb-6 border border-red-200 dark:border-red-900/50">
             <Text className="text-red-600 dark:text-red-400 font-medium">
-              Failed to load: {error}
-              {'\n'}Make sure the Rust backend is running & auth token is set.
+              {t('home.error_load', { error })}
             </Text>
           </View>
         ) : null}
@@ -70,7 +71,7 @@ export default function HomeScreen() {
             {subscriptions.length === 0 && !error && (
               <View className="py-10 items-center">
                 <Text className="text-neutral-500 dark:text-neutral-400 font-medium">
-                  No subscriptions found. Tap the + to add one.
+                  {t('home.empty')}
                 </Text>
               </View>
             )}
@@ -86,7 +87,7 @@ export default function HomeScreen() {
                   key={sub.id}
                   id={sub.id}
                   serviceName={sub.service_name}
-                  planName={sub.plan_name || 'Standard Plan'}
+                  planName={sub.plan_name || t('home.standard_plan')}
                   amount={sub.amount}
                   nextPaymentDate={sub.next_payment_date}
                   daysRemaining={daysRemaining}

@@ -61,5 +61,12 @@
         "bank_transfer": "銀行振込",
         "paypal": "PayPal",
         "other": "その他"
+    },
+    "home": {
+        "title": "My Subscriptions",
+        "monthly_spending": "今月の支出: {{amount}}",
+        "error_load": "読み込みに失敗しました: {{error}}\nバックエンドが起動しているか、認証トークンが設定されているか確認してください。",
+        "empty": "サブスクリプションが見つかりません。+ をタップして追加してください。",
+        "standard_plan": "スタンダードプラン"
     }
 }
