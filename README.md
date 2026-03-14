@@ -84,6 +84,10 @@ pnpm web          # Start on Web
 pnpm lint         # Run ESLint
 ```
 
+## API Documentation
+
+See [docs/api.md](docs/api.md) for the full API reference, including request/response bodies and error codes.
+
 ## Contributing
 
 See [Contributing.md](Contributing.md) for guidelines on branch naming, commit conventions, and pull request workflow.

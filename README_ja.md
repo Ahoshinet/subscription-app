@@ -84,6 +84,10 @@ pnpm web          # Web で起動
 pnpm lint         # ESLint を実行
 ```
 
+## API ドキュメント
+
+リクエスト・レスポンス形式やエラーコードを含む完全な API リファレンスは [docs/api.md](docs/api.md) をご覧ください。
+
 ## コントリビューション
 
 ブランチ命名規則、コミット規約、プルリクエストのワークフローについては [Contributing.md](Contributing.md) をご覧ください。
