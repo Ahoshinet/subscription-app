@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, useColorScheme, KeyboardAvoidingView, ScrollView, Platform, Alert, ActivityIndicator, Image } from 'react-native';
+import { View, Text, TextInput, Pressable, useColorScheme, KeyboardAvoidingView, ScrollView, Platform, Alert, ActivityIndicator, Image, Modal, Dimensions } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useSubscriptionStore } from '../store/useSubscriptionStore';
 import { useAddFormStore, BILLING_CYCLES } from '../store/useAddFormStore';
 import { usePaymentMethodStore } from '../store/usePaymentMethodStore';
@@ -9,6 +9,16 @@ import { uploadApi } from '../lib/api';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
+import {
+    SUBSCRIPTION_ICON_PRESETS,
+    SubscriptionIconPack,
+    buildSubscriptionPresetIconValue,
+} from '../lib/subscriptionIcon';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const ICON_PICKER_WIDTH = Math.min(SCREEN_WIDTH - 32, 360);
+const ICON_PICKER_GAP = 10;
+const ICON_PICKER_TILE_SIZE = Math.floor((ICON_PICKER_WIDTH - 28 - ICON_PICKER_GAP * 2) / 3);
 
 export default function AddSubscriptionModal() {
     const router = useRouter();
@@ -22,6 +32,8 @@ export default function AddSubscriptionModal() {
     const [nextPaymentDate, setNextPaymentDate] = useState(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [iconUri, setIconUri] = useState<string | null>(null);
+    const [selectedPresetIcon, setSelectedPresetIcon] = useState<{ pack: SubscriptionIconPack; name: string; color: string } | null>(null);
+    const [showIconPickerModal, setShowIconPickerModal] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const { billingCycle, paymentMethod } = useAddFormStore();
@@ -40,6 +52,12 @@ export default function AddSubscriptionModal() {
             if (iconUri) {
                 const uploadResult = await uploadApi.uploadIcon(iconUri);
                 iconUrl = uploadResult.url;
+            } else if (selectedPresetIcon) {
+                iconUrl = buildSubscriptionPresetIconValue(
+                    selectedPresetIcon.pack,
+                    selectedPresetIcon.name,
+                    selectedPresetIcon.color
+                );
             }
             await addSubscription({
                 service_name: serviceName,
@@ -86,7 +104,32 @@ export default function AddSubscriptionModal() {
         });
         if (!result.canceled && result.assets[0]) {
             setIconUri(result.assets[0].uri);
+            setSelectedPresetIcon(null);
         }
+    };
+
+    const handleSelectPresetIcon = (pack: SubscriptionIconPack, name: string, color: string) => {
+        setIconUri(null);
+        setSelectedPresetIcon({ pack, name, color });
+        setShowIconPickerModal(false);
+    };
+
+    const openIconSourcePicker = () => {
+        Alert.alert('アイコンを追加', '追加方法を選択してください。', [
+            { text: 'キャンセル', style: 'cancel' },
+            { text: 'アップロード', onPress: () => { void pickIcon(); } },
+            { text: '用意済みアイコンから選ぶ', onPress: () => setShowIconPickerModal(true) },
+        ]);
+    };
+
+    const renderPresetIcon = (
+        icon: { pack: SubscriptionIconPack; name: string; color: string },
+        size: number
+    ) => {
+        if (icon.pack === 'fontawesome5') {
+            return <FontAwesome5 name={icon.name as any} size={size} color={icon.color} />;
+        }
+        return <Ionicons name={icon.name as any} size={size} color={icon.color} />;
     };
 
     // Shared row style for perfect vertical centering
@@ -140,7 +183,7 @@ export default function AddSubscriptionModal() {
                 <View className="px-4">
                     {/* Icon Picker */}
                     <View className="items-center mb-6">
-                        <Pressable onPress={pickIcon} className="items-center">
+                        <Pressable onPress={openIconSourcePicker} className="items-center">
                             <View
                                 className="w-20 h-20 rounded-3xl items-center justify-center mb-2"
                                 style={{ backgroundColor: isDark ? '#2C2C2E' : '#E5E5EA' }}
@@ -150,12 +193,14 @@ export default function AddSubscriptionModal() {
                                         source={{ uri: iconUri }}
                                         style={{ width: 56, height: 56, borderRadius: 14 }}
                                     />
+                                ) : selectedPresetIcon ? (
+                                    renderPresetIcon(selectedPresetIcon, 32)
                                 ) : (
                                     <Ionicons name="camera" size={32} color={isDark ? '#8E8E93' : '#636366'} />
                                 )}
                             </View>
                             <Text className="text-blue-500 text-sm font-medium">
-                                {iconUri ? 'アイコンを変更' : 'アイコンを追加'}
+                                {(iconUri || selectedPresetIcon) ? 'アイコンを変更' : 'アイコンを追加'}
                             </Text>
                         </Pressable>
                     </View>
@@ -259,6 +304,74 @@ export default function AddSubscriptionModal() {
                     </View>
                 </View>
             </ScrollView>
+
+            <Modal
+                transparent
+                animationType="fade"
+                visible={showIconPickerModal}
+                onRequestClose={() => setShowIconPickerModal(false)}
+            >
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.45)' }}>
+                    <Pressable
+                        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+                        onPress={() => setShowIconPickerModal(false)}
+                    />
+
+                    <View
+                        style={{
+                            width: ICON_PICKER_WIDTH,
+                            borderRadius: 16,
+                            backgroundColor: isDark ? '#1C1C1E' : '#FFFFFF',
+                            paddingHorizontal: 14,
+                            paddingTop: 14,
+                            paddingBottom: 12,
+                            maxHeight: '72%',
+                        }}
+                    >
+                        <Text style={{ fontSize: 16, fontWeight: '700', color: isDark ? '#FFFFFF' : '#111827', marginBottom: 12 }}>
+                            アイコンを選択
+                        </Text>
+
+                        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 4 }}>
+                            <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                                {SUBSCRIPTION_ICON_PRESETS.map((icon, index) => (
+                                    <Pressable
+                                        key={icon.id}
+                                        onPress={() => handleSelectPresetIcon(icon.pack, icon.name, icon.color)}
+                                        style={{
+                                            width: ICON_PICKER_TILE_SIZE,
+                                            height: ICON_PICKER_TILE_SIZE,
+                                            borderRadius: 12,
+                                            backgroundColor: isDark ? '#2C2C2E' : '#F3F4F6',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            borderWidth: 1,
+                                            borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
+                                            marginRight: index % 3 === 2 ? 0 : ICON_PICKER_GAP,
+                                            marginBottom: ICON_PICKER_GAP,
+                                        }}
+                                    >
+                                        {icon.pack === 'fontawesome5' ? (
+                                            <FontAwesome5 name={icon.name as any} size={24} color={icon.color} />
+                                        ) : (
+                                            <Ionicons name={icon.name as any} size={24} color={icon.color} />
+                                        )}
+                                    </Pressable>
+                                ))}
+                            </View>
+                        </ScrollView>
+
+                        <Pressable
+                            onPress={() => setShowIconPickerModal(false)}
+                            style={{ marginTop: 10, alignItems: 'center', paddingVertical: 8 }}
+                        >
+                            <Text style={{ color: '#3B82F6', fontSize: 14, fontWeight: '600' }}>
+                                キャンセル
+                            </Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </Modal>
         </KeyboardAvoidingView>
     );
 }

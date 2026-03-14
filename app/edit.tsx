@@ -8,6 +8,8 @@ import { uploadApi } from '../lib/api';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
+import { FontAwesome5 } from '@expo/vector-icons';
+import { isSubscriptionPresetIconValue, parseSubscriptionPresetIconValue } from '../lib/subscriptionIcon';
 
 export default function EditSubscriptionScreen() {
     const router = useRouter();
@@ -62,9 +64,11 @@ export default function EditSubscriptionScreen() {
         try {
             let iconUrl: string | undefined = (subscription as any).icon_url;
             // Only upload if the uri changed and isn't already a server URL
-            if (iconUri && !iconUri.startsWith('/uploads')) {
+            if (iconUri && !iconUri.startsWith('/uploads') && !iconUri.startsWith('http') && !isSubscriptionPresetIconValue(iconUri)) {
                 const uploadResult = await uploadApi.uploadIcon(iconUri);
                 iconUrl = uploadResult.url;
+            } else if (iconUri && isSubscriptionPresetIconValue(iconUri)) {
+                iconUrl = iconUri;
             }
             await updateSubscription(subscription.id, {
                 service_name: serviceName,
@@ -111,6 +115,7 @@ export default function EditSubscriptionScreen() {
     const rowStyle = { height: 48 };
     const labelStyle = { fontSize: 15, width: 90 };
     const inputStyle = { fontSize: 15, height: 48, paddingTop: 0, paddingBottom: 0 };
+    const presetIcon = parseSubscriptionPresetIconValue(iconUri);
 
     return (
         <KeyboardAvoidingView
@@ -163,7 +168,13 @@ export default function EditSubscriptionScreen() {
                                 className="w-20 h-20 rounded-3xl items-center justify-center mb-2"
                                 style={{ backgroundColor: isDark ? '#2C2C2E' : '#E5E5EA' }}
                             >
-                                {iconUri ? (
+                                {presetIcon ? (
+                                    presetIcon.pack === 'fontawesome5' ? (
+                                        <FontAwesome5 name={presetIcon.name as any} size={32} color={presetIcon.color} />
+                                    ) : (
+                                        <Ionicons name={presetIcon.name as any} size={32} color={presetIcon.color} />
+                                    )
+                                ) : iconUri ? (
                                     <Image
                                         source={{ uri: iconUri }}
                                         style={{ width: 56, height: 56, borderRadius: 14 }}

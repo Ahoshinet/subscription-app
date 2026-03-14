@@ -6,9 +6,10 @@ import Animated, {
     useSharedValue,
     withSpring,
 } from 'react-native-reanimated';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
+import { parseSubscriptionPresetIconValue } from '@/lib/subscriptionIcon';
 
 interface SubscriptionCardProps {
     id: number;
@@ -70,6 +71,7 @@ export function SubscriptionCard({
     // Fallback semi-transparent colors
     const blurBackgroundColor = isDark ? 'rgba(28, 28, 30, 0.45)' : 'rgba(255, 255, 255, 0.6)';
     const blurTint = isDark ? 'dark' : 'light';
+    const presetIcon = parseSubscriptionPresetIconValue(iconUrl);
 
     return (
         <Pressable
@@ -95,7 +97,13 @@ export function SubscriptionCard({
                             className="w-14 h-14 rounded-2xl items-center justify-center mr-4"
                             style={{ backgroundColor: `${color}20` }}
                         >
-                            {iconUrl ? (
+                            {presetIcon ? (
+                                presetIcon.pack === 'fontawesome5' ? (
+                                    <FontAwesome5 name={presetIcon.name as any} size={30} color={presetIcon.color} />
+                                ) : (
+                                    <Ionicons name={presetIcon.name as any} size={32} color={presetIcon.color} />
+                                )
+                            ) : iconUrl ? (
                                 <Image
                                     source={{ uri: iconUrl }}
                                     style={{ width: 40, height: 40, borderRadius: 10 }}

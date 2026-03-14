@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, Text, ScrollView, Pressable, useColorScheme, Alert, Image } from 'react-native';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useSubscriptionStore } from '../store/useSubscriptionStore';
+import { parseSubscriptionPresetIconValue } from '../lib/subscriptionIcon';
 
 const BILLING_CYCLE_LABELS: Record<string, string> = {
     monthly: '月額 (Monthly)',
@@ -76,6 +77,7 @@ export default function DetailScreen() {
     };
 
     const iconUrl = (subscription as any).icon_url;
+    const presetIcon = parseSubscriptionPresetIconValue(iconUrl);
 
     return (
         <View className="flex-1 bg-[#F2F2F7] dark:bg-black">
@@ -104,7 +106,13 @@ export default function DetailScreen() {
                         className="w-20 h-20 rounded-3xl items-center justify-center mb-4"
                         style={{ backgroundColor: '#3B82F620' }}
                     >
-                        {iconUrl ? (
+                        {presetIcon ? (
+                            presetIcon.pack === 'fontawesome5' ? (
+                                <FontAwesome5 name={presetIcon.name as any} size={44} color={presetIcon.color} />
+                            ) : (
+                                <Ionicons name={presetIcon.name as any} size={44} color={presetIcon.color} />
+                            )
+                        ) : iconUrl ? (
                             <Image
                                 source={{ uri: iconUrl }}
                                 style={{ width: 56, height: 56, borderRadius: 14 }}
