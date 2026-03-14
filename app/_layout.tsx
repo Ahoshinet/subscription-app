@@ -43,7 +43,7 @@ export default function RootLayout() {
 
     useEffect(() => {
         // Sync NativeWind color scheme with settings
-        setColorScheme(theme === 'system' ? (systemColorScheme ?? 'light') : theme);
+        setColorScheme(theme === 'system' ? (systemColorScheme === 'dark' ? 'dark' : 'light') : theme);
     }, [theme, systemColorScheme]);
 
     useEffect(() => {
