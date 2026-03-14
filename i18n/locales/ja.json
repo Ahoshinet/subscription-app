@@ -55,7 +55,10 @@
         "back_to_brands": "戻る",
         "delete_confirm": "この支払方法を削除しますか？",
         "delete": "削除",
-        "cancel": "キャンセル"
+        "cancel": "キャンセル",
+        "memo": "メモ（任意）",
+        "memo_placeholder": "例: example@example.com、メインアカウント",
+        "save": "保存"
     },
     "support": {
         "title": "ヘルプとサポート",

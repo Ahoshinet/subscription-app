@@ -55,7 +55,10 @@
         "back_to_brands": "Back",
         "delete_confirm": "Are you sure you want to remove this payment method?",
         "delete": "Remove",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "memo": "Memo (Optional)",
+        "memo_placeholder": "e.g. example@example.com, Main Account",
+        "save": "Save"
     },
     "support": {
         "title": "Help & Support",

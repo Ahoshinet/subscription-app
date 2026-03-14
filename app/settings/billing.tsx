@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Pressable, Image, Alert } from 'react-native';
+import { View, Text, ScrollView, Pressable, Image } from 'react-native';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { usePaymentMethodStore } from '@/store/usePaymentMethodStore';
@@ -11,18 +11,12 @@ export default function BillingScreen() {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
     const { t } = useTranslation();
-    const { methods, removeMethod } = usePaymentMethodStore();
+    const { methods } = usePaymentMethodStore();
     const [showSheet, setShowSheet] = useState(false);
+    const router = useRouter();
 
-    const handleTapMethod = (id: string, label: string) => {
-        Alert.alert(
-            label,
-            t('billing.delete_confirm'),
-            [
-                { text: t('billing.cancel'), style: 'cancel' },
-                { text: t('billing.delete'), style: 'destructive', onPress: () => removeMethod(id) },
-            ],
-        );
+    const handleTapMethod = (id: string) => {
+        router.push({ pathname: '/settings/payment-method-detail' as any, params: { id } });
     };
 
     return (
@@ -59,7 +53,7 @@ export default function BillingScreen() {
                                 return (
                                     <Pressable
                                         key={method.id}
-                                        onPress={() => handleTapMethod(method.id, method.label)}
+                                        onPress={() => handleTapMethod(method.id)}
                                         className={`flex-row items-center justify-between p-4 ${!isLast ? 'border-b border-neutral-100 dark:border-white/5' : ''}`}
                                     >
                                         <View className="flex-row items-center">
@@ -80,9 +74,16 @@ export default function BillingScreen() {
                                                     />
                                                 )}
                                             </View>
-                                            <Text className="text-base font-medium text-neutral-900 dark:text-white">
-                                                {method.label}
-                                            </Text>
+                                            <View>
+                                                <Text className="text-base font-medium text-neutral-900 dark:text-white">
+                                                    {method.label}
+                                                </Text>
+                                                {method.memo ? (
+                                                    <Text className="text-xs text-neutral-400 dark:text-neutral-500 mt-0.5">
+                                                        {method.memo}
+                                                    </Text>
+                                                ) : null}
+                                            </View>
                                         </View>
                                         <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
                                     </Pressable>

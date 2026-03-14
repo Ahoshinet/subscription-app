@@ -66,9 +66,16 @@ export default function PaymentMethodPickerScreen() {
                                             />
                                         )}
                                     </View>
-                                    <Text className="text-neutral-900 dark:text-white text-base">
-                                        {method.label}
-                                    </Text>
+                                    <View>
+                                        <Text className="text-neutral-900 dark:text-white text-base">
+                                            {method.label}
+                                        </Text>
+                                        {method.memo ? (
+                                            <Text className="text-xs text-neutral-400 dark:text-neutral-500 mt-0.5">
+                                                {method.memo}
+                                            </Text>
+                                        ) : null}
+                                    </View>
                                 </View>
                                 {paymentMethod === method.id && (
                                     <Ionicons name="checkmark" size={22} color="#3B82F6" />

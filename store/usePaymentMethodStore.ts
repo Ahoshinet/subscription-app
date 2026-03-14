@@ -11,12 +11,14 @@ export interface SavedPaymentMethod {
     color: string;
     last4?: string;
     cardBrand?: string;
+    memo?: string;
 }
 
 interface PaymentMethodState {
     methods: SavedPaymentMethod[];
     addMethod: (method: Omit<SavedPaymentMethod, 'id'>) => string;
     removeMethod: (id: string) => void;
+    updateMethod: (id: string, updates: Partial<Omit<SavedPaymentMethod, 'id'>>) => void;
 }
 
 export const usePaymentMethodStore = create<PaymentMethodState>()(
@@ -33,6 +35,10 @@ export const usePaymentMethodStore = create<PaymentMethodState>()(
             removeMethod: (id) =>
                 set((state) => ({
                     methods: state.methods.filter((m) => m.id !== id),
+                })),
+            updateMethod: (id, updates) =>
+                set((state) => ({
+                    methods: state.methods.map((m) => m.id === id ? { ...m, ...updates } : m),
                 })),
         }),
         {

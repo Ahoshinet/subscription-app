@@ -50,7 +50,9 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
 
     // Brand label step
     const [selectedBrand, setSelectedBrand] = useState<(typeof PRESET_BRANDS)[number] | null>(null);
-    const [brandLabel, setBrandLabel] = useState('');
+    const [brandMemo, setBrandMemo] = useState('');
+    const [cardMemo, setCardMemo] = useState('');
+    const [customMemo, setCustomMemo] = useState('');
 
     useEffect(() => {
         if (visible) {
@@ -90,21 +92,24 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
             setCustomLabel('');
             setCustomIconUri(null);
             setSelectedBrand(null);
-            setBrandLabel('');
+            setBrandMemo('');
+            setCardMemo('');
+            setCustomMemo('');
             onClose();
         });
     };
 
     const handleSelectBrand = (brand: (typeof PRESET_BRANDS)[number]) => {
         setSelectedBrand(brand);
-        setBrandLabel(brand.label);
+        setBrandMemo('');
     };
 
     const handleConfirmBrand = () => {
-        if (!selectedBrand || !brandLabel.trim()) return;
+        if (!selectedBrand) return;
         addMethod({
             type: 'preset',
-            label: brandLabel.trim(),
+            label: selectedBrand.label,
+            memo: brandMemo.trim() || undefined,
             iconName: selectedBrand.iconName,
             color: selectedBrand.color,
         });
@@ -116,6 +121,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
         addMethod({
             type: 'credit_card',
             label: `${cardBrand} ••••${cardLast4}`,
+            memo: cardMemo.trim() || undefined,
             iconName: 'card',
             color: '#6B7280',
             last4: cardLast4,
@@ -129,6 +135,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
         addMethod({
             type: 'custom',
             label: customLabel.trim(),
+            memo: customMemo.trim() || undefined,
             iconUri: customIconUri ?? undefined,
             iconName: customIconUri ? undefined : 'wallet-outline',
             color: '#6B7280',
@@ -230,7 +237,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                         {tabs.map(({ key, label }) => (
                             <Pressable
                                 key={key}
-                                onPress={() => { setSection(key); setSelectedBrand(null); setBrandLabel(''); }}
+                                onPress={() => { setSection(key); setSelectedBrand(null); setBrandMemo(''); }}
                                 style={{
                                     flex: 1, paddingVertical: 7, borderRadius: 8, alignItems: 'center',
                                     backgroundColor: section === key ? bg : 'transparent',
@@ -319,7 +326,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                         {section === 'brand' && selectedBrand && (
                             <View>
                                 <Pressable
-                                    onPress={() => { setSelectedBrand(null); setBrandLabel(''); }}
+                                    onPress={() => { setSelectedBrand(null); setBrandMemo(''); }}
                                     style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}
                                 >
                                     <Ionicons name="chevron-back" size={18} color={textSub} />
@@ -328,17 +335,23 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                     </Text>
                                 </Pressable>
 
-                                <View style={{ alignItems: 'center', marginBottom: 20 }}>
+                                <View style={{ alignItems: 'center', marginBottom: 8 }}>
                                     <View
                                         style={{
                                             width: 60, height: 60, borderRadius: 16,
                                             backgroundColor: `${selectedBrand.color}15`,
                                             alignItems: 'center', justifyContent: 'center',
+                                            marginBottom: 10,
                                         }}
                                     >
                                         <Ionicons name={selectedBrand.iconName as any} size={30} color={selectedBrand.color} />
                                     </View>
+                                    <Text style={{ fontSize: 18, fontWeight: '700', color: textPrimary }}>
+                                        {selectedBrand.label}
+                                    </Text>
                                 </View>
+
+                                <View style={{ height: 1, backgroundColor: borderCol, marginBottom: 24 }} />
 
                                 <Text
                                     style={{
@@ -346,7 +359,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                         textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 10,
                                     }}
                                 >
-                                    {t('billing.label')}
+                                    {t('billing.memo')}
                                 </Text>
                                 <View
                                     style={{
@@ -355,9 +368,9 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                     }}
                                 >
                                     <TextInput
-                                        value={brandLabel}
-                                        onChangeText={setBrandLabel}
-                                        placeholder={selectedBrand.label}
+                                        value={brandMemo}
+                                        onChangeText={setBrandMemo}
+                                        placeholder={t('billing.memo_placeholder')}
                                         placeholderTextColor={textSub}
                                         style={{ fontSize: 16, color: textPrimary, paddingVertical: 14 }}
                                         autoFocus
@@ -366,18 +379,12 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
 
                                 <Pressable
                                     onPress={handleConfirmBrand}
-                                    disabled={!brandLabel.trim()}
                                     style={{
-                                        backgroundColor: brandLabel.trim() ? '#3B82F6' : segBg,
+                                        backgroundColor: '#3B82F6',
                                         borderRadius: 14, paddingVertical: 16, alignItems: 'center',
                                     }}
                                 >
-                                    <Text
-                                        style={{
-                                            fontSize: 16, fontWeight: '700',
-                                            color: brandLabel.trim() ? '#fff' : textSub,
-                                        }}
-                                    >
+                                    <Text style={{ fontSize: 16, fontWeight: '700', color: '#fff' }}>
                                         {t('billing.add_button')}
                                     </Text>
                                 </Pressable>
@@ -448,6 +455,29 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                     />
                                 </View>
 
+                                <Text
+                                    style={{
+                                        fontSize: 12, color: textSub, fontWeight: '600',
+                                        textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 10,
+                                    }}
+                                >
+                                    {t('billing.memo')}
+                                </Text>
+                                <View
+                                    style={{
+                                        backgroundColor: segBg, borderRadius: 12,
+                                        paddingHorizontal: 16, marginBottom: 24,
+                                    }}
+                                >
+                                    <TextInput
+                                        value={cardMemo}
+                                        onChangeText={setCardMemo}
+                                        placeholder={t('billing.memo_placeholder')}
+                                        placeholderTextColor={textSub}
+                                        style={{ fontSize: 16, color: textPrimary, paddingVertical: 14 }}
+                                    />
+                                </View>
+
                                 <Pressable
                                     onPress={handleAddCard}
                                     disabled={cardLast4.length !== 4}
@@ -509,6 +539,29 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                         value={customLabel}
                                         onChangeText={setCustomLabel}
                                         placeholder={t('billing.method_name_placeholder')}
+                                        placeholderTextColor={textSub}
+                                        style={{ fontSize: 16, color: textPrimary, paddingVertical: 14 }}
+                                    />
+                                </View>
+
+                                <Text
+                                    style={{
+                                        fontSize: 12, color: textSub, fontWeight: '600',
+                                        textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 10,
+                                    }}
+                                >
+                                    {t('billing.memo')}
+                                </Text>
+                                <View
+                                    style={{
+                                        backgroundColor: segBg, borderRadius: 12,
+                                        paddingHorizontal: 16, marginBottom: 24,
+                                    }}
+                                >
+                                    <TextInput
+                                        value={customMemo}
+                                        onChangeText={setCustomMemo}
+                                        placeholder={t('billing.memo_placeholder')}
                                         placeholderTextColor={textSub}
                                         style={{ fontSize: 16, color: textPrimary, paddingVertical: 14 }}
                                     />
