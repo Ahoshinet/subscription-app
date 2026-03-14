@@ -130,8 +130,8 @@ export function SubscriptionCard({
                     <View className="px-5 pb-5 mt-1">
                         <View className="flex-row justify-between items-center mb-3">
                             <View className="flex-row items-center">
-                                <Ionicons name={accessibleIcon} size={14} color={accessibleColor} style={{ marginRight: 4 }} />
-                                <Text className="text-xs font-bold uppercase tracking-wider" style={{ color: accessibleColor }}>
+                                <Ionicons name={accessibleIcon} size={16} color={accessibleColor} style={{ marginRight: 4 }} />
+                                <Text className="text-sm font-bold uppercase tracking-wider" style={{ color: accessibleColor }}>
                                     {isUrgent ? t('subscription_card.action_required') : t('subscription_card.next_payment')}
                                 </Text>
                             </View>
