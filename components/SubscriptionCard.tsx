@@ -136,7 +136,7 @@ export function SubscriptionCard({
                                 </Text>
                             </View>
 
-                            <Text className="text-sm text-neutral-700 dark:text-neutral-300">
+                            <Text className="text-base text-neutral-700 dark:text-neutral-300">
                                 {daysRemaining === 0 ? (
                                     <Text className="font-extrabold" style={{ color: accessibleColor }}>{t('subscription_card.today')}</Text>
                                 ) : (
