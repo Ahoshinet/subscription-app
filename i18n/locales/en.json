@@ -64,7 +64,9 @@
         "title": "Help & Support",
         "faq": "FAQ",
         "contact": "Contact Us",
-        "report_bug": "Report a Bug"
+        "report_bug": "Report a Bug",
+        "coming_soon_title": "Coming Soon",
+        "coming_soon_message": "This feature is currently being prepared. Please stay tuned."
     },
     "privacy": {
         "title": "Privacy Policy",

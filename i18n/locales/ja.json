@@ -64,7 +64,9 @@
         "title": "ヘルプとサポート",
         "faq": "よくある質問",
         "contact": "お問い合わせ",
-        "report_bug": "バグを報告"
+        "report_bug": "バグを報告",
+        "coming_soon_title": "準備中",
+        "coming_soon_message": "この機能は現在準備中です。今しばらくお待ちください。"
     },
     "privacy": {
         "title": "プライバシーポリシー",

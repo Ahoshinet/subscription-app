@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, useColorScheme, ScrollView, Pressable, Linking } from 'react-native';
+import { View, Text, useColorScheme, ScrollView, Pressable, Linking, Alert } from 'react-native';
 import { Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,7 +9,11 @@ export default function SupportScreen() {
     const isDark = colorScheme === 'dark';
     const { t } = useTranslation();
 
-    const handlePress = (url: string) => {
+    const showComingSoon = () => {
+        Alert.alert(t('support.coming_soon_title'), t('support.coming_soon_message'));
+    };
+
+    const openUrl = (url: string) => {
         Linking.openURL(url).catch(err => console.error("Couldn't load page", err));
     };
 
@@ -28,7 +32,7 @@ export default function SupportScreen() {
                     <View className="bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden shadow-sm shadow-neutral-200/50 dark:shadow-none border border-neutral-200/50 dark:border-white/10 mb-6">
 
                         <Pressable
-                            onPress={() => handlePress('https://example.com/faq')}
+                            onPress={showComingSoon}
                             className="flex-row items-center justify-between p-4 border-b border-neutral-100 dark:border-white/5"
                         >
                             <View className="flex-row items-center">
@@ -43,7 +47,7 @@ export default function SupportScreen() {
                         </Pressable>
 
                         <Pressable
-                            onPress={() => handlePress('mailto:support@example.com')}
+                            onPress={showComingSoon}
                             className="flex-row items-center justify-between p-4 border-b border-neutral-100 dark:border-white/5"
                         >
                             <View className="flex-row items-center">
@@ -58,7 +62,7 @@ export default function SupportScreen() {
                         </Pressable>
 
                         <Pressable
-                            onPress={() => handlePress('https://example.com/report')}
+                            onPress={() => openUrl('https://github.com/Ahoshinet/subscription-app/issues/new?template=bug_report.md')}
                             className="flex-row items-center justify-between p-4"
                         >
                             <View className="flex-row items-center">
