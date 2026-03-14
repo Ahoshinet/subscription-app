@@ -14,7 +14,7 @@
         "help_support": "ヘルプとサポート",
         "terms_of_service": "利用規約",
         "privacy_policy": "プライバシーポリシー",
-        "version": "バージョン",
+        "version": "アプリについて",
         "log_out": "ログアウト"
     },
     "profile": {
@@ -107,5 +107,28 @@
         "error_load": "読み込みに失敗しました: {{error}}\nバックエンドが起動しているか、認証トークンが設定されているか確認してください。",
         "empty": "サブスクリプションが見つかりません。+ をタップして追加してください。",
         "standard_plan": "スタンダードプラン"
+    },
+    "about": {
+        "hero_subtitle": "アプリ情報と現在の利用環境を確認できます。",
+        "section_app": "アプリ情報",
+        "section_device": "利用環境",
+        "app_name": "アプリ名",
+        "version": "バージョン",
+        "scheme": "URL スキーム",
+        "orientation": "画面の向き",
+        "platform": "プラットフォーム",
+        "os_version": "OS バージョン",
+        "screen_size": "画面サイズ",
+        "language": "言語",
+        "theme": "テーマ",
+        "theme_system": "システム設定に従う",
+        "theme_light": "ライト",
+        "theme_dark": "ダーク",
+        "unavailable": "未取得",
+        "section_credits": "開発者・クレジット",
+        "developer": "開発者",
+        "report_issue": "バグを報告",
+        "role_developer": "開発者",
+        "role_org": "Organization"
     }
 }

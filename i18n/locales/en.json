@@ -14,7 +14,7 @@
         "help_support": "Help & Support",
         "terms_of_service": "Terms of Service",
         "privacy_policy": "Privacy Policy",
-        "version": "Version",
+        "version": "About",
         "log_out": "Log Out"
     },
     "profile": {
@@ -107,5 +107,28 @@
         "error_load": "Failed to load: {{error}}\nMake sure the backend is running & auth token is set.",
         "empty": "No subscriptions found. Tap the + to add one.",
         "standard_plan": "Standard Plan"
+    },
+    "about": {
+        "hero_subtitle": "View app details and the current environment at a glance.",
+        "section_app": "App Info",
+        "section_device": "Environment",
+        "app_name": "App Name",
+        "version": "Version",
+        "scheme": "URL Scheme",
+        "orientation": "Orientation",
+        "platform": "Platform",
+        "os_version": "OS Version",
+        "screen_size": "Screen Size",
+        "language": "Language",
+        "theme": "Theme",
+        "theme_system": "Follow System",
+        "theme_light": "Light",
+        "theme_dark": "Dark",
+        "unavailable": "Unavailable",
+        "section_credits": "Credits",
+        "developer": "Developer",
+        "report_issue": "Report Issue",
+        "role_developer": "Developer",
+        "role_org": "Organization"
     }
 }

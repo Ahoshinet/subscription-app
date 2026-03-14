@@ -177,8 +177,7 @@ export default function SettingsScreen() {
             isLast
             icon="information-circle-outline"
             title={t('settings.version')}
-            value="1.0.0"
-            type="info"
+            onPress={() => router.push('/settings/about')}
           />
         </View>
 
