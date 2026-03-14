@@ -38,8 +38,8 @@ jobs:
       
     - name: Run ESLint with reporting
       run: |
-        pnpm exec eslint . --ext .js,.jsx,.ts,.tsx --format json --output-file eslint-report.json || true
-        pnpm exec eslint . --ext .js,.jsx,.ts,.tsx
+        pnpm exec eslint . --format json --output-file eslint-report.json || true
+        pnpm exec eslint .
         
     - name: Run Prettier check
       run: pnpm exec prettier --check "**/*.{js,jsx,ts,tsx,json,css,md}"
