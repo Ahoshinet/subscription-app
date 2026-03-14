@@ -50,7 +50,7 @@
   },
   "devDependencies": {
     "@types/react": "~19.2.14",
-    "eslint": "^10.0.3",
+    "eslint": "^9.39.3",
     "eslint-config-expo": "~55.0.0",
     "typescript": "~5.9.2"
   },
@@ -60,8 +60,7 @@
       "minimatch@>=9.0.0 <9.0.7": "9.0.7",
       "minimatch@>=10.0.0 <10.2.3": "10.2.3",
       "tar@<=7.5.10": "7.5.11",
-      "flatted@<3.4.0": "3.4.0",
-      "eslint-plugin-react": ">=7.37.4"
+      "flatted@<3.4.0": "3.4.0"
     }
   },
   "private": true
