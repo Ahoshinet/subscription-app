@@ -70,6 +70,13 @@
         "paypal": "PayPal",
         "other": "その他"
     },
+    "subscription_card": {
+        "action_required": "要アクション",
+        "next_payment": "次回請求日",
+        "today": "本日",
+        "in_days": "{{count}}日後",
+        "per_month": "/月"
+    },
     "home": {
         "title": "My Subscriptions",
         "monthly_spending": "今月の支出: {{amount}}",

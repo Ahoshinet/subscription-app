@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Pressable, useColorScheme, Image } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import Animated, {
     useAnimatedStyle,
     useSharedValue,
@@ -38,6 +39,7 @@ export function SubscriptionCard({
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
     const router = useRouter();
+    const { t } = useTranslation();
 
     const animatedStyle = useAnimatedStyle(() => {
         return {
@@ -119,7 +121,7 @@ export function SubscriptionCard({
                                 {currency}{amount.toLocaleString()}
                             </Text>
                             <Text className="text-xs font-medium text-neutral-500 dark:text-neutral-400 mt-1">
-                                /mo
+                                {t('subscription_card.per_month')}
                             </Text>
                         </View>
                     </View>
@@ -130,15 +132,15 @@ export function SubscriptionCard({
                             <View className="flex-row items-center">
                                 <Ionicons name={accessibleIcon} size={14} color={accessibleColor} style={{ marginRight: 4 }} />
                                 <Text className="text-xs font-bold uppercase tracking-wider" style={{ color: accessibleColor }}>
-                                    {isUrgent ? 'Action Required Soon' : 'Next Payment'}
+                                    {isUrgent ? t('subscription_card.action_required') : t('subscription_card.next_payment')}
                                 </Text>
                             </View>
 
                             <Text className="text-sm text-neutral-700 dark:text-neutral-300">
                                 {daysRemaining === 0 ? (
-                                    <Text className="font-extrabold" style={{ color: accessibleColor }}>Today</Text>
+                                    <Text className="font-extrabold" style={{ color: accessibleColor }}>{t('subscription_card.today')}</Text>
                                 ) : (
-                                    <Text>in <Text className="font-extrabold" style={{ color: accessibleColor }}>{daysRemaining} days</Text></Text>
+                                    <Text className="font-extrabold" style={{ color: accessibleColor }}>{t('subscription_card.in_days', { count: daysRemaining })}</Text>
                                 )}
                             </Text>
                         </View>

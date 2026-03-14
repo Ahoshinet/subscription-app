@@ -70,6 +70,13 @@
         "paypal": "PayPal",
         "other": "Other"
     },
+    "subscription_card": {
+        "action_required": "Action Required Soon",
+        "next_payment": "Next Payment",
+        "today": "Today",
+        "in_days": "in {{count}} days",
+        "per_month": "/mo"
+    },
     "home": {
         "title": "My Subscriptions",
         "monthly_spending": "You are spending {{amount}} this month",
