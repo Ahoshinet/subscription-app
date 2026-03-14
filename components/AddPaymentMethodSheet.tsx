@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import {
     Modal, View, Text, Pressable, Animated,
     ScrollView, TextInput, Image, useColorScheme,
-    Platform, Dimensions, KeyboardAvoidingView,
+    Platform, Dimensions, KeyboardAvoidingView, Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -28,6 +28,18 @@ export const PRESET_BRANDS = [
 
 const CARD_BRANDS = ['Visa', 'Mastercard', 'JCB', 'Amex', 'その他'];
 
+const CUSTOM_ICON_PRESETS = [
+    { id: 'wallet', iconName: 'wallet-outline', color: '#6B7280' },
+    { id: 'card', iconName: 'card-outline', color: '#6B7280' },
+    { id: 'cash', iconName: 'cash-outline', color: '#22C55E' },
+    { id: 'shopping', iconName: 'cart-outline', color: '#F59E0B' },
+    { id: 'streaming', iconName: 'play-circle-outline', color: '#EF4444' },
+    { id: 'game', iconName: 'game-controller-outline', color: '#8B5CF6' },
+    { id: 'paypal', iconName: 'logo-paypal', color: '#003087' },
+    { id: 'apple', iconName: 'logo-apple', color: '#111827' },
+    { id: 'google', iconName: 'logo-google', color: '#4285F4' },
+] as const;
+
 interface Props {
     visible: boolean;
     onClose: () => void;
@@ -47,6 +59,9 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
     const [cardLast4, setCardLast4] = useState('');
     const [customLabel, setCustomLabel] = useState('');
     const [customIconUri, setCustomIconUri] = useState<string | null>(null);
+    const [customIconName, setCustomIconName] = useState<string | null>(null);
+    const [customIconColor, setCustomIconColor] = useState('#6B7280');
+    const [showIconPresetModal, setShowIconPresetModal] = useState(false);
 
     // Brand label step
     const [selectedBrand, setSelectedBrand] = useState<(typeof PRESET_BRANDS)[number] | null>(null);
@@ -91,6 +106,9 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
             setCardLast4('');
             setCustomLabel('');
             setCustomIconUri(null);
+            setCustomIconName(null);
+            setCustomIconColor('#6B7280');
+            setShowIconPresetModal(false);
             setSelectedBrand(null);
             setBrandMemo('');
             setCardMemo('');
@@ -137,8 +155,8 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
             label: customLabel.trim(),
             memo: customMemo.trim() || undefined,
             iconUri: customIconUri ?? undefined,
-            iconName: customIconUri ? undefined : 'wallet-outline',
-            color: '#6B7280',
+            iconName: customIconUri ? undefined : (customIconName ?? 'wallet-outline'),
+            color: customIconColor,
         });
         close();
     };
@@ -152,7 +170,28 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
         });
         if (!result.canceled && result.assets[0]) {
             setCustomIconUri(result.assets[0].uri);
+            setCustomIconName(null);
+            setCustomIconColor('#6B7280');
         }
+    };
+
+    const handleSelectPresetIcon = (iconName: string, color: string) => {
+        setCustomIconUri(null);
+        setCustomIconName(iconName);
+        setCustomIconColor(color);
+        setShowIconPresetModal(false);
+    };
+
+    const openIconSourcePicker = () => {
+        Alert.alert(
+            t('billing.icon_source_title'),
+            t('billing.icon_source_message'),
+            [
+                { text: t('billing.cancel'), style: 'cancel' },
+                { text: t('billing.icon_source_upload'), onPress: () => { void pickIcon(); } },
+                { text: t('billing.icon_source_library'), onPress: () => setShowIconPresetModal(true) },
+            ]
+        );
     };
 
     if (!visible) return null;
@@ -505,7 +544,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                             <View>
                                 <View style={{ alignItems: 'center', marginBottom: 24 }}>
                                     <Pressable
-                                        onPress={pickIcon}
+                                        onPress={openIconSourcePicker}
                                         style={{
                                             width: 74, height: 74, borderRadius: 20,
                                             backgroundColor: segBg, alignItems: 'center', justifyContent: 'center',
@@ -515,11 +554,13 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                     >
                                         {customIconUri
                                             ? <Image source={{ uri: customIconUri }} style={{ width: 58, height: 58, borderRadius: 14 }} />
-                                            : <Ionicons name="camera-outline" size={30} color={textSub} />
+                                            : customIconName
+                                                ? <Ionicons name={customIconName as any} size={30} color={customIconColor} />
+                                                : <Ionicons name="camera-outline" size={30} color={textSub} />
                                         }
                                     </Pressable>
                                     <Text style={{ fontSize: 12, color: textSub, marginTop: 8 }}>
-                                        {customIconUri ? t('billing.change_icon') : t('billing.upload_icon')}
+                                        {(customIconUri || customIconName) ? t('billing.change_icon') : t('billing.upload_icon')}
                                     </Text>
                                 </View>
 
@@ -591,6 +632,65 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                     </ScrollView>
                 </Animated.View>
             </KeyboardAvoidingView>
+
+            <Modal
+                transparent
+                animationType="fade"
+                visible={showIconPresetModal}
+                onRequestClose={() => setShowIconPresetModal(false)}
+            >
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.45)' }}>
+                    <Pressable
+                        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+                        onPress={() => setShowIconPresetModal(false)}
+                    />
+
+                    <View
+                        style={{
+                            width: '84%',
+                            borderRadius: 16,
+                            backgroundColor: bg,
+                            paddingHorizontal: 14,
+                            paddingTop: 14,
+                            paddingBottom: 12,
+                        }}
+                    >
+                        <Text style={{ fontSize: 16, fontWeight: '700', color: textPrimary, marginBottom: 12 }}>
+                            {t('billing.pick_icon_title')}
+                        </Text>
+
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 10 }}>
+                            {CUSTOM_ICON_PRESETS.map((icon) => (
+                                <Pressable
+                                    key={icon.id}
+                                    onPress={() => handleSelectPresetIcon(icon.iconName, icon.color)}
+                                    style={{
+                                        width: '31%',
+                                        aspectRatio: 1,
+                                        borderRadius: 12,
+                                        backgroundColor: segBg,
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        borderWidth: 1,
+                                        borderColor: borderCol,
+                                    }}
+                                >
+                                    <Ionicons name={icon.iconName as any} size={24} color={icon.color} />
+                                </Pressable>
+                            ))}
+                        </View>
+
+                        <Pressable
+                            onPress={() => setShowIconPresetModal(false)}
+                            style={{ marginTop: 12, alignItems: 'center', paddingVertical: 8 }}
+                        >
+                            <Text style={{ color: '#3B82F6', fontSize: 14, fontWeight: '600' }}>
+                                {t('billing.cancel')}
+                            </Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </Modal>
         </Modal>
     );
 }

@@ -58,7 +58,12 @@
         "cancel": "キャンセル",
         "memo": "メモ（任意）",
         "memo_placeholder": "例: example@example.com、メインアカウント",
-        "save": "保存"
+        "save": "保存",
+        "icon_source_title": "アイコンを追加",
+        "icon_source_message": "追加方法を選択してください。",
+        "icon_source_upload": "アップロード",
+        "icon_source_library": "用意済みアイコンから選ぶ",
+        "pick_icon_title": "アイコンを選択"
     },
     "support": {
         "title": "ヘルプとサポート",

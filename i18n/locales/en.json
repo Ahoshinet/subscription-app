@@ -58,7 +58,12 @@
         "cancel": "Cancel",
         "memo": "Memo (Optional)",
         "memo_placeholder": "e.g. example@example.com, Main Account",
-        "save": "Save"
+        "save": "Save",
+        "icon_source_title": "Add Icon",
+        "icon_source_message": "Choose how to add an icon.",
+        "icon_source_upload": "Upload",
+        "icon_source_library": "Choose from built-in icons",
+        "pick_icon_title": "Pick an Icon"
     },
     "support": {
         "title": "Help & Support",
