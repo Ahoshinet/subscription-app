@@ -21,6 +21,13 @@ updates:
       all-deps:
         patterns:
           - "*"
+    ignore:
+      # NativeWind v4 is incompatible with Tailwind CSS v4; stay on v3
+      - dependency-name: "tailwindcss"
+        versions: ["4.x", ">=4.0.0"]
+      # eslint-plugin-react does not support ESLint v10 yet
+      - dependency-name: "eslint"
+        versions: ["10.x", ">=10.0.0"]
     
   # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
