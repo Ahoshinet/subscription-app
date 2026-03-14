@@ -13,6 +13,7 @@
         "app_info": "App Info",
         "help_support": "Help & Support",
         "terms_of_service": "Terms of Service",
+        "privacy_policy": "Privacy Policy",
         "version": "Version",
         "log_out": "Log Out"
     },
@@ -42,6 +43,13 @@
         "faq": "FAQ",
         "contact": "Contact Us",
         "report_bug": "Report a Bug"
+    },
+    "privacy": {
+        "title": "Privacy Policy",
+        "intro": "1. Introduction\n\nThis is a placeholder for the application's privacy policy. Real legal text will be placed here before production release.",
+        "data_collection": "2. Data Collection\n\nWe collect only the minimum data necessary to provide the service, such as your email address and subscription information.",
+        "data_use": "3. Use of Data\n\nYour data is used solely to provide and improve the service. We do not sell your personal information to third parties.",
+        "data_deletion": "4. Data Deletion\n\nYou may request deletion of your account and all associated data at any time by contacting support."
     },
     "tos": {
         "title": "Terms of Service",

@@ -169,6 +169,11 @@ export default function SettingsScreen() {
             onPress={() => router.push('/settings/tos')}
           />
           <SettingsRow
+            icon="shield-checkmark-outline"
+            title={t('settings.privacy_policy')}
+            onPress={() => router.push('/settings/privacy')}
+          />
+          <SettingsRow
             isLast
             icon="information-circle-outline"
             title={t('settings.version')}
