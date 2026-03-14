@@ -36,6 +36,7 @@
     },
     "billing": {
         "title": "支払方法",
+        "default_methods": "デフォルトの支払方法",
         "add_new": "新しい支払方法を追加"
     },
     "support": {

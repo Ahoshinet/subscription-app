@@ -36,6 +36,7 @@
     },
     "billing": {
         "title": "Billing Methods",
+        "default_methods": "Default Methods",
         "add_new": "Add New Payment Method"
     },
     "support": {
