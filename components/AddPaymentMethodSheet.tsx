@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import {
     Modal, View, Text, Pressable, Animated,
     ScrollView, TextInput, Image, useColorScheme,
-    Platform, Dimensions,
+    Platform, Dimensions, KeyboardAvoidingView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -177,7 +177,10 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
             statusBarTranslucent
             onRequestClose={close}
         >
-            <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+            <KeyboardAvoidingView
+                style={{ flex: 1, justifyContent: 'flex-end' }}
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            >
                 {/* Backdrop */}
                 <Animated.View
                     style={{
@@ -373,7 +376,6 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                         placeholder={t('billing.memo_placeholder')}
                                         placeholderTextColor={textSub}
                                         style={{ fontSize: 16, color: textPrimary, paddingVertical: 14 }}
-                                        autoFocus
                                     />
                                 </View>
 
@@ -588,7 +590,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                         )}
                     </ScrollView>
                 </Animated.View>
-            </View>
+            </KeyboardAvoidingView>
         </Modal>
     );
 }
