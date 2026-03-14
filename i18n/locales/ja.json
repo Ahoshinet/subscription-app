@@ -37,7 +37,25 @@
     "billing": {
         "title": "支払方法",
         "default_methods": "デフォルトの支払方法",
-        "add_new": "新しい支払方法を追加"
+        "add_new": "新しい支払方法を追加",
+        "empty": "支払方法が登録されていません。\n+ をタップして追加してください。",
+        "no_method_selected": "未選択",
+        "add_method_title": "支払方法を追加",
+        "tab_brand": "ブランド",
+        "tab_card": "カード",
+        "tab_custom": "カスタム",
+        "card_brand": "カードブランド",
+        "card_last4": "下4桁",
+        "add_button": "追加",
+        "upload_icon": "アイコンをアップロード",
+        "change_icon": "アイコンを変更",
+        "method_name": "名前",
+        "method_name_placeholder": "例: マイカード",
+        "label": "ラベル",
+        "back_to_brands": "戻る",
+        "delete_confirm": "この支払方法を削除しますか？",
+        "delete": "削除",
+        "cancel": "キャンセル"
     },
     "support": {
         "title": "ヘルプとサポート",

@@ -37,7 +37,25 @@
     "billing": {
         "title": "Billing Methods",
         "default_methods": "Default Methods",
-        "add_new": "Add New Payment Method"
+        "add_new": "Add New Payment Method",
+        "empty": "No payment methods yet.\nTap + to add one.",
+        "no_method_selected": "Not selected",
+        "add_method_title": "Add Payment Method",
+        "tab_brand": "Brand",
+        "tab_card": "Card",
+        "tab_custom": "Custom",
+        "card_brand": "Card Brand",
+        "card_last4": "Last 4 Digits",
+        "add_button": "Add",
+        "upload_icon": "Upload Icon",
+        "change_icon": "Change Icon",
+        "method_name": "Name",
+        "method_name_placeholder": "e.g. My Card",
+        "label": "Label",
+        "back_to_brands": "Back",
+        "delete_confirm": "Are you sure you want to remove this payment method?",
+        "delete": "Remove",
+        "cancel": "Cancel"
     },
     "support": {
         "title": "Help & Support",

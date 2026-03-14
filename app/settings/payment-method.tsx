@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, Pressable, useColorScheme } from 'react-native';
+import { View, Text, Pressable, useColorScheme, Image } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { useAddFormStore, PAYMENT_METHODS } from '../../store/useAddFormStore';
+import { useAddFormStore } from '../../store/useAddFormStore';
+import { usePaymentMethodStore } from '../../store/usePaymentMethodStore';
 
 export default function PaymentMethodPickerScreen() {
     const { t } = useTranslation();
@@ -11,9 +12,10 @@ export default function PaymentMethodPickerScreen() {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
     const { paymentMethod, setPaymentMethod } = useAddFormStore();
+    const { methods } = usePaymentMethodStore();
 
-    const handleSelect = (value: string) => {
-        setPaymentMethod(value);
+    const handleSelect = (id: string) => {
+        setPaymentMethod(id);
         router.back();
     };
 
@@ -29,21 +31,52 @@ export default function PaymentMethodPickerScreen() {
                 }}
             />
             <View className="px-4">
-                <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden">
-                    {PAYMENT_METHODS.map((method, index) => (
-                        <Pressable
-                            key={method}
-                            onPress={() => handleSelect(method)}
-                            className={`px-4 py-3.5 flex-row items-center justify-between ${index < PAYMENT_METHODS.length - 1 ? 'border-b border-neutral-200 dark:border-neutral-800' : ''
+                {methods.length === 0 ? (
+                    <View className="py-14 items-center px-6">
+                        <Ionicons name="card-outline" size={44} color={isDark ? '#3f3f46' : '#d4d4d8'} />
+                        <Text className="text-neutral-400 dark:text-neutral-600 text-center mt-4 text-base">
+                            {t('billing.empty')}
+                        </Text>
+                    </View>
+                ) : (
+                    <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden">
+                        {methods.map((method, index) => (
+                            <Pressable
+                                key={method.id}
+                                onPress={() => handleSelect(method.id)}
+                                className={`px-4 py-3.5 flex-row items-center justify-between ${
+                                    index < methods.length - 1 ? 'border-b border-neutral-200 dark:border-neutral-800' : ''
                                 }`}
-                        >
-                            <Text className="text-neutral-900 dark:text-white text-base">{t(`payment_method.${method}`)}</Text>
-                            {paymentMethod === method && (
-                                <Ionicons name="checkmark" size={22} color="#3B82F6" />
-                            )}
-                        </Pressable>
-                    ))}
-                </View>
+                            >
+                                <View className="flex-row items-center">
+                                    <View
+                                        className="w-8 h-8 rounded-lg items-center justify-center mr-3"
+                                        style={{ backgroundColor: `${method.color}20` }}
+                                    >
+                                        {method.iconUri ? (
+                                            <Image
+                                                source={{ uri: method.iconUri }}
+                                                style={{ width: 26, height: 26, borderRadius: 6 }}
+                                            />
+                                        ) : (
+                                            <Ionicons
+                                                name={(method.iconName ?? 'card-outline') as any}
+                                                size={16}
+                                                color={method.color}
+                                            />
+                                        )}
+                                    </View>
+                                    <Text className="text-neutral-900 dark:text-white text-base">
+                                        {method.label}
+                                    </Text>
+                                </View>
+                                {paymentMethod === method.id && (
+                                    <Ionicons name="checkmark" size={22} color="#3B82F6" />
+                                )}
+                            </Pressable>
+                        ))}
+                    </View>
+                )}
             </View>
         </View>
     );

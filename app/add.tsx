@@ -3,7 +3,8 @@ import { View, Text, TextInput, Pressable, useColorScheme, KeyboardAvoidingView,
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSubscriptionStore } from '../store/useSubscriptionStore';
-import { useAddFormStore, BILLING_CYCLES, PAYMENT_METHODS } from '../store/useAddFormStore';
+import { useAddFormStore, BILLING_CYCLES } from '../store/useAddFormStore';
+import { usePaymentMethodStore } from '../store/usePaymentMethodStore';
 import { uploadApi } from '../lib/api';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
@@ -24,6 +25,7 @@ export default function AddSubscriptionModal() {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const { billingCycle, paymentMethod } = useAddFormStore();
+    const { methods: savedPaymentMethods } = usePaymentMethodStore();
     const { addSubscription } = useSubscriptionStore();
 
     const handleSave = async () => {
@@ -68,7 +70,8 @@ export default function AddSubscriptionModal() {
     };
 
     const billingCycleLabel = t(`billing_cycle.${billingCycle}`);
-    const paymentMethodLabel = t(`payment_method.${paymentMethod}`);
+    const selectedPaymentMethod = savedPaymentMethods.find((m) => m.id === paymentMethod);
+    const paymentMethodLabel = selectedPaymentMethod?.label ?? t('billing.no_method_selected');
 
     const formatDate = (date: Date) => {
         return `${date.getFullYear()}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
