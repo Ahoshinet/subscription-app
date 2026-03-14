@@ -8,9 +8,13 @@ on:
 
 jobs:
   build-ios:
-    runs-on: macos-latest
+    runs-on: macos-15
     permissions:
       contents: write # Release への書き込み権限
+
+    env:
+      CI: '1'
+      NSUnbufferedIO: 'YES'
 
     steps:
       - name: Checkout
@@ -28,37 +32,66 @@ jobs:
           node-version: '22.x'
           cache: 'pnpm'
 
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '16.3'
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Expo Prebuild (iOS)
-        # --no-install: pnpm install 済みのため再インストールをスキップ
-        run: npx expo prebuild -p ios --no-install
+        # --clean で生成物差分を排除し、--no-install で再インストールを避ける
+        run: npx expo prebuild -p ios --clean --no-install
 
       - name: Install CocoaPods dependencies
-        run: pod install
+        run: pod install --repo-update
         working-directory: ios
 
       - name: Build Xcode Archive (Unsigned)
         run: |
+          set -o pipefail
           cd ios
           PROJECT_NAME=$(ls -d *.xcodeproj | sed 's/\.xcodeproj//')
-          xcodebuild -workspace "${PROJECT_NAME}.xcworkspace" \
+          xcodebuild archive \
+            -workspace "${PROJECT_NAME}.xcworkspace" \
             -scheme "${PROJECT_NAME}" \
             -configuration Release \
-            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/${PROJECT_NAME}.xcarchive \
             -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_ENTITLEMENTS="" \
             CODE_SIGNING_INJECT_BASE_ENTITLEMENTS=NO \
-            clean build
+            clean archive 2>&1 | tee xcodebuild.log
+
+      - name: Extract xcodebuild errors on failure
+        if: failure()
+        run: |
+          if [ -f ios/xcodebuild.log ]; then
+            echo '---- error lines ----'
+            grep -n ' error:' ios/xcodebuild.log || true
+            echo '---- swift compiler diagnostics ----'
+            grep -n 'SwiftCompile\|SwiftEmitModule\|CompileSwift' ios/xcodebuild.log || true
+          fi
 
       - name: Create IPA Package
         run: |
           mkdir -p Payload
-          cp -r ios/build/Build/Products/Release-iphoneos/*.app Payload/
+          cp -r ios/build/*.xcarchive/Products/Applications/*.app Payload/
           zip -r subscription-app-unsigned.ipa Payload
+
+      - name: Upload xcodebuild logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcodebuild-logs
+          path: |
+            ios/xcodebuild.log
+            ios/build/**/*.xcresult
+          if-no-files-found: ignore
+          retention-days: 7
 
       # 手動実行時でもダウンロードできるようにアーティファクトとして保存
       - name: Upload IPA as Artifact
