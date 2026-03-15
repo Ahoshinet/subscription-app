@@ -47,7 +47,7 @@ jobs:
       - name: Disable New Architecture for CI build
         run: |
           node -e "const fs=require('fs');const path='ios/Podfile.properties.json';const data=JSON.parse(fs.readFileSync(path,'utf8'));data.newArchEnabled='false';fs.writeFileSync(path, JSON.stringify(data, null, 2) + '\n');"
-          type ios\Podfile.properties.json
+          cat ios/Podfile.properties.json
 
       - name: Install CocoaPods dependencies
         run: RCT_NEW_ARCH_ENABLED=0 pod install --repo-update
