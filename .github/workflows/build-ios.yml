@@ -45,6 +45,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Align Expo SDK dependency versions
+        run: |
+          npx expo install --fix --non-interactive
+          pnpm list expo react react-native expo-modules-core --depth 0
+
       - name: Expo Prebuild (iOS)
         # --clean で生成物差分を排除し、--no-install で再インストールを避ける
         run: npx expo prebuild -p ios --clean --no-install
