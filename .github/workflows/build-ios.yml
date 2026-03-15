@@ -40,17 +40,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Pin expo-modules-core for CI stability
+        run: |
+          pnpm add expo-modules-core@55.0.14 --save-exact
+          pnpm list expo-modules-core
+
       - name: Expo Prebuild (iOS)
         # --clean で生成物差分を排除し、--no-install で再インストールを避ける
         run: npx expo prebuild -p ios --clean --no-install
 
-      - name: Disable New Architecture for CI build
-        run: |
-          node -e "const fs=require('fs');const path='ios/Podfile.properties.json';const data=JSON.parse(fs.readFileSync(path,'utf8'));data.newArchEnabled='false';fs.writeFileSync(path, JSON.stringify(data, null, 2) + '\n');"
-          cat ios/Podfile.properties.json
-
       - name: Install CocoaPods dependencies
-        run: RCT_NEW_ARCH_ENABLED=0 pod install --repo-update
+        run: pod install --repo-update
         working-directory: ios
 
       - name: Build Xcode App (Unsigned)
@@ -64,7 +64,6 @@ jobs:
             -configuration Release \
             -sdk iphoneos \
             -derivedDataPath build \
-            RCT_NEW_ARCH_ENABLED=0 \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_ENTITLEMENTS="" \
@@ -95,7 +94,6 @@ jobs:
           path: |
             ios/xcodebuild.log
             ios/build/**/*.xcresult
-            ios/Podfile.properties.json
           if-no-files-found: ignore
           retention-days: 7
 
