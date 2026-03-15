@@ -127,6 +127,7 @@ jobs:
           HTTP_STATUS=$(curl -s -o response.json -w '%{http_code}' \
             -X POST \
             -H "Authorization: Bearer ${{ secrets.CDN_UPLOAD_TOKEN }}" \
+            -H "User-Agent: GitHub-Actions/CDN-Upload" \
             -F "file=@subscription-app-unsigned.ipa;filename=${REMOTE_FILE}" \
             "${UPLOAD_URL}")
           echo "HTTP Status: ${HTTP_STATUS}"
