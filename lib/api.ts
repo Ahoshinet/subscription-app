@@ -2,22 +2,23 @@ import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 
-const getApiBaseUrl = () => {
-    const SERVER_PORT = 3000;
+const PRODUCTION_URL = 'https://subscription-manager.daruks.com';
+const DEV_PORT = 8084;
 
+const getApiBaseUrl = () => {
     if (__DEV__) {
         const hostUri = Constants.expoConfig?.hostUri;
         if (hostUri) {
             const host = hostUri.split(':')[0];
-            return `http://${host}:${SERVER_PORT}/api`;
+            return `http://${host}:${DEV_PORT}/api`;
         }
         if (Platform.OS === 'android') {
-            return `http://10.0.2.2:${SERVER_PORT}/api`;
+            return `http://10.0.2.2:${DEV_PORT}/api`;
         }
-        return `http://localhost:${SERVER_PORT}/api`;
+        return `http://localhost:${DEV_PORT}/api`;
     }
 
-    return `https://your-production-api.com/api`;
+    return `${PRODUCTION_URL}/api`;
 };
 
 const API_BASE_URL = getApiBaseUrl();
@@ -195,17 +196,16 @@ export const subscriptionApi = {
 
 // Helper to get the server base URL (without /api)
 export const getServerBaseUrl = () => {
-    const SERVER_PORT = 3000;
     if (__DEV__) {
         const hostUri = Constants.expoConfig?.hostUri;
         if (hostUri) {
             const host = hostUri.split(':')[0];
-            return `http://${host}:${SERVER_PORT}`;
+            return `http://${host}:${DEV_PORT}`;
         }
-        if (Platform.OS === 'android') return `http://10.0.2.2:${SERVER_PORT}`;
-        return `http://localhost:${SERVER_PORT}`;
+        if (Platform.OS === 'android') return `http://10.0.2.2:${DEV_PORT}`;
+        return `http://localhost:${DEV_PORT}`;
     }
-    return 'https://your-production-api.com';
+    return PRODUCTION_URL;
 };
 
 // Upload Endpoints
