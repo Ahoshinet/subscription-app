@@ -110,6 +110,32 @@ jobs:
           path: subscription-app-unsigned.ipa
           retention-days: 7
 
+      # CDN にアップロード
+      - name: Upload IPA to CDN
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          TIMESTAMP=$(date +'%y%m%d%H%M%S')
+          if [ -n "${TAG}" ]; then
+            SAFE_TAG="${TAG//\//-}"
+            REMOTE_FILE="subscription-app-unsigned_${SAFE_TAG}_${TIMESTAMP}.ipa"
+          else
+            REMOTE_FILE="subscription-app-unsigned_${TIMESTAMP}.ipa"
+          fi
+          UPLOAD_URL="https://cdn.daruks.com/upload/subscription-manager/ios-ipa/${REMOTE_FILE}"
+
+          echo "Upload URL: ${UPLOAD_URL}"
+          HTTP_STATUS=$(curl -s -o response.json -w '%{http_code}' \
+            -X POST \
+            -H "Authorization: Bearer ${{ secrets.CDN_UPLOAD_TOKEN }}" \
+            -F "file=@subscription-app-unsigned.ipa;filename=${REMOTE_FILE}" \
+            "${UPLOAD_URL}")
+          echo "HTTP Status: ${HTTP_STATUS}"
+          cat response.json
+          if [ "${HTTP_STATUS}" -lt 200 ] || [ "${HTTP_STATUS}" -ge 300 ]; then
+            echo "::error::CDN upload failed with status ${HTTP_STATUS}"
+            exit 1
+          fi
+
       # タグ付き push 時のみ GitHub Release を作成
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
