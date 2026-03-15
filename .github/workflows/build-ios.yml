@@ -45,11 +45,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Pin expo-modules-core for CI stability
-        run: |
-          pnpm add expo-modules-core@55.0.14 --save-exact
-          pnpm list expo-modules-core
-
       - name: Expo Prebuild (iOS)
         # --clean で生成物差分を排除し、--no-install で再インストールを避ける
         run: npx expo prebuild -p ios --clean --no-install
