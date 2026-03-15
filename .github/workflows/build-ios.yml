@@ -32,6 +32,11 @@ jobs:
           node-version: '22.x'
           cache: 'pnpm'
 
+      - name: Select Xcode (latest stable)
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: 'latest-stable'
+
       - name: Show Xcode environment
         run: |
           xcodebuild -version
