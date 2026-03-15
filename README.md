@@ -21,9 +21,9 @@ A mobile/web application to manage all your subscription services in one place. 
 
 | Technology | Purpose |
 |---|---|
-| [Expo](https://expo.dev) (v54) | React Native framework |
+| [Expo](https://expo.dev) (v55) | React Native framework |
 | [TypeScript](https://www.typescriptlang.org/) (v5.9) | Type safety |
-| [Expo Router](https://docs.expo.dev/router/introduction/) (v6) | File-based routing |
+| [Expo Router](https://docs.expo.dev/router/introduction/) (v55) | File-based routing |
 | [Zustand](https://zustand-demo.pmnd.rs/) (v5) | State management |
 | [NativeWind](https://www.nativewind.dev/) (v4) | Tailwind CSS for React Native |
 | [react-i18next](https://react.i18next.com/) | Internationalization |
