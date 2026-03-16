@@ -1,6 +1,6 @@
 # API Reference
 
-Base URL: `http://localhost:3000`
+Base URL: `https://subscription-manager.daruks.com/`
 
 All endpoints that require authentication must include the following header:
 
