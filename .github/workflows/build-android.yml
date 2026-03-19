@@ -1,0 +1,126 @@
+name: Build Android APK
+
+on:
+  push:
+    tags:
+      - 'v*' # v1.0.0 などのタグが打たれた時に起動
+  workflow_dispatch: # 手動実行（テスト用）
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Release への書き込み権限
+
+    env:
+      CI: '1'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22.x'
+          cache: 'pnpm'
+
+      - name: Setup Java (JDK 17)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Align Expo SDK dependency versions
+        run: |
+          npx expo install --fix
+          pnpm list expo react react-native expo-modules-core --depth 0
+
+      - name: Expo Prebuild (Android)
+        run: npx expo prebuild -p android --clean --no-install
+
+      - name: Build APK (Release)
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleRelease 2>&1 | tee gradle-build.log
+
+      - name: Extract build errors on failure
+        if: failure()
+        run: |
+          if [ -f android/gradle-build.log ]; then
+            echo '---- error lines ----'
+            grep -n 'ERROR\|FAILURE\|error:' android/gradle-build.log || true
+          fi
+
+      - name: Find and rename APK
+        run: |
+          APK_PATH=$(find android/app/build/outputs/apk/release -name "*.apk" | head -1)
+          echo "Found APK: ${APK_PATH}"
+          cp "${APK_PATH}" subscription-app-release.apk
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: gradle-build-logs
+          path: android/gradle-build.log
+          if-no-files-found: ignore
+          retention-days: 7
+
+      # 手動実行時でもダウンロードできるようにアーティファクトとして保存
+      - name: Upload APK as Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: subscription-app-release-apk
+          path: subscription-app-release.apk
+          retention-days: 7
+
+      # CDN にアップロード
+      - name: Upload APK to CDN
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          TIMESTAMP=$(date +'%y%m%d%H%M%S')
+          if [ -n "${TAG}" ]; then
+            SAFE_TAG="${TAG//\//-}"
+            REMOTE_FILE="subscription-app-release_${SAFE_TAG}_${TIMESTAMP}.apk"
+          else
+            REMOTE_FILE="subscription-app-release_${TIMESTAMP}.apk"
+          fi
+          UPLOAD_URL="https://cdn.daruks.com/upload/subscription-manager/android-apk/${REMOTE_FILE}"
+
+          echo "Upload URL: ${UPLOAD_URL}"
+          HTTP_STATUS=$(curl -s -o response.json -w '%{http_code}' \
+            -X POST \
+            -H "Authorization: Bearer ${{ secrets.CDN_UPLOAD_TOKEN }}" \
+            -H "User-Agent: GitHub-Actions/CDN-Upload" \
+            -F "file=@subscription-app-release.apk;filename=${REMOTE_FILE}" \
+            "${UPLOAD_URL}")
+          echo "HTTP Status: ${HTTP_STATUS}"
+          cat response.json
+          if [ "${HTTP_STATUS}" -lt 200 ] || [ "${HTTP_STATUS}" -ge 300 ]; then
+            echo "::error::CDN upload failed with status ${HTTP_STATUS}"
+            exit 1
+          fi
+
+      # タグ付き push 時のみ GitHub Release を作成
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: subscription-app-release.apk
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
