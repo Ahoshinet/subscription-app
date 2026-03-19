@@ -3,6 +3,7 @@ import { View, Text, ScrollView, Pressable, useColorScheme, Alert, Image, Activi
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useSubscriptionStore } from '../store/useSubscriptionStore';
+import { usePaymentMethodStore } from '../store/usePaymentMethodStore';
 import { useTranslation } from 'react-i18next';
 import { parseSubscriptionPresetIconValue } from '../lib/subscriptionIcon';
 import { subscriptionApi } from '../lib/api';
@@ -22,6 +23,7 @@ export default function DetailScreen() {
 
     const { subscriptions, deleteSubscription, fetchSubscriptions } = useSubscriptionStore();
     const subscription = subscriptions.find(s => s.id === Number(id));
+    const { methods: paymentMethods } = usePaymentMethodStore();
     const { t } = useTranslation();
 
     if (!subscription) {
@@ -174,7 +176,7 @@ export default function DetailScreen() {
                         <DetailRow label={t('detail.label_plan_name')} value={subscription.plan_name || '—'} />
                         <DetailRow label={t('detail.label_next_payment')} value={formatDate(subscription.next_payment_date)} />
                         <DetailRow label={t('detail.label_billing_cycle')} value={t(`billing_cycle.${subscription.billing_cycle}`, { defaultValue: subscription.billing_cycle })} />
-                        <DetailRow label={t('detail.label_payment_method')} value={t(`payment_method.${subscription.payment_method}`, { defaultValue: subscription.payment_method })} isLast />
+                        <DetailRow label={t('detail.label_payment_method')} value={paymentMethods.find(m => m.id === subscription.payment_method)?.label ?? t(`payment_method.${subscription.payment_method}`, { defaultValue: subscription.payment_method })} isLast />
                     </View>
 
                     {/* Memo */}
