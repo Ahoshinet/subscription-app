@@ -58,11 +58,14 @@ jobs:
         run: pod install --repo-update
         working-directory: ios
 
-      - name: Build Xcode App (Unsigned)
+      - name: Build Xcode App (Sideload-friendly Unsigned)
         run: |
           set -o pipefail
           cd ios
           PROJECT_NAME=$(ls -d *.xcodeproj | sed 's/\.xcodeproj//')
+          # Entitlements ファイルのパスを特定（Expo prebuild が生成）
+          ENTITLEMENTS=$(find . -name "*.entitlements" -path "./${PROJECT_NAME}/*" | head -1)
+          echo "Using entitlements: ${ENTITLEMENTS}"
           xcodebuild \
             -workspace "${PROJECT_NAME}.xcworkspace" \
             -scheme "${PROJECT_NAME}" \
@@ -71,8 +74,8 @@ jobs:
             -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_ENTITLEMENTS="" \
-            CODE_SIGNING_INJECT_BASE_ENTITLEMENTS=NO \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES \
+            ${ENTITLEMENTS:+CODE_SIGN_ENTITLEMENTS="${ENTITLEMENTS}"} \
             clean build 2>&1 | tee xcodebuild.log
 
       - name: Extract xcodebuild errors on failure
