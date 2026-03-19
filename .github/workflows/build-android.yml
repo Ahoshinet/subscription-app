@@ -1,6 +1,9 @@
 name: Build Android APK
 
 on:
+  pull_request:
+    branches:
+      - main
   push:
     tags:
       - 'v*' # v1.0.0 などのタグが打たれた時に起動
@@ -88,8 +91,9 @@ jobs:
           path: subscription-app-release.apk
           retention-days: 7
 
-      # CDN にアップロード
+      # CDN にアップロード（タグ push または手動実行時のみ）
       - name: Upload APK to CDN
+        if: github.event_name != 'pull_request'
         run: |
           TAG="${GITHUB_REF_NAME}"
           TIMESTAMP=$(date +'%y%m%d%H%M%S')
@@ -118,7 +122,7 @@ jobs:
       # タグ付き push 時のみ GitHub Release を作成
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
+        if: github.event_name != 'pull_request' && startsWith(github.ref, 'refs/tags/')
         with:
           files: subscription-app-release.apk
           generate_release_notes: true
