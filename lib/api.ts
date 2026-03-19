@@ -1,27 +1,86 @@
 import * as SecureStore from 'expo-secure-store';
-import { Platform } from 'react-native';
+import { Platform, Alert } from 'react-native';
 import Constants from 'expo-constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const PRODUCTION_URL = 'https://subscription-manager.daruks.com';
 const DEV_PORT = 8084;
+const DEV_API_PREF_KEY = '__dev_use_official_api';
 
-const getApiBaseUrl = () => {
-    if (__DEV__) {
-        const hostUri = Constants.expoConfig?.hostUri;
-        if (hostUri) {
-            const host = hostUri.split(':')[0];
-            return `http://${host}:${DEV_PORT}/api`;
-        }
-        if (Platform.OS === 'android') {
-            return `http://10.0.2.2:${DEV_PORT}/api`;
-        }
-        return `http://localhost:${DEV_PORT}/api`;
+const getDevBaseUrl = () => {
+    const hostUri = Constants.expoConfig?.hostUri;
+    if (hostUri) {
+        const host = hostUri.split(':')[0];
+        return `http://${host}:${DEV_PORT}/api`;
     }
-
-    return `${PRODUCTION_URL}/api`;
+    if (Platform.OS === 'android') {
+        return `http://10.0.2.2:${DEV_PORT}/api`;
+    }
+    return `http://localhost:${DEV_PORT}/api`;
 };
 
-const API_BASE_URL = getApiBaseUrl();
+let API_BASE_URL = __DEV__ ? getDevBaseUrl() : `${PRODUCTION_URL}/api`;
+let _devFallbackResolved = false;
+
+/**
+ * Dev only: ローカルAPIサーバーの到達性を確認し、
+ * 失敗時にproduction URLへのフォールバックを提案する。
+ * 選択結果はAsyncStorageに保存し、次回起動時は自動適用する。
+ */
+export async function ensureApiReachable(): Promise<void> {
+    if (!__DEV__ || _devFallbackResolved) return;
+    _devFallbackResolved = true;
+
+    // 前回「公式APIを使う」を選択していた場合、自動適用
+    try {
+        const saved = await AsyncStorage.getItem(DEV_API_PREF_KEY);
+        if (saved === 'official') {
+            API_BASE_URL = `${PRODUCTION_URL}/api`;
+            console.log(`[api] Restored preference: official API (${API_BASE_URL})`);
+            return;
+        }
+    } catch { /* AsyncStorage unavailable, continue */ }
+
+    try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 3000);
+        const healthUrl = API_BASE_URL.replace(/\/api$/, '/health');
+        const res = await fetch(healthUrl, { signal: controller.signal });
+        clearTimeout(timeout);
+        if (res.ok) return;
+    } catch { /* local server unreachable */ }
+
+    // ローカルに繋がらなかった → ユーザーに聞く
+    return new Promise((resolve) => {
+        Alert.alert(
+            'ローカルサーバーに接続できません',
+            `${API_BASE_URL} に到達できませんでした。\n公式APIサーバーを使用しますか？`,
+            [
+                { text: 'ローカルのまま', style: 'cancel', onPress: () => resolve() },
+                {
+                    text: '公式APIを使う（今後も）',
+                    onPress: async () => {
+                        API_BASE_URL = `${PRODUCTION_URL}/api`;
+                        try { await AsyncStorage.setItem(DEV_API_PREF_KEY, 'official'); } catch {}
+                        console.log(`[api] Switched to official API: ${API_BASE_URL}`);
+                        resolve();
+                    },
+                },
+            ],
+        );
+    });
+}
+
+/**
+ * Dev only: 公式APIの選択をリセットし、次回起動時にローカルを再試行する
+ */
+export async function resetApiPreference(): Promise<void> {
+    if (!__DEV__) return;
+    try { await AsyncStorage.removeItem(DEV_API_PREF_KEY); } catch {}
+    API_BASE_URL = getDevBaseUrl();
+    _devFallbackResolved = false;
+    console.log(`[api] Reset to local: ${API_BASE_URL}`);
+}
 
 const TOKEN_KEY = 'auth_token';
 
@@ -91,12 +150,20 @@ export interface UpdateProfilePayload {
     username: string;
 }
 
-// Token Management
+// Token Management — SecureStore優先、フォールバックとしてAsyncStorageにもキャッシュ
+const TOKEN_CACHE_KEY = `__cache_${TOKEN_KEY}`;
+
 export const getToken = async () => {
     try {
-        return await SecureStore.getItemAsync(TOKEN_KEY);
+        const token = await SecureStore.getItemAsync(TOKEN_KEY);
+        if (token) return token;
     } catch (error) {
-        console.error('Failed to get token:', error);
+        console.error('SecureStore.get failed, trying AsyncStorage:', error);
+    }
+    try {
+        return await AsyncStorage.getItem(TOKEN_CACHE_KEY);
+    } catch (error) {
+        console.error('AsyncStorage.get token failed:', error);
         return null;
     }
 };
@@ -105,7 +172,12 @@ export const setToken = async (token: string) => {
     try {
         await SecureStore.setItemAsync(TOKEN_KEY, token);
     } catch (error) {
-        console.error('Failed to save token:', error);
+        console.error('SecureStore.set failed:', error);
+    }
+    try {
+        await AsyncStorage.setItem(TOKEN_CACHE_KEY, token);
+    } catch (error) {
+        console.error('AsyncStorage.set token failed:', error);
     }
 };
 
@@ -113,7 +185,12 @@ export const clearToken = async () => {
     try {
         await SecureStore.deleteItemAsync(TOKEN_KEY);
     } catch (error) {
-        console.error('Failed to clear token:', error);
+        console.error('SecureStore.delete failed:', error);
+    }
+    try {
+        await AsyncStorage.removeItem(TOKEN_CACHE_KEY);
+    } catch (error) {
+        console.error('AsyncStorage.remove token failed:', error);
     }
 };
 

@@ -9,6 +9,7 @@ import { useColorScheme as useNativeWindColorScheme } from 'nativewind';
 import { useEffect } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
+import { ensureApiReachable } from '@/lib/api';
 import '@/i18n';
 import { useTranslation } from 'react-i18next';
 
@@ -31,7 +32,7 @@ export default function RootLayout() {
     const router = useRouter();
 
     useEffect(() => {
-        checkAuth();
+        ensureApiReachable().then(() => checkAuth());
     }, []);
 
     useEffect(() => {
