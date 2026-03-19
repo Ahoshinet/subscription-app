@@ -149,7 +149,16 @@ async function tryRefreshToken(): Promise<boolean> {
 
 // Custom Fetch Wrapper
 async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const token = await getToken();
+    console.log(`[fetchAPI] START ${options.method || 'GET'} ${endpoint}`);
+    console.log(`[fetchAPI] BASE_URL: ${API_BASE_URL}`);
+
+    let token: string | null = null;
+    try {
+        token = await getToken();
+        console.log(`[fetchAPI] getToken: ${token ? 'exists' : 'null'}`);
+    } catch (e) {
+        console.error(`[fetchAPI] getToken FAILED:`, e);
+    }
 
     const headers = {
         'Content-Type': 'application/json',
@@ -157,10 +166,19 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise
         ...options.headers,
     };
 
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        ...options,
-        headers,
-    });
+    const url = `${API_BASE_URL}${endpoint}`;
+    console.log(`[fetchAPI] fetching: ${url}`);
+    let response: Response;
+    try {
+        response = await fetch(url, {
+            ...options,
+            headers,
+        });
+        console.log(`[fetchAPI] response status: ${response.status}`);
+    } catch (fetchError: any) {
+        console.error(`[fetchAPI] fetch THREW:`, fetchError?.message, fetchError);
+        throw fetchError;
+    }
 
     // Auto-refresh token on 401
     if (response.status === 401 && token && !endpoint.includes('/auth/refresh')) {
