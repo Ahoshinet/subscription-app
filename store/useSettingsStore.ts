@@ -64,10 +64,13 @@ export const useSettingsStore = create<SettingsState>()(
             },
 
             syncToServer: async (patch) => {
+                set({ isSyncing: true });
                 try {
                     await settingsApi.update(patch as any);
                 } catch {
                     // Settings saved locally even if server sync fails
+                } finally {
+                    set({ isSyncing: false });
                 }
             },
         }),

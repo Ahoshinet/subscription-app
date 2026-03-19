@@ -30,7 +30,7 @@ export default function PaymentMethodDetailScreen() {
     const segBg = isDark ? '#2C2C2E' : '#F2F2F7';
 
     const handleSave = () => {
-        updateMethod(id, { memo: memo.trim() || undefined });
+        void updateMethod(id, { memo: memo.trim() || undefined });
         setIsDirty(false);
     };
 
@@ -44,7 +44,7 @@ export default function PaymentMethodDetailScreen() {
                     text: t('billing.delete'),
                     style: 'destructive',
                     onPress: () => {
-                        removeMethod(id);
+                        void removeMethod(id);
                         router.back();
                     },
                 },

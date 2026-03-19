@@ -14,6 +14,7 @@ import {
     SubscriptionIconPack,
     buildSubscriptionPresetIconValue,
 } from '../lib/subscriptionIcon';
+import { useSettingsStore } from '../store/useSettingsStore';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const ICON_PICKER_WIDTH = Math.min(SCREEN_WIDTH - 32, 360);
@@ -35,8 +36,10 @@ export default function AddSubscriptionModal() {
     const [selectedPresetIcon, setSelectedPresetIcon] = useState<{ pack: SubscriptionIconPack; name: string; color: string } | null>(null);
     const [showIconPickerModal, setShowIconPickerModal] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [memo, setMemo] = useState('');
 
     const { billingCycle, paymentMethod } = useAddFormStore();
+    const { currency } = useSettingsStore();
     const { methods: savedPaymentMethods } = usePaymentMethodStore();
     const { addSubscription } = useSubscriptionStore();
 
@@ -63,12 +66,13 @@ export default function AddSubscriptionModal() {
                 service_name: serviceName,
                 plan_name: planName,
                 amount: Number(amount) || 0,
-                currency: 'JPY',
+                currency,
                 billing_cycle: billingCycle,
                 payment_method: paymentMethod,
                 next_payment_date: nextPaymentDate.toISOString(),
                 status: 'active',
                 icon_url: iconUrl,
+                memo: memo || undefined,
             });
             router.back();
         } catch (error: any) {
@@ -233,7 +237,7 @@ export default function AddSubscriptionModal() {
                         <View className="px-4 flex-row items-center" style={rowStyle}>
                             <Text className="text-neutral-900 dark:text-white" style={labelStyle}>{t('subscription_form.amount')}:</Text>
                             <TextInput
-                                placeholder="¥ 0"
+                                placeholder={`${currency === 'JPY' ? '¥' : currency === 'USD' ? '$' : currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : currency} 0`}
                                 keyboardType="numeric"
                                 placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
                                 className="flex-1 text-neutral-900 dark:text-white"
@@ -300,6 +304,8 @@ export default function AddSubscriptionModal() {
                             multiline
                             className="text-base text-neutral-900 dark:text-white p-4 min-h-[120px]"
                             textAlignVertical="top"
+                            value={memo}
+                            onChangeText={setMemo}
                         />
                     </View>
                 </View>

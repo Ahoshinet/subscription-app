@@ -151,7 +151,13 @@
         "monthly_spending": "You are spending {{amount}} this month",
         "error_load": "Failed to load: {{error}}\nMake sure the backend is running & auth token is set.",
         "empty": "No subscriptions found. Tap the + to add one.",
-        "standard_plan": "Standard Plan"
+        "standard_plan": "Standard Plan",
+        "search_placeholder": "Search subscriptions...",
+        "sort_name": "Sort by Name",
+        "sort_amount": "Sort by Amount",
+        "sort_date": "Sort by Date",
+        "no_results": "No matching subscriptions found.",
+        "end_of_list": "End of list"
     },
     "about": {
         "hero_subtitle": "View app details and the current environment at a glance.",
@@ -214,15 +220,26 @@
         "delete_message": "Are you sure you want to delete {{name}}?",
         "delete_confirm": "Delete",
         "error_delete_failed": "Failed to delete.",
+        "error_status_failed": "Failed to update status.",
         "label_service_name": "Service Name",
         "label_plan_name": "Plan Name",
         "label_next_payment": "Next Payment Date",
         "label_billing_cycle": "Billing Cycle",
         "label_payment_method": "Payment Method",
+        "label_memo": "Memo",
         "label_created_at": "Registered On",
         "label_updated_at": "Last Updated",
         "status_active": "Active",
         "status_inactive": "Inactive",
         "status_cancelled": "Cancelled"
+    },
+    "calendar": {
+        "title": "Subscription Calendar",
+        "coming_soon_message": "This feature is currently under development due to its complexity.\nIt may be removed in a future update."
+    },
+    "notification": {
+        "payment_reminder_title": "Payment Reminder",
+        "payment_tomorrow": "{{name}} ({{amount}}) is due tomorrow.",
+        "payment_in_days": "{{name}} ({{amount}}) is due in {{days}} days."
     }
 }

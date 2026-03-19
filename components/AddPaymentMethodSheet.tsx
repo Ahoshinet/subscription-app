@@ -127,7 +127,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
 
     const handleConfirmBrand = () => {
         if (!selectedBrand) return;
-        addMethod({
+        void addMethod({
             type: 'preset',
             label: selectedBrand.label,
             memo: brandMemo.trim() || undefined,
@@ -139,7 +139,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
 
     const handleAddCard = () => {
         if (cardLast4.length !== 4) return;
-        addMethod({
+        void addMethod({
             type: 'credit_card',
             label: `${cardBrand} ••••${cardLast4}`,
             memo: cardMemo.trim() || undefined,
@@ -153,7 +153,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
 
     const handleAddCustom = () => {
         if (!customLabel.trim()) return;
-        addMethod({
+        void addMethod({
             type: 'custom',
             label: customLabel.trim(),
             memo: customMemo.trim() || undefined,

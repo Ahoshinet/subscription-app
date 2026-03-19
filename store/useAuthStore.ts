@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { authApi, AuthPayload, User, setToken, clearToken, getToken } from '../lib/api';
 import { useSettingsStore } from './useSettingsStore';
+import { usePaymentMethodStore } from './usePaymentMethodStore';
 
 interface AuthState {
     user: User | null;
@@ -34,8 +35,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 isAuthenticated: true,
                 isLoading: false
             });
-            // Sync settings from server after login
+            // Sync settings and payment methods from server after login
             useSettingsStore.getState().syncFromServer();
+            usePaymentMethodStore.getState().syncFromServer();
         } catch (err: any) {
             set({ error: err.message || 'Login failed', isLoading: false });
             throw err;
@@ -52,8 +54,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 isAuthenticated: true,
                 isLoading: false
             });
-            // Sync settings from server after register
+            // Sync settings and payment methods from server after register
             useSettingsStore.getState().syncFromServer();
+            usePaymentMethodStore.getState().syncFromServer();
         } catch (err: any) {
             set({ error: err.message || 'Registration failed', isLoading: false });
             throw err;
@@ -90,8 +93,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 isAuthenticated: true,
                 isInitializing: false
             });
-            // Sync settings from server on app startup
+            // Sync settings and payment methods from server on app startup
             useSettingsStore.getState().syncFromServer();
+            usePaymentMethodStore.getState().syncFromServer();
         } catch (err: any) {
             // Token might be invalid or expired
             await clearToken();

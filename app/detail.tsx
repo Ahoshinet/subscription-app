@@ -1,10 +1,11 @@
-import React from 'react';
-import { View, Text, ScrollView, Pressable, useColorScheme, Alert, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, Pressable, useColorScheme, Alert, Image, ActivityIndicator } from 'react-native';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useSubscriptionStore } from '../store/useSubscriptionStore';
 import { useTranslation } from 'react-i18next';
 import { parseSubscriptionPresetIconValue } from '../lib/subscriptionIcon';
+import { subscriptionApi } from '../lib/api';
 
 const STATUS_COLORS: Record<string, string> = {
     active: '#22C55E',
@@ -17,8 +18,9 @@ export default function DetailScreen() {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
     const { id } = useLocalSearchParams<{ id: string }>();
+    const [isTogglingStatus, setIsTogglingStatus] = useState(false);
 
-    const { subscriptions, deleteSubscription } = useSubscriptionStore();
+    const { subscriptions, deleteSubscription, fetchSubscriptions } = useSubscriptionStore();
     const subscription = subscriptions.find(s => s.id === Number(id));
     const { t } = useTranslation();
 
@@ -33,6 +35,7 @@ export default function DetailScreen() {
 
     const statusColor = STATUS_COLORS[subscription.status] ?? '#808080';
     const statusLabel = t(`detail.status_${subscription.status}`, { defaultValue: subscription.status });
+    const isActive = subscription.status === 'active';
 
     const formatDate = (dateStr: string) => {
         try {
@@ -40,6 +43,19 @@ export default function DetailScreen() {
             return `${date.getFullYear()}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
         } catch {
             return dateStr;
+        }
+    };
+
+    const handleToggleStatus = async () => {
+        const newStatus = isActive ? 'inactive' : 'active';
+        setIsTogglingStatus(true);
+        try {
+            await subscriptionApi.updateStatus(subscription.id, newStatus);
+            await fetchSubscriptions();
+        } catch (e: any) {
+            Alert.alert(t('common.error'), e.message || t('detail.error_status_failed'));
+        } finally {
+            setIsTogglingStatus(false);
         }
     };
 
@@ -116,9 +132,39 @@ export default function DetailScreen() {
                     <Text className="text-neutral-500 dark:text-neutral-400 text-base mt-1">
                         {t(`billing_cycle.${subscription.billing_cycle}`, { defaultValue: subscription.billing_cycle })}
                     </Text>
-                    <View className="mt-3 px-3 py-1 rounded-full" style={{ backgroundColor: statusColor + '20' }}>
-                        <Text style={{ color: statusColor, fontWeight: '600', fontSize: 13 }}>{statusLabel}</Text>
-                    </View>
+
+                    {/* Status Toggle */}
+                    <Pressable
+                        onPress={handleToggleStatus}
+                        disabled={isTogglingStatus}
+                        className="mt-3 px-4 py-1.5 rounded-full flex-row items-center"
+                        style={{ backgroundColor: statusColor + '20' }}
+                    >
+                        {isTogglingStatus ? (
+                            <ActivityIndicator size="small" color={statusColor} />
+                        ) : (
+                            <>
+                                <View
+                                    style={{
+                                        width: 8,
+                                        height: 8,
+                                        borderRadius: 4,
+                                        backgroundColor: statusColor,
+                                        marginRight: 6,
+                                    }}
+                                />
+                                <Text style={{ color: statusColor, fontWeight: '600', fontSize: 13 }}>
+                                    {statusLabel}
+                                </Text>
+                                <Ionicons
+                                    name="chevron-expand"
+                                    size={14}
+                                    color={statusColor}
+                                    style={{ marginLeft: 4 }}
+                                />
+                            </>
+                        )}
+                    </Pressable>
                 </View>
 
                 <View className="px-4">
@@ -130,6 +176,16 @@ export default function DetailScreen() {
                         <DetailRow label={t('detail.label_billing_cycle')} value={t(`billing_cycle.${subscription.billing_cycle}`, { defaultValue: subscription.billing_cycle })} />
                         <DetailRow label={t('detail.label_payment_method')} value={t(`payment_method.${subscription.payment_method}`, { defaultValue: subscription.payment_method })} isLast />
                     </View>
+
+                    {/* Memo */}
+                    {(subscription as any).memo ? (
+                        <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6">
+                            <View className="px-4 py-3.5">
+                                <Text className="text-neutral-500 dark:text-neutral-400 text-sm mb-1">{t('detail.label_memo')}</Text>
+                                <Text className="text-neutral-900 dark:text-white text-base">{(subscription as any).memo}</Text>
+                            </View>
+                        </View>
+                    ) : null}
 
                     {/* Info Group */}
                     <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6">

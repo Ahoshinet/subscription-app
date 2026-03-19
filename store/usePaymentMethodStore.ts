@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { paymentMethodApi } from '../lib/api';
 
 export interface SavedPaymentMethod {
     id: string;
@@ -16,30 +17,102 @@ export interface SavedPaymentMethod {
 
 interface PaymentMethodState {
     methods: SavedPaymentMethod[];
-    addMethod: (method: Omit<SavedPaymentMethod, 'id'>) => string;
-    removeMethod: (id: string) => void;
-    updateMethod: (id: string, updates: Partial<Omit<SavedPaymentMethod, 'id'>>) => void;
+    isSyncing: boolean;
+    addMethod: (method: Omit<SavedPaymentMethod, 'id'>) => Promise<string>;
+    removeMethod: (id: string) => Promise<void>;
+    updateMethod: (id: string, updates: Partial<Omit<SavedPaymentMethod, 'id'>>) => Promise<void>;
+    syncFromServer: () => Promise<void>;
 }
 
 export const usePaymentMethodStore = create<PaymentMethodState>()(
     persist(
-        (set) => ({
+        (set, get) => ({
             methods: [],
-            addMethod: (method) => {
-                const id = Date.now().toString();
+            isSyncing: false,
+
+            addMethod: async (method) => {
+                // Optimistic local add with temp id
+                const tempId = Date.now().toString();
                 set((state) => ({
-                    methods: [...state.methods, { ...method, id }],
+                    methods: [...state.methods, { ...method, id: tempId }],
                 }));
-                return id;
+
+                try {
+                    const created = await paymentMethodApi.create({
+                        type: method.type,
+                        label: method.label,
+                        icon_name: method.iconName,
+                        icon_uri: method.iconUri,
+                        color: method.color,
+                        last4: method.last4,
+                        card_brand: method.cardBrand,
+                        memo: method.memo,
+                    });
+                    // Replace temp id with server id
+                    set((state) => ({
+                        methods: state.methods.map((m) =>
+                            m.id === tempId ? { ...m, id: created.id } : m
+                        ),
+                    }));
+                    return created.id;
+                } catch {
+                    // Keep local version with temp id on failure
+                    return tempId;
+                }
             },
-            removeMethod: (id) =>
+
+            removeMethod: async (id) => {
                 set((state) => ({
                     methods: state.methods.filter((m) => m.id !== id),
-                })),
-            updateMethod: (id, updates) =>
+                }));
+                try {
+                    await paymentMethodApi.delete(id);
+                } catch {
+                    // Already removed locally
+                }
+            },
+
+            updateMethod: async (id, updates) => {
                 set((state) => ({
-                    methods: state.methods.map((m) => m.id === id ? { ...m, ...updates } : m),
-                })),
+                    methods: state.methods.map((m) =>
+                        m.id === id ? { ...m, ...updates } : m
+                    ),
+                }));
+                try {
+                    await paymentMethodApi.update(id, {
+                        label: updates.label,
+                        icon_name: updates.iconName,
+                        icon_uri: updates.iconUri,
+                        color: updates.color,
+                        last4: updates.last4,
+                        card_brand: updates.cardBrand,
+                        memo: updates.memo,
+                    });
+                } catch {
+                    // Local update already applied
+                }
+            },
+
+            syncFromServer: async () => {
+                try {
+                    set({ isSyncing: true });
+                    const serverMethods = await paymentMethodApi.getAll();
+                    const mapped: SavedPaymentMethod[] = serverMethods.map((m) => ({
+                        id: m.id,
+                        type: m.type as SavedPaymentMethod['type'],
+                        label: m.label,
+                        iconName: m.icon_name,
+                        iconUri: m.icon_uri,
+                        color: m.color,
+                        last4: m.last4,
+                        cardBrand: m.card_brand,
+                        memo: m.memo,
+                    }));
+                    set({ methods: mapped, isSyncing: false });
+                } catch {
+                    set({ isSyncing: false });
+                }
+            },
         }),
         {
             name: 'payment-methods-storage',

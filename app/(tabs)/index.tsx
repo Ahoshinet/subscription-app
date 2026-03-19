@@ -1,12 +1,23 @@
-import { View, Text, ScrollView, SafeAreaView, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, Pressable, ActivityIndicator, RefreshControl, TextInput } from 'react-native';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { SubscriptionCard } from '@/components/SubscriptionCard';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSubscriptionStore } from '@/store/useSubscriptionStore';
+import { useSettingsStore } from '@/store/useSettingsStore';
+import { requestNotificationPermissions, schedulePaymentReminders, cancelAllReminders } from '@/lib/notifications';
+
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  JPY: '¥',
+  USD: '$',
+  EUR: '€',
+  GBP: '£',
+};
+
+type SortKey = 'name' | 'amount' | 'date';
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
@@ -15,6 +26,10 @@ export default function HomeScreen() {
   const { t } = useTranslation();
 
   const { subscriptions, isLoading, error, fetchSubscriptions } = useSubscriptionStore();
+  const { currency, pushNotifications } = useSettingsStore();
+  const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortKey, setSortKey] = useState<SortKey>('date');
 
   useFocusEffect(
     useCallback(() => {
@@ -22,12 +37,73 @@ export default function HomeScreen() {
     }, [])
   );
 
+  // Schedule payment reminder notifications
+  useEffect(() => {
+    if (subscriptions.length > 0 && pushNotifications) {
+      (async () => {
+        const granted = await requestNotificationPermissions();
+        if (granted) {
+          await schedulePaymentReminders(subscriptions, t);
+        }
+      })();
+    } else if (!pushNotifications) {
+      cancelAllReminders();
+    }
+  }, [subscriptions, pushNotifications]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchSubscriptions();
+    setRefreshing(false);
+  }, [fetchSubscriptions]);
+
+  const currencySymbol = CURRENCY_SYMBOLS[currency] || currency;
+
+  const filteredAndSorted = useMemo(() => {
+    let result = [...subscriptions];
+
+    // Search filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      result = result.filter(sub =>
+        sub.service_name.toLowerCase().includes(q) ||
+        (sub.plan_name && sub.plan_name.toLowerCase().includes(q))
+      );
+    }
+
+    // Sort
+    result.sort((a, b) => {
+      switch (sortKey) {
+        case 'name':
+          return a.service_name.localeCompare(b.service_name);
+        case 'amount':
+          return b.amount - a.amount;
+        case 'date':
+        default:
+          return new Date(a.next_payment_date).getTime() - new Date(b.next_payment_date).getTime();
+      }
+    });
+
+    return result;
+  }, [subscriptions, searchQuery, sortKey]);
+
   const totalMonthlySpent = subscriptions
-    .filter(sub => sub.status === 'active') // Assuming you have active status
-    .reduce((total, sub) => {
-      // Simple total calculation for now. Could be adjusted based on billing_cycle
-      return total + Number(sub.amount || 0);
-    }, 0);
+    .filter(sub => sub.status === 'active')
+    .reduce((total, sub) => total + Number(sub.amount || 0), 0);
+
+  const nextSortKey = (): SortKey => {
+    if (sortKey === 'date') return 'name';
+    if (sortKey === 'name') return 'amount';
+    return 'date';
+  };
+
+  const sortLabel = () => {
+    switch (sortKey) {
+      case 'name': return t('home.sort_name');
+      case 'amount': return t('home.sort_amount');
+      case 'date': return t('home.sort_date');
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-neutral-950">
@@ -35,14 +111,21 @@ export default function HomeScreen() {
       <ScrollView
         contentContainerStyle={{ padding: 20 }}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={isDark ? '#60A5FA' : '#3B82F6'}
+          />
+        }
       >
-        <View className="mt-8 mb-10 flex-row justify-between items-start">
+        <View className="mt-8 mb-6 flex-row justify-between items-start">
           <View>
             <Text className="text-4xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
               {t('home.title')}
             </Text>
             <Text className="text-base text-neutral-500 dark:text-neutral-400 mt-2 font-medium">
-              {t('home.monthly_spending', { amount: `¥${totalMonthlySpent.toLocaleString()}` })}
+              {t('home.monthly_spending', { amount: `${currencySymbol}${totalMonthlySpent.toLocaleString()}` })}
             </Text>
           </View>
 
@@ -53,6 +136,38 @@ export default function HomeScreen() {
             <Ionicons name="add" size={28} color="#ffffff" />
           </Pressable>
         </View>
+
+        {/* Search & Sort */}
+        {subscriptions.length > 0 && (
+          <View className="mb-4">
+            <View className="bg-white dark:bg-[#1C1C1E] rounded-xl flex-row items-center px-3 mb-3" style={{ height: 44 }}>
+              <Ionicons name="search" size={18} color={isDark ? '#6B7280' : '#9CA3AF'} />
+              <TextInput
+                placeholder={t('home.search_placeholder')}
+                placeholderTextColor={isDark ? '#52525B' : '#A1A1AA'}
+                className="flex-1 text-base text-neutral-900 dark:text-white ml-2"
+                style={{ height: 44, paddingTop: 0, paddingBottom: 0 }}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                autoCorrect={false}
+              />
+              {searchQuery.length > 0 && (
+                <Pressable onPress={() => setSearchQuery('')}>
+                  <Ionicons name="close-circle" size={18} color={isDark ? '#6B7280' : '#9CA3AF'} />
+                </Pressable>
+              )}
+            </View>
+            <Pressable
+              onPress={() => setSortKey(nextSortKey())}
+              className="flex-row items-center self-end"
+            >
+              <Ionicons name="swap-vertical" size={16} color={isDark ? '#6B7280' : '#9CA3AF'} />
+              <Text className="text-sm text-neutral-500 dark:text-neutral-400 ml-1">
+                {sortLabel()}
+              </Text>
+            </Pressable>
+          </View>
+        )}
 
         {error ? (
           <View className="bg-red-100 dark:bg-red-900/30 p-4 rounded-xl mb-6 border border-red-200 dark:border-red-900/50">
@@ -76,11 +191,18 @@ export default function HomeScreen() {
               </View>
             )}
 
-            {subscriptions.map((sub) => {
-              // Calculate rough days remaining logic or default to next_payment_date diff
+            {filteredAndSorted.length === 0 && subscriptions.length > 0 && searchQuery.trim() && (
+              <View className="py-10 items-center">
+                <Text className="text-neutral-500 dark:text-neutral-400 font-medium">
+                  {t('home.no_results')}
+                </Text>
+              </View>
+            )}
+
+            {filteredAndSorted.map((sub) => {
               const nextPaymentDate = new Date(sub.next_payment_date);
-              const diffTime = Math.abs(nextPaymentDate.getTime() - new Date().getTime());
-              const daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+              const diffTime = nextPaymentDate.getTime() - new Date().getTime();
+              const daysRemaining = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
 
               return (
                 <SubscriptionCard
@@ -102,7 +224,7 @@ export default function HomeScreen() {
 
         <View className="mt-8 pb-32 items-center">
           <Text className="text-sm font-medium text-neutral-400 dark:text-neutral-600">
-            End of list
+            {t('home.end_of_list')}
           </Text>
         </View>
       </ScrollView>

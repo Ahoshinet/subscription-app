@@ -37,6 +37,7 @@ export interface Subscription {
     payment_method: string;
     payment_details?: string;
     icon_url?: string;
+    memo?: string;
     next_payment_date: string;
     status: string;
     created_at?: string;
@@ -52,6 +53,7 @@ export interface CreateSubscriptionPayload {
     payment_method?: string;
     payment_details?: string;
     icon_url?: string;
+    memo?: string;
     next_payment_date: string;
     status?: string;
 }
@@ -115,6 +117,36 @@ export const clearToken = async () => {
     }
 };
 
+// Token refresh logic
+let isRefreshing = false;
+
+async function tryRefreshToken(): Promise<boolean> {
+    if (isRefreshing) return false;
+    isRefreshing = true;
+    try {
+        const token = await getToken();
+        if (!token) return false;
+        const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        if (!response.ok) return false;
+        const data = await response.json();
+        if (data.token) {
+            await setToken(data.token);
+            return true;
+        }
+        return false;
+    } catch {
+        return false;
+    } finally {
+        isRefreshing = false;
+    }
+}
+
 // Custom Fetch Wrapper
 async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const token = await getToken();
@@ -129,6 +161,28 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise
         ...options,
         headers,
     });
+
+    // Auto-refresh token on 401
+    if (response.status === 401 && token && !endpoint.includes('/auth/refresh')) {
+        const refreshed = await tryRefreshToken();
+        if (refreshed) {
+            const newToken = await getToken();
+            const retryHeaders = {
+                ...headers,
+                Authorization: `Bearer ${newToken}`,
+            };
+            const retryResponse = await fetch(`${API_BASE_URL}${endpoint}`, {
+                ...options,
+                headers: retryHeaders,
+            });
+            if (!retryResponse.ok) {
+                const errorData = await retryResponse.json().catch(() => ({}));
+                throw new Error(errorData.error || `Request failed with status ${retryResponse.status}`);
+            }
+            const text = await retryResponse.text();
+            return text ? JSON.parse(text) : {} as unknown as T;
+        }
+    }
 
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -206,6 +260,49 @@ export const getServerBaseUrl = () => {
         return `http://localhost:${DEV_PORT}`;
     }
     return PRODUCTION_URL;
+};
+
+// Payment Method Types
+export interface PaymentMethod {
+    id: string;
+    user_id: string;
+    type: string;
+    label: string;
+    icon_name?: string;
+    icon_uri?: string;
+    color: string;
+    last4?: string;
+    card_brand?: string;
+    memo?: string;
+    created_at?: string;
+    updated_at?: string;
+}
+
+export interface CreatePaymentMethodPayload {
+    type?: string;
+    label: string;
+    icon_name?: string;
+    icon_uri?: string;
+    color?: string;
+    last4?: string;
+    card_brand?: string;
+    memo?: string;
+}
+
+// Payment Method Endpoints
+export const paymentMethodApi = {
+    getAll: () => fetchAPI<PaymentMethod[]>('/payment-methods'),
+    create: (data: CreatePaymentMethodPayload) => fetchAPI<PaymentMethod>('/payment-methods', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    }),
+    update: (id: string, data: Partial<CreatePaymentMethodPayload>) => fetchAPI<void>(`/payment-methods/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+    }),
+    delete: (id: string) => fetchAPI<void>(`/payment-methods/${id}`, {
+        method: 'DELETE',
+    }),
 };
 
 // Upload Endpoints

@@ -26,6 +26,7 @@
     "expo-image": "~55.0.6",
     "expo-image-picker": "^55.0.12",
     "expo-linking": "~55.0.7",
+    "expo-notifications": "^55.0.13",
     "expo-router": "~55.0.5",
     "expo-secure-store": "^55.0.8",
     "expo-splash-screen": "~55.0.10",
