@@ -1,28 +1,41 @@
-import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { Subscription } from './api';
 
-// Configure notification behavior
-Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: false,
-        shouldShowBanner: true,
-        shouldShowList: true,
-    }),
-});
+type NotificationsModule = typeof import('expo-notifications');
+
+let _notifications: NotificationsModule | null = null;
+
+function getNotifications(): NotificationsModule | null {
+    if (_notifications) return _notifications;
+    try {
+        _notifications = require('expo-notifications') as NotificationsModule;
+        _notifications.setNotificationHandler({
+            handleNotification: async () => ({
+                shouldShowAlert: true,
+                shouldPlaySound: true,
+                shouldSetBadge: false,
+                shouldShowBanner: true,
+                shouldShowList: true,
+            }),
+        });
+        return _notifications;
+    } catch {
+        return null;
+    }
+}
 
 const REMINDER_DAYS = [14, 7, 3, 1] as const;
 
 export async function requestNotificationPermissions(): Promise<boolean> {
     if (Platform.OS === 'web') return false;
+    const N = getNotifications();
+    if (!N) return false;
 
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    const { status: existingStatus } = await N.getPermissionsAsync();
     let finalStatus = existingStatus;
 
     if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
+        const { status } = await N.requestPermissionsAsync();
         finalStatus = status;
     }
 
@@ -33,8 +46,10 @@ export async function schedulePaymentReminders(
     subscriptions: Subscription[],
     t: (key: string, options?: Record<string, unknown>) => string
 ): Promise<void> {
-    // Cancel all existing scheduled notifications first
-    await Notifications.cancelAllScheduledNotificationsAsync();
+    const N = getNotifications();
+    if (!N) return;
+
+    await N.cancelAllScheduledNotificationsAsync();
 
     const now = new Date();
 
@@ -46,14 +61,13 @@ export async function schedulePaymentReminders(
         for (const daysBefore of REMINDER_DAYS) {
             const triggerDate = new Date(paymentDate);
             triggerDate.setDate(triggerDate.getDate() - daysBefore);
-            triggerDate.setHours(9, 0, 0, 0); // 9:00 AM
+            triggerDate.setHours(9, 0, 0, 0);
 
-            // Only schedule if the trigger date is in the future
             if (triggerDate.getTime() <= now.getTime()) continue;
 
             const secondsUntil = Math.floor((triggerDate.getTime() - now.getTime()) / 1000);
 
-            await Notifications.scheduleNotificationAsync({
+            await N.scheduleNotificationAsync({
                 content: {
                     title: t('notification.payment_reminder_title'),
                     body: daysBefore === 1
@@ -62,7 +76,7 @@ export async function schedulePaymentReminders(
                     data: { subscriptionId: sub.id },
                 },
                 trigger: {
-                    type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+                    type: N.SchedulableTriggerInputTypes.TIME_INTERVAL,
                     seconds: secondsUntil,
                     repeats: false,
                 },
@@ -72,5 +86,7 @@ export async function schedulePaymentReminders(
 }
 
 export async function cancelAllReminders(): Promise<void> {
-    await Notifications.cancelAllScheduledNotificationsAsync();
+    const N = getNotifications();
+    if (!N) return;
+    await N.cancelAllScheduledNotificationsAsync();
 }
