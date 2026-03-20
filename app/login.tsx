@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { View, Text, TextInput, Pressable, useColorScheme, KeyboardAvoidingView, ScrollView, Platform, ActivityIndicator, Alert } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
 import { useAuthStore } from '../store/useAuthStore';
@@ -11,13 +11,16 @@ export default function LoginScreen() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const { login, isLoading, error, clearError } = useAuthStore();
+    const isSubmitting = useRef(false);
 
     const handleLogin = async () => {
+        if (isSubmitting.current) return;
         if (!username || !password) {
             Alert.alert('入力エラー', 'ユーザー名とパスワードを入力してください');
             return;
         }
 
+        isSubmitting.current = true;
         clearError();
         try {
             await login({ username, password });
@@ -25,6 +28,8 @@ export default function LoginScreen() {
             router.replace('/(tabs)');
         } catch (e: any) {
             // Error is handled by the store
+        } finally {
+            isSubmitting.current = false;
         }
     };
 
@@ -64,6 +69,7 @@ export default function LoginScreen() {
                             value={username}
                             onChangeText={setUsername}
                             autoCapitalize="none"
+                            textContentType="username"
                         />
                     </View>
 
@@ -78,6 +84,7 @@ export default function LoginScreen() {
                             secureTextEntry
                             autoCapitalize="none"
                             autoCorrect={false}
+                            textContentType="password"
                         />
                     </View>
                 </View>

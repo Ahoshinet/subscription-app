@@ -175,6 +175,29 @@ export const clearToken = async () => {
     }
 };
 
+// Rate limiter (sliding window)
+const RATE_LIMITS: { pattern: RegExp; max: number; windowMs: number }[] = [
+    { pattern: /\/auth\/(login|register)/, max: 5,  windowMs: 60_000 }, // 認証: 60秒に5回まで
+    { pattern: /.*/,                        max: 30, windowMs: 30_000 }, // 全体: 30秒に30回まで
+];
+const requestTimestamps: Map<string, number[]> = new Map();
+
+function checkRateLimit(endpoint: string): void {
+    const now = Date.now();
+    for (const { pattern, max, windowMs } of RATE_LIMITS) {
+        if (!pattern.test(endpoint)) continue;
+        const key = pattern.source;
+        const timestamps = (requestTimestamps.get(key) ?? []).filter(t => now - t < windowMs);
+        if (timestamps.length >= max) {
+            const retryAfterSec = Math.ceil((timestamps[0] + windowMs - now) / 1000);
+            throw new Error(`リクエストが多すぎます。${retryAfterSec}秒後に再試行してください。`);
+        }
+        timestamps.push(now);
+        requestTimestamps.set(key, timestamps);
+        break; // 最初にマッチしたルールのみ適用
+    }
+}
+
 // Token refresh logic
 let isRefreshing = false;
 
@@ -207,6 +230,7 @@ async function tryRefreshToken(): Promise<boolean> {
 
 // Custom Fetch Wrapper
 async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    checkRateLimit(endpoint);
     console.log(`[fetchAPI] START ${options.method || 'GET'} ${endpoint}`);
     console.log(`[fetchAPI] BASE_URL: ${API_BASE_URL}`);
 
