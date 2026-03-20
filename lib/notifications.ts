@@ -57,8 +57,8 @@ export async function schedulePaymentReminders(
                 content: {
                     title: t('notification.payment_reminder_title'),
                     body: daysBefore === 1
-                        ? t('notification.payment_tomorrow', { name: sub.service_name, amount: sub.amount })
-                        : t('notification.payment_in_days', { name: sub.service_name, days: daysBefore, amount: sub.amount }),
+                        ? t('notification.payment_tomorrow', { name: sub.service_name, plan: sub.plan_name ?? '', price: sub.amount, currency: sub.currency })
+                        : t('notification.payment_in_days', { name: sub.service_name, plan: sub.plan_name ?? '', price: sub.amount, currency: sub.currency, days: daysBefore }),
                     data: { subscriptionId: sub.id },
                 },
                 trigger: {

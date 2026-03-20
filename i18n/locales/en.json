@@ -140,7 +140,7 @@
         "other": "Other"
     },
     "subscription_card": {
-        "action_required": "Action Required Soon",
+        "action_required": "Payment Due Soon",
         "next_payment": "Next Payment",
         "today": "Today",
         "in_days": "in {{count}} days",
@@ -239,7 +239,7 @@
     },
     "notification": {
         "payment_reminder_title": "Payment Reminder",
-        "payment_tomorrow": "{{name}} ({{amount}}) is due tomorrow.",
-        "payment_in_days": "{{name}} ({{amount}}) is due in {{days}} days."
+        "payment_tomorrow": "{{name}} {{plan}} ({{price}}{{currency}}) payment is due tomorrow.",
+        "payment_in_days": "{{name}} {{plan}} ({{price}}{{currency}}) payment is due in {{days}} days."
     }
 }

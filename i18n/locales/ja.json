@@ -140,7 +140,7 @@
         "other": "その他"
     },
     "subscription_card": {
-        "action_required": "要アクション",
+        "action_required": "支払間近",
         "next_payment": "次回請求日：",
         "today": "本日",
         "in_days": "{{count}}日後",
@@ -239,7 +239,7 @@
     },
     "notification": {
         "payment_reminder_title": "お支払いリマインダー",
-        "payment_tomorrow": "{{name}}（{{amount}}）のお支払いが明日です。",
-        "payment_in_days": "{{name}}（{{amount}}）のお支払いが{{days}}日後です。"
+        "payment_tomorrow": "{{name}}の{{plan}}（{{price}}{{currency}}）のお支払いが明日になっています。",
+        "payment_in_days": "{{name}}の{{plan}}（{{price}}{{currency}}）のお支払いが{{days}}日後です。"
     }
 }

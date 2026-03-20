@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "subscription-app",
+    "name": "Subscription Manager",
     "slug": "subscription-app",
-    "version": "1.0.0",
+    "version": "0.7.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "subscriptionapp",
@@ -21,7 +21,8 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.darui3018823.subscriptionapp"
     },
     "web": {
       "output": "static",
@@ -46,7 +47,8 @@
         {
           "sounds": []
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true,

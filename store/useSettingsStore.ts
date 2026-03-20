@@ -25,7 +25,7 @@ export const useSettingsStore = create<SettingsState>()(
     persist(
         (set, get) => ({
             language: 'en',
-            currency: 'USD',
+            currency: 'JPY',
             pushNotifications: true,
             theme: 'system',
             isSyncing: false,
@@ -53,7 +53,7 @@ export const useSettingsStore = create<SettingsState>()(
                     const settings = await settingsApi.get();
                     set({
                         language: (settings.language as Language) || 'en',
-                        currency: settings.currency || 'USD',
+                        currency: settings.currency || 'JPY',
                         pushNotifications: settings.push_notifications ?? true,
                         theme: (settings.theme as ThemePreference) || 'system',
                         isSyncing: false,
