@@ -172,7 +172,7 @@ export default function HomeScreen() {
 
           <Pressable
             onPress={() => router.push('/add')}
-            className="w-12 h-12 bg-blue-500 rounded-full items-center justify-center shadow-lg shadow-blue-500/30"
+            className="w-16 h-11 bg-blue-500 rounded-full items-center justify-center shadow-lg shadow-blue-500/30"
           >
             <Ionicons name="add" size={28} color="#ffffff" />
           </Pressable>
