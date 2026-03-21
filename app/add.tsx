@@ -16,7 +16,7 @@ import {
 } from '../lib/subscriptionIcon';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-import { CURRENCIES, getSystemCurrency } from '../lib/currency';
+import { CURRENCIES } from '../lib/currency';
 
 const ICON_PICKER_WIDTH = Math.min(SCREEN_WIDTH - 32, 360);
 const ICON_PICKER_GAP = 10;
@@ -38,10 +38,8 @@ export default function AddSubscriptionModal() {
     const [showIconPickerModal, setShowIconPickerModal] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [memo, setMemo] = useState('');
-    const [currency, setCurrency] = useState<typeof CURRENCIES[number]['id']>(getSystemCurrency());
-    const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
 
-    const { billingCycle, paymentMethod } = useAddFormStore();
+    const { billingCycle, paymentMethod, currency } = useAddFormStore();
     const { methods: savedPaymentMethods } = usePaymentMethodStore();
     const { addSubscription } = useSubscriptionStore();
 
@@ -249,27 +247,16 @@ export default function AddSubscriptionModal() {
                             />
                         </View>
                         <Pressable
-                            onPress={() => setShowCurrencyPicker(v => !v)}
-                            className={`px-4 flex-row items-center justify-between${showCurrencyPicker ? ' border-b border-neutral-200 dark:border-neutral-800' : ''}`}
+                            onPress={() => router.push('/settings/currency-picker' as any)}
+                            className="px-4 flex-row items-center justify-between"
                             style={rowStyle}
                         >
                             <Text className="text-neutral-900 dark:text-white" style={labelStyle}>{t('subscription_form.currency')}:</Text>
                             <View className="flex-row items-center">
                                 <Text className="text-neutral-500 dark:text-neutral-400 mr-2">{currency}</Text>
-                                <Ionicons name={showCurrencyPicker ? 'chevron-up' : 'chevron-down'} size={16} color={isDark ? '#52525B' : '#A1A1AA'} />
+                                <Ionicons name="chevron-forward" size={16} color={isDark ? '#52525B' : '#A1A1AA'} />
                             </View>
                         </Pressable>
-                        {showCurrencyPicker && CURRENCIES.map((c, i) => (
-                            <Pressable
-                                key={c.id}
-                                onPress={() => { setCurrency(c.id); setShowCurrencyPicker(false); }}
-                                className={`px-6 flex-row items-center justify-between${i < CURRENCIES.length - 1 ? ' border-b border-neutral-200 dark:border-neutral-800' : ''}`}
-                                style={{ height: 44, backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)' }}
-                            >
-                                <Text className="text-neutral-700 dark:text-neutral-300 text-sm">{c.symbol} {c.id} — {c.name}</Text>
-                                {currency === c.id && <Ionicons name="checkmark" size={18} color="#3B82F6" />}
-                            </Pressable>
-                        ))}
                     </View>
 
                     {/* Payment Details Group */}
