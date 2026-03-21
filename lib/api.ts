@@ -355,6 +355,12 @@ export const subscriptionApi = {
     }),
 };
 
+// Helper to get the current API base URL (runtime value, reflects fallback)
+export const getApiBaseUrl = () => API_BASE_URL;
+
+// Helper to check if currently using public (production) API
+export const isUsingPublicApi = () => API_BASE_URL.includes(PRODUCTION_URL);
+
 // Helper to get the server base URL (without /api)
 export const getServerBaseUrl = () => {
     if (__DEV__) {

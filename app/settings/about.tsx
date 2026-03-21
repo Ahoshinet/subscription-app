@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSettingsStore } from '@/store/useSettingsStore';
+import { isUsingPublicApi } from '@/lib/api';
 
 const APP_ICON = require('../../assets/images/icon.png');
 
@@ -88,6 +89,7 @@ export default function AboutScreen() {
         ? rawScheme.join(', ')
         : rawScheme ?? t('about.unavailable');
     const orientation = Constants.expoConfig?.orientation ?? t('about.unavailable');
+    const apiServerLabel = isUsingPublicApi() ? t('about.api_server_public') : t('about.api_server_local');
     const { width, height } = Dimensions.get('window');
     const platformLabel = Platform.OS === 'ios' ? 'iOS' : 'Android';
     const osVersion = String(Platform.Version);
@@ -139,7 +141,8 @@ export default function AboutScreen() {
                     <InfoRow icon="sparkles-outline" label={t('about.app_name')} value="Subscription Manager" />
                     <InfoRow icon="pricetag-outline" label={t('about.version')} value={`v${version}`} />
                     <InfoRow icon="link-outline" label={t('about.scheme')} value={scheme} />
-                    <InfoRow icon="phone-portrait-outline" label={t('about.orientation')} value={orientation} isLast />
+                    <InfoRow icon="phone-portrait-outline" label={t('about.orientation')} value={orientation} />
+                    <InfoRow icon="cloud-outline" label={t('about.api_server')} value={apiServerLabel} isLast />
                 </View>
 
                 <SectionTitle title={t('about.section_device')} />
