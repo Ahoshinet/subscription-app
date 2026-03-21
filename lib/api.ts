@@ -233,6 +233,12 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise
     checkRateLimit(endpoint);
     console.log(`[fetchAPI] START ${options.method || 'GET'} ${endpoint}`);
     console.log(`[fetchAPI] BASE_URL: ${API_BASE_URL}`);
+    if (__DEV__ && options.body && endpoint.includes('/auth/')) {
+        try {
+            const body = JSON.parse(options.body as string);
+            console.log(`[fetchAPI] auth payload: username="${body.username}" (len=${body.username?.length}), password len=${body.password?.length ?? 'UNDEFINED'}`);
+        } catch {}
+    }
 
     let token: string | null = null;
     try {
@@ -286,6 +292,7 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise
 
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.log(`[fetchAPI] error response: ${JSON.stringify(errorData)}`);
         throw new Error(errorData.error || `Request failed with status ${response.status}`);
     }
 

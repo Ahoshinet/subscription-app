@@ -23,6 +23,9 @@ export default function LoginScreen() {
         isSubmitting.current = true;
         clearError();
         try {
+            if (__DEV__) {
+                console.log(`[login] submit: username="${username}" (len=${username.length}), password len=${password.length}`);
+            }
             await login({ username, password });
             // The Root Layout will handle the redirect once authenticated
             router.replace('/(tabs)');
@@ -69,7 +72,8 @@ export default function LoginScreen() {
                             value={username}
                             onChangeText={setUsername}
                             autoCapitalize="none"
-                            textContentType="username"
+                            autoCorrect={false}
+                            textContentType="none"
                         />
                     </View>
 
@@ -84,7 +88,7 @@ export default function LoginScreen() {
                             secureTextEntry
                             autoCapitalize="none"
                             autoCorrect={false}
-                            textContentType="password"
+                            textContentType="none"
                         />
                     </View>
                 </View>
@@ -107,6 +111,7 @@ export default function LoginScreen() {
                         <Text className="text-blue-500 font-bold">新規登録</Text>
                     </Pressable>
                 </View>
+
             </ScrollView>
         </KeyboardAvoidingView>
     );
