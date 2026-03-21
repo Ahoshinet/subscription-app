@@ -76,7 +76,7 @@ export default function SettingsScreen() {
   const router = useRouter();
   const { logout, user } = useAuthStore();
   const { t } = useTranslation();
-  const { theme, setTheme, pushNotifications, setPushNotifications, currency, language } = useSettingsStore();
+  const { theme, setTheme, pushNotifications, setPushNotifications, language } = useSettingsStore();
 
   // If theme is system, fallback to colorScheme, else use theme preference
   const isDark = colorScheme === 'dark';
@@ -139,18 +139,12 @@ export default function SettingsScreen() {
             onPress={() => router.push('/settings/language')}
           />
           <SettingsRow
+            isLast
             type="toggle"
             icon="notifications-outline"
             title={t('settings.push_notifications')}
             toggleValue={pushNotifications}
             onToggle={(val: boolean) => setPushNotifications(val)}
-          />
-          <SettingsRow
-            isLast
-            icon="cash-outline"
-            title={t('settings.default_currency')}
-            value={currency}
-            onPress={() => router.push('/settings/currency')}
           />
         </View>
 

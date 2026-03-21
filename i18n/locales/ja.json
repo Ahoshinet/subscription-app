@@ -9,7 +9,6 @@
         "dark_mode": "ダークモード",
         "language": "言語",
         "push_notifications": "プッシュ通知",
-        "default_currency": "デフォルト通貨",
         "app_info": "アプリ情報",
         "help_support": "ヘルプとサポート",
         "terms_of_service": "利用規約",
@@ -29,10 +28,6 @@
         "new": "新しいパスワード",
         "confirm": "新しいパスワード(確認)",
         "update": "パスワードを更新"
-    },
-    "currency": {
-        "title": "デフォルト通貨",
-        "select": "通貨を選択"
     },
     "billing": {
         "title": "支払方法",
@@ -149,6 +144,7 @@
     "home": {
         "title": "My Subscriptions",
         "monthly_spending": "今月の支出: {{amount}}",
+        "monthly_spending_multi": "今月の支出: {{amount}} 他{{count}}通貨",
         "error_load": "読み込みに失敗しました: {{error}}\nバックエンドが起動しているか、認証トークンが設定されているか確認してください。",
         "empty": "サブスクリプションが見つかりません。+ をタップして追加してください。",
         "standard_plan": "スタンダードプラン",
@@ -198,6 +194,7 @@
         "plan_name": "プラン名",
         "plan_name_placeholder": "例: Premium",
         "amount": "料金",
+        "currency": "通貨",
         "next_payment_date": "次回支払日",
         "billing_cycle_label": "支払サイクル",
         "payment_method_label": "支払方法",

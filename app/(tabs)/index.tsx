@@ -10,12 +10,7 @@ import { useSubscriptionStore } from '@/store/useSubscriptionStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { requestNotificationPermissions, schedulePaymentReminders, cancelAllReminders } from '@/lib/notifications';
 
-const CURRENCY_SYMBOLS: Record<string, string> = {
-  JPY: '¥',
-  USD: '$',
-  EUR: '€',
-  GBP: '£',
-};
+import { CURRENCY_SYMBOLS, getSystemCurrency } from '@/lib/currency';
 
 type SortKey = 'name' | 'amount' | 'date';
 
@@ -26,8 +21,9 @@ export default function HomeScreen() {
   const { t } = useTranslation();
 
   const { subscriptions, isLoading, error, fetchSubscriptions } = useSubscriptionStore();
-  const { currency, pushNotifications } = useSettingsStore();
+  const { pushNotifications } = useSettingsStore();
   const [refreshing, setRefreshing] = useState(false);
+  const [spendingExpanded, setSpendingExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('date');
 
@@ -57,7 +53,21 @@ export default function HomeScreen() {
     setRefreshing(false);
   }, [fetchSubscriptions]);
 
-  const currencySymbol = CURRENCY_SYMBOLS[currency] || currency;
+  const spendingByCurrency = subscriptions
+    .filter(sub => sub.status === 'active')
+    .reduce<Record<string, number>>((acc, sub) => {
+      const curr = sub.currency || 'JPY';
+      acc[curr] = (acc[curr] || 0) + Number(sub.amount || 0);
+      return acc;
+    }, {});
+  const systemCurrency = getSystemCurrency();
+  const sortedCurrencies = Object.entries(spendingByCurrency).sort(([a], [b]) => {
+    if (a === systemCurrency) return -1;
+    if (b === systemCurrency) return 1;
+    return spendingByCurrency[b] - spendingByCurrency[a];
+  });
+  const primaryEntry = sortedCurrencies[0];
+  const otherCount = sortedCurrencies.length - 1;
 
   const filteredAndSorted = useMemo(() => {
     let result = [...subscriptions];
@@ -87,9 +97,6 @@ export default function HomeScreen() {
     return result;
   }, [subscriptions, searchQuery, sortKey]);
 
-  const totalMonthlySpent = subscriptions
-    .filter(sub => sub.status === 'active')
-    .reduce((total, sub) => total + Number(sub.amount || 0), 0);
 
   const nextSortKey = (): SortKey => {
     if (sortKey === 'date') return 'name';
@@ -124,9 +131,43 @@ export default function HomeScreen() {
             <Text className="text-4xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
               {t('home.title')}
             </Text>
-            <Text className="text-base text-neutral-500 dark:text-neutral-400 mt-2 font-medium">
-              {t('home.monthly_spending', { amount: `${currencySymbol}${totalMonthlySpent.toLocaleString()}` })}
-            </Text>
+            <View>
+              <Pressable
+                onPress={() => otherCount > 0 && setSpendingExpanded(v => !v)}
+                className="flex-row items-center"
+              >
+                <Text className="text-base text-neutral-500 dark:text-neutral-400 mt-2 font-medium">
+                  {!primaryEntry
+                    ? t('home.monthly_spending', { amount: '¥0' })
+                    : otherCount > 0
+                      ? t('home.monthly_spending_multi', {
+                          amount: `${CURRENCY_SYMBOLS[primaryEntry[0]] || primaryEntry[0]}${primaryEntry[1].toLocaleString()}`,
+                          count: otherCount,
+                        })
+                      : t('home.monthly_spending', {
+                          amount: `${CURRENCY_SYMBOLS[primaryEntry[0]] || primaryEntry[0]}${primaryEntry[1].toLocaleString()}`,
+                        })
+                  }
+                </Text>
+                {otherCount > 0 && (
+                  <Ionicons
+                    name={spendingExpanded ? 'chevron-up' : 'chevron-down'}
+                    size={14}
+                    color={isDark ? '#71717A' : '#A1A1AA'}
+                    style={{ marginTop: 8, marginLeft: 4 }}
+                  />
+                )}
+              </Pressable>
+              {spendingExpanded && (
+                <View className="mt-1">
+                  {sortedCurrencies.map(([curr, total]) => (
+                    <Text key={curr} className="text-sm text-neutral-400 dark:text-neutral-500 ml-1">
+                      {CURRENCY_SYMBOLS[curr] || curr}{total.toLocaleString()} ({curr})
+                    </Text>
+                  ))}
+                </View>
+              )}
+            </View>
           </View>
 
           <Pressable
@@ -211,6 +252,7 @@ export default function HomeScreen() {
                   serviceName={sub.service_name}
                   planName={sub.plan_name || t('home.standard_plan')}
                   amount={sub.amount}
+                  currency={CURRENCY_SYMBOLS[sub.currency] || sub.currency}
                   nextPaymentDate={sub.next_payment_date}
                   daysRemaining={daysRemaining}
                   color="#3B82F6"
