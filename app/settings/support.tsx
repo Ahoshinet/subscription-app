@@ -47,7 +47,7 @@ export default function SupportScreen() {
                         </Pressable>
 
                         <Pressable
-                            onPress={showComingSoon}
+                            onPress={() => openUrl('mailto:subscription-manager@corp.daruks.com')}
                             className="flex-row items-center justify-between p-4 border-b border-neutral-100 dark:border-white/5"
                         >
                             <View className="flex-row items-center">
