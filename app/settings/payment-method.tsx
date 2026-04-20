@@ -43,7 +43,7 @@ export default function PaymentMethodPickerScreen() {
                 />
                 <View className="px-4">
                     {methods.length === 0 ? (
-                        <View className="py-14 items-center px-6">
+                        <View key="picker-empty" className="py-14 items-center px-6">
                             <Ionicons name="card-outline" size={44} color={isDark ? '#3f3f46' : '#d4d4d8'} />
                             <Text className="text-neutral-400 dark:text-neutral-600 text-center mt-4 text-base">
                                 {t('billing.empty')}
@@ -58,7 +58,7 @@ export default function PaymentMethodPickerScreen() {
                             </Pressable>
                         </View>
                     ) : (
-                        <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden">
+                        <View key="picker-list" className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden">
                             {methods.map((method, index) => (
                                 <Pressable
                                     key={method.id}
