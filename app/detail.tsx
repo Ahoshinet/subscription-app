@@ -21,6 +21,7 @@ export default function DetailScreen() {
     const isDark = colorScheme === 'dark';
     const { id } = useLocalSearchParams<{ id: string }>();
     const [isTogglingStatus, setIsTogglingStatus] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const { subscriptions, deleteSubscription, fetchSubscriptions } = useSubscriptionStore();
     const subscription = subscriptions.find(s => s.id === Number(id));
@@ -72,10 +73,12 @@ export default function DetailScreen() {
                     text: t('detail.delete_confirm'),
                     style: 'destructive',
                     onPress: async () => {
+                        setIsDeleting(true);
                         try {
                             await deleteSubscription(subscription.id);
                             router.back();
                         } catch (e: any) {
+                            setIsDeleting(false);
                             Alert.alert(t('common.error'), e.message || t('detail.error_delete_failed'));
                         }
                     },
@@ -206,9 +209,14 @@ export default function DetailScreen() {
                     {/* Action Buttons */}
                     <Pressable
                         onPress={handleDelete}
+                        disabled={isDeleting}
                         className="items-center py-4 rounded-xl bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-900/50"
                     >
-                        <Text className="text-red-600 dark:text-red-400 font-bold text-base">{t('detail.delete_button')}</Text>
+                        {isDeleting ? (
+                            <ActivityIndicator size="small" color="#EF4444" />
+                        ) : (
+                            <Text className="text-red-600 dark:text-red-400 font-bold text-base">{t('detail.delete_button')}</Text>
+                        )}
                     </Pressable>
                 </View>
             </ScrollView>
