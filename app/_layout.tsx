@@ -9,6 +9,7 @@ import { useColorScheme as useNativeWindColorScheme } from 'nativewind';
 import { useEffect } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
+import { usePaymentMethodStore } from '@/store/usePaymentMethodStore';
 import { ensureApiReachable } from '@/lib/api';
 import '@/i18n';
 import { useTranslation } from 'react-i18next';
@@ -22,6 +23,7 @@ export default function RootLayout() {
     const { setColorScheme } = useNativeWindColorScheme();
     const { isAuthenticated, isInitializing, checkAuth } = useAuthStore();
     const { language, theme } = useSettingsStore();
+    const { syncFromServer: syncPaymentMethods } = usePaymentMethodStore();
     const { i18n } = useTranslation();
 
     // Apply user's theme preference
@@ -56,6 +58,8 @@ export default function RootLayout() {
             router.replace('/login');
         } else if (isAuthenticated && inAuthGroup) {
             router.replace('/(tabs)');
+        } else if (isAuthenticated) {
+            syncPaymentMethods();
         }
     }, [isAuthenticated, isInitializing, segments]);
 
