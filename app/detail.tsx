@@ -84,6 +84,13 @@ export default function DetailScreen() {
         );
     };
 
+    const resolvePaymentMethod = () => {
+        const found = paymentMethods.find(m => m.id === subscription.payment_method);
+        if (found) return found.label;
+        const translated = t(`payment_method.${subscription.payment_method}`, { defaultValue: '' });
+        return translated || '—';
+    };
+
     const iconUrl = (subscription as any).icon_url;
     const presetIcon = parseSubscriptionPresetIconValue(iconUrl);
 
@@ -177,7 +184,7 @@ export default function DetailScreen() {
                         <DetailRow label={t('detail.label_plan_name')} value={subscription.plan_name || '—'} />
                         <DetailRow label={t('detail.label_next_payment')} value={formatDate(getEffectiveNextPaymentDate(subscription.next_payment_date, subscription.billing_cycle))} />
                         <DetailRow label={t('detail.label_billing_cycle')} value={t(`billing_cycle.${subscription.billing_cycle}`, { defaultValue: subscription.billing_cycle })} />
-                        <DetailRow label={t('detail.label_payment_method')} value={paymentMethods.find(m => m.id === subscription.payment_method)?.label ?? t(`payment_method.${subscription.payment_method}`, { defaultValue: subscription.payment_method })} isLast />
+                        <DetailRow label={t('detail.label_payment_method')} value={resolvePaymentMethod()} isLast />
                     </View>
 
                     {/* Memo */}
