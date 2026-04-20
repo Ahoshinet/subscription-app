@@ -31,34 +31,20 @@ export const usePaymentMethodStore = create<PaymentMethodState>()(
             isSyncing: false,
 
             addMethod: async (method) => {
-                // Optimistic local add with temp id
-                const tempId = Date.now().toString();
+                const created = await paymentMethodApi.create({
+                    type: method.type,
+                    label: method.label,
+                    icon_name: method.iconName,
+                    icon_uri: method.iconUri,
+                    color: method.color,
+                    last4: method.last4,
+                    card_brand: method.cardBrand,
+                    memo: method.memo,
+                });
                 set((state) => ({
-                    methods: [...state.methods, { ...method, id: tempId }],
+                    methods: [...state.methods, { ...method, id: created.id }],
                 }));
-
-                try {
-                    const created = await paymentMethodApi.create({
-                        type: method.type,
-                        label: method.label,
-                        icon_name: method.iconName,
-                        icon_uri: method.iconUri,
-                        color: method.color,
-                        last4: method.last4,
-                        card_brand: method.cardBrand,
-                        memo: method.memo,
-                    });
-                    // Replace temp id with server id
-                    set((state) => ({
-                        methods: state.methods.map((m) =>
-                            m.id === tempId ? { ...m, id: created.id } : m
-                        ),
-                    }));
-                    return created.id;
-                } catch {
-                    // Keep local version with temp id on failure
-                    return tempId;
-                }
+                return created.id;
             },
 
             removeMethod: async (id) => {

@@ -125,43 +125,55 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
         setBrandMemo('');
     };
 
-    const handleConfirmBrand = () => {
+    const handleConfirmBrand = async () => {
         if (!selectedBrand) return;
-        void addMethod({
-            type: 'preset',
-            label: selectedBrand.label,
-            memo: brandMemo.trim() || undefined,
-            iconName: selectedBrand.iconName,
-            color: selectedBrand.color,
-        });
         close();
+        try {
+            await addMethod({
+                type: 'preset',
+                label: selectedBrand.label,
+                memo: brandMemo.trim() || undefined,
+                iconName: selectedBrand.iconName,
+                color: selectedBrand.color,
+            });
+        } catch {
+            Alert.alert(t('common.error'), t('billing.add_failed'));
+        }
     };
 
-    const handleAddCard = () => {
+    const handleAddCard = async () => {
         if (cardLast4.length !== 4) return;
-        void addMethod({
-            type: 'credit_card',
-            label: `${cardBrand} ••••${cardLast4}`,
-            memo: cardMemo.trim() || undefined,
-            iconName: 'card',
-            color: '#6B7280',
-            last4: cardLast4,
-            cardBrand,
-        });
         close();
+        try {
+            await addMethod({
+                type: 'credit_card',
+                label: `${cardBrand} ••••${cardLast4}`,
+                memo: cardMemo.trim() || undefined,
+                iconName: 'card',
+                color: '#6B7280',
+                last4: cardLast4,
+                cardBrand,
+            });
+        } catch {
+            Alert.alert(t('common.error'), t('billing.add_failed'));
+        }
     };
 
-    const handleAddCustom = () => {
+    const handleAddCustom = async () => {
         if (!customLabel.trim()) return;
-        void addMethod({
-            type: 'custom',
-            label: customLabel.trim(),
-            memo: customMemo.trim() || undefined,
-            iconUri: customIconUri ?? undefined,
-            iconName: customIconUri ? undefined : (customIconName ?? 'wallet-outline'),
-            color: customIconColor,
-        });
         close();
+        try {
+            await addMethod({
+                type: 'custom',
+                label: customLabel.trim(),
+                memo: customMemo.trim() || undefined,
+                iconUri: customIconUri ?? undefined,
+                iconName: customIconUri ? undefined : (customIconName ?? 'wallet-outline'),
+                color: customIconColor,
+            });
+        } catch {
+            Alert.alert(t('common.error'), t('billing.add_failed'));
+        }
     };
 
     const pickIcon = async () => {

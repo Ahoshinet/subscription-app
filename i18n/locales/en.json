@@ -58,7 +58,8 @@
         "icon_source_message": "Choose how to add an icon.",
         "icon_source_upload": "Upload",
         "icon_source_library": "Choose from built-in icons",
-        "pick_icon_title": "Pick an Icon"
+        "pick_icon_title": "Pick an Icon",
+        "add_failed": "Failed to add payment method. Please try again."
     },
     "support": {
         "title": "Help & Support",
