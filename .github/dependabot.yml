@@ -28,6 +28,24 @@ updates:
       # eslint-plugin-react does not support ESLint v10 yet
       - dependency-name: "eslint"
         versions: ["10.x", ">=10.0.0"]
+      # --- expo SDK managed packages ---
+      # These are pinned by expo SDK and must be updated via `expo install --fix`
+      # when upgrading expo, not independently via Dependabot.
+      - dependency-name: "react"
+      - dependency-name: "react-dom"
+      - dependency-name: "react-native"
+      - dependency-name: "react-native-gesture-handler"
+      - dependency-name: "react-native-reanimated"
+      - dependency-name: "react-native-safe-area-context"
+      - dependency-name: "react-native-screens"
+      - dependency-name: "react-native-worklets"
+      - dependency-name: "@react-native-async-storage/async-storage"
+      - dependency-name: "@react-native-community/datetimepicker"
+      - dependency-name: "@react-navigation/bottom-tabs"
+      - dependency-name: "@react-navigation/native"
+      - dependency-name: "@react-navigation/elements"
+      - dependency-name: "typescript"
+      - dependency-name: "@types/react"
     
   # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
