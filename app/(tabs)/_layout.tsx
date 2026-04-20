@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
   },
   // The glassmorphism layer itself
   tabBar: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     borderRadius: 30,
     overflow: 'hidden',
     flexDirection: 'row',
