@@ -11,10 +11,12 @@ interface SettingsState {
     pushNotifications: boolean;
     theme: ThemePreference;
     isSyncing: boolean;
+    syncError: boolean;
 
     setLanguage: (lang: Language) => void;
     setPushNotifications: (enabled: boolean) => void;
     setTheme: (theme: ThemePreference) => void;
+    clearSyncError: () => void;
     syncFromServer: () => Promise<void>;
     syncToServer: (patch: Record<string, unknown>) => Promise<void>;
 }
@@ -26,6 +28,7 @@ export const useSettingsStore = create<SettingsState>()(
             pushNotifications: true,
             theme: 'system',
             isSyncing: false,
+            syncError: false,
 
             setLanguage: (lang) => {
                 set({ language: lang });
@@ -39,6 +42,7 @@ export const useSettingsStore = create<SettingsState>()(
                 set({ theme });
                 get().syncToServer({ theme });
             },
+            clearSyncError: () => set({ syncError: false }),
 
             syncFromServer: async () => {
                 try {
@@ -60,7 +64,7 @@ export const useSettingsStore = create<SettingsState>()(
                 try {
                     await settingsApi.update(patch as any);
                 } catch {
-                    // Settings saved locally even if server sync fails
+                    set({ syncError: true });
                 } finally {
                     set({ isSyncing: false });
                 }

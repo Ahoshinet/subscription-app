@@ -14,7 +14,8 @@
         "terms_of_service": "Terms of Service",
         "privacy_policy": "Privacy Policy",
         "version": "About",
-        "log_out": "Log Out"
+        "log_out": "Log Out",
+        "sync_error": "Failed to sync settings. Changes are saved locally."
     },
     "profile": {
         "title": "Profile",

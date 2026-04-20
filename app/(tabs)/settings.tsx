@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, Switch, Pressable, ScrollView } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, Switch, Pressable, ScrollView, Alert } from 'react-native';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -76,7 +76,14 @@ export default function SettingsScreen() {
   const router = useRouter();
   const { logout, user } = useAuthStore();
   const { t } = useTranslation();
-  const { theme, setTheme, pushNotifications, setPushNotifications, language } = useSettingsStore();
+  const { theme, setTheme, pushNotifications, setPushNotifications, language, syncError, clearSyncError } = useSettingsStore();
+
+  useEffect(() => {
+    if (syncError) {
+      Alert.alert(t('common.error'), t('settings.sync_error'));
+      clearSyncError();
+    }
+  }, [syncError]);
 
   // If theme is system, fallback to colorScheme, else use theme preference
   const isDark = colorScheme === 'dark';

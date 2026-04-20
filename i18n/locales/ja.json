@@ -14,7 +14,8 @@
         "terms_of_service": "利用規約",
         "privacy_policy": "プライバシーポリシー",
         "version": "アプリについて",
-        "log_out": "ログアウト"
+        "log_out": "ログアウト",
+        "sync_error": "設定の同期に失敗しました。変更はローカルに保存されています。"
     },
     "profile": {
         "title": "プロフィール",
