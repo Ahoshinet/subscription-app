@@ -21,9 +21,9 @@
 
 | 技術 | 用途 |
 |---|---|
-| [Expo](https://expo.dev) (v54) | React Native フレームワーク |
-| [TypeScript](https://www.typescriptlang.org/) (v5.9) | 型安全性 |
-| [Expo Router](https://docs.expo.dev/router/introduction/) (v6) | ファイルベースルーティング |
+| [Expo](https://expo.dev) (v55) | React Native フレームワーク |
+| [TypeScript](https://www.typescriptlang.org/) (v6) | 型安全性 |
+| [Expo Router](https://docs.expo.dev/router/introduction/) (v55) | ファイルベースルーティング |
 | [Zustand](https://zustand-demo.pmnd.rs/) (v5) | 状態管理 |
 | [NativeWind](https://www.nativewind.dev/) (v4) | Tailwind CSS for React Native |
 | [react-i18next](https://react.i18next.com/) | 国際化 |
