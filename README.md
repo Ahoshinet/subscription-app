@@ -4,6 +4,8 @@
 
 [日本語版 README はこちら](README_ja.md)
 
+Track all your subscriptions at a glance. No more surprise charges.
+
 A mobile/web application to manage all your subscription services in one place. Built with **React Native (Expo)**.
 
 ## Features
