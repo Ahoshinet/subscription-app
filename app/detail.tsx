@@ -7,6 +7,7 @@ import { usePaymentMethodStore } from '../store/usePaymentMethodStore';
 import { useTranslation } from 'react-i18next';
 import { parseSubscriptionPresetIconValue } from '../lib/subscriptionIcon';
 import { subscriptionApi } from '../lib/api';
+import { getEffectiveNextPaymentDate } from '../lib/dateUtils';
 
 const STATUS_COLORS: Record<string, string> = {
     active: '#22C55E',
@@ -174,7 +175,7 @@ export default function DetailScreen() {
                     <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6">
                         <DetailRow label={t('detail.label_service_name')} value={subscription.service_name} isFirst />
                         <DetailRow label={t('detail.label_plan_name')} value={subscription.plan_name || '—'} />
-                        <DetailRow label={t('detail.label_next_payment')} value={formatDate(subscription.next_payment_date)} />
+                        <DetailRow label={t('detail.label_next_payment')} value={formatDate(getEffectiveNextPaymentDate(subscription.next_payment_date, subscription.billing_cycle))} />
                         <DetailRow label={t('detail.label_billing_cycle')} value={t(`billing_cycle.${subscription.billing_cycle}`, { defaultValue: subscription.billing_cycle })} />
                         <DetailRow label={t('detail.label_payment_method')} value={paymentMethods.find(m => m.id === subscription.payment_method)?.label ?? t(`payment_method.${subscription.payment_method}`, { defaultValue: subscription.payment_method })} isLast />
                     </View>

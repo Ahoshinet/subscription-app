@@ -11,6 +11,7 @@ import { useSettingsStore } from '@/store/useSettingsStore';
 import { requestNotificationPermissions, schedulePaymentReminders, cancelAllReminders } from '@/lib/notifications';
 
 import { CURRENCY_SYMBOLS, getSystemCurrency } from '@/lib/currency';
+import { getEffectiveNextPaymentDate } from '@/lib/dateUtils';
 
 type SortKey = 'name' | 'amount' | 'date';
 
@@ -241,7 +242,8 @@ export default function HomeScreen() {
             )}
 
             {filteredAndSorted.map((sub) => {
-              const nextPaymentDate = new Date(sub.next_payment_date);
+              const effectiveDate = getEffectiveNextPaymentDate(sub.next_payment_date, sub.billing_cycle);
+              const nextPaymentDate = new Date(effectiveDate);
               const diffTime = nextPaymentDate.getTime() - new Date().getTime();
               const daysRemaining = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
 
@@ -253,7 +255,7 @@ export default function HomeScreen() {
                   planName={sub.plan_name || t('home.standard_plan')}
                   amount={sub.amount}
                   currency={CURRENCY_SYMBOLS[sub.currency] || sub.currency}
-                  nextPaymentDate={sub.next_payment_date}
+                  nextPaymentDate={effectiveDate}
                   daysRemaining={daysRemaining}
                   color="#3B82F6"
                   iconName="cube"

@@ -1,5 +1,6 @@
 import { Platform } from 'react-native';
 import { Subscription } from './api';
+import { getEffectiveNextPaymentDate } from './dateUtils';
 
 type NotificationsModule = typeof import('expo-notifications');
 
@@ -56,7 +57,7 @@ export async function schedulePaymentReminders(
     for (const sub of subscriptions) {
         if (sub.status !== 'active') continue;
 
-        const paymentDate = new Date(sub.next_payment_date);
+        const paymentDate = new Date(getEffectiveNextPaymentDate(sub.next_payment_date, sub.billing_cycle));
 
         for (const daysBefore of REMINDER_DAYS) {
             const triggerDate = new Date(paymentDate);
