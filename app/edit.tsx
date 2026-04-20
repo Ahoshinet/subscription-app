@@ -8,6 +8,7 @@ import { uploadApi } from '../lib/api';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
+import { usePaymentMethodStore } from '../store/usePaymentMethodStore';
 import {
     isSubscriptionPresetIconValue,
     parseSubscriptionPresetIconValue,
@@ -44,6 +45,7 @@ export default function EditSubscriptionScreen() {
     const [memo, setMemo] = useState('');
 
     const { billingCycle, paymentMethod, currency, setBillingCycle, setPaymentMethod, setCurrency } = useAddFormStore();
+    const { methods: paymentMethods } = usePaymentMethodStore();
 
     useEffect(() => {
         if (subscription) {
@@ -113,7 +115,9 @@ export default function EditSubscriptionScreen() {
     };
 
     const billingCycleLabel = t(`billing_cycle.${billingCycle}`);
-    const paymentMethodLabel = t(`payment_method.${paymentMethod}`);
+    const paymentMethodLabel =
+        paymentMethods.find(m => m.id === paymentMethod)?.label ??
+        t(`payment_method.${paymentMethod}`);
 
     const formatDate = (date: Date) => {
         return `${date.getFullYear()}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
