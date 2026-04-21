@@ -1,8 +1,9 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import {
     View, Text, SafeAreaView, TouchableOpacity,
     ScrollView, useColorScheme, Image, Dimensions,
 } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const CELL_WIDTH = Math.floor(SCREEN_WIDTH / 7);
@@ -108,17 +109,29 @@ export default function CalendarScreen() {
     const calendarRows = useMemo(() => chunk(buildCalendarDays(year, month), 7), [year, month]);
     const selectedSubs = selectedDay != null ? (dayToSubs[selectedDay] ?? []) : [];
 
-    const prevMonth = () => {
+    const prevMonth = useCallback(() => {
         if (month === 0) { setYear(y => y - 1); setMonth(11); }
         else setMonth(m => m - 1);
         setSelectedDay(null);
-    };
+    }, [month]);
 
-    const nextMonth = () => {
+    const nextMonth = useCallback(() => {
         if (month === 11) { setYear(y => y + 1); setMonth(0); }
         else setMonth(m => m + 1);
         setSelectedDay(null);
-    };
+    }, [month]);
+
+    const swipeGesture = useMemo(() =>
+        Gesture.Pan()
+            .activeOffsetX([-40, 40])
+            .failOffsetY([-20, 20])
+            .runOnJS(true)
+            .onEnd((e) => {
+                if (e.translationX < -40) nextMonth();
+                else if (e.translationX > 40) prevMonth();
+            }),
+        [prevMonth, nextMonth],
+    );
 
     const todayY = today.getFullYear();
     const todayM = today.getMonth();
@@ -151,6 +164,8 @@ export default function CalendarScreen() {
                 </View>
             </View>
 
+            <GestureDetector gesture={swipeGesture}>
+            <View>
             {/* Weekday headers */}
             <View style={{ flexDirection: 'row' }}>
                 {weekdays.map((wd, i) => (
@@ -232,6 +247,8 @@ export default function CalendarScreen() {
                     </View>
                 ))}
             </View>
+            </View>
+            </GestureDetector>
 
             {/* Divider */}
             <View className="h-px bg-neutral-200 dark:bg-neutral-800 mx-4 mt-2" />
