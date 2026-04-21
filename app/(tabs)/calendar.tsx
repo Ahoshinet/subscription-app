@@ -8,7 +8,6 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const CELL_WIDTH = Math.floor(SCREEN_WIDTH / 7);
 const CELL_HEIGHT = Math.floor((SCREEN_HEIGHT * 0.55) / 6);
 const CIRCLE_SIZE = Math.min(CELL_WIDTH - 6, CELL_HEIGHT - 14, 48);
-const HEADER_PADDING_V = Math.floor(CELL_HEIGHT * 0.38);
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
@@ -138,7 +137,7 @@ export default function CalendarScreen() {
     return (
         <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-neutral-950">
             {/* Header */}
-            <View className="flex-row items-center justify-between px-4" style={{ paddingTop: HEADER_PADDING_V, paddingBottom: HEADER_PADDING_V }}>
+            <View className="flex-row items-center justify-between px-4 pt-5 pb-7">
                 <Text className="text-xl font-bold text-neutral-900 dark:text-white flex-1" numberOfLines={1}>
                     {headerText}
                 </Text>
