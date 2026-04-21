@@ -87,7 +87,7 @@ export default function CalendarScreen() {
     const today = new Date();
     const [year, setYear] = useState(today.getFullYear());
     const [month, setMonth] = useState(today.getMonth());
-    const [selectedDay, setSelectedDay] = useState<number | null>(today.getDate());
+    const [selectedDay, setSelectedDay] = useState<number | null>(null);
 
     // Keep a ref so gesture callbacks can read current month/year without stale closure
     const currentRef = useRef({ month, year });
