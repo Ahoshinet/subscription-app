@@ -131,6 +131,8 @@ export default function CalendarScreen() {
 
     return (
         <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-neutral-950">
+            {/* Calendar section */}
+            <View style={{ flex: 3 }}>
             {/* Header */}
             <View className="flex-row items-center justify-between px-4 pt-3 pb-2">
                 <Text className="text-base font-bold text-neutral-900 dark:text-white flex-1" numberOfLines={1}>
@@ -163,12 +165,12 @@ export default function CalendarScreen() {
             </View>
 
             {/* Calendar grid */}
-            <View className="px-3 pb-2">
+            <View className="px-2 pb-2 flex-1">
                 {calendarRows.map((week, wi) => (
-                    <View key={wi} className="flex-row">
+                    <View key={wi} className="flex-1 flex-row">
                         {week.map((day, di) => {
                             if (day === null) {
-                                return <View key={di} className="flex-1" style={{ height: 44 }} />;
+                                return <View key={di} className="flex-1" />;
                             }
                             const isToday = year === todayY && month === todayM && day === todayD;
                             const isSelected = day === selectedDay;
@@ -180,15 +182,14 @@ export default function CalendarScreen() {
                                 <TouchableOpacity
                                     key={di}
                                     onPress={() => setSelectedDay(isSelected ? null : day)}
-                                    className="flex-1 items-center justify-start pt-0.5"
-                                    style={{ height: 44 }}
+                                    className="flex-1 items-center justify-center"
                                     activeOpacity={0.7}
                                 >
-                                    <View className={`w-8 h-8 rounded-full items-center justify-center ${
+                                    <View className={`w-10 h-10 rounded-full items-center justify-center ${
                                         isSelected ? 'bg-blue-500' :
                                         isToday ? 'bg-neutral-200 dark:bg-neutral-700' : ''
                                     }`}>
-                                        <Text className={`text-sm ${
+                                        <Text className={`text-base ${
                                             isSelected ? 'text-white font-bold' :
                                             isToday ? 'text-blue-500 font-bold' :
                                             isSun ? 'text-red-500 font-medium' :
@@ -198,7 +199,7 @@ export default function CalendarScreen() {
                                             {day}
                                         </Text>
                                     </View>
-                                    <View className={`w-1.5 h-1.5 rounded-full mt-0.5 ${
+                                    <View className={`w-1.5 h-1.5 rounded-full mt-1 ${
                                         hasSubs
                                             ? isSelected ? 'bg-white' : 'bg-blue-500'
                                             : 'bg-transparent'
@@ -209,10 +210,13 @@ export default function CalendarScreen() {
                     </View>
                 ))}
             </View>
+            </View>{/* end calendar section */}
 
             {/* Divider */}
             <View className="h-px bg-neutral-200 dark:bg-neutral-800 mx-4" />
 
+            {/* List section */}
+            <View style={{ flex: 2 }}>
             {/* Selected day label */}
             {selectedLabel != null && (
                 <View className="px-4 pt-3 pb-1">
@@ -225,7 +229,7 @@ export default function CalendarScreen() {
             {/* Subscription list */}
             <ScrollView
                 className="flex-1"
-                contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32, paddingTop: selectedLabel ? 0 : 0 }}
+                contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
             >
                 {selectedDay == null ? (
                     <View className="items-center mt-12">
@@ -299,6 +303,7 @@ export default function CalendarScreen() {
                     })
                 )}
             </ScrollView>
+            </View>{/* end list section */}
         </SafeAreaView>
     );
 }
