@@ -236,8 +236,9 @@
         "status_cancelled": "Cancelled"
     },
     "calendar": {
-        "title": "Subscription Calendar",
-        "coming_soon_message": "This feature is currently under development due to its complexity.\nIt may be removed in a future update."
+        "title": "Calendar",
+        "tap_to_view": "Tap a date to view payments",
+        "no_payments": "No payments on this day"
     },
     "notification": {
         "payment_reminder_title": "Payment Reminder",

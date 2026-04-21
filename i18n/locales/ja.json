@@ -236,8 +236,9 @@
         "status_cancelled": "キャンセル済"
     },
     "calendar": {
-        "title": "サブスクカレンダー",
-        "coming_soon_message": "実装が複雑なため、現在準備中です。\n今後のアップデートで削除される可能性があります。"
+        "title": "カレンダー",
+        "tap_to_view": "日付をタップして支払を確認",
+        "no_payments": "この日の支払はありません"
     },
     "notification": {
         "payment_reminder_title": "お支払いリマインダー",
