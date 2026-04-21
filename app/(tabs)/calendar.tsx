@@ -1,14 +1,16 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import {
     View, Text, SafeAreaView, TouchableOpacity,
     ScrollView, useColorScheme, Image, Dimensions,
 } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const CELL_WIDTH = Math.floor(SCREEN_WIDTH / 7);
-const CELL_HEIGHT = Math.floor((SCREEN_HEIGHT * 0.55) / 6);
-const CIRCLE_SIZE = Math.min(CELL_WIDTH - 6, CELL_HEIGHT - 14, 48);
+import Animated, {
+    useSharedValue,
+    useAnimatedStyle,
+    withTiming,
+    withSpring,
+    runOnJS,
+} from 'react-native-reanimated';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
@@ -18,8 +20,16 @@ import { CURRENCY_SYMBOLS } from '../../lib/currency';
 import { parseSubscriptionPresetIconValue } from '../../lib/subscriptionIcon';
 import { Subscription } from '../../lib/api';
 
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const CELL_WIDTH = Math.floor(SCREEN_WIDTH / 7);
+const CELL_HEIGHT = Math.floor((SCREEN_HEIGHT * 0.55) / 6);
+const CIRCLE_SIZE = Math.min(CELL_WIDTH - 6, CELL_HEIGHT - 14, 48);
+
 const WEEKDAYS_JA = ['日', '月', '火', '水', '木', '金', '土'];
 const WEEKDAYS_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const SWIPE_THRESHOLD = 50;
+const VELOCITY_THRESHOLD = 600;
+const ANIM_DURATION = 210;
 
 function getPaymentDaysInMonth(
     nextPaymentDate: string,
@@ -33,11 +43,9 @@ function getPaymentDaysInMonth(
     if (billingCycle === 'monthly') {
         return [Math.min(effective.getDate(), daysInMonth)];
     }
-
     if (billingCycle === 'yearly') {
         return effective.getMonth() === month ? [effective.getDate()] : [];
     }
-
     if (billingCycle === 'weekly') {
         const target = new Date(year, month, 1);
         const targetEnd = new Date(year, month + 1, 0);
@@ -50,7 +58,6 @@ function getPaymentDaysInMonth(
         }
         return days;
     }
-
     return [];
 }
 
@@ -82,6 +89,10 @@ export default function CalendarScreen() {
     const [month, setMonth] = useState(today.getMonth());
     const [selectedDay, setSelectedDay] = useState<number | null>(today.getDate());
 
+    // Keep a ref so gesture callbacks can read current month/year without stale closure
+    const currentRef = useRef({ month, year });
+    useEffect(() => { currentRef.current = { month, year }; }, [month, year]);
+
     useEffect(() => {
         if (subscriptions.length === 0) fetchSubscriptions();
     }, []);
@@ -109,28 +120,94 @@ export default function CalendarScreen() {
     const calendarRows = useMemo(() => chunk(buildCalendarDays(year, month), 7), [year, month]);
     const selectedSubs = selectedDay != null ? (dayToSubs[selectedDay] ?? []) : [];
 
-    const prevMonth = useCallback(() => {
-        if (month === 0) { setYear(y => y - 1); setMonth(11); }
-        else setMonth(m => m - 1);
-        setSelectedDay(null);
-    }, [month]);
+    // Animation
+    const translateX = useSharedValue(0);
+    const animating = useSharedValue(false);
 
-    const nextMonth = useCallback(() => {
-        if (month === 11) { setYear(y => y + 1); setMonth(0); }
-        else setMonth(m => m + 1);
+    const animatedStyle = useAnimatedStyle(() => ({
+        transform: [{ translateX: translateX.value }],
+    }));
+
+    const applyMonthChange = useCallback((direction: 'prev' | 'next') => {
+        const { month: m, year: y } = currentRef.current;
+        if (direction === 'prev') {
+            if (m === 0) { setYear(y - 1); setMonth(11); }
+            else setMonth(m - 1);
+        } else {
+            if (m === 11) { setYear(y + 1); setMonth(0); }
+            else setMonth(m + 1);
+        }
         setSelectedDay(null);
-    }, [month]);
+    }, []);
+
+    const navigate = useCallback((direction: 'prev' | 'next') => {
+        if (animating.value) return;
+        animating.value = true;
+        const outX = direction === 'next' ? -SCREEN_WIDTH : SCREEN_WIDTH;
+        const inX = -outX;
+        translateX.value = withTiming(outX, { duration: ANIM_DURATION }, (finished) => {
+            'worklet';
+            if (finished) {
+                runOnJS(applyMonthChange)(direction);
+                translateX.value = inX;
+                translateX.value = withTiming(0, { duration: ANIM_DURATION }, () => {
+                    'worklet';
+                    animating.value = false;
+                });
+            } else {
+                animating.value = false;
+            }
+        });
+    }, [applyMonthChange]);
 
     const swipeGesture = useMemo(() =>
         Gesture.Pan()
-            .activeOffsetX([-40, 40])
-            .failOffsetY([-20, 20])
-            .runOnJS(true)
+            .activeOffsetX([-10, 10])
+            .failOffsetY([-15, 15])
+            .onUpdate((e) => {
+                if (!animating.value) {
+                    translateX.value = e.translationX;
+                }
+            })
             .onEnd((e) => {
-                if (e.translationX < -40) nextMonth();
-                else if (e.translationX > 40) prevMonth();
+                if (animating.value) return;
+                const tx = e.translationX;
+                const vx = e.velocityX;
+                if (tx < -SWIPE_THRESHOLD || vx < -VELOCITY_THRESHOLD) {
+                    animating.value = true;
+                    translateX.value = withTiming(-SCREEN_WIDTH, { duration: ANIM_DURATION }, (finished) => {
+                        'worklet';
+                        if (finished) {
+                            runOnJS(applyMonthChange)('next');
+                            translateX.value = SCREEN_WIDTH;
+                            translateX.value = withTiming(0, { duration: ANIM_DURATION }, () => {
+                                'worklet';
+                                animating.value = false;
+                            });
+                        } else {
+                            animating.value = false;
+                        }
+                    });
+                } else if (tx > SWIPE_THRESHOLD || vx > VELOCITY_THRESHOLD) {
+                    animating.value = true;
+                    translateX.value = withTiming(SCREEN_WIDTH, { duration: ANIM_DURATION }, (finished) => {
+                        'worklet';
+                        if (finished) {
+                            runOnJS(applyMonthChange)('prev');
+                            translateX.value = -SCREEN_WIDTH;
+                            translateX.value = withTiming(0, { duration: ANIM_DURATION }, () => {
+                                'worklet';
+                                animating.value = false;
+                            });
+                        } else {
+                            animating.value = false;
+                        }
+                    });
+                } else {
+                    translateX.value = withSpring(0, { damping: 20, stiffness: 300 });
+                }
             }),
-        [prevMonth, nextMonth],
+        [applyMonthChange],
     );
 
     const todayY = today.getFullYear();
@@ -155,18 +232,16 @@ export default function CalendarScreen() {
                     {headerText}
                 </Text>
                 <View className="flex-row items-center ml-3">
-                    <TouchableOpacity onPress={prevMonth} className="p-2" activeOpacity={0.7}>
+                    <TouchableOpacity onPress={() => navigate('prev')} className="p-2" activeOpacity={0.7}>
                         <Ionicons name="chevron-back" size={26} color={isDark ? '#e5e5e5' : '#171717'} />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={nextMonth} className="p-2 ml-1" activeOpacity={0.7}>
+                    <TouchableOpacity onPress={() => navigate('next')} className="p-2 ml-1" activeOpacity={0.7}>
                         <Ionicons name="chevron-forward" size={26} color={isDark ? '#e5e5e5' : '#171717'} />
                     </TouchableOpacity>
                 </View>
             </View>
 
-            <GestureDetector gesture={swipeGesture}>
-            <View>
-            {/* Weekday headers */}
+            {/* Weekday headers (static, outside animation) */}
             <View style={{ flexDirection: 'row' }}>
                 {weekdays.map((wd, i) => (
                     <Text
@@ -185,69 +260,69 @@ export default function CalendarScreen() {
                 ))}
             </View>
 
-            {/* Calendar grid */}
-            <View>
-                {calendarRows.map((week, wi) => (
-                    <View key={wi} style={{ flexDirection: 'row', height: CELL_HEIGHT }}>
-                        {week.map((day, di) => {
-                            if (day === null) {
-                                return <View key={di} style={{ width: CELL_WIDTH }} />;
-                            }
-                            const isToday = year === todayY && month === todayM && day === todayD;
-                            const isSelected = day === selectedDay;
-                            const hasSubs = (dayToSubs[day]?.length ?? 0) > 0;
-                            const isSun = di === 0;
-                            const isSat = di === 6;
+            {/* Calendar grid — swipeable + animated */}
+            <GestureDetector gesture={swipeGesture}>
+                <Animated.View style={[{ overflow: 'hidden' }, animatedStyle]}>
+                    {calendarRows.map((week, wi) => (
+                        <View key={wi} style={{ flexDirection: 'row', height: CELL_HEIGHT }}>
+                            {week.map((day, di) => {
+                                if (day === null) {
+                                    return <View key={di} style={{ width: CELL_WIDTH }} />;
+                                }
+                                const isToday = year === todayY && month === todayM && day === todayD;
+                                const isSelected = day === selectedDay;
+                                const hasSubs = (dayToSubs[day]?.length ?? 0) > 0;
+                                const isSun = di === 0;
+                                const isSat = di === 6;
 
-                            const textColor = isSelected ? '#ffffff'
-                                : isToday ? '#3B82F6'
-                                : isSun ? '#EF4444'
-                                : isSat ? '#3B82F6'
-                                : isDark ? '#f5f5f5' : '#171717';
+                                const textColor = isSelected ? '#ffffff'
+                                    : isToday ? '#3B82F6'
+                                    : isSun ? '#EF4444'
+                                    : isSat ? '#3B82F6'
+                                    : isDark ? '#f5f5f5' : '#171717';
 
-                            const circleBg = isSelected ? '#3B82F6'
-                                : isToday ? (isDark ? '#404040' : '#e5e5e5')
-                                : 'transparent';
+                                const circleBg = isSelected ? '#3B82F6'
+                                    : isToday ? (isDark ? '#404040' : '#e5e5e5')
+                                    : 'transparent';
 
-                            return (
-                                <TouchableOpacity
-                                    key={di}
-                                    onPress={() => setSelectedDay(isSelected ? null : day)}
-                                    style={{ width: CELL_WIDTH, alignItems: 'center', justifyContent: 'center' }}
-                                    activeOpacity={0.7}
-                                >
-                                    <View style={{
-                                        width: CIRCLE_SIZE,
-                                        height: CIRCLE_SIZE,
-                                        borderRadius: CIRCLE_SIZE / 2,
-                                        backgroundColor: circleBg,
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                    }}>
-                                        <Text style={{
-                                            color: textColor,
-                                            fontSize: 15,
-                                            fontWeight: isSelected || isToday ? '700' : '500',
+                                return (
+                                    <TouchableOpacity
+                                        key={di}
+                                        onPress={() => setSelectedDay(isSelected ? null : day)}
+                                        style={{ width: CELL_WIDTH, alignItems: 'center', justifyContent: 'center' }}
+                                        activeOpacity={0.7}
+                                    >
+                                        <View style={{
+                                            width: CIRCLE_SIZE,
+                                            height: CIRCLE_SIZE,
+                                            borderRadius: CIRCLE_SIZE / 2,
+                                            backgroundColor: circleBg,
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
                                         }}>
-                                            {day}
-                                        </Text>
-                                    </View>
-                                    <View style={{
-                                        width: 6,
-                                        height: 6,
-                                        borderRadius: 3,
-                                        marginTop: 2,
-                                        backgroundColor: hasSubs
-                                            ? (isSelected ? '#ffffff' : '#3B82F6')
-                                            : 'transparent',
-                                    }} />
-                                </TouchableOpacity>
-                            );
-                        })}
-                    </View>
-                ))}
-            </View>
-            </View>
+                                            <Text style={{
+                                                color: textColor,
+                                                fontSize: 15,
+                                                fontWeight: isSelected || isToday ? '700' : '500',
+                                            }}>
+                                                {day}
+                                            </Text>
+                                        </View>
+                                        <View style={{
+                                            width: 6,
+                                            height: 6,
+                                            borderRadius: 3,
+                                            marginTop: 2,
+                                            backgroundColor: hasSubs
+                                                ? (isSelected ? '#ffffff' : '#3B82F6')
+                                                : 'transparent',
+                                        }} />
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </View>
+                    ))}
+                </Animated.View>
             </GestureDetector>
 
             {/* Divider */}
@@ -285,7 +360,6 @@ export default function CalendarScreen() {
                     selectedSubs.map(sub => {
                         const presetIcon = parseSubscriptionPresetIconValue(sub.icon_url);
                         const currencySymbol = CURRENCY_SYMBOLS[sub.currency] ?? sub.currency;
-
                         return (
                             <TouchableOpacity
                                 key={sub.id}
@@ -301,26 +375,17 @@ export default function CalendarScreen() {
                                             <Ionicons name={presetIcon.name as any} size={22} color={presetIcon.color} />
                                         )
                                     ) : sub.icon_url ? (
-                                        <Image
-                                            source={{ uri: sub.icon_url }}
-                                            style={{ width: 28, height: 28, borderRadius: 6 }}
-                                        />
+                                        <Image source={{ uri: sub.icon_url }} style={{ width: 28, height: 28, borderRadius: 6 }} />
                                     ) : (
                                         <Ionicons name="card-outline" size={22} color="#3B82F6" />
                                     )}
                                 </View>
                                 <View className="flex-1">
-                                    <Text
-                                        className="text-sm font-semibold text-neutral-900 dark:text-neutral-100"
-                                        numberOfLines={1}
-                                    >
+                                    <Text className="text-sm font-semibold text-neutral-900 dark:text-neutral-100" numberOfLines={1}>
                                         {sub.service_name}
                                     </Text>
                                     {sub.plan_name ? (
-                                        <Text
-                                            className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5"
-                                            numberOfLines={1}
-                                        >
+                                        <Text className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5" numberOfLines={1}>
                                             {sub.plan_name}
                                         </Text>
                                     ) : null}
@@ -328,12 +393,7 @@ export default function CalendarScreen() {
                                 <Text className="text-sm font-bold text-neutral-900 dark:text-neutral-100 ml-3">
                                     {currencySymbol}{sub.amount.toLocaleString()}
                                 </Text>
-                                <Ionicons
-                                    name="chevron-forward"
-                                    size={16}
-                                    color={isDark ? '#525252' : '#d4d4d4'}
-                                    style={{ marginLeft: 6 }}
-                                />
+                                <Ionicons name="chevron-forward" size={16} color={isDark ? '#525252' : '#d4d4d4'} style={{ marginLeft: 6 }} />
                             </TouchableOpacity>
                         );
                     })
