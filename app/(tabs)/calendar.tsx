@@ -1,8 +1,12 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import {
     View, Text, SafeAreaView, TouchableOpacity,
-    ScrollView, useColorScheme, Image,
+    ScrollView, useColorScheme, Image, Dimensions,
 } from 'react-native';
+
+const SCREEN_HEIGHT = Dimensions.get('window').height;
+// Calendar occupies ~55% of screen; divide by max 6 rows
+const CELL_HEIGHT = Math.floor((SCREEN_HEIGHT * 0.55) / 6);
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
@@ -131,8 +135,6 @@ export default function CalendarScreen() {
 
     return (
         <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-neutral-950">
-            {/* Calendar section */}
-            <View style={{ flex: 3 }}>
             {/* Header */}
             <View className="flex-row items-center justify-between px-4 pt-3 pb-2">
                 <Text className="text-base font-bold text-neutral-900 dark:text-white flex-1" numberOfLines={1}>
@@ -165,9 +167,9 @@ export default function CalendarScreen() {
             </View>
 
             {/* Calendar grid */}
-            <View className="px-2 pb-2 flex-1">
+            <View className="px-2">
                 {calendarRows.map((week, wi) => (
-                    <View key={wi} className="flex-1 flex-row">
+                    <View key={wi} className="flex-row" style={{ height: CELL_HEIGHT }}>
                         {week.map((day, di) => {
                             if (day === null) {
                                 return <View key={di} className="flex-1" />;
@@ -185,7 +187,7 @@ export default function CalendarScreen() {
                                     className="flex-1 items-center justify-center"
                                     activeOpacity={0.7}
                                 >
-                                    <View className={`w-10 h-10 rounded-full items-center justify-center ${
+                                    <View className={`w-11 h-11 rounded-full items-center justify-center ${
                                         isSelected ? 'bg-blue-500' :
                                         isToday ? 'bg-neutral-200 dark:bg-neutral-700' : ''
                                     }`}>
@@ -210,13 +212,10 @@ export default function CalendarScreen() {
                     </View>
                 ))}
             </View>
-            </View>{/* end calendar section */}
 
             {/* Divider */}
-            <View className="h-px bg-neutral-200 dark:bg-neutral-800 mx-4" />
+            <View className="h-px bg-neutral-200 dark:bg-neutral-800 mx-4 mt-2" />
 
-            {/* List section */}
-            <View style={{ flex: 2 }}>
             {/* Selected day label */}
             {selectedLabel != null && (
                 <View className="px-4 pt-3 pb-1">
@@ -303,7 +302,6 @@ export default function CalendarScreen() {
                     })
                 )}
             </ScrollView>
-            </View>{/* end list section */}
         </SafeAreaView>
     );
 }
