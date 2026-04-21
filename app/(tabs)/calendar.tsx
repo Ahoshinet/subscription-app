@@ -4,9 +4,10 @@ import {
     ScrollView, useColorScheme, Image, Dimensions,
 } from 'react-native';
 
-const SCREEN_HEIGHT = Dimensions.get('window').height;
-// Calendar occupies ~55% of screen; divide by max 6 rows
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const CELL_WIDTH = Math.floor(SCREEN_WIDTH / 7);
 const CELL_HEIGHT = Math.floor((SCREEN_HEIGHT * 0.55) / 6);
+const CIRCLE_SIZE = Math.min(CELL_WIDTH - 6, CELL_HEIGHT - 14, 48);
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
@@ -151,15 +152,18 @@ export default function CalendarScreen() {
             </View>
 
             {/* Weekday headers */}
-            <View className="flex-row px-3">
+            <View style={{ flexDirection: 'row' }}>
                 {weekdays.map((wd, i) => (
                     <Text
                         key={i}
-                        className={`flex-1 text-center text-xs font-semibold py-1 ${
-                            i === 0 ? 'text-red-500' :
-                            i === 6 ? 'text-blue-500' :
-                            'text-neutral-400 dark:text-neutral-500'
-                        }`}
+                        style={{
+                            width: CELL_WIDTH,
+                            textAlign: 'center',
+                            fontSize: 12,
+                            fontWeight: '600',
+                            paddingVertical: 4,
+                            color: i === 0 ? '#EF4444' : i === 6 ? '#3B82F6' : isDark ? '#737373' : '#a3a3a3',
+                        }}
                     >
                         {wd}
                     </Text>
@@ -167,12 +171,12 @@ export default function CalendarScreen() {
             </View>
 
             {/* Calendar grid */}
-            <View className="px-2">
+            <View>
                 {calendarRows.map((week, wi) => (
-                    <View key={wi} className="flex-row" style={{ height: CELL_HEIGHT }}>
+                    <View key={wi} style={{ flexDirection: 'row', height: CELL_HEIGHT }}>
                         {week.map((day, di) => {
                             if (day === null) {
-                                return <View key={di} className="flex-1" />;
+                                return <View key={di} style={{ width: CELL_WIDTH }} />;
                             }
                             const isToday = year === todayY && month === todayM && day === todayD;
                             const isSelected = day === selectedDay;
@@ -180,32 +184,48 @@ export default function CalendarScreen() {
                             const isSun = di === 0;
                             const isSat = di === 6;
 
+                            const textColor = isSelected ? '#ffffff'
+                                : isToday ? '#3B82F6'
+                                : isSun ? '#EF4444'
+                                : isSat ? '#3B82F6'
+                                : isDark ? '#f5f5f5' : '#171717';
+
+                            const circleBg = isSelected ? '#3B82F6'
+                                : isToday ? (isDark ? '#404040' : '#e5e5e5')
+                                : 'transparent';
+
                             return (
                                 <TouchableOpacity
                                     key={di}
                                     onPress={() => setSelectedDay(isSelected ? null : day)}
-                                    className="flex-1 items-center justify-center"
+                                    style={{ width: CELL_WIDTH, alignItems: 'center', justifyContent: 'center' }}
                                     activeOpacity={0.7}
                                 >
-                                    <View className={`w-11 h-11 rounded-full items-center justify-center ${
-                                        isSelected ? 'bg-blue-500' :
-                                        isToday ? 'bg-neutral-200 dark:bg-neutral-700' : ''
-                                    }`}>
-                                        <Text className={`text-base ${
-                                            isSelected ? 'text-white font-bold' :
-                                            isToday ? 'text-blue-500 font-bold' :
-                                            isSun ? 'text-red-500 font-medium' :
-                                            isSat ? 'text-blue-500 font-medium' :
-                                            'text-neutral-900 dark:text-neutral-100 font-medium'
-                                        }`}>
+                                    <View style={{
+                                        width: CIRCLE_SIZE,
+                                        height: CIRCLE_SIZE,
+                                        borderRadius: CIRCLE_SIZE / 2,
+                                        backgroundColor: circleBg,
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }}>
+                                        <Text style={{
+                                            color: textColor,
+                                            fontSize: 15,
+                                            fontWeight: isSelected || isToday ? '700' : '500',
+                                        }}>
                                             {day}
                                         </Text>
                                     </View>
-                                    <View className={`w-1.5 h-1.5 rounded-full mt-1 ${
-                                        hasSubs
-                                            ? isSelected ? 'bg-white' : 'bg-blue-500'
-                                            : 'bg-transparent'
-                                    }`} />
+                                    <View style={{
+                                        width: 6,
+                                        height: 6,
+                                        borderRadius: 3,
+                                        marginTop: 2,
+                                        backgroundColor: hasSubs
+                                            ? (isSelected ? '#ffffff' : '#3B82F6')
+                                            : 'transparent',
+                                    }} />
                                 </TouchableOpacity>
                             );
                         })}
