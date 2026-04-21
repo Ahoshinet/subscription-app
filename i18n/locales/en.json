@@ -237,8 +237,7 @@
     },
     "calendar": {
         "title": "Calendar",
-        "tap_to_view": "Tap a date to view payments",
-        "no_payments": "No payments on this day"
+        "no_payments": "No payments"
     },
     "notification": {
         "payment_reminder_title": "Payment Reminder",

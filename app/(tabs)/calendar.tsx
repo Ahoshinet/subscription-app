@@ -117,6 +117,16 @@ export default function CalendarScreen() {
         [dayToSubs],
     );
 
+    // All payments in the month, sorted by day — shown when no day is selected
+    const monthSubs = useMemo(() => {
+        const result: { sub: Subscription; day: number }[] = [];
+        for (const [dayStr, subs] of Object.entries(dayToSubs)) {
+            const day = Number(dayStr);
+            for (const sub of subs) result.push({ sub, day });
+        }
+        return result.sort((a, b) => a.day - b.day);
+    }, [dayToSubs]);
+
     const calendarRows = useMemo(() => chunk(buildCalendarDays(year, month), 7), [year, month]);
     const selectedSubs = selectedDay != null ? (dayToSubs[selectedDay] ?? []) : [];
 
@@ -267,7 +277,14 @@ export default function CalendarScreen() {
                         <View key={wi} style={{ flexDirection: 'row', height: CELL_HEIGHT }}>
                             {week.map((day, di) => {
                                 if (day === null) {
-                                    return <View key={di} style={{ width: CELL_WIDTH }} />;
+                                    return (
+                                        <TouchableOpacity
+                                            key={di}
+                                            style={{ width: CELL_WIDTH, height: CELL_HEIGHT }}
+                                            onPress={() => setSelectedDay(null)}
+                                            activeOpacity={1}
+                                        />
+                                    );
                                 }
                                 const isToday = year === todayY && month === todayM && day === todayD;
                                 const isSelected = day === selectedDay;
@@ -328,14 +345,12 @@ export default function CalendarScreen() {
             {/* Divider */}
             <View className="h-px bg-neutral-200 dark:bg-neutral-800 mx-4 mt-2" />
 
-            {/* Selected day label */}
-            {selectedLabel != null && (
-                <View className="px-4 pt-3 pb-1">
-                    <Text className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">
-                        {selectedLabel}
-                    </Text>
-                </View>
-            )}
+            {/* Section label */}
+            <View className="px-4 pt-3 pb-1">
+                <Text className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">
+                    {selectedLabel ?? (isJa ? `${month + 1}月の支払` : `${new Date(year, month).toLocaleDateString(i18n.language, { month: 'long' })} payments`)}
+                </Text>
+            </View>
 
             {/* Subscription list */}
             <ScrollView
@@ -343,14 +358,66 @@ export default function CalendarScreen() {
                 contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
             >
                 {selectedDay == null ? (
-                    <View className="items-center mt-12">
-                        <Ionicons name="finger-print-outline" size={36} color={isDark ? '#404040' : '#d4d4d4'} />
-                        <Text className="text-sm text-neutral-400 dark:text-neutral-600 mt-3">
-                            {t('calendar.tap_to_view')}
-                        </Text>
-                    </View>
+                    monthSubs.length === 0 ? (
+                        <View className="items-center mt-10">
+                            <Ionicons name="checkmark-circle-outline" size={36} color={isDark ? '#404040' : '#d4d4d4'} />
+                            <Text className="text-sm text-neutral-400 dark:text-neutral-600 mt-3">
+                                {t('calendar.no_payments')}
+                            </Text>
+                        </View>
+                    ) : (
+                        monthSubs.map(({ sub, day }, idx) => {
+                            const presetIcon = parseSubscriptionPresetIconValue(sub.icon_url);
+                            const currencySymbol = CURRENCY_SYMBOLS[sub.currency] ?? sub.currency;
+                            return (
+                                <TouchableOpacity
+                                    key={`${sub.id}-${day}-${idx}`}
+                                    onPress={() => router.push({ pathname: '/detail' as any, params: { id: String(sub.id) } })}
+                                    className="flex-row items-center py-3 border-b border-neutral-100 dark:border-neutral-800/80"
+                                    activeOpacity={0.7}
+                                >
+                                    {/* Day badge */}
+                                    <View style={{ width: 30, alignItems: 'center', marginRight: 10 }}>
+                                        <Text style={{ fontSize: 16, fontWeight: '700', color: '#3B82F6', lineHeight: 18 }}>
+                                            {day}
+                                        </Text>
+                                        <Text style={{ fontSize: 9, color: isDark ? '#737373' : '#a3a3a3' }}>
+                                            {isJa ? '日' : 'th'}
+                                        </Text>
+                                    </View>
+                                    <View className="w-9 h-9 rounded-xl items-center justify-center mr-3 bg-neutral-100 dark:bg-neutral-800">
+                                        {presetIcon ? (
+                                            presetIcon.pack === 'fontawesome5' ? (
+                                                <FontAwesome5 name={presetIcon.name as any} size={18} color={presetIcon.color} />
+                                            ) : (
+                                                <Ionicons name={presetIcon.name as any} size={20} color={presetIcon.color} />
+                                            )
+                                        ) : sub.icon_url ? (
+                                            <Image source={{ uri: sub.icon_url }} style={{ width: 26, height: 26, borderRadius: 6 }} />
+                                        ) : (
+                                            <Ionicons name="card-outline" size={20} color="#3B82F6" />
+                                        )}
+                                    </View>
+                                    <View className="flex-1">
+                                        <Text className="text-sm font-semibold text-neutral-900 dark:text-neutral-100" numberOfLines={1}>
+                                            {sub.service_name}
+                                        </Text>
+                                        {sub.plan_name ? (
+                                            <Text className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5" numberOfLines={1}>
+                                                {sub.plan_name}
+                                            </Text>
+                                        ) : null}
+                                    </View>
+                                    <Text className="text-sm font-bold text-neutral-900 dark:text-neutral-100 ml-3">
+                                        {currencySymbol}{sub.amount.toLocaleString()}
+                                    </Text>
+                                    <Ionicons name="chevron-forward" size={16} color={isDark ? '#525252' : '#d4d4d4'} style={{ marginLeft: 6 }} />
+                                </TouchableOpacity>
+                            );
+                        })
+                    )
                 ) : selectedSubs.length === 0 ? (
-                    <View className="items-center mt-12">
+                    <View className="items-center mt-10">
                         <Ionicons name="checkmark-circle-outline" size={36} color={isDark ? '#404040' : '#d4d4d4'} />
                         <Text className="text-sm text-neutral-400 dark:text-neutral-600 mt-3">
                             {t('calendar.no_payments')}

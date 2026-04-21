@@ -237,8 +237,7 @@
     },
     "calendar": {
         "title": "カレンダー",
-        "tap_to_view": "日付をタップして支払を確認",
-        "no_payments": "この日の支払はありません"
+        "no_payments": "支払はありません"
     },
     "notification": {
         "payment_reminder_title": "お支払いリマインダー",
