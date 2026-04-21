@@ -3,7 +3,7 @@ import { View, Text, Pressable, useColorScheme } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { useAddFormStore } from '../../store/useAddFormStore';
+import { useSettingsStore } from '../../store/useSettingsStore';
 import { CURRENCIES, CurrencyId } from '../../lib/currency';
 
 export default function CurrencyPickerScreen() {
@@ -11,7 +11,7 @@ export default function CurrencyPickerScreen() {
     const router = useRouter();
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
-    const { currency, setCurrency } = useAddFormStore();
+    const { currency, setCurrency } = useSettingsStore();
 
     const handleSelect = (value: CurrencyId) => {
         setCurrency(value);

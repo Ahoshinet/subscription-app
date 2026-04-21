@@ -4,6 +4,7 @@ import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useSubscriptionStore } from '../store/useSubscriptionStore';
 import { useAddFormStore, BILLING_CYCLES, PAYMENT_METHODS } from '../store/useAddFormStore';
+import { useSettingsStore } from '../store/useSettingsStore';
 import { uploadApi } from '../lib/api';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
@@ -44,7 +45,8 @@ export default function EditSubscriptionScreen() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [memo, setMemo] = useState('');
 
-    const { billingCycle, paymentMethod, currency, setBillingCycle, setPaymentMethod, setCurrency } = useAddFormStore();
+    const { billingCycle, paymentMethod, setBillingCycle, setPaymentMethod } = useAddFormStore();
+    const { currency, setCurrency } = useSettingsStore();
     const { methods: paymentMethods } = usePaymentMethodStore();
 
     useEffect(() => {

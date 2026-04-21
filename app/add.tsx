@@ -4,6 +4,7 @@ import { Stack, useRouter } from 'expo-router';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useSubscriptionStore } from '../store/useSubscriptionStore';
 import { useAddFormStore, BILLING_CYCLES } from '../store/useAddFormStore';
+import { useSettingsStore } from '../store/useSettingsStore';
 import { usePaymentMethodStore } from '../store/usePaymentMethodStore';
 import { uploadApi } from '../lib/api';
 import * as ImagePicker from 'expo-image-picker';
@@ -39,7 +40,8 @@ export default function AddSubscriptionModal() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [memo, setMemo] = useState('');
 
-    const { billingCycle, paymentMethod, currency } = useAddFormStore();
+    const { billingCycle, paymentMethod } = useAddFormStore();
+    const { currency } = useSettingsStore();
     const { methods: savedPaymentMethods } = usePaymentMethodStore();
     const { addSubscription } = useSubscriptionStore();
 
