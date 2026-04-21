@@ -137,7 +137,7 @@ export default function CalendarScreen() {
     return (
         <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-neutral-950">
             {/* Header */}
-            <View className="flex-row items-center justify-between px-4 pt-6 pb-4">
+            <View className="flex-row items-center justify-between px-4 pt-4 pb-6">
                 <Text className="text-xl font-bold text-neutral-900 dark:text-white flex-1" numberOfLines={1}>
                     {headerText}
                 </Text>
