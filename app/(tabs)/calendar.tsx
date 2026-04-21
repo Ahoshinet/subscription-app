@@ -137,16 +137,16 @@ export default function CalendarScreen() {
     return (
         <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-neutral-950">
             {/* Header */}
-            <View className="flex-row items-center justify-between px-4 pt-3 pb-2">
-                <Text className="text-base font-bold text-neutral-900 dark:text-white flex-1" numberOfLines={1}>
+            <View className="flex-row items-center justify-between px-4 pt-6 pb-4">
+                <Text className="text-xl font-bold text-neutral-900 dark:text-white flex-1" numberOfLines={1}>
                     {headerText}
                 </Text>
-                <View className="flex-row items-center ml-2">
-                    <TouchableOpacity onPress={prevMonth} className="p-1.5" activeOpacity={0.7}>
-                        <Ionicons name="chevron-back" size={22} color={isDark ? '#e5e5e5' : '#171717'} />
+                <View className="flex-row items-center ml-3">
+                    <TouchableOpacity onPress={prevMonth} className="p-2" activeOpacity={0.7}>
+                        <Ionicons name="chevron-back" size={26} color={isDark ? '#e5e5e5' : '#171717'} />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={nextMonth} className="p-1.5 ml-1" activeOpacity={0.7}>
-                        <Ionicons name="chevron-forward" size={22} color={isDark ? '#e5e5e5' : '#171717'} />
+                    <TouchableOpacity onPress={nextMonth} className="p-2 ml-1" activeOpacity={0.7}>
+                        <Ionicons name="chevron-forward" size={26} color={isDark ? '#e5e5e5' : '#171717'} />
                     </TouchableOpacity>
                 </View>
             </View>
