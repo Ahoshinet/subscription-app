@@ -288,7 +288,10 @@ export default function CalendarScreen() {
                                 }
                                 const isToday = year === todayY && month === todayM && day === todayD;
                                 const isSelected = day === selectedDay;
-                                const hasSubs = (dayToSubs[day]?.length ?? 0) > 0;
+                                const isPast = year < todayY
+                                    || (year === todayY && month < todayM)
+                                    || (year === todayY && month === todayM && day < todayD);
+                                const hasSubs = !isPast && (dayToSubs[day]?.length ?? 0) > 0;
                                 const isSun = di === 0;
                                 const isSat = di === 6;
 
@@ -357,6 +360,7 @@ export default function CalendarScreen() {
                 className="flex-1"
                 contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
             >
+                <View key={selectedDay == null ? 'month' : `day-${selectedDay}`}>
                 {selectedDay == null ? (
                     monthSubs.length === 0 ? (
                         <View className="items-center mt-10">
@@ -465,6 +469,7 @@ export default function CalendarScreen() {
                         );
                     })
                 )}
+                </View>
             </ScrollView>
         </SafeAreaView>
     );
