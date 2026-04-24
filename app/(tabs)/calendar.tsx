@@ -520,21 +520,23 @@ export default function CalendarScreen() {
                                 </Text>
                             </TouchableOpacity>
                         </View>
-                        <DateTimePicker
-                            value={pickerDate}
-                            mode="date"
-                            display="spinner"
-                            locale={isJa ? 'ja-JP' : 'en-US'}
-                            onChange={(_: DateTimePickerEvent, date?: Date) => {
-                                if (date) {
-                                    setPickerDate(date);
-                                    setYear(date.getFullYear());
-                                    setMonth(date.getMonth());
-                                    setSelectedDay(null);
-                                }
-                            }}
-                            style={{ width: SCREEN_WIDTH, backgroundColor: isDark ? '#1c1c1e' : '#ffffff' }}
-                        />
+                        <View style={{ width: SCREEN_WIDTH, alignItems: 'center' }}>
+                            <DateTimePicker
+                                value={pickerDate}
+                                mode="date"
+                                display="spinner"
+                                locale={isJa ? 'ja-JP' : 'en-US'}
+                                onChange={(_: DateTimePickerEvent, date?: Date) => {
+                                    if (date) {
+                                        setPickerDate(date);
+                                        setYear(date.getFullYear());
+                                        setMonth(date.getMonth());
+                                        setSelectedDay(null);
+                                    }
+                                }}
+                                style={{ backgroundColor: isDark ? '#1c1c1e' : '#ffffff' }}
+                            />
+                        </View>
                     </View>
                 </Modal>
             )}
