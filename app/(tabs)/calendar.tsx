@@ -22,7 +22,7 @@ import { Subscription } from '../../lib/api';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const CELL_WIDTH = Math.floor(SCREEN_WIDTH / 7);
-const CELL_HEIGHT = Math.floor((SCREEN_HEIGHT * 0.55) / 6);
+const CELL_HEIGHT = Math.floor((SCREEN_HEIGHT * 0.42) / 6);
 const CIRCLE_SIZE = Math.min(CELL_WIDTH - 6, CELL_HEIGHT - 14, 48);
 
 const WEEKDAYS_JA = ['日', '月', '火', '水', '木', '金', '土'];
@@ -240,7 +240,7 @@ export default function CalendarScreen() {
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: isDark ? '#0a0a0a' : '#fafafa' }}>
             {/* Header */}
-            <View className="flex-row items-center justify-between px-4 pt-5 pb-7">
+            <View className="flex-row items-center justify-between px-4 pt-5 pb-3">
                 <Text className="text-xl font-bold text-neutral-900 dark:text-white flex-1" numberOfLines={1}>
                     {headerText}
                 </Text>
