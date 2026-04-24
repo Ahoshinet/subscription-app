@@ -533,7 +533,7 @@ export default function CalendarScreen() {
                                     setSelectedDay(null);
                                 }
                             }}
-                            style={{ backgroundColor: isDark ? '#1c1c1e' : '#ffffff' }}
+                            style={{ width: SCREEN_WIDTH, backgroundColor: isDark ? '#1c1c1e' : '#ffffff' }}
                         />
                     </View>
                 </Modal>
