@@ -20,17 +20,22 @@ Authorization: Bearer <token>
   - [Change password](#put-apiv1authpassword)
   - [Update profile](#put-apiv1authprofile)
 - [Subscriptions](#subscriptions)
-  - [Create](#post-apisubscriptions)
-  - [List](#get-apisubscriptionslist)
-  - [Upcoming payments](#get-apisubscriptionsupcoming)
-  - [Update](#put-apisubscriptionsid)
-  - [Delete](#delete-apisubscriptionsid)
-  - [Toggle status](#patch-apisubscriptionsidstatus)
+  - [Create](#post-apiv1subscriptions)
+  - [List](#get-apiv1subscriptionslist)
+  - [Upcoming payments](#get-apiv1subscriptionsupcoming)
+  - [Update](#put-apiv1subscriptionsid)
+  - [Delete](#delete-apiv1subscriptionsid)
+  - [Toggle status](#patch-apiv1subscriptionsidstatus)
+- [Payment Methods](#payment-methods)
+  - [List](#get-apiv1payment-methods)
+  - [Create](#post-apiv1payment-methods)
+  - [Update](#put-apiv1payment-methodsid)
+  - [Delete](#delete-apiv1payment-methodsid)
 - [Settings](#settings)
-  - [Get settings](#get-apisettings)
-  - [Update settings](#put-apisettings)
+  - [Get settings](#get-apiv1settings)
+  - [Update settings](#put-apiv1settings)
 - [Upload](#upload)
-  - [Upload icon](#post-apiuploadicon)
+  - [Upload icon](#post-apiv1uploadicon)
   - [Serve uploaded file](#get-uploadsfilename)
 - [Data Models](#data-models)
 - [Error Codes](#error-codes)
@@ -483,7 +488,7 @@ Update user settings. All fields are optional.
 
 ### POST /api/v1/upload/icon
 
-Upload a service icon image. The file is stored on the server with a unique UUID-based filename.
+Upload a service icon image.
 
 **Auth required:** Yes
 
