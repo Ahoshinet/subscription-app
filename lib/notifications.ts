@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 import { Subscription } from './api';
 import { getEffectiveNextPaymentDate } from './dateUtils';
 
@@ -7,6 +8,9 @@ type NotificationsModule = typeof import('expo-notifications');
 let _notifications: NotificationsModule | null = null;
 
 function getNotifications(): NotificationsModule | null {
+    // expo-notifications remote push removed from Expo Go on Android in SDK 53;
+    // loading the module triggers push token auto-registration which crashes in that env.
+    if (Platform.OS === 'android' && Constants.appOwnership === 'expo') return null;
     if (_notifications) return _notifications;
     try {
         _notifications = require('expo-notifications') as NotificationsModule;
