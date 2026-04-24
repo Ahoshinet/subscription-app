@@ -10,15 +10,15 @@ const getDevBaseUrl = () => {
     const hostUri = Constants.expoConfig?.hostUri;
     if (hostUri) {
         const host = hostUri.split(':')[0];
-        return `http://${host}:${DEV_PORT}/api`;
+        return `http://${host}:${DEV_PORT}/api/v1`;
     }
     if (Platform.OS === 'android') {
-        return `http://10.0.2.2:${DEV_PORT}/api`;
+        return `http://10.0.2.2:${DEV_PORT}/api/v1`;
     }
-    return `http://localhost:${DEV_PORT}/api`;
+    return `http://localhost:${DEV_PORT}/api/v1`;
 };
 
-let API_BASE_URL = __DEV__ ? getDevBaseUrl() : `${PRODUCTION_URL}/api`;
+let API_BASE_URL = __DEV__ ? getDevBaseUrl() : `${PRODUCTION_URL}/api/v1`;
 let _devFallbackResolved = false;
 
 /**
@@ -34,7 +34,7 @@ export async function ensureApiReachable(): Promise<void> {
     try {
         const saved = await SecureStore.getItemAsync(DEV_API_PREF_KEY);
         if (saved === 'official') {
-            API_BASE_URL = `${PRODUCTION_URL}/api`;
+            API_BASE_URL = `${PRODUCTION_URL}/api/v1`;
             console.log(`[api] Restored preference: official API (${API_BASE_URL})`);
             return;
         }
@@ -43,7 +43,7 @@ export async function ensureApiReachable(): Promise<void> {
     try {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 3000);
-        const healthUrl = API_BASE_URL.replace(/\/api$/, '/health');
+        const healthUrl = API_BASE_URL.replace(/\/api\/v1$/, '/health');
         const res = await fetch(healthUrl, { signal: controller.signal });
         clearTimeout(timeout);
         if (res.ok) return;
@@ -59,7 +59,7 @@ export async function ensureApiReachable(): Promise<void> {
                 {
                     text: '公式APIを使う（今後も）',
                     onPress: async () => {
-                        API_BASE_URL = `${PRODUCTION_URL}/api`;
+                        API_BASE_URL = `${PRODUCTION_URL}/api/v1`;
                         try { await SecureStore.setItemAsync(DEV_API_PREF_KEY, 'official'); } catch {}
                         console.log(`[api] Switched to official API: ${API_BASE_URL}`);
                         resolve();
