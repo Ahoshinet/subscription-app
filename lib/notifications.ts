@@ -43,7 +43,20 @@ export async function requestNotificationPermissions(): Promise<boolean> {
     return finalStatus === 'granted';
 }
 
-export async function schedulePaymentReminders(
+let scheduleTimer: ReturnType<typeof setTimeout> | null = null;
+
+export function schedulePaymentReminders(
+    subscriptions: Subscription[],
+    t: (key: string, options?: Record<string, unknown>) => string
+): void {
+    if (scheduleTimer) clearTimeout(scheduleTimer);
+    scheduleTimer = setTimeout(() => {
+        scheduleTimer = null;
+        _doSchedule(subscriptions, t);
+    }, 300);
+}
+
+async function _doSchedule(
     subscriptions: Subscription[],
     t: (key: string, options?: Record<string, unknown>) => string
 ): Promise<void> {

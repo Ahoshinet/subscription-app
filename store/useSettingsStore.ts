@@ -64,7 +64,7 @@ export const useSettingsStore = create<SettingsState>()(
                         isSyncing: false,
                     });
                 } catch {
-                    set({ isSyncing: false });
+                    set({ isSyncing: false, syncError: true });
                 }
             },
 

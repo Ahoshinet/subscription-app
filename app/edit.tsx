@@ -33,7 +33,8 @@ export default function EditSubscriptionScreen() {
     const { t } = useTranslation();
 
     const { subscriptions, updateSubscription } = useSubscriptionStore();
-    const subscription = subscriptions.find(s => s.id === Number(id));
+    const numId = Number(id);
+    const subscription = !isNaN(numId) ? subscriptions.find(s => s.id === numId) : undefined;
 
     const [serviceName, setServiceName] = useState('');
     const [planName, setPlanName] = useState('');
