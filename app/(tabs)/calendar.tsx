@@ -138,6 +138,17 @@ export default function CalendarScreen() {
     }, [dayToSubs]);
 
     const calendarRows = useMemo(() => chunk(buildCalendarDays(year, month), 7), [year, month]);
+
+    const totalsByCurrency = useMemo(() => {
+        const sources = selectedDay != null ? (dayToSubs[selectedDay] ?? []) : monthSubs.map(({ sub }) => sub);
+        const map: Record<string, number> = {};
+        for (const sub of sources) {
+            map[sub.currency] = (map[sub.currency] ?? 0) + sub.amount;
+        }
+        return Object.entries(map)
+            .map(([currency, amount]) => `${CURRENCY_SYMBOLS[currency] ?? currency}${amount.toLocaleString()}`)
+            .join('  ');
+    }, [dayToSubs, monthSubs, selectedDay]);
     const selectedSubs = selectedDay != null ? (dayToSubs[selectedDay] ?? []) : [];
 
     // Animation
@@ -361,10 +372,15 @@ export default function CalendarScreen() {
             <View className="h-px bg-neutral-200 dark:bg-neutral-800 mx-4 mt-2" />
 
             {/* Section label */}
-            <View className="px-4 pt-3 pb-1">
+            <View className="px-4 pt-3 pb-1 flex-row items-center justify-between">
                 <Text className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">
                     {selectedLabel ?? (isJa ? `${month + 1}月の支払` : `${new Date(year, month).toLocaleDateString(i18n.language, { month: 'long' })} payments`)}
                 </Text>
+                {totalsByCurrency ? (
+                    <Text className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">
+                        {isJa ? `合計: ${totalsByCurrency}` : `Total: ${totalsByCurrency}`}
+                    </Text>
+                ) : null}
             </View>
 
             {/* Subscription list */}
