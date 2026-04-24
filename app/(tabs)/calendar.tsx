@@ -106,11 +106,14 @@ export default function CalendarScreen() {
             if (sub.status !== 'active') continue;
             const days = getPaymentDaysInMonth(sub.next_payment_date, sub.billing_cycle, year, month);
             for (const d of days) {
-                (map[d] ??= []).push(sub);
+                const isPastDay = year < todayY
+                    || (year === todayY && month < todayM)
+                    || (year === todayY && month === todayM && d < todayD);
+                if (!isPastDay) (map[d] ??= []).push(sub);
             }
         }
         return map;
-    }, [subscriptions, year, month]);
+    }, [subscriptions, year, month, todayY, todayM, todayD]);
 
     const totalPayments = useMemo(
         () => Object.values(dayToSubs).reduce((sum, subs) => sum + subs.length, 0),
@@ -235,7 +238,7 @@ export default function CalendarScreen() {
         : null;
 
     return (
-        <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-neutral-950">
+        <SafeAreaView style={{ flex: 1, backgroundColor: isDark ? '#0a0a0a' : '#fafafa' }}>
             {/* Header */}
             <View className="flex-row items-center justify-between px-4 pt-5 pb-7">
                 <Text className="text-xl font-bold text-neutral-900 dark:text-white flex-1" numberOfLines={1}>
@@ -288,10 +291,7 @@ export default function CalendarScreen() {
                                 }
                                 const isToday = year === todayY && month === todayM && day === todayD;
                                 const isSelected = day === selectedDay;
-                                const isPast = year < todayY
-                                    || (year === todayY && month < todayM)
-                                    || (year === todayY && month === todayM && day < todayD);
-                                const hasSubs = !isPast && (dayToSubs[day]?.length ?? 0) > 0;
+                                const hasSubs = (dayToSubs[day]?.length ?? 0) > 0;
                                 const isSun = di === 0;
                                 const isSat = di === 6;
 
@@ -356,8 +356,8 @@ export default function CalendarScreen() {
             </View>
 
             {/* Subscription list */}
+            <View style={{ flex: 1 }}>
             <ScrollView
-                className="flex-1"
                 contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
             >
                 <View key={selectedDay == null ? 'month' : `day-${selectedDay}`}>
@@ -421,9 +421,9 @@ export default function CalendarScreen() {
                         })
                     )
                 ) : selectedSubs.length === 0 ? (
-                    <View className="items-center mt-10">
+                    <View style={{ alignItems: 'center', marginTop: 40 }}>
                         <Ionicons name="checkmark-circle-outline" size={36} color={isDark ? '#404040' : '#d4d4d4'} />
-                        <Text className="text-sm text-neutral-400 dark:text-neutral-600 mt-3">
+                        <Text style={{ fontSize: 14, color: isDark ? '#525252' : '#a3a3a3', marginTop: 12 }}>
                             {t('calendar.no_payments')}
                         </Text>
                     </View>
@@ -435,10 +435,10 @@ export default function CalendarScreen() {
                             <TouchableOpacity
                                 key={sub.id}
                                 onPress={() => router.push({ pathname: '/detail' as any, params: { id: String(sub.id) } })}
-                                className="flex-row items-center py-3.5 border-b border-neutral-100 dark:border-neutral-800/80"
+                                style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: isDark ? 'rgba(38,38,38,0.8)' : '#f5f5f5' }}
                                 activeOpacity={0.7}
                             >
-                                <View className="w-10 h-10 rounded-xl items-center justify-center mr-3 bg-neutral-100 dark:bg-neutral-800">
+                                <View style={{ width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginRight: 12, backgroundColor: isDark ? '#262626' : '#f5f5f5' }}>
                                     {presetIcon ? (
                                         presetIcon.pack === 'fontawesome5' ? (
                                             <FontAwesome5 name={presetIcon.name as any} size={20} color={presetIcon.color} />
@@ -451,17 +451,17 @@ export default function CalendarScreen() {
                                         <Ionicons name="card-outline" size={22} color="#3B82F6" />
                                     )}
                                 </View>
-                                <View className="flex-1">
-                                    <Text className="text-sm font-semibold text-neutral-900 dark:text-neutral-100" numberOfLines={1}>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={{ fontSize: 14, fontWeight: '600', color: isDark ? '#f5f5f5' : '#171717' }} numberOfLines={1}>
                                         {sub.service_name}
                                     </Text>
                                     {sub.plan_name ? (
-                                        <Text className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5" numberOfLines={1}>
+                                        <Text style={{ fontSize: 12, color: isDark ? '#a3a3a3' : '#737373', marginTop: 2 }} numberOfLines={1}>
                                             {sub.plan_name}
                                         </Text>
                                     ) : null}
                                 </View>
-                                <Text className="text-sm font-bold text-neutral-900 dark:text-neutral-100 ml-3">
+                                <Text style={{ fontSize: 14, fontWeight: '700', color: isDark ? '#f5f5f5' : '#171717', marginLeft: 12 }}>
                                     {currencySymbol}{sub.amount.toLocaleString()}
                                 </Text>
                                 <Ionicons name="chevron-forward" size={16} color={isDark ? '#525252' : '#d4d4d4'} style={{ marginLeft: 6 }} />
@@ -471,6 +471,7 @@ export default function CalendarScreen() {
                 )}
                 </View>
             </ScrollView>
+            </View>
         </SafeAreaView>
     );
 }
