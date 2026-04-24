@@ -87,7 +87,7 @@ export function SubscriptionCard({
                 <BlurView
                     intensity={100}
                     tint={blurTint}
-                    style={{ backgroundColor: blurBackgroundColor }}
+                    style={{ backgroundColor: blurBackgroundColor, borderRadius: 24 }}
                     className="border border-neutral-200 dark:border-white/10"
                 >
                     {/* Main Content Area */}
