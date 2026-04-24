@@ -100,6 +100,10 @@ export default function CalendarScreen() {
     const isJa = i18n.language === 'ja';
     const weekdays = isJa ? WEEKDAYS_JA : WEEKDAYS_EN;
 
+    const todayY = today.getFullYear();
+    const todayM = today.getMonth();
+    const todayD = today.getDate();
+
     const dayToSubs = useMemo(() => {
         const map: Record<number, Subscription[]> = {};
         for (const sub of subscriptions) {
@@ -222,10 +226,6 @@ export default function CalendarScreen() {
             }),
         [applyMonthChange],
     );
-
-    const todayY = today.getFullYear();
-    const todayM = today.getMonth();
-    const todayD = today.getDate();
 
     const headerText = isJa
         ? `${year}年 ${month + 1}月 - ${totalPayments}件の支払`
