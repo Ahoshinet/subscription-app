@@ -198,34 +198,36 @@ function checkRateLimit(endpoint: string): void {
     }
 }
 
-// Token refresh logic
-let isRefreshing = false;
+// Token refresh logic — single in-flight promise so concurrent 401s all wait for the same refresh
+let refreshPromise: Promise<boolean> | null = null;
 
 async function tryRefreshToken(): Promise<boolean> {
-    if (isRefreshing) return false;
-    isRefreshing = true;
-    try {
-        const token = await getToken();
-        if (!token) return false;
-        const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-            },
-        });
-        if (!response.ok) return false;
-        const data = await response.json();
-        if (data.token) {
-            await setToken(data.token);
-            return true;
+    if (refreshPromise) return refreshPromise;
+    refreshPromise = (async () => {
+        try {
+            const token = await getToken();
+            if (!token) return false;
+            const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            if (!response.ok) return false;
+            const data = await response.json();
+            if (data.token) {
+                await setToken(data.token);
+                return true;
+            }
+            return false;
+        } catch {
+            return false;
         }
-        return false;
-    } catch {
-        return false;
-    } finally {
-        isRefreshing = false;
-    }
+    })().finally(() => {
+        refreshPromise = null;
+    });
+    return refreshPromise;
 }
 
 // Custom Fetch Wrapper

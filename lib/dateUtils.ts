@@ -23,5 +23,6 @@ export function getEffectiveNextPaymentDate(nextPaymentDate: string, billingCycl
         }
     }
 
+    date.setHours(0, 0, 0, 0);
     return date.toISOString();
 }
