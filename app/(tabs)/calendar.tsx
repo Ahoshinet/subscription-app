@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import {
     View, Text, SafeAreaView, TouchableOpacity,
-    ScrollView, useColorScheme, Image, Dimensions,
+    ScrollView, useColorScheme, Image, Dimensions, Modal, Platform,
 } from 'react-native';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
     useSharedValue,
@@ -88,6 +89,8 @@ export default function CalendarScreen() {
     const [year, setYear] = useState(today.getFullYear());
     const [month, setMonth] = useState(today.getMonth());
     const [selectedDay, setSelectedDay] = useState<number | null>(null);
+    const [showPicker, setShowPicker] = useState(false);
+    const [pickerDate, setPickerDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
 
     // Keep a ref so gesture callbacks can read current month/year without stale closure
     const currentRef = useRef({ month, year });
@@ -241,9 +244,18 @@ export default function CalendarScreen() {
         <SafeAreaView style={{ flex: 1, backgroundColor: isDark ? '#0a0a0a' : '#fafafa' }}>
             {/* Header */}
             <View className="flex-row items-center justify-between px-4 pt-5 pb-3">
-                <Text className="text-xl font-bold text-neutral-900 dark:text-white flex-1" numberOfLines={1}>
-                    {headerText}
-                </Text>
+                <TouchableOpacity
+                    onPress={() => {
+                        setPickerDate(new Date(year, month, 1));
+                        setShowPicker(true);
+                    }}
+                    activeOpacity={0.7}
+                    style={{ flex: 1 }}
+                >
+                    <Text className="text-xl font-bold text-neutral-900 dark:text-white" numberOfLines={1}>
+                        {headerText}
+                    </Text>
+                </TouchableOpacity>
                 <View className="flex-row items-center ml-3">
                     <TouchableOpacity onPress={() => navigate('prev')} className="p-2" activeOpacity={0.7}>
                         <Ionicons name="chevron-back" size={26} color={isDark ? '#e5e5e5' : '#171717'} />
@@ -472,6 +484,60 @@ export default function CalendarScreen() {
                 </View>
             </ScrollView>
             </View>
+            {/* Month/Year picker */}
+            {Platform.OS === 'android' && showPicker && (
+                <DateTimePicker
+                    value={pickerDate}
+                    mode="date"
+                    display="spinner"
+                    onChange={(_: DateTimePickerEvent, date?: Date) => {
+                        setShowPicker(false);
+                        if (date) {
+                            setYear(date.getFullYear());
+                            setMonth(date.getMonth());
+                            setSelectedDay(null);
+                        }
+                    }}
+                />
+            )}
+            {Platform.OS === 'ios' && (
+                <Modal
+                    visible={showPicker}
+                    transparent
+                    animationType="slide"
+                    onRequestClose={() => setShowPicker(false)}
+                >
+                    <TouchableOpacity
+                        style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }}
+                        activeOpacity={1}
+                        onPress={() => setShowPicker(false)}
+                    />
+                    <View style={{ backgroundColor: isDark ? '#1c1c1e' : '#ffffff', paddingBottom: 34 }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingHorizontal: 16, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: isDark ? '#3a3a3c' : '#e5e5ea' }}>
+                            <TouchableOpacity onPress={() => setShowPicker(false)}>
+                                <Text style={{ fontSize: 17, color: '#3B82F6', fontWeight: '600' }}>
+                                    {isJa ? '完了' : 'Done'}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                        <DateTimePicker
+                            value={pickerDate}
+                            mode="date"
+                            display="spinner"
+                            locale={isJa ? 'ja-JP' : 'en-US'}
+                            onChange={(_: DateTimePickerEvent, date?: Date) => {
+                                if (date) {
+                                    setPickerDate(date);
+                                    setYear(date.getFullYear());
+                                    setMonth(date.getMonth());
+                                    setSelectedDay(null);
+                                }
+                            }}
+                            style={{ backgroundColor: isDark ? '#1c1c1e' : '#ffffff' }}
+                        />
+                    </View>
+                </Modal>
+            )}
         </SafeAreaView>
     );
 }
