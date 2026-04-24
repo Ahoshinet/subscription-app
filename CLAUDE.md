@@ -24,9 +24,9 @@ pnpm lint         # ESLint
 - `useAddFormStore.ts` — Form state for subscription creation
 
 **API client**: `lib/api.ts` — injects JWT token on all requests; selects base URL by environment:
-- Dev web: `http://localhost:8084/api`
-- Dev Android emulator: `http://10.0.2.2:8084/api`
-- Production: `https://subscription-manager.daruks.com/api`
+- Dev web: `http://localhost:8084/api/v1`
+- Dev Android emulator: `http://10.0.2.2:8084/api/v1`
+- Production: `https://subscription-manager.daruks.com/api/v1`
 
 **Styling**: NativeWind (Tailwind CSS for React Native). Dark/light mode via `useColorScheme`.
 

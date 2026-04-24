@@ -1,6 +1,6 @@
 # API Reference
 
-Base URL: `https://subscription-manager.daruks.com/`
+Base URL: `https://subscription-manager.daruks.com/api/v1`
 
 All endpoints that require authentication must include the following header:
 
@@ -13,11 +13,12 @@ Authorization: Bearer <token>
 ## Table of Contents
 
 - [Authentication](#authentication)
-  - [Register](#post-apiauthregister)
-  - [Login](#post-apiauthlogin)
-  - [Get current user](#get-apiauthme)
-  - [Change password](#put-apiauthpassword)
-  - [Update profile](#put-apiauthprofile)
+  - [Register](#post-apiv1authregister)
+  - [Login](#post-apiv1authlogin)
+  - [Refresh token](#post-apiv1authrefresh)
+  - [Get current user](#get-apiv1authme)
+  - [Change password](#put-apiv1authpassword)
+  - [Update profile](#put-apiv1authprofile)
 - [Subscriptions](#subscriptions)
   - [Create](#post-apisubscriptions)
   - [List](#get-apisubscriptionslist)
@@ -38,7 +39,7 @@ Authorization: Bearer <token>
 
 ## Authentication
 
-### POST /api/auth/register
+### POST /api/v1/auth/register
 
 Register a new user.
 
@@ -48,7 +49,7 @@ Register a new user.
 ```json
 {
   "username": "string",   // required, must not be empty
-  "password": "string"    // required, min 6 characters
+  "password": "string"    // required, min 8 characters
 }
 ```
 
@@ -68,12 +69,12 @@ Register a new user.
 **Errors:**
 | Status | Reason |
 |---|---|
-| `400 Bad Request` | Empty username or password shorter than 6 characters |
+| `400 Bad Request` | Empty username or password shorter than 8 characters |
 | `409 Conflict` | Username already exists |
 
 ---
 
-### POST /api/auth/login
+### POST /api/v1/auth/login
 
 Login and receive a JWT token (valid for 30 days).
 
@@ -107,7 +108,29 @@ Login and receive a JWT token (valid for 30 days).
 
 ---
 
-### GET /api/auth/me
+### POST /api/v1/auth/refresh
+
+Issue a new JWT token without re-entering credentials. The existing (still-valid) token must be sent in the `Authorization` header.
+
+**Auth required:** Yes
+
+**Request body:** *(empty)*
+
+**Response `200 OK`:**
+```json
+{
+  "token": "eyJ..."
+}
+```
+
+**Errors:**
+| Status | Reason |
+|---|---|
+| `401 Unauthorized` | Token missing, malformed, or expired |
+
+---
+
+### GET /api/v1/auth/me
 
 Get the currently authenticated user's information.
 
@@ -131,7 +154,7 @@ Get the currently authenticated user's information.
 
 ---
 
-### PUT /api/auth/password
+### PUT /api/v1/auth/password
 
 Change the authenticated user's password.
 
@@ -141,7 +164,7 @@ Change the authenticated user's password.
 ```json
 {
   "current_password": "string",  // required
-  "new_password": "string"       // required, min 6 characters
+  "new_password": "string"       // required, min 8 characters
 }
 ```
 
@@ -150,12 +173,12 @@ Change the authenticated user's password.
 **Errors:**
 | Status | Reason |
 |---|---|
-| `400 Bad Request` | New password shorter than 6 characters |
+| `400 Bad Request` | New password shorter than 8 characters |
 | `401 Unauthorized` | Current password is incorrect |
 
 ---
 
-### PUT /api/auth/profile
+### PUT /api/v1/auth/profile
 
 Update the authenticated user's username.
 
@@ -189,7 +212,7 @@ Update the authenticated user's username.
 
 ## Subscriptions
 
-### POST /api/subscriptions
+### POST /api/v1/subscriptions
 
 Create a new subscription.
 
@@ -220,7 +243,7 @@ Create a new subscription.
 
 ---
 
-### GET /api/subscriptions/list
+### GET /api/v1/subscriptions/list
 
 Get all subscriptions for the authenticated user.
 
@@ -239,7 +262,7 @@ Get all subscriptions for the authenticated user.
 
 ---
 
-### GET /api/subscriptions/upcoming
+### GET /api/v1/subscriptions/upcoming
 
 Get active subscriptions with a payment due within the next 3 days.
 
@@ -249,7 +272,7 @@ Get active subscriptions with a payment due within the next 3 days.
 
 ---
 
-### PUT /api/subscriptions/{id}
+### PUT /api/v1/subscriptions/{id}
 
 Update an existing subscription. All fields are optional; only provided fields are updated.
 
@@ -282,7 +305,7 @@ Update an existing subscription. All fields are optional; only provided fields a
 
 ---
 
-### DELETE /api/subscriptions/{id}
+### DELETE /api/v1/subscriptions/{id}
 
 Delete a subscription.
 
@@ -300,7 +323,7 @@ Delete a subscription.
 
 ---
 
-### PATCH /api/subscriptions/{id}/status
+### PATCH /api/v1/subscriptions/{id}/status
 
 Toggle the status of a subscription (`active` / `inactive`).
 
@@ -325,9 +348,84 @@ Toggle the status of a subscription (`active` / `inactive`).
 
 ---
 
+## Payment Methods
+
+### GET /api/v1/payment-methods
+
+Get all payment methods for the authenticated user.
+
+**Auth required:** Yes
+
+**Response `200 OK`:** *(array of PaymentMethod objects, or `[]`)*
+
+---
+
+### POST /api/v1/payment-methods
+
+Create a new payment method.
+
+**Auth required:** Yes
+
+**Request body:**
+```json
+{
+  "type": "credit_card",
+  "label": "My Visa",
+  "icon_name": "card",
+  "icon_uri": null,
+  "color": "#3B82F6",
+  "last4": "1234",
+  "card_brand": "Visa",
+  "memo": null
+}
+```
+
+**Response `201 Created`:** *(returns the created PaymentMethod object)*
+
+**Errors:**
+| Status | Reason |
+|---|---|
+| `400 Bad Request` | `label` is empty |
+| `401 Unauthorized` | Missing or invalid token |
+| `409 Conflict` | A payment method with the same label already exists |
+
+---
+
+### PUT /api/v1/payment-methods/{id}
+
+Update a payment method. All fields optional.
+
+**Auth required:** Yes
+
+**Response `200 OK`:** *(empty body)*
+
+**Errors:**
+| Status | Reason |
+|---|---|
+| `401 Unauthorized` | Missing or invalid token |
+| `404 Not Found` | Payment method not found or not owned by user |
+
+---
+
+### DELETE /api/v1/payment-methods/{id}
+
+Delete a payment method.
+
+**Auth required:** Yes
+
+**Response `200 OK`:** *(empty body)*
+
+**Errors:**
+| Status | Reason |
+|---|---|
+| `401 Unauthorized` | Missing or invalid token |
+| `404 Not Found` | Payment method not found or not owned by user |
+
+---
+
 ## Settings
 
-### GET /api/settings
+### GET /api/v1/settings
 
 Get user settings. Returns default values if no settings have been saved yet.
 
@@ -355,7 +453,7 @@ Get user settings. Returns default values if no settings have been saved yet.
 
 ---
 
-### PUT /api/settings
+### PUT /api/v1/settings
 
 Update user settings. All fields are optional.
 
@@ -383,7 +481,7 @@ Update user settings. All fields are optional.
 
 ## Upload
 
-### POST /api/upload/icon
+### POST /api/v1/upload/icon
 
 Upload a service icon image. The file is stored on the server with a unique UUID-based filename.
 
