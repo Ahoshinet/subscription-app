@@ -11,7 +11,10 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.darui3018823.subscriptionapp",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
       }
     },
     "android": {
