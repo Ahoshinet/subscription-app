@@ -420,6 +420,38 @@ export const paymentMethodApi = {
     }),
 };
 
+// Gmail Integration Types
+export interface GmailIntegration {
+    gmail_email: string;
+    paidy_amount: number | null;
+    paidy_month: string | null;
+    paidy_next_payment_date: string | null;
+    paidy_transactions: { date: string; amount: number; merchant: string }[] | null;
+    last_synced_at: string;
+    updated_at: string;
+}
+
+export interface UpsertGmailIntegrationPayload {
+    gmail_email: string;
+    paidy_amount: number | null;
+    paidy_month: string | null;
+    paidy_next_payment_date: string | null;
+    paidy_transactions: { date: string; amount: number; merchant: string }[] | null;
+    last_synced_at: string;
+}
+
+// Gmail Integration Endpoints
+export const gmailApi = {
+    getIntegration: () => fetchAPI<GmailIntegration>('/gmail/integration'),
+    upsertIntegration: (data: UpsertGmailIntegrationPayload) =>
+        fetchAPI<GmailIntegration>('/gmail/integration', {
+            method: 'PUT',
+            body: JSON.stringify(data),
+        }),
+    deleteIntegration: () =>
+        fetchAPI<void>('/gmail/integration', { method: 'DELETE' }),
+};
+
 // Upload Endpoints
 export const uploadApi = {
     uploadIcon: async (uri: string): Promise<{ url: string }> => {

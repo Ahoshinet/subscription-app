@@ -22,6 +22,7 @@
     "@react-navigation/elements": "^2.9.14",
     "@react-navigation/native": "^7.1.33",
     "expo": "~55.0.17",
+    "expo-auth-session": "^55.0.15",
     "expo-blur": "^55.0.14",
     "expo-constants": "~55.0.15",
     "expo-font": "~55.0.6",
