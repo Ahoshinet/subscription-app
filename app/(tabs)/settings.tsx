@@ -166,7 +166,7 @@ export default function SettingsScreen() {
             icon="mail-outline"
             title={t('gmail.row_title')}
             value={gmailSignedIn ? googleEmail ?? t('gmail.not_connected') : t('gmail.not_connected')}
-            onPress={() => router.push('/settings/gmail')}
+            onPress={() => router.push('/settings/gmail' as any)}
           />
         </View>
 
