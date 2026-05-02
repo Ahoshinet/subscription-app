@@ -90,11 +90,32 @@ function parseDateToYearMonth(dateStr: string): string | null {
   return `${m[1]}-${m[2].padStart(2, '0')}`;
 }
 
-// "2026-05" → "2026-06-27"
-function nextPaymentDateFromMonth(month: string): string {
+function toISODate(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+async function fetchJpHolidaysForYear(year: number): Promise<Set<string>> {
+  try {
+    const res = await fetch(`https://holidays-jp.github.io/api/v1/${year}/date.json`);
+    if (!res.ok) return new Set();
+    const data: Record<string, string> = await res.json();
+    return new Set(Object.keys(data));
+  } catch {
+    return new Set();
+  }
+}
+
+// "2026-05" → "2026-06-27" (advanced to next business day if weekend/JP holiday)
+async function nextPaymentDateFromMonth(month: string): Promise<string> {
   const [year, mon] = month.split('-').map(Number);
-  const next = mon === 12 ? `${year + 1}-01` : `${year}-${String(mon + 1).padStart(2, '0')}`;
-  return `${next}-27`;
+  const nextYear = mon === 12 ? year + 1 : year;
+  const nextMon = mon === 12 ? 1 : mon + 1;
+  const holidays = await fetchJpHolidaysForYear(nextYear);
+  const d = new Date(nextYear, nextMon - 1, 27);
+  while (d.getDay() === 0 || d.getDay() === 6 || holidays.has(toISODate(d))) {
+    d.setDate(d.getDate() + 1);
+  }
+  return toISODate(d);
 }
 
 async function gmailFetch(path: string, accessToken: string): Promise<any> {
@@ -151,7 +172,7 @@ export async function fetchPaidyTransactions(accessToken: string): Promise<Paidy
   return {
     totalAmount,
     month: latestMonth,
-    nextPaymentDate: nextPaymentDateFromMonth(latestMonth),
+    nextPaymentDate: await nextPaymentDateFromMonth(latestMonth),
     transactions: latestTxs,
   };
 }
