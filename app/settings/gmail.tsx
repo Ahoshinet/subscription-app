@@ -1,4 +1,3 @@
-import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import { Platform, View, Text, Pressable, ActivityIndicator, Alert, ScrollView } from 'react-native';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -9,8 +8,6 @@ import { useEffect } from 'react';
 import { usePaidyStore } from '@/store/usePaidyStore';
 import { fetchGoogleUserEmail } from '@/lib/gmail';
 import { GOOGLE_IOS_CLIENT_ID, GOOGLE_ANDROID_CLIENT_ID, GOOGLE_WEB_CLIENT_ID, GOOGLE_DEV_REDIRECT_URI, GOOGLE_IOS_REDIRECT_URI } from '@/constants/googleConfig';
-
-WebBrowser.maybeCompleteAuthSession();
 
 export default function GmailSettingsScreen() {
   const colorScheme = useColorScheme();
