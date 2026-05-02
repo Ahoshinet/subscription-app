@@ -157,7 +157,7 @@ Paidyの請求金額をサブスクリプション一覧に自動表示するた
 The Service provides an optional Google integration feature (Gmail integration). When this feature is used, the following applies:
 
 **[Data Accessed]**  
-Using Gmail read-only permission (`gmail.readonly`), the Service accesses only emails from Paidy Co., Ltd. (@paidy.com) with the subject "ご利用確定のお知らせ" (transaction confirmation), and parses transaction amounts, dates, and merchant names on-device. Raw email content is never transmitted to or stored on the Operator's servers.
+Using Gmail read-only permission (`gmail.readonly`), the Service accesses only emails from Paidy LLC (@paidy.com) with the subject "ご利用確定のお知らせ" (transaction confirmation), and parses transaction amounts, dates, and merchant names on-device. Raw email content is never transmitted to or stored on the Operator's servers.
 
 **[Access Token Storage]**  
 The Google access token is stored only in the device's secure storage (SecureStore). It is never sent to the Operator's servers.
