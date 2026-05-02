@@ -9,6 +9,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSubscriptionStore } from '@/store/useSubscriptionStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
+import { usePaidyStore } from '@/store/usePaidyStore';
 import { requestNotificationPermissions, schedulePaymentReminders, cancelAllReminders } from '@/lib/notifications';
 
 import { CURRENCY_SYMBOLS, getSystemCurrency } from '@/lib/currency';
@@ -24,6 +25,7 @@ export default function HomeScreen() {
 
   const { subscriptions, isLoading, error, fetchSubscriptions } = useSubscriptionStore();
   const { pushNotifications } = useSettingsStore();
+  const { isSignedIn: gmailSignedIn, paidyAmount, paidyMonth, nextPaymentDate: paidyNextDate } = usePaidyStore();
   const [refreshing, setRefreshing] = useState(false);
   const [spendingExpanded, setSpendingExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -62,6 +64,9 @@ export default function HomeScreen() {
       acc[curr] = (acc[curr] || 0) + Number(sub.amount || 0);
       return acc;
     }, {});
+  if (gmailSignedIn && paidyAmount != null) {
+    spendingByCurrency['JPY'] = (spendingByCurrency['JPY'] || 0) + paidyAmount;
+  }
   const systemCurrency = getSystemCurrency();
   const sortedCurrencies = Object.entries(spendingByCurrency).sort(([a], [b]) => {
     if (a === systemCurrency) return -1;
@@ -71,20 +76,32 @@ export default function HomeScreen() {
   const primaryEntry = sortedCurrencies[0];
   const otherCount = sortedCurrencies.length - 1;
 
-  const filteredAndSorted = useMemo(() => {
-    let result = [...subscriptions];
+  const paidyVirtualSub = gmailSignedIn && paidyAmount != null ? {
+    id: -1,
+    user_id: '',
+    service_name: 'Paidy後払い',
+    plan_name: paidyMonth ? `${paidyMonth}分` : '',
+    amount: paidyAmount,
+    currency: 'JPY',
+    next_payment_date: paidyNextDate ?? new Date().toISOString(),
+    billing_cycle: 'monthly',
+    status: 'active',
+  } : null;
 
-    // Search filter
+  const filteredAndSorted = useMemo(() => {
+    let result: any[] = paidyVirtualSub
+      ? [...subscriptions, paidyVirtualSub]
+      : [...subscriptions];
+
     if (searchQuery.trim()) {
       const q = searchQuery.trim().toLowerCase();
-      result = result.filter(sub =>
+      result = result.filter((sub: any) =>
         sub.service_name.toLowerCase().includes(q) ||
         (sub.plan_name && sub.plan_name.toLowerCase().includes(q))
       );
     }
 
-    // Sort
-    result.sort((a, b) => {
+    result.sort((a: any, b: any) => {
       switch (sortKey) {
         case 'name':
           return a.service_name.localeCompare(b.service_name);
@@ -97,7 +114,7 @@ export default function HomeScreen() {
     });
 
     return result;
-  }, [subscriptions, searchQuery, sortKey]);
+  }, [subscriptions, paidyVirtualSub, searchQuery, sortKey]);
 
 
   const nextSortKey = (): SortKey => {
@@ -242,8 +259,10 @@ export default function HomeScreen() {
               </View>
             )}
 
-            {filteredAndSorted.map((sub) => {
-              const effectiveDate = getEffectiveNextPaymentDate(sub.next_payment_date, sub.billing_cycle);
+            {filteredAndSorted.map((sub: any) => {
+              const effectiveDate = sub.id === -1
+                ? sub.next_payment_date
+                : getEffectiveNextPaymentDate(sub.next_payment_date, sub.billing_cycle);
               const nextPaymentDate = new Date(effectiveDate);
               const diffTime = nextPaymentDate.getTime() - new Date().getTime();
               const daysRemaining = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
@@ -258,9 +277,10 @@ export default function HomeScreen() {
                   currency={CURRENCY_SYMBOLS[sub.currency] || sub.currency}
                   nextPaymentDate={effectiveDate}
                   daysRemaining={daysRemaining}
-                  color="#3B82F6"
-                  iconName="cube"
-                  iconUrl={(sub as any).icon_url}
+                  color={sub.id === -1 ? '#1A56DB' : '#3B82F6'}
+                  iconName={sub.id === -1 ? 'card' : 'cube'}
+                  iconUrl={sub.id === -1 ? undefined : sub.icon_url}
+                  onPress={sub.id === -1 ? () => router.push('/paidy-detail' as any) : undefined}
                 />
               );
             })}
