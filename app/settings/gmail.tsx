@@ -1,5 +1,6 @@
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
+import * as AuthSession from 'expo-auth-session';
 import { View, Text, Pressable, ActivityIndicator, Alert, ScrollView } from 'react-native';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
@@ -31,10 +32,13 @@ export default function GmailSettingsScreen() {
     clearError,
   } = usePaidyStore();
 
+  const redirectUri = AuthSession.makeRedirectUri({ useProxy: true });
+
   const [request, response, promptAsync] = Google.useAuthRequest({
     iosClientId: GOOGLE_IOS_CLIENT_ID,
     webClientId: GOOGLE_WEB_CLIENT_ID,
     scopes: ['https://www.googleapis.com/auth/gmail.readonly'],
+    redirectUri,
   });
 
   useEffect(() => {
@@ -156,7 +160,7 @@ export default function GmailSettingsScreen() {
             </View>
 
             <Pressable
-              onPress={() => promptAsync()}
+              onPress={() => promptAsync({ useProxy: true })}
               disabled={!request || isLoading}
               className="items-center py-4 rounded-xl bg-blue-500"
             >
@@ -170,7 +174,8 @@ export default function GmailSettingsScreen() {
                 )
               }
             </Pressable>
-          </>
+
+</>
         )}
       </ScrollView>
     </View>
