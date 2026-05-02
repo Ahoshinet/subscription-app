@@ -22,6 +22,7 @@ interface SubscriptionCardProps {
     color?: string;
     iconName?: keyof typeof Ionicons.glyphMap;
     iconUrl?: string;
+    onPress?: () => void;
 }
 
 export function SubscriptionCard({
@@ -35,6 +36,7 @@ export function SubscriptionCard({
     color = '#E50914',
     iconName = 'play-circle',
     iconUrl,
+    onPress,
 }: SubscriptionCardProps) {
     const scale = useSharedValue(1);
     const colorScheme = useColorScheme();
@@ -57,7 +59,11 @@ export function SubscriptionCard({
     };
 
     const handlePress = () => {
-        router.push({ pathname: '/detail' as any, params: { id: String(id) } });
+        if (onPress) {
+            onPress();
+        } else {
+            router.push({ pathname: '/detail' as any, params: { id: String(id) } });
+        }
     };
 
     // Calculate generic progress percentage (0-30 days max for visual)
