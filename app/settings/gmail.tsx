@@ -1,5 +1,7 @@
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
+import * as AuthSession from 'expo-auth-session';
+import Constants from 'expo-constants';
 import { View, Text, Pressable, ActivityIndicator, Alert, ScrollView } from 'react-native';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
@@ -31,11 +33,16 @@ export default function GmailSettingsScreen() {
     clearError,
   } = usePaidyStore();
 
+  const redirectUri = __DEV__
+    ? `https://auth.expo.io/@${Constants.expoConfig?.owner ?? 'darui3018823'}/${Constants.expoConfig?.slug ?? 'subscription-app'}`
+    : AuthSession.makeRedirectUri({ native: 'subscriptionapp://oauth' });
+
   const [request, response, promptAsync] = Google.useAuthRequest({
     iosClientId: GOOGLE_IOS_CLIENT_ID,
     androidClientId: GOOGLE_ANDROID_CLIENT_ID,
     webClientId: GOOGLE_WEB_CLIENT_ID,
     scopes: ['https://www.googleapis.com/auth/gmail.readonly'],
+    redirectUri,
   });
 
   useEffect(() => {
