@@ -10,6 +10,7 @@ import { useEffect } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { usePaymentMethodStore } from '@/store/usePaymentMethodStore';
+import { usePaidyStore } from '@/store/usePaidyStore';
 import { ensureApiReachable } from '@/lib/api';
 import '@/i18n';
 import { useTranslation } from 'react-i18next';
@@ -24,6 +25,7 @@ export default function RootLayout() {
     const { isAuthenticated, isInitializing, checkAuth } = useAuthStore();
     const { language, theme } = useSettingsStore();
     const { syncFromServer: syncPaymentMethods } = usePaymentMethodStore();
+    const { loadFromServer: loadPaidy } = usePaidyStore();
     const { i18n } = useTranslation();
 
     // Apply user's theme preference
@@ -60,6 +62,7 @@ export default function RootLayout() {
             router.replace('/(tabs)');
         } else if (isAuthenticated) {
             syncPaymentMethods();
+            loadPaidy();
         }
     }, [isAuthenticated, isInitializing, segments]);
 
@@ -78,6 +81,7 @@ export default function RootLayout() {
                 <Stack.Screen name="detail" />
                 <Stack.Screen name="edit" options={{ presentation: 'modal' }} />
                 <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+                <Stack.Screen name="paidy-detail" options={{ presentation: 'modal', headerShown: false }} />
             </Stack>
             <StatusBar style="auto" />
         </ThemeProvider>
