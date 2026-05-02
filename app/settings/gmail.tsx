@@ -1,6 +1,7 @@
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import * as AuthSession from 'expo-auth-session';
+import Constants from 'expo-constants';
 import { View, Text, Pressable, ActivityIndicator, Alert, ScrollView } from 'react-native';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
