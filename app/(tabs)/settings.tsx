@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useTranslation } from 'react-i18next';
 import { useSettingsStore } from '@/store/useSettingsStore';
+import { usePaidyStore } from '@/store/usePaidyStore';
 
 // Component for a section header
 const SectionHeader = ({ title }: { title: string }) => (
@@ -77,6 +78,7 @@ export default function SettingsScreen() {
   const { logout, user } = useAuthStore();
   const { t } = useTranslation();
   const { theme, setTheme, pushNotifications, setPushNotifications, language, syncError, clearSyncError } = useSettingsStore();
+  const { isSignedIn: gmailSignedIn, googleEmail } = usePaidyStore();
 
   useEffect(() => {
     if (syncError) {
@@ -152,6 +154,19 @@ export default function SettingsScreen() {
             title={t('settings.push_notifications')}
             toggleValue={pushNotifications}
             onToggle={(val: boolean) => setPushNotifications(val)}
+          />
+        </View>
+
+        {/* Integrations Section */}
+        <SectionHeader title={t('gmail.section_title')} />
+        <View className="rounded-2xl overflow-hidden shadow-sm shadow-neutral-200/50 dark:shadow-none border border-neutral-200/50 dark:border-white/10 mb-6">
+          <SettingsRow
+            isFirst
+            isLast
+            icon="mail-outline"
+            title={t('gmail.row_title')}
+            value={gmailSignedIn ? googleEmail ?? t('gmail.not_connected') : t('gmail.not_connected')}
+            onPress={() => router.push('/settings/gmail')}
           />
         </View>
 
