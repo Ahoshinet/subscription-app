@@ -16,6 +16,7 @@ const SECTIONS = [
     { title: 'privacy.s9_title', body: 'privacy.s9_body' },
     { title: 'privacy.s10_title', body: 'privacy.s10_body' },
     { title: 'privacy.s11_title', body: 'privacy.s11_body' },
+    { title: 'privacy.s12_title', body: 'privacy.s12_body' },
 ] as const;
 
 const CONTACT_URL = 'https://corp.daruks.com/contact';
