@@ -37,9 +37,12 @@ export default function GmailSettingsScreen() {
       ? GOOGLE_IOS_REDIRECT_URI
       : `com.darui3018823.subscriptionapp:/oauth2redirect`;
 
+
   const [request, response, promptAsync] = Google.useAuthRequest({
-    iosClientId: GOOGLE_IOS_CLIENT_ID,
-    androidClientId: GOOGLE_ANDROID_CLIENT_ID,
+    // In dev, use webClientId for all platforms so the HTTPS proxy redirect URI is accepted.
+    // In production, use platform-specific client IDs with their native redirect URIs.
+    iosClientId: __DEV__ ? GOOGLE_WEB_CLIENT_ID : GOOGLE_IOS_CLIENT_ID,
+    androidClientId: __DEV__ ? GOOGLE_WEB_CLIENT_ID : GOOGLE_ANDROID_CLIENT_ID,
     webClientId: GOOGLE_WEB_CLIENT_ID,
     scopes: ['https://www.googleapis.com/auth/gmail.readonly'],
     redirectUri,
