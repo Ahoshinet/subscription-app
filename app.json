@@ -14,7 +14,14 @@
         "ITSAppUsesNonExemptEncryption": false,
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
-        }
+        },
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.171480425592-epcnn61pcg7ncgn5oeslt85isbp1e3f5"
+            ]
+          }
+        ]
       }
     },
     "android": {
