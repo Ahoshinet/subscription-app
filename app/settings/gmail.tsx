@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { usePaidyStore } from '@/store/usePaidyStore';
 import { fetchGoogleUserEmail } from '@/lib/gmail';
-import { GOOGLE_IOS_CLIENT_ID, GOOGLE_WEB_CLIENT_ID } from '@/constants/googleConfig';
+import { GOOGLE_IOS_CLIENT_ID, GOOGLE_ANDROID_CLIENT_ID, GOOGLE_WEB_CLIENT_ID } from '@/constants/googleConfig';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -33,6 +33,7 @@ export default function GmailSettingsScreen() {
 
   const [request, response, promptAsync] = Google.useAuthRequest({
     iosClientId: GOOGLE_IOS_CLIENT_ID,
+    androidClientId: GOOGLE_ANDROID_CLIENT_ID,
     webClientId: GOOGLE_WEB_CLIENT_ID,
     scopes: ['https://www.googleapis.com/auth/gmail.readonly'],
   });
