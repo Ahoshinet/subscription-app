@@ -1,7 +1,6 @@
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import * as AuthSession from 'expo-auth-session';
-import Constants from 'expo-constants';
 import { View, Text, Pressable, ActivityIndicator, Alert, ScrollView } from 'react-native';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { usePaidyStore } from '@/store/usePaidyStore';
 import { fetchGoogleUserEmail } from '@/lib/gmail';
-import { GOOGLE_IOS_CLIENT_ID, GOOGLE_ANDROID_CLIENT_ID, GOOGLE_WEB_CLIENT_ID } from '@/constants/googleConfig';
+import { GOOGLE_IOS_CLIENT_ID, GOOGLE_ANDROID_CLIENT_ID, GOOGLE_WEB_CLIENT_ID, GOOGLE_DEV_REDIRECT_URI } from '@/constants/googleConfig';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -34,7 +33,7 @@ export default function GmailSettingsScreen() {
   } = usePaidyStore();
 
   const redirectUri = __DEV__
-    ? `https://auth.expo.io/@${Constants.expoConfig?.owner ?? 'darui3018823'}/${Constants.expoConfig?.slug ?? 'subscription-app'}`
+    ? GOOGLE_DEV_REDIRECT_URI
     : AuthSession.makeRedirectUri({ native: 'subscriptionapp://oauth' });
 
   const [request, response, promptAsync] = Google.useAuthRequest({
