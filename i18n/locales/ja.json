@@ -188,6 +188,31 @@
         "cancel": "キャンセル",
         "error": "エラー"
     },
+    "gmail": {
+        "section_title": "連携サービス",
+        "row_title": "Gmail（Paidy）",
+        "settings_title": "Gmail連携",
+        "not_connected": "未接続",
+        "connected_as": "接続中: {{email}}",
+        "sign_in": "Googleでサインイン",
+        "sign_in_description": "Googleアカウントでサインインして、Paidyの請求金額を自動取得します。",
+        "sign_out": "アカウントを切断",
+        "sign_out_confirm": "Gmail連携を解除しますか？Paidyカードはホーム画面から削除されます。",
+        "sync_now": "今すぐ同期",
+        "last_synced": "最終同期: {{datetime}}",
+        "no_data": "Paidyメールが見つかりませんでした",
+        "open_settings": "Gmail設定を開く",
+        "error_signin": "サインインに失敗しました。",
+        "error_sync": "同期に失敗しました。"
+    },
+    "paidy_detail": {
+        "title": "Paidy後払い詳細",
+        "total_amount": "合計請求金額",
+        "month": "対象月",
+        "next_payment": "次回支払日",
+        "connected_account": "連携アカウント",
+        "transactions": "取引一覧"
+    },
     "subscription_form": {
         "error_title": "入力エラー",
         "error_required": "サービス名と料金は必須です",

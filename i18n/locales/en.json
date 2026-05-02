@@ -188,6 +188,31 @@
         "cancel": "Cancel",
         "error": "Error"
     },
+    "gmail": {
+        "section_title": "Integrations",
+        "row_title": "Gmail (Paidy)",
+        "settings_title": "Gmail Integration",
+        "not_connected": "Not connected",
+        "connected_as": "Connected as: {{email}}",
+        "sign_in": "Sign in with Google",
+        "sign_in_description": "Sign in with your Google account to automatically fetch Paidy billing amounts.",
+        "sign_out": "Disconnect Account",
+        "sign_out_confirm": "Disconnect Gmail integration? The Paidy card will be removed from the home screen.",
+        "sync_now": "Sync Now",
+        "last_synced": "Last synced: {{datetime}}",
+        "no_data": "No Paidy emails found",
+        "open_settings": "Open Gmail Settings",
+        "error_signin": "Sign-in failed.",
+        "error_sync": "Sync failed."
+    },
+    "paidy_detail": {
+        "title": "Paidy BNPL Details",
+        "total_amount": "Total Billing Amount",
+        "month": "Billing Month",
+        "next_payment": "Next Payment",
+        "connected_account": "Connected Account",
+        "transactions": "Transactions"
+    },
     "subscription_form": {
         "error_title": "Input Error",
         "error_required": "Service name and amount are required.",
