@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, ScrollView, Platform, Dimensions, Pressable, Linking } from 'react-native';
 import { Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSettingsStore } from '@/store/useSettingsStore';
-import { isUsingPublicApi } from '@/lib/api';
+import { isUsingPublicApi, versionApi } from '@/lib/api';
 
 const APP_ICON = require('../../assets/images/icon.png');
 
@@ -82,6 +82,13 @@ export default function AboutScreen() {
     const isDark = colorScheme === 'dark';
     const { t } = useTranslation();
     const { language, theme } = useSettingsStore();
+    const [serverVersion, setServerVersion] = useState<string | null>(null);
+
+    useEffect(() => {
+        versionApi.getServerVersion()
+            .then(({ version }) => setServerVersion(version))
+            .catch(() => {});
+    }, []);
 
     const version = Constants.expoConfig?.version ?? '1.0.0';
     const rawScheme = Constants.expoConfig?.scheme;
@@ -89,7 +96,8 @@ export default function AboutScreen() {
         ? rawScheme.join(', ')
         : rawScheme ?? t('about.unavailable');
     const orientation = Constants.expoConfig?.orientation ?? t('about.unavailable');
-    const apiServerLabel = isUsingPublicApi() ? t('about.api_server_public') : t('about.api_server_local');
+    const baseLabel = isUsingPublicApi() ? t('about.api_server_public') : t('about.api_server_local');
+    const apiServerLabel = serverVersion ? `${baseLabel} (v${serverVersion})` : baseLabel;
     const { width, height } = Dimensions.get('window');
     const platformLabel = Platform.OS === 'ios' ? 'iOS' : 'Android';
     const osVersion = String(Platform.Version);

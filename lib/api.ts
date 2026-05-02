@@ -452,6 +452,11 @@ export const gmailApi = {
         fetchAPI<void>('/gmail/integration', { method: 'DELETE' }),
 };
 
+// Version Endpoint
+export const versionApi = {
+    getServerVersion: () => fetchAPI<{ version: string }>('/version'),
+};
+
 // Upload Endpoints
 export const uploadApi = {
     uploadIcon: async (uri: string): Promise<{ url: string }> => {
