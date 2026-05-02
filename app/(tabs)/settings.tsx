@@ -159,7 +159,7 @@ export default function SettingsScreen() {
 
         {/* Integrations Section */}
         <SectionHeader title={t('gmail.section_title')} />
-        <View className="rounded-2xl overflow-hidden shadow-sm shadow-neutral-200/50 dark:shadow-none border border-neutral-200/50 dark:border-white/10 mb-6">
+        <View className="rounded-2xl overflow-hidden shadow-sm shadow-neutral-200/50 dark:shadow-none border border-neutral-200/50 dark:border-white/10">
           <SettingsRow
             isFirst
             isLast

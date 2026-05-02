@@ -1,10 +1,9 @@
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import { View, Text, Pressable, ActivityIndicator, Alert, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { usePaidyStore } from '@/store/usePaidyStore';
@@ -16,7 +15,6 @@ WebBrowser.maybeCompleteAuthSession();
 export default function GmailSettingsScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const router = useRouter();
   const { t } = useTranslation();
 
   const {
@@ -74,17 +72,8 @@ export default function GmailSettingsScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-black">
-      {/* Header */}
-      <View className="flex-row items-center px-5 pt-4 pb-4">
-        <Pressable onPress={() => router.back()} className="mr-3">
-          <Ionicons name="arrow-back" size={24} color={isDark ? '#fff' : '#111'} />
-        </Pressable>
-        <Text className="text-2xl font-bold text-neutral-900 dark:text-white">
-          {t('gmail.settings_title')}
-        </Text>
-      </View>
-
+    <View className="flex-1 bg-neutral-50 dark:bg-black">
+      <Stack.Screen options={{ title: t('gmail.settings_title') }} />
       <ScrollView
         className="flex-1 px-4"
         showsVerticalScrollIndicator={false}
@@ -184,6 +173,6 @@ export default function GmailSettingsScreen() {
           </>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
