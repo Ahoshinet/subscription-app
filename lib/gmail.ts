@@ -127,7 +127,7 @@ async function gmailFetch(path: string, accessToken: string): Promise<any> {
 }
 
 export async function fetchPaidyTransactions(accessToken: string): Promise<PaidySummary | null> {
-  const query = encodeURIComponent('from:@paidy.com subject:ご利用確定のお知らせ');
+  const query = encodeURIComponent('from:paidy.com subject:ご利用確定のお知らせ');
   const listData = await gmailFetch(
     `/users/me/messages?q=${query}&maxResults=50`,
     accessToken
