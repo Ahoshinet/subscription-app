@@ -127,7 +127,8 @@ async function gmailFetch(path: string, accessToken: string): Promise<any> {
 }
 
 export async function fetchPaidyTransactions(accessToken: string): Promise<PaidySummary | null> {
-  const query = encodeURIComponent('from:paidy.com subject:ご利用確定のお知らせ');
+  // Japanese in the query URL can be misinterpreted; filter by subject in code instead.
+  const query = encodeURIComponent('from:noreply@paidy.com');
   const listData = await gmailFetch(
     `/users/me/messages?q=${query}&maxResults=50`,
     accessToken
@@ -142,6 +143,9 @@ export async function fetchPaidyTransactions(accessToken: string): Promise<Paidy
     messages.map(async (msg: any) => {
       try {
         const detail = await gmailFetch(`/users/me/messages/${msg.id}?format=full`, accessToken);
+        const headers: any[] = detail.payload?.headers ?? [];
+        const subject = headers.find((h: any) => h.name.toLowerCase() === 'subject')?.value ?? '';
+        if (!subject.includes('ご利用確定のお知らせ')) return;
         const body = findTextPlainPart(detail.payload);
         if (!body) return;
         const tx = parseTransactionFromBody(body);
