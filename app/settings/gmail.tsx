@@ -85,7 +85,7 @@ export default function GmailSettingsScreen() {
       <ScrollView
         className="flex-1 px-4"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingTop: 16, paddingBottom: 60 }}
+        contentContainerStyle={{ paddingTop: 32, paddingBottom: 60 }}
       >
         {isSignedIn ? (
           <>
