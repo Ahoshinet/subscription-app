@@ -81,7 +81,7 @@ export default function GmailSettingsScreen() {
 
   return (
     <View className="flex-1 bg-neutral-50 dark:bg-black">
-      <Stack.Screen options={{ title: t('gmail.settings_title') }} />
+      <Stack.Screen options={{ title: `${t('gmail.settings_title')} β` }} />
       <ScrollView
         className="flex-1 px-4"
         showsVerticalScrollIndicator={false}
