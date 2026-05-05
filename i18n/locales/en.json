@@ -205,7 +205,11 @@
         "no_data": "No Paidy emails found",
         "open_settings": "Open Gmail Settings",
         "error_signin": "Sign-in failed.",
-        "error_sync": "Sync failed."
+        "error_sync": "Sync failed.",
+        "about_title": "About Gmail Integration",
+        "about_resync": "After a device change or reinstall, you will need to sign in with Google again to sync.",
+        "about_privacy": "Your data is handled in accordance with our Privacy Policy.",
+        "about_docs": "Learn more in the documentation"
     },
     "paidy_detail": {
         "title": "Paidy BNPL Details",

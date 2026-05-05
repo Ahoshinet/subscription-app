@@ -205,7 +205,11 @@
         "no_data": "Paidyメールが見つかりませんでした",
         "open_settings": "Gmail設定を開く",
         "error_signin": "サインインに失敗しました。",
-        "error_sync": "同期に失敗しました。"
+        "error_sync": "同期に失敗しました。",
+        "about_title": "Gmail連携とは？",
+        "about_resync": "機種変更・再インストール後はGoogleアカウントへの再サインインが必要です。",
+        "about_privacy": "取得したデータはプライバシーポリシーに基づき適切に管理されます。",
+        "about_docs": "詳細はドキュメントをご確認ください"
     },
     "paidy_detail": {
         "title": "Paidy後払い詳細",

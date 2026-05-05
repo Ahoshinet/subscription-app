@@ -1,5 +1,5 @@
 import * as Google from 'expo-auth-session/providers/google';
-import { Platform, View, Text, Pressable, ActivityIndicator, Alert, ScrollView } from 'react-native';
+import { Platform, View, Text, Pressable, ActivityIndicator, Alert, ScrollView, Linking } from 'react-native';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
@@ -8,6 +8,8 @@ import { useEffect } from 'react';
 import { usePaidyStore } from '@/store/usePaidyStore';
 import { fetchGoogleUserEmail } from '@/lib/gmail';
 import { GOOGLE_IOS_CLIENT_ID, GOOGLE_ANDROID_CLIENT_ID, GOOGLE_WEB_CLIENT_ID, GOOGLE_DEV_REDIRECT_URI, GOOGLE_IOS_REDIRECT_URI } from '@/constants/googleConfig';
+
+const DOCS_URL = 'https://github.com/Ahoshinet/subscription-app/blob/main/docs/gmail-integration.md';
 
 export default function GmailSettingsScreen() {
   const colorScheme = useColorScheme();
@@ -181,6 +183,25 @@ export default function GmailSettingsScreen() {
 
 </>
         )}
+
+        {/* About section */}
+        <View className="mt-6 bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden border border-neutral-200 dark:border-white/10 px-4 py-4">
+          <Text className="text-sm font-semibold text-neutral-500 dark:text-neutral-400 mb-3">
+            {t('gmail.about_title')}
+          </Text>
+          <View className="flex-row items-start mb-2">
+            <Ionicons name="refresh-outline" size={15} color="#9ca3af" style={{ marginTop: 1, marginRight: 6 }} />
+            <Text className="text-sm text-neutral-600 dark:text-neutral-400 flex-1">{t('gmail.about_resync')}</Text>
+          </View>
+          <View className="flex-row items-start mb-3">
+            <Ionicons name="shield-checkmark-outline" size={15} color="#9ca3af" style={{ marginTop: 1, marginRight: 6 }} />
+            <Text className="text-sm text-neutral-600 dark:text-neutral-400 flex-1">{t('gmail.about_privacy')}</Text>
+          </View>
+          <Pressable onPress={() => Linking.openURL(DOCS_URL)} className="flex-row items-center">
+            <Ionicons name="open-outline" size={14} color="#3b82f6" style={{ marginRight: 4 }} />
+            <Text className="text-sm text-blue-500">{t('gmail.about_docs')}</Text>
+          </Pressable>
+        </View>
       </ScrollView>
     </View>
   );
