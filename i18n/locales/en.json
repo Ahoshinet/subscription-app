@@ -209,7 +209,10 @@
         "about_title": "About Gmail Integration",
         "about_resync": "After a device change or reinstall, you will need to sign in with Google again to sync.",
         "about_privacy": "Your data is handled in accordance with our Privacy Policy.",
-        "about_docs": "Learn more in the documentation"
+        "about_docs": "Learn more in the documentation",
+        "about_tester_title": "Joining the Beta",
+        "about_tester_body": "This feature is currently in testing and requires a tester invitation. If you'd like to participate, please send an email to:",
+        "about_tester_email": "subscription-manager@corp.daruks.com"
     },
     "paidy_detail": {
         "title": "Paidy BNPL Details",

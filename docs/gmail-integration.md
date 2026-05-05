@@ -48,6 +48,16 @@ The parsed data (amount, transaction history) saved on the server is automatical
 
 ---
 
+## テスターへの参加 / Joining the Beta
+
+本機能はテスト中のため、**ご利用にはテスターへの招待が必要**です。参加をご希望の方は以下のメールアドレスまでお問い合わせください。
+
+This feature is currently in testing and **requires a tester invitation** to use. If you'd like to participate, please contact us at:
+
+**[subscription-manager@corp.daruks.com](mailto:subscription-manager@corp.daruks.com)**
+
+---
+
 ## 注意事項 / Notes
 
 - 本機能はベータ版です。予期しない動作が発生する場合があります。

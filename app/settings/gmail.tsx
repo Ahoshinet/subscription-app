@@ -202,6 +202,20 @@ export default function GmailSettingsScreen() {
             <Text className="text-sm text-blue-500">{t('gmail.about_docs')}</Text>
           </Pressable>
         </View>
+
+        {/* Tester invitation section */}
+        <View className="mt-3 bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden border border-neutral-200 dark:border-white/10 px-4 py-4 mb-2">
+          <Text className="text-sm font-semibold text-neutral-500 dark:text-neutral-400 mb-2">
+            {t('gmail.about_tester_title')}
+          </Text>
+          <Text className="text-sm text-neutral-600 dark:text-neutral-400 mb-3">
+            {t('gmail.about_tester_body')}
+          </Text>
+          <Pressable onPress={() => Linking.openURL(`mailto:${t('gmail.about_tester_email')}`)} className="flex-row items-center">
+            <Ionicons name="mail-outline" size={14} color="#3b82f6" style={{ marginRight: 4 }} />
+            <Text className="text-sm text-blue-500">{t('gmail.about_tester_email')}</Text>
+          </Pressable>
+        </View>
       </ScrollView>
     </View>
   );

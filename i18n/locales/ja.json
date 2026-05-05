@@ -209,7 +209,10 @@
         "about_title": "Gmail連携とは？",
         "about_resync": "機種変更・再インストール後はGoogleアカウントへの再サインインが必要です。",
         "about_privacy": "取得したデータはプライバシーポリシーに基づき適切に管理されます。",
-        "about_docs": "詳細はドキュメントをご確認ください"
+        "about_docs": "詳細はドキュメントをご確認ください",
+        "about_tester_title": "テスターへの参加について",
+        "about_tester_body": "現在テスト中のため、ご利用にはテスターへの招待が必要です。ご希望の方は下記メールアドレスまでお問い合わせください。",
+        "about_tester_email": "subscription-manager@corp.daruks.com"
     },
     "paidy_detail": {
         "title": "Paidy後払い詳細",
