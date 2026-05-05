@@ -5,7 +5,7 @@ import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useSubscriptionStore } from '../store/useSubscriptionStore';
 import { useAddFormStore, BILLING_CYCLES, PAYMENT_METHODS } from '../store/useAddFormStore';
 import { useSettingsStore } from '../store/useSettingsStore';
-import { uploadApi } from '../lib/api';
+import { uploadApi, resolveIconUrl } from '../lib/api';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
@@ -213,7 +213,7 @@ export default function EditSubscriptionScreen() {
                                     )
                                 ) : iconUri ? (
                                     <Image
-                                        source={{ uri: iconUri }}
+                                        source={{ uri: resolveIconUrl(iconUri) }}
                                         style={{ width: 80, height: 80, borderRadius: 24 }}
                                     />
                                 ) : (
