@@ -211,7 +211,19 @@ export default function GmailSettingsScreen() {
           <Text className="text-sm text-neutral-600 dark:text-neutral-400 mb-3">
             {t('gmail.about_tester_body')}
           </Text>
-          <Pressable onPress={() => Linking.openURL(`mailto:${t('gmail.about_tester_email')}`)} className="flex-row items-center">
+          <Pressable
+            onPress={() => {
+              const email = t('gmail.about_tester_email');
+              Linking.canOpenURL(`mailto:${email}`).then(supported => {
+                if (supported) {
+                  Linking.openURL(`mailto:${email}`);
+                } else {
+                  Alert.alert(email);
+                }
+              });
+            }}
+            className="flex-row items-center"
+          >
             <Ionicons name="mail-outline" size={14} color="#3b82f6" style={{ marginRight: 4 }} />
             <Text className="text-sm text-blue-500">{t('gmail.about_tester_email')}</Text>
           </Pressable>
