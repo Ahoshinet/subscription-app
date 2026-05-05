@@ -387,7 +387,7 @@ export default function CalendarScreen() {
             {/* Subscription list */}
             <View style={{ flex: 1 }}>
             <ScrollView
-                contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
+                contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 100 }}
             >
                 <View key={selectedDay == null ? 'month' : `day-${selectedDay}`}>
                 {selectedDay == null ? (

@@ -425,6 +425,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                     }}
                                 >
                                     <TextInput
+                                        key={`memo-brand-${selectedBrand?.id}`}
                                         value={brandMemo}
                                         onChangeText={setBrandMemo}
                                         placeholder={t('billing.memo_placeholder')}
@@ -526,6 +527,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                     }}
                                 >
                                     <TextInput
+                                        key="memo-card"
                                         value={cardMemo}
                                         onChangeText={setCardMemo}
                                         placeholder={t('billing.memo_placeholder')}
@@ -617,6 +619,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                     }}
                                 >
                                     <TextInput
+                                        key="memo-custom"
                                         value={customMemo}
                                         onChangeText={setCustomMemo}
                                         placeholder={t('billing.memo_placeholder')}
