@@ -460,7 +460,7 @@ export const versionApi = {
 // Resolve a potentially relative icon URL to an absolute URL
 export const resolveIconUrl = (iconUrl: string): string => {
     if (!iconUrl || iconUrl.startsWith('http')) return iconUrl;
-    if (iconUrl.startsWith('/')) return `${getServerBaseUrl()}${iconUrl}`;
+    if (iconUrl.startsWith('/')) return `${API_BASE_URL.replace('/api/v1', '')}${iconUrl}`;
     return iconUrl;
 };
 
