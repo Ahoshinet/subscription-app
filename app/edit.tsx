@@ -129,8 +129,6 @@ export default function EditSubscriptionScreen() {
     const pickIcon = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
-            allowsEditing: true,
-            aspect: [1, 1],
             quality: 0.8,
         });
         if (!result.canceled && result.assets[0]) {
@@ -216,7 +214,7 @@ export default function EditSubscriptionScreen() {
                                 ) : iconUri ? (
                                     <Image
                                         source={{ uri: iconUri }}
-                                        style={{ width: 56, height: 56, borderRadius: 14 }}
+                                        style={{ width: 80, height: 80, borderRadius: 24 }}
                                     />
                                 ) : (
                                     <Ionicons name="camera" size={32} color={isDark ? '#8E8E93' : '#636366'} />
