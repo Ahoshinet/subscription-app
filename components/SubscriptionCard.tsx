@@ -86,15 +86,12 @@ export function SubscriptionCard({
             onPress={handlePress}
             className="mb-5"
         >
-            <Animated.View
-                style={[animatedStyle]}
-                className="overflow-hidden rounded-3xl"
-            >
+            <Animated.View style={animatedStyle}>
+                <View style={{ borderRadius: 24 }} className="border border-neutral-200 dark:border-white/10">
                 <BlurView
                     intensity={100}
                     tint={blurTint}
-                    style={{ backgroundColor: blurBackgroundColor, borderRadius: 24 }}
-                    className="border border-neutral-200 dark:border-white/10"
+                    style={{ backgroundColor: blurBackgroundColor, borderRadius: 23, overflow: 'hidden' }}
                 >
                     {/* Main Content Area */}
                     <View className="p-5 flex-row items-center">
@@ -173,6 +170,7 @@ export function SubscriptionCard({
                         </View>
                     </View>
                 </BlurView>
+                </View>
             </Animated.View>
         </Pressable>
     );
