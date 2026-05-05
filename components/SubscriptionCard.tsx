@@ -10,6 +10,7 @@ import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
 import { parseSubscriptionPresetIconValue } from '@/lib/subscriptionIcon';
+import { resolveIconUrl } from '@/lib/api';
 
 interface SubscriptionCardProps {
     id: number;
@@ -108,7 +109,7 @@ export function SubscriptionCard({
                                 )
                             ) : iconUrl ? (
                                 <Image
-                                    source={{ uri: iconUrl }}
+                                    source={{ uri: resolveIconUrl(iconUrl) }}
                                     style={{ width: 40, height: 40, borderRadius: 10 }}
                                 />
                             ) : (

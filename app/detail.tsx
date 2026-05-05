@@ -6,7 +6,7 @@ import { useSubscriptionStore } from '../store/useSubscriptionStore';
 import { usePaymentMethodStore } from '../store/usePaymentMethodStore';
 import { useTranslation } from 'react-i18next';
 import { parseSubscriptionPresetIconValue } from '../lib/subscriptionIcon';
-import { subscriptionApi } from '../lib/api';
+import { subscriptionApi, resolveIconUrl } from '../lib/api';
 import { getEffectiveNextPaymentDate } from '../lib/dateUtils';
 
 const STATUS_COLORS: Record<string, string> = {
@@ -132,7 +132,7 @@ export default function DetailScreen() {
                             )
                         ) : iconUrl ? (
                             <Image
-                                source={{ uri: iconUrl }}
+                                source={{ uri: resolveIconUrl(iconUrl) }}
                                 style={{ width: 56, height: 56, borderRadius: 14 }}
                             />
                         ) : (

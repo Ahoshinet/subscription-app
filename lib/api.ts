@@ -457,6 +457,13 @@ export const versionApi = {
     getServerVersion: () => fetchAPI<{ version: string }>('/version'),
 };
 
+// Resolve a potentially relative icon URL to an absolute URL
+export const resolveIconUrl = (iconUrl: string): string => {
+    if (!iconUrl || iconUrl.startsWith('http')) return iconUrl;
+    if (iconUrl.startsWith('/')) return `${getServerBaseUrl()}${iconUrl}`;
+    return iconUrl;
+};
+
 // Upload Endpoints
 export const uploadApi = {
     uploadIcon: async (uri: string): Promise<{ url: string }> => {
