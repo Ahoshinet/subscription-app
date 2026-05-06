@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, Pressable, useColorScheme, Image } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Animated, {
@@ -79,6 +79,7 @@ export function SubscriptionCard({
     const blurBackgroundColor = isDark ? 'rgba(28, 28, 30, 0.45)' : 'rgba(255, 255, 255, 0.6)';
     const blurTint = isDark ? 'dark' : 'light';
     const presetIcon = parseSubscriptionPresetIconValue(iconUrl);
+    const [imageError, setImageError] = useState(false);
 
     return (
         <Pressable
@@ -107,10 +108,11 @@ export function SubscriptionCard({
                                 ) : (
                                     <Ionicons name={presetIcon.name as any} size={32} color={presetIcon.color} />
                                 )
-                            ) : iconUrl ? (
+                            ) : iconUrl && !imageError ? (
                                 <Image
                                     source={{ uri: resolveIconUrl(iconUrl) }}
                                     style={{ width: 40, height: 40, borderRadius: 10 }}
+                                    onError={() => setImageError(true)}
                                 />
                             ) : (
                                 <Ionicons name={iconName} size={32} color={color} />

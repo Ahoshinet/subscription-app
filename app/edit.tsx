@@ -42,6 +42,7 @@ export default function EditSubscriptionScreen() {
     const [nextPaymentDate, setNextPaymentDate] = useState(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [iconUri, setIconUri] = useState<string | null>(null);
+    const [iconPreviewError, setIconPreviewError] = useState(false);
     const [showIconPickerModal, setShowIconPickerModal] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [memo, setMemo] = useState('');
@@ -133,11 +134,13 @@ export default function EditSubscriptionScreen() {
         });
         if (!result.canceled && result.assets[0]) {
             setIconUri(result.assets[0].uri);
+            setIconPreviewError(false);
         }
     };
 
     const handleSelectPresetIcon = (pack: SubscriptionIconPack, name: string, color: string) => {
         setIconUri(buildSubscriptionPresetIconValue(pack, name, color));
+        setIconPreviewError(false);
         setShowIconPickerModal(false);
     };
 
@@ -211,10 +214,11 @@ export default function EditSubscriptionScreen() {
                                     ) : (
                                         <Ionicons name={presetIcon.name as any} size={32} color={presetIcon.color} />
                                     )
-                                ) : iconUri ? (
+                                ) : iconUri && !iconPreviewError ? (
                                     <Image
                                         source={{ uri: resolveIconUrl(iconUri) }}
                                         style={{ width: 80, height: 80, borderRadius: 24 }}
+                                        onError={() => setIconPreviewError(true)}
                                     />
                                 ) : (
                                     <Ionicons name="camera" size={32} color={isDark ? '#8E8E93' : '#636366'} />

@@ -469,9 +469,16 @@ export const uploadApi = {
     uploadIcon: async (uri: string): Promise<{ url: string }> => {
         const token = await getToken();
         const formData = new FormData();
-        const filename = uri.split('/').pop() || 'icon.png';
-        const ext = filename.split('.').pop() || 'png';
-        const mimeType = ext === 'png' ? 'image/png' : 'image/jpeg';
+        const filename = uri.split('/').pop()?.split('?')[0] || 'icon.jpg';
+        const ext = (filename.split('.').pop() || 'jpg').toLowerCase();
+        const mimeTypes: Record<string, string> = {
+            png: 'image/png',
+            gif: 'image/gif',
+            webp: 'image/webp',
+            heic: 'image/heic',
+            heif: 'image/heif',
+        };
+        const mimeType = mimeTypes[ext] || 'image/jpeg';
         formData.append('file', {
             uri,
             name: filename,

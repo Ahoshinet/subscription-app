@@ -22,6 +22,7 @@ export default function DetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const [isTogglingStatus, setIsTogglingStatus] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [imageError, setImageError] = useState(false);
 
     const { subscriptions, deleteSubscription, fetchSubscriptions } = useSubscriptionStore();
     const subscription = subscriptions.find(s => s.id === Number(id));
@@ -130,10 +131,11 @@ export default function DetailScreen() {
                             ) : (
                                 <Ionicons name={presetIcon.name as any} size={44} color={presetIcon.color} />
                             )
-                        ) : iconUrl ? (
+                        ) : iconUrl && !imageError ? (
                             <Image
                                 source={{ uri: resolveIconUrl(iconUrl) }}
                                 style={{ width: 56, height: 56, borderRadius: 14 }}
+                                onError={() => setImageError(true)}
                             />
                         ) : (
                             <Ionicons name="cube" size={44} color="#3B82F6" />
