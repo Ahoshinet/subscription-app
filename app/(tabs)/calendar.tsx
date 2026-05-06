@@ -426,7 +426,7 @@ export default function CalendarScreen() {
                                                 <Ionicons name={presetIcon.name as any} size={20} color={presetIcon.color} />
                                             )
                                         ) : sub.icon_url ? (
-                                            <Image source={{ uri: resolveIconUrl(sub.icon_url!) }} style={{ width: 26, height: 26, borderRadius: 6 }} />
+                                            <Image source={{ uri: resolveIconUrl(sub.icon_url!) }} style={{ width: 36, height: 36, borderRadius: 12 }} />
                                         ) : (
                                             <Ionicons name="card-outline" size={20} color="#3B82F6" />
                                         )}
@@ -475,7 +475,7 @@ export default function CalendarScreen() {
                                             <Ionicons name={presetIcon.name as any} size={22} color={presetIcon.color} />
                                         )
                                     ) : sub.icon_url ? (
-                                        <Image source={{ uri: resolveIconUrl(sub.icon_url!) }} style={{ width: 28, height: 28, borderRadius: 6 }} />
+                                        <Image source={{ uri: resolveIconUrl(sub.icon_url!) }} style={{ width: 40, height: 40, borderRadius: 12 }} />
                                     ) : (
                                         <Ionicons name="card-outline" size={22} color="#3B82F6" />
                                     )}
