@@ -8,6 +8,7 @@ import { useSettingsStore } from '../store/useSettingsStore';
 import { usePaymentMethodStore } from '../store/usePaymentMethodStore';
 import { uploadApi } from '../lib/api';
 import * as ImagePicker from 'expo-image-picker';
+import { setCropHandler } from '../lib/imageCropStore';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
 import {
@@ -104,11 +105,18 @@ export default function AddSubscriptionModal() {
     const pickIcon = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
-            quality: 0.8,
+            quality: 1,
         });
         if (!result.canceled && result.assets[0]) {
-            setIconUri(result.assets[0].uri);
-            setSelectedPresetIcon(null);
+            const asset = result.assets[0];
+            setCropHandler((croppedUri) => {
+                setIconUri(croppedUri);
+                setSelectedPresetIcon(null);
+            });
+            router.push({
+                pathname: '/image-crop' as any,
+                params: { uri: asset.uri, width: String(asset.width ?? 1), height: String(asset.height ?? 1) },
+            });
         }
     };
 

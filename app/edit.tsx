@@ -7,6 +7,7 @@ import { useAddFormStore, BILLING_CYCLES, PAYMENT_METHODS } from '../store/useAd
 import { useSettingsStore } from '../store/useSettingsStore';
 import { uploadApi, resolveIconUrl } from '../lib/api';
 import * as ImagePicker from 'expo-image-picker';
+import { setCropHandler } from '../lib/imageCropStore';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
 import { usePaymentMethodStore } from '../store/usePaymentMethodStore';
@@ -130,11 +131,18 @@ export default function EditSubscriptionScreen() {
     const pickIcon = async () => {
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
-            quality: 0.8,
+            quality: 1,
         });
         if (!result.canceled && result.assets[0]) {
-            setIconUri(result.assets[0].uri);
-            setIconPreviewError(false);
+            const asset = result.assets[0];
+            setCropHandler((croppedUri) => {
+                setIconUri(croppedUri);
+                setIconPreviewError(false);
+            });
+            router.push({
+                pathname: '/image-crop' as any,
+                params: { uri: asset.uri, width: String(asset.width ?? 1), height: String(asset.height ?? 1) },
+            });
         }
     };
 

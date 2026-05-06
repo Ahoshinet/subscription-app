@@ -85,6 +85,7 @@ export default function RootLayout() {
                 <Stack.Screen name="edit" options={{ presentation: 'modal' }} />
                 <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
                 <Stack.Screen name="paidy-detail" options={{ presentation: 'modal', headerShown: false }} />
+                <Stack.Screen name="image-crop" options={{ headerShown: false, animation: 'slide_from_bottom' }} />
             </Stack>
             <StatusBar style="auto" />
         </ThemeProvider>
