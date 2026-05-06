@@ -134,7 +134,7 @@ export default function DetailScreen() {
                         ) : iconUrl && !imageError ? (
                             <Image
                                 source={{ uri: resolveIconUrl(iconUrl) }}
-                                style={{ width: 56, height: 56, borderRadius: 14 }}
+                                style={{ width: 80, height: 80, borderRadius: 24 }}
                                 onError={() => setImageError(true)}
                             />
                         ) : (

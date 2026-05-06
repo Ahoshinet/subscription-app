@@ -112,7 +112,7 @@ export function SubscriptionCard({
                             ) : iconUrl && !imageError ? (
                                 <Image
                                     source={{ uri: resolveIconUrl(iconUrl) }}
-                                    style={{ width: 40, height: 40, borderRadius: 10 }}
+                                    style={{ width: 56, height: 56, borderRadius: 16 }}
                                     onError={() => setImageError(true)}
                                 />
                             ) : (
