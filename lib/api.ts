@@ -460,6 +460,9 @@ export const versionApi = {
 // Resolve a potentially relative icon URL to an absolute URL
 export const resolveIconUrl = (iconUrl: string): string => {
     if (!iconUrl || iconUrl.startsWith('http')) return iconUrl;
+    // Route uploaded files through /api/v1/uploads/ so reverse proxies
+    // that only forward /api/v1/* can serve them correctly.
+    if (iconUrl.startsWith('/uploads/')) return `${API_BASE_URL}${iconUrl}`;
     if (iconUrl.startsWith('/')) return `${API_BASE_URL.replace('/api/v1', '')}${iconUrl}`;
     return iconUrl;
 };

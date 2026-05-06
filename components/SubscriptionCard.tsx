@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, useColorScheme, Image } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Animated, {
@@ -80,6 +80,7 @@ export function SubscriptionCard({
     const blurTint = isDark ? 'dark' : 'light';
     const presetIcon = parseSubscriptionPresetIconValue(iconUrl);
     const [imageError, setImageError] = useState(false);
+    useEffect(() => { setImageError(false); }, [iconUrl]);
 
     return (
         <Pressable
