@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { authApi, AuthPayload, User, setToken, clearToken, getToken } from '../lib/api';
 import { useSettingsStore } from './useSettingsStore';
 import { usePaymentMethodStore } from './usePaymentMethodStore';
+import { usePaidyStore } from './usePaidyStore';
+import { useSubscriptionStore } from './useSubscriptionStore';
 
 interface AuthState {
     user: User | null;
@@ -17,6 +19,15 @@ interface AuthState {
     checkAuth: () => Promise<void>;
     clearError: () => void;
 }
+
+const resetUserScopedStores = async () => {
+    useSubscriptionStore.getState().resetForLogout();
+    await Promise.allSettled([
+        useSettingsStore.getState().resetForLogout(),
+        usePaymentMethodStore.getState().resetForLogout(),
+        usePaidyStore.getState().resetForLogout(),
+    ]);
+};
 
 export const useAuthStore = create<AuthState>((set, get) => ({
     user: null,
@@ -66,15 +77,24 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     logout: async () => {
         set({ isLoading: true });
         try {
-            await clearToken();
+            try {
+                await clearToken();
+            } finally {
+                await resetUserScopedStores();
+            }
             set({
                 user: null,
                 isAuthenticated: false,
                 isLoading: false,
                 error: null
             });
-        } catch (err) {
-            set({ isLoading: false });
+        } catch {
+            set({
+                user: null,
+                isAuthenticated: false,
+                isLoading: false,
+                error: null,
+            });
         }
     },
 
@@ -96,9 +116,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             // Sync settings and payment methods from server on app startup
             useSettingsStore.getState().syncFromServer();
             usePaymentMethodStore.getState().syncFromServer();
-        } catch (err: any) {
+        } catch {
             // Token might be invalid or expired
-            await clearToken();
+            try {
+                await clearToken();
+            } catch {
+                // Continue local cleanup even if secure token removal fails.
+            }
+            await resetUserScopedStores();
             set({
                 user: null,
                 isAuthenticated: false,
