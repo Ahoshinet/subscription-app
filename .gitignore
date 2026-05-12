@@ -33,6 +33,11 @@ yarn-error.*
 # local env files
 .env*.local
 
+# local AI Agent settings
+.claude/
+.codex/
+!.codex/memories/commit-style.md
+
 # typescript
 *.tsbuildinfo
 
