@@ -12,6 +12,7 @@ interface SubscriptionState {
     updateSubscription: (id: number, data: Partial<Subscription>) => Promise<void>;
     deleteSubscription: (id: number) => Promise<void>;
     clearError: () => void;
+    resetForLogout: () => void;
 }
 
 export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
@@ -74,4 +75,5 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
     },
 
     clearError: () => set({ error: null }),
+    resetForLogout: () => set({ subscriptions: [], isLoading: false, error: null }),
 }));

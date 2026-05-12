@@ -20,6 +20,7 @@ interface SettingsState {
     setPushNotifications: (enabled: boolean) => void;
     setTheme: (theme: ThemePreference) => void;
     clearSyncError: () => void;
+    resetForLogout: () => Promise<void>;
     syncFromServer: () => Promise<void>;
     syncToServer: (patch: Record<string, unknown>) => Promise<void>;
 }
@@ -51,6 +52,17 @@ export const useSettingsStore = create<SettingsState>()(
                 get().syncToServer({ theme });
             },
             clearSyncError: () => set({ syncError: false }),
+            resetForLogout: async () => {
+                set({
+                    language: 'en',
+                    currency: getSystemCurrency(),
+                    pushNotifications: true,
+                    theme: 'system',
+                    isSyncing: false,
+                    syncError: false,
+                });
+                await useSettingsStore.persist.clearStorage();
+            },
 
             syncFromServer: async () => {
                 try {

@@ -22,6 +22,7 @@ interface PaymentMethodState {
     removeMethod: (id: string) => Promise<void>;
     updateMethod: (id: string, updates: Partial<Omit<SavedPaymentMethod, 'id'>>) => Promise<void>;
     syncFromServer: () => Promise<void>;
+    resetForLogout: () => Promise<void>;
 }
 
 export const usePaymentMethodStore = create<PaymentMethodState>()(
@@ -98,6 +99,11 @@ export const usePaymentMethodStore = create<PaymentMethodState>()(
                 } catch {
                     set({ isSyncing: false });
                 }
+            },
+
+            resetForLogout: async () => {
+                set({ methods: [], isSyncing: false });
+                await usePaymentMethodStore.persist.clearStorage();
             },
         }),
         {

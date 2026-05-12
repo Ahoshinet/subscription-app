@@ -22,6 +22,7 @@ interface PaidyState {
   setSignedIn: (accessToken: string, email: string) => Promise<void>;
   syncPaidy: () => Promise<void>;
   signOut: () => Promise<void>;
+  resetForLogout: () => Promise<void>;
   clearError: () => void;
 }
 
@@ -126,6 +127,26 @@ export const usePaidyStore = create<PaidyState>()(
           lastSyncedAt: null,
           error: null,
         });
+      },
+
+      resetForLogout: async () => {
+        try {
+          await SecureStore.deleteItemAsync(GMAIL_TOKEN_KEY);
+        } catch {
+          // Local store reset should still proceed if secure storage is unavailable.
+        }
+        set({
+          isSignedIn: false,
+          googleEmail: null,
+          paidyAmount: null,
+          paidyMonth: null,
+          nextPaymentDate: null,
+          transactions: [],
+          lastSyncedAt: null,
+          isLoading: false,
+          error: null,
+        });
+        await usePaidyStore.persist.clearStorage();
       },
 
       clearError: () => set({ error: null }),

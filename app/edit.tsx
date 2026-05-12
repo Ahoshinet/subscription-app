@@ -3,14 +3,14 @@ import { View, Text, TextInput, Pressable, useColorScheme, KeyboardAvoidingView,
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useSubscriptionStore } from '../store/useSubscriptionStore';
-import { useAddFormStore, BILLING_CYCLES, PAYMENT_METHODS } from '../store/useAddFormStore';
-import { useSettingsStore } from '../store/useSettingsStore';
+import { useAddFormStore } from '../store/useAddFormStore';
 import { uploadApi, resolveIconUrl } from '../lib/api';
 import * as ImagePicker from 'expo-image-picker';
 import { setCropHandler } from '../lib/imageCropStore';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
 import { usePaymentMethodStore } from '../store/usePaymentMethodStore';
+import { CURRENCIES, CurrencyId } from '../lib/currency';
 import {
     isSubscriptionPresetIconValue,
     parseSubscriptionPresetIconValue,
@@ -19,8 +19,6 @@ import {
     buildSubscriptionPresetIconValue,
 } from '../lib/subscriptionIcon';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
-import { CURRENCIES } from '../lib/currency';
 
 const ICON_PICKER_WIDTH = Math.min(SCREEN_WIDTH - 32, 360);
 const ICON_PICKER_GAP = 10;
@@ -45,11 +43,12 @@ export default function EditSubscriptionScreen() {
     const [iconUri, setIconUri] = useState<string | null>(null);
     const [iconPreviewError, setIconPreviewError] = useState(false);
     const [showIconPickerModal, setShowIconPickerModal] = useState(false);
+    const [showCurrencyPickerModal, setShowCurrencyPickerModal] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [memo, setMemo] = useState('');
+    const [currency, setCurrency] = useState<CurrencyId>('JPY');
 
     const { billingCycle, paymentMethod, setBillingCycle, setPaymentMethod } = useAddFormStore();
-    const { currency, setCurrency } = useSettingsStore();
     const { methods: paymentMethods } = usePaymentMethodStore();
 
     useEffect(() => {
@@ -60,7 +59,7 @@ export default function EditSubscriptionScreen() {
             setNextPaymentDate(new Date(subscription.next_payment_date));
             setBillingCycle(subscription.billing_cycle);
             setPaymentMethod(subscription.payment_method);
-            setCurrency((subscription.currency as import('../lib/currency').CurrencyId) || 'JPY');
+            setCurrency((subscription.currency as CurrencyId) || 'JPY');
             if ((subscription as any).icon_url) {
                 setIconUri((subscription as any).icon_url);
             }
@@ -68,7 +67,7 @@ export default function EditSubscriptionScreen() {
                 setMemo((subscription as any).memo);
             }
         }
-    }, [subscription?.id]);
+    }, [subscription, setBillingCycle, setPaymentMethod]);
 
     if (!subscription) {
         return (
@@ -275,7 +274,7 @@ export default function EditSubscriptionScreen() {
                             />
                         </View>
                         <Pressable
-                            onPress={() => router.push('/settings/currency-picker' as any)}
+                            onPress={() => setShowCurrencyPickerModal(true)}
                             className="px-4 flex-row items-center justify-between"
                             style={rowStyle}
                         >
@@ -414,6 +413,48 @@ export default function EditSubscriptionScreen() {
                                 {t('billing.cancel')}
                             </Text>
                         </Pressable>
+                    </View>
+                </View>
+            </Modal>
+
+            <Modal
+                transparent
+                animationType="fade"
+                visible={showCurrencyPickerModal}
+                onRequestClose={() => setShowCurrencyPickerModal(false)}
+            >
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.45)' }}>
+                    <Pressable
+                        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+                        onPress={() => setShowCurrencyPickerModal(false)}
+                    />
+
+                    <View
+                        style={{
+                            width: ICON_PICKER_WIDTH,
+                            borderRadius: 16,
+                            backgroundColor: isDark ? '#1C1C1E' : '#FFFFFF',
+                            paddingVertical: 6,
+                            overflow: 'hidden',
+                        }}
+                    >
+                        {CURRENCIES.map((c, index) => (
+                            <Pressable
+                                key={c.id}
+                                onPress={() => {
+                                    setCurrency(c.id);
+                                    setShowCurrencyPickerModal(false);
+                                }}
+                                className={`px-4 py-3.5 flex-row items-center justify-between ${index < CURRENCIES.length - 1 ? 'border-b border-neutral-200 dark:border-neutral-800' : ''}`}
+                            >
+                                <Text className="text-neutral-900 dark:text-white text-base">
+                                    {c.symbol} {c.id} - {c.name}
+                                </Text>
+                                {currency === c.id && (
+                                    <Ionicons name="checkmark" size={22} color="#3B82F6" />
+                                )}
+                            </Pressable>
+                        ))}
                     </View>
                 </View>
             </Modal>
