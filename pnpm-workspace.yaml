@@ -1,3 +1,5 @@
+onlyBuiltDependencies:
+  - unrs-resolver
+nodeLinker: hoisted
 allowBuilds:
   unrs-resolver: true
-nodeLinker: hoisted
