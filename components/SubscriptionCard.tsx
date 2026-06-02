@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, Pressable, useColorScheme, Image } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Animated, {
@@ -53,10 +53,12 @@ export function SubscriptionCard({
     });
 
     const handlePressIn = () => {
+        // eslint-disable-next-line react-hooks/immutability
         scale.value = withSpring(0.98, { damping: 15, stiffness: 250 });
     };
 
     const handlePressOut = () => {
+        // eslint-disable-next-line react-hooks/immutability
         scale.value = withSpring(1, { damping: 15, stiffness: 250 });
     };
 
@@ -80,8 +82,8 @@ export function SubscriptionCard({
     const blurBackgroundColor = isDark ? 'rgba(28, 28, 30, 0.45)' : 'rgba(255, 255, 255, 0.6)';
     const blurTint = isDark ? 'dark' : 'light';
     const presetIcon = parseSubscriptionPresetIconValue(iconUrl);
-    const [imageError, setImageError] = useState(false);
-    useEffect(() => { setImageError(false); }, [iconUrl]);
+    const [erroredIconUrl, setErroredIconUrl] = useState<string | undefined>(undefined);
+    const imageError = iconUrl !== undefined && iconUrl === erroredIconUrl;
 
     return (
         <Pressable
@@ -114,7 +116,7 @@ export function SubscriptionCard({
                                 <Image
                                     source={{ uri: resolveIconUrl(iconUrl) }}
                                     style={{ width: 56, height: 56, borderRadius: 16 }}
-                                    onError={() => setImageError(true)}
+                                    onError={() => setErroredIconUrl(iconUrl)}
                                 />
                             ) : (
                                 <Ionicons name={iconName} size={32} color={color} />

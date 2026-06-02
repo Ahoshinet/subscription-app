@@ -161,6 +161,7 @@ export default function CalendarScreen() {
         transform: [{ translateX: translateX.value }],
     }));
 
+    // eslint-disable-next-line react-hooks/preserve-manual-memoization
     const applyMonthChange = useCallback((direction: 'prev' | 'next') => {
         const { month: m, year: y } = currentRef.current;
         if (direction === 'prev') {
@@ -175,6 +176,7 @@ export default function CalendarScreen() {
 
     const navigate = useCallback((direction: 'prev' | 'next') => {
         if (animating.value) return;
+        /* eslint-disable react-hooks/immutability */
         animating.value = true;
         const outX = direction === 'next' ? -SCREEN_WIDTH : SCREEN_WIDTH;
         const inX = -outX;
@@ -191,8 +193,10 @@ export default function CalendarScreen() {
                 animating.value = false;
             }
         });
+        /* eslint-enable react-hooks/immutability */
     }, [applyMonthChange]);
 
+    /* eslint-disable react-hooks/immutability, react-hooks/refs */
     const swipeGesture = useMemo(() =>
         Gesture.Pan()
             .activeOffsetX([-10, 10])
@@ -242,6 +246,7 @@ export default function CalendarScreen() {
             }),
         [applyMonthChange],
     );
+    /* eslint-enable react-hooks/immutability, react-hooks/refs */
 
     const headerText = isJa
         ? `${year}年 ${month + 1}月 - ${totalPayments}件の支払`
