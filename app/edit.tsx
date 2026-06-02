@@ -5,6 +5,7 @@ import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useSubscriptionStore } from '../store/useSubscriptionStore';
 import { useAddFormStore } from '../store/useAddFormStore';
 import { uploadApi, resolveIconUrl } from '../lib/api';
+import type { Subscription } from '../lib/api';
 import * as ImagePicker from 'expo-image-picker';
 import { setCropHandler } from '../lib/imageCropStore';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
@@ -18,6 +19,7 @@ import {
     SubscriptionIconPack,
     buildSubscriptionPresetIconValue,
 } from '../lib/subscriptionIcon';
+
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const ICON_PICKER_WIDTH = Math.min(SCREEN_WIDTH - 32, 360);
@@ -25,50 +27,12 @@ const ICON_PICKER_GAP = 10;
 const ICON_PICKER_TILE_SIZE = Math.floor((ICON_PICKER_WIDTH - 28 - ICON_PICKER_GAP * 2) / 3);
 
 export default function EditSubscriptionScreen() {
-    'use no memo';
-    const router = useRouter();
-    const colorScheme = useColorScheme();
-    const isDark = colorScheme === 'dark';
     const { id } = useLocalSearchParams<{ id: string }>();
     const { t } = useTranslation();
 
-    const { subscriptions, updateSubscription } = useSubscriptionStore();
+    const { subscriptions } = useSubscriptionStore();
     const numId = Number(id);
     const subscription = !isNaN(numId) ? subscriptions.find(s => s.id === numId) : undefined;
-
-    const [serviceName, setServiceName] = useState('');
-    const [planName, setPlanName] = useState('');
-    const [amount, setAmount] = useState('');
-    const [nextPaymentDate, setNextPaymentDate] = useState(new Date());
-    const [showDatePicker, setShowDatePicker] = useState(false);
-    const [iconUri, setIconUri] = useState<string | null>(null);
-    const [iconPreviewError, setIconPreviewError] = useState(false);
-    const [showIconPickerModal, setShowIconPickerModal] = useState(false);
-    const [showCurrencyPickerModal, setShowCurrencyPickerModal] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [memo, setMemo] = useState('');
-    const [currency, setCurrency] = useState<CurrencyId>('JPY');
-
-    const { billingCycle, paymentMethod, setBillingCycle, setPaymentMethod } = useAddFormStore();
-    const { methods: paymentMethods } = usePaymentMethodStore();
-
-    useEffect(() => {
-        if (subscription) {
-            setServiceName(subscription.service_name);
-            setPlanName(subscription.plan_name || '');
-            setAmount(String(subscription.amount));
-            setNextPaymentDate(new Date(subscription.next_payment_date));
-            setBillingCycle(subscription.billing_cycle);
-            setPaymentMethod(subscription.payment_method);
-            setCurrency((subscription.currency as CurrencyId) || 'JPY');
-            if ((subscription as any).icon_url) {
-                setIconUri((subscription as any).icon_url);
-            }
-            if ((subscription as any).memo) {
-                setMemo((subscription as any).memo);
-            }
-        }
-    }, [subscription, setBillingCycle, setPaymentMethod]);
 
     if (!subscription) {
         return (
@@ -79,6 +43,39 @@ export default function EditSubscriptionScreen() {
         );
     }
 
+    return <EditSubscriptionForm key={subscription.id} subscription={subscription} />;
+}
+
+function EditSubscriptionForm({ subscription }: { subscription: Subscription }) {
+    'use no memo';
+    const router = useRouter();
+    const colorScheme = useColorScheme();
+    const isDark = colorScheme === 'dark';
+    const { t } = useTranslation();
+
+    const { updateSubscription } = useSubscriptionStore();
+
+    const [serviceName, setServiceName] = useState(subscription.service_name);
+    const [planName, setPlanName] = useState(subscription.plan_name || '');
+    const [amount, setAmount] = useState(String(subscription.amount));
+    const [nextPaymentDate, setNextPaymentDate] = useState(() => new Date(subscription.next_payment_date));
+    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [iconUri, setIconUri] = useState<string | null>(subscription.icon_url ?? null);
+    const [iconPreviewError, setIconPreviewError] = useState(false);
+    const [showIconPickerModal, setShowIconPickerModal] = useState(false);
+    const [showCurrencyPickerModal, setShowCurrencyPickerModal] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [memo, setMemo] = useState(subscription.memo || '');
+    const [currency, setCurrency] = useState<CurrencyId>((subscription.currency as CurrencyId) || 'JPY');
+
+    const { billingCycle, paymentMethod, setBillingCycle, setPaymentMethod } = useAddFormStore();
+    const { methods: paymentMethods } = usePaymentMethodStore();
+
+    useEffect(() => {
+        setBillingCycle(subscription.billing_cycle);
+        setPaymentMethod(subscription.payment_method);
+    }, [subscription, setBillingCycle, setPaymentMethod]);
+
     const handleSave = async () => {
         if (!serviceName || !amount) {
             Alert.alert(t('subscription_form.error_title'), t('subscription_form.error_required'));
@@ -87,7 +84,7 @@ export default function EditSubscriptionScreen() {
 
         setIsSubmitting(true);
         try {
-            let iconUrl: string | undefined = (subscription as any).icon_url;
+            let iconUrl: string | undefined = subscription.icon_url;
             // Only upload if the uri changed and isn't already a server URL
             if (iconUri && !iconUri.startsWith('/uploads') && !iconUri.startsWith('http') && !isSubscriptionPresetIconValue(iconUri)) {
                 const uploadResult = await uploadApi.uploadIcon(iconUri);

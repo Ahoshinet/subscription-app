@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Modal, View, Text, Pressable, Animated,
     ScrollView, TextInput, Image, useColorScheme,
@@ -55,8 +55,8 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
     const { t } = useTranslation();
     const { addMethod } = usePaymentMethodStore();
 
-    const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
-    const backdropOpacity = useRef(new Animated.Value(0)).current;
+    const [translateY] = useState(() => new Animated.Value(SCREEN_HEIGHT));
+    const [backdropOpacity] = useState(() => new Animated.Value(0));
 
     const [section, setSection] = useState<'brand' | 'card' | 'custom'>('brand');
     const [cardBrand, setCardBrand] = useState('Visa');
@@ -91,7 +91,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                 }),
             ]).start();
         }
-    }, [visible]);
+    }, [backdropOpacity, translateY, visible]);
 
     const close = () => {
         Animated.parallel([
