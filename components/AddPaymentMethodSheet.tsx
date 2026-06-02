@@ -49,6 +49,7 @@ interface Props {
 }
 
 export function AddPaymentMethodSheet({ visible, onClose }: Props) {
+    'use no memo';
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
     const { t } = useTranslation();
