@@ -80,6 +80,7 @@ function chunk<T>(arr: T[], size: number): T[][] {
 }
 
 export default function CalendarScreen() {
+    'use no memo';
     const { t, i18n } = useTranslation();
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
