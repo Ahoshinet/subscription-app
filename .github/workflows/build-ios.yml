@@ -18,6 +18,7 @@ jobs:
     env:
       CI: '1'
       NSUnbufferedIO: 'YES'
+      EXPO_SDK_VERSION: '55'
 
     steps:
       - name: Checkout
@@ -50,12 +51,12 @@ jobs:
 
       - name: Align Expo SDK dependency versions
         run: |
-          npx expo install --fix
+          npx expo@~${EXPO_SDK_VERSION}.0.0 install --fix
           pnpm list expo react react-native expo-modules-core --depth 0
 
       - name: Expo Prebuild (iOS)
         # --clean で生成物差分を排除し、--no-install で再インストールを避ける
-        run: npx expo prebuild -p ios --clean --no-install
+        run: npx expo@~${EXPO_SDK_VERSION}.0.0 prebuild -p ios --clean --no-install
 
       - name: Install CocoaPods dependencies
         run: pod install --repo-update
