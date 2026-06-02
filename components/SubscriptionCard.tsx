@@ -39,6 +39,7 @@ export function SubscriptionCard({
     iconUrl,
     onPress,
 }: SubscriptionCardProps) {
+    'use no memo';
     const scale = useSharedValue(1);
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
