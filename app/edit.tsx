@@ -25,6 +25,7 @@ const ICON_PICKER_GAP = 10;
 const ICON_PICKER_TILE_SIZE = Math.floor((ICON_PICKER_WIDTH - 28 - ICON_PICKER_GAP * 2) / 3);
 
 export default function EditSubscriptionScreen() {
+    'use no memo';
     const router = useRouter();
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
