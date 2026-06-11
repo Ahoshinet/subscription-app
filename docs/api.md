@@ -228,7 +228,7 @@ Create a new subscription.
 {
   "service_name": "string",        // required
   "plan_name": "string",           // optional
-  "amount": 9.99,                  // required, number
+  "amount": 9.99,                  // required, number ≥ 0 (0 = free plan)
   "currency": "USD",               // required, e.g. "USD" | "JPY"
   "billing_cycle": "monthly",      // required, "monthly" | "yearly" | "weekly"
   "payment_method": "string",      // required
@@ -243,6 +243,7 @@ Create a new subscription.
 **Errors:**
 | Status | Reason |
 |---|---|
+| `400 Bad Request` | Validation failed (empty required field, unknown `billing_cycle`, negative `amount`, or invalid `next_payment_date`) |
 | `401 Unauthorized` | Missing or invalid token |
 | `500 Internal Server Error` | Database error |
 
@@ -305,6 +306,7 @@ Update an existing subscription. All fields are optional; only provided fields a
 **Errors:**
 | Status | Reason |
 |---|---|
+| `400 Bad Request` | Validation failed (empty required field, unknown `billing_cycle`, negative `amount`, or invalid `next_payment_date`) |
 | `401 Unauthorized` | Missing or invalid token |
 | `404 Not Found` | Subscription not found or not owned by user |
 

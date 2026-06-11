@@ -225,6 +225,7 @@
     "subscription_form": {
         "error_title": "入力エラー",
         "error_required": "サービス名と料金は必須です",
+        "error_invalid_amount": "料金は0以上の数値で入力してください",
         "service_name": "サービス名",
         "service_name_placeholder": "例: Netflix",
         "plan_name": "プラン名",

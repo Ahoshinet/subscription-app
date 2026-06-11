@@ -11,7 +11,7 @@ import { setCropHandler } from '../lib/imageCropStore';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
 import { usePaymentMethodStore } from '../store/usePaymentMethodStore';
-import { CURRENCIES, CurrencyId } from '../lib/currency';
+import { CURRENCIES, CurrencyId, parseAmountInput } from '../lib/currency';
 import {
     isSubscriptionPresetIconValue,
     parseSubscriptionPresetIconValue,
@@ -81,6 +81,11 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
             Alert.alert(t('subscription_form.error_title'), t('subscription_form.error_required'));
             return;
         }
+        const parsedAmount = parseAmountInput(amount);
+        if (parsedAmount === null) {
+            Alert.alert(t('subscription_form.error_title'), t('subscription_form.error_invalid_amount'));
+            return;
+        }
 
         setIsSubmitting(true);
         try {
@@ -95,7 +100,7 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
             await updateSubscription(subscription.id, {
                 service_name: serviceName,
                 plan_name: planName,
-                amount: Number(amount) || 0,
+                amount: parsedAmount,
                 currency,
                 billing_cycle: billingCycle,
                 payment_method: paymentMethod,

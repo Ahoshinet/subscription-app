@@ -225,6 +225,7 @@
     "subscription_form": {
         "error_title": "Input Error",
         "error_required": "Service name and amount are required.",
+        "error_invalid_amount": "Amount must be a number of 0 or more.",
         "service_name": "Service Name",
         "service_name_placeholder": "e.g. Netflix",
         "plan_name": "Plan Name",

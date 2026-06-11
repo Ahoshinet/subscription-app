@@ -23,6 +23,20 @@ const REGION_TO_CURRENCY: Record<string, CurrencyId> = {
     FI: 'EUR', IE: 'EUR', GR: 'EUR', LU: 'EUR',
 };
 
+// Parse a user-entered amount string. Accepts full-width digits and
+// thousand separators (e.g. "１,０００"). Returns null when the input is
+// empty or not a valid non-negative finite number.
+export function parseAmountInput(input: string): number | null {
+    const normalized = input
+        .replace(/[０-９．]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xfee0))
+        .replace(/[,，]/g, '')
+        .trim();
+    if (!normalized) return null;
+    const value = Number(normalized);
+    if (!Number.isFinite(value) || value < 0) return null;
+    return value;
+}
+
 export function getSystemCurrency(): CurrencyId {
     try {
         const locale = Intl.DateTimeFormat().resolvedOptions().locale;
