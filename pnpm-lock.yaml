@@ -17,7 +17,9 @@ overrides:
   shell-quote@<1.8.4: 1.8.4
 
 patchedDependencies:
-  '@expo/dom-webview': aedef6d00dff7214bfaa7476548dd7c89c4bbcf323d060759dda3c4a691a3588
+  '@expo/dom-webview':
+    hash: aedef6d00dff7214bfaa7476548dd7c89c4bbcf323d060759dda3c4a691a3588
+    path: patches/@expo__dom-webview.patch
 
 importers:
 
