@@ -83,6 +83,24 @@ export async function resetApiPreference(): Promise<void> {
 
 const TOKEN_KEY = 'auth_token';
 
+// Error thrown for non-2xx API responses; carries the HTTP status so callers
+// can distinguish auth failures (401) from network/server errors.
+export class ApiError extends Error {
+    status: number;
+    constructor(message: string, status: number) {
+        super(message);
+        this.name = 'ApiError';
+        this.status = status;
+    }
+}
+
+// Global handler invoked when a 401 cannot be recovered by token refresh.
+// Registered by useAuthStore to force logout (clear token/stores → login screen).
+let onUnauthorized: (() => void) | null = null;
+export const setOnUnauthorized = (handler: (() => void) | null) => {
+    onUnauthorized = handler;
+};
+
 // Types
 export interface Subscription {
     id: number;
@@ -284,18 +302,23 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise
                 headers: retryHeaders,
             });
             if (!retryResponse.ok) {
+                if (retryResponse.status === 401) onUnauthorized?.();
                 const errorData = await retryResponse.json().catch(() => ({}));
-                throw new Error(errorData.error || `Request failed with status ${retryResponse.status}`);
+                throw new ApiError(errorData.error || `Request failed with status ${retryResponse.status}`, retryResponse.status);
             }
             const text = await retryResponse.text();
             return text ? JSON.parse(text) : {} as unknown as T;
         }
+        // Refresh failed: the session is unrecoverable (refresh token expired
+        // beyond the server's grace window) — force logout instead of leaving
+        // the user trapped with a dead token.
+        onUnauthorized?.();
     }
 
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         console.log(`[fetchAPI] error response: ${JSON.stringify(errorData)}`);
-        throw new Error(errorData.error || `Request failed with status ${response.status}`);
+        throw new ApiError(errorData.error || `Request failed with status ${response.status}`, response.status);
     }
 
     // Handle empty responses
@@ -354,6 +377,11 @@ export const subscriptionApi = {
     }),
     delete: (id: number) => fetchAPI<{ message: string }>(`/subscriptions/${id}`, {
         method: 'DELETE',
+    }),
+    // Server-side rollover of overdue next_payment_date values; returns the
+    // refreshed list so callers can skip a separate getAll.
+    renew: () => fetchAPI<{ updated: number; subscriptions: Subscription[] }>('/subscriptions/renew', {
+        method: 'POST',
     }),
 };
 

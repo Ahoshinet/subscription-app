@@ -23,10 +23,18 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
     fetchSubscriptions: async () => {
         set({ isLoading: true, error: null });
         try {
-            const data = await subscriptionApi.getAll();
-            set({ subscriptions: data, isLoading: false });
-        } catch (err: any) {
-            set({ error: err.message || 'Failed to fetch subscriptions', isLoading: false });
+            // Ask the server to roll over overdue payment dates first; it
+            // returns the refreshed list in the same call.
+            const { subscriptions } = await subscriptionApi.renew();
+            set({ subscriptions, isLoading: false });
+        } catch {
+            // Older servers (or transient renew failures) — fall back to a plain list fetch
+            try {
+                const data = await subscriptionApi.getAll();
+                set({ subscriptions: data, isLoading: false });
+            } catch (err: any) {
+                set({ error: err.message || 'Failed to fetch subscriptions', isLoading: false });
+            }
         }
     },
 

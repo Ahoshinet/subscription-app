@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { authApi, AuthPayload, User, setToken, clearToken, getToken } from '../lib/api';
+import { authApi, AuthPayload, User, setToken, clearToken, getToken, ApiError, setOnUnauthorized } from '../lib/api';
 import { useSettingsStore } from './useSettingsStore';
 import { usePaymentMethodStore } from './usePaymentMethodStore';
 import { usePaidyStore } from './usePaidyStore';
@@ -116,8 +116,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             // Sync settings and payment methods from server on app startup
             useSettingsStore.getState().syncFromServer();
             usePaymentMethodStore.getState().syncFromServer();
-        } catch {
-            // Token might be invalid or expired
+        } catch (err: any) {
+            // Only destroy credentials on a definitive auth failure. A network
+            // error (offline / server down) must not log the user out.
+            const isAuthFailure = err instanceof ApiError
+                && (err.status === 401 || err.status === 403 || err.status === 404);
+
+            if (!isAuthFailure) {
+                // Transient error: keep the token, let the user in with locally
+                // persisted data; the token is re-validated on next launch.
+                set({ isAuthenticated: true, isInitializing: false });
+                return;
+            }
+
             try {
                 await clearToken();
             } catch {
@@ -134,3 +145,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     clearError: () => set({ error: null }),
 }));
+
+// Force logout when a 401 cannot be recovered by token refresh, so the user
+// is returned to the login screen instead of hitting errors on every action.
+setOnUnauthorized(() => {
+    if (useAuthStore.getState().isAuthenticated) {
+        useAuthStore.getState().logout();
+    }
+});
