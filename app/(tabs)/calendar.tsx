@@ -41,12 +41,17 @@ function getPaymentDaysInMonth(
 ): number[] {
     const effective = new Date(getEffectiveNextPaymentDate(nextPaymentDate, billingCycle));
     const daysInMonth = new Date(year, month + 1, 0).getDate();
+    // No payments happen in months before the first (effective) payment month
+    const beforeFirstPayment = year < effective.getFullYear()
+        || (year === effective.getFullYear() && month < effective.getMonth());
 
     if (billingCycle === 'monthly') {
+        if (beforeFirstPayment) return [];
         return [Math.min(effective.getDate(), daysInMonth)];
     }
     if (billingCycle === 'yearly') {
-        return effective.getMonth() === month ? [effective.getDate()] : [];
+        if (beforeFirstPayment) return [];
+        return effective.getMonth() === month ? [Math.min(effective.getDate(), daysInMonth)] : [];
     }
     if (billingCycle === 'weekly') {
         const target = new Date(year, month, 1);
