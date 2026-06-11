@@ -5,13 +5,22 @@ interface AddFormState {
     paymentMethod: string;
     setBillingCycle: (v: string) => void;
     setPaymentMethod: (v: string) => void;
+    reset: () => void;
 }
 
-export const useAddFormStore = create<AddFormState>((set) => ({
+const DEFAULTS = {
     billingCycle: 'monthly',
     paymentMethod: 'credit_card',
+};
+
+// Shared with the edit screen (both push the same billing-cycle /
+// payment-method picker routes), so the add screen must reset() on mount
+// to avoid inheriting whatever the last edit left behind.
+export const useAddFormStore = create<AddFormState>((set) => ({
+    ...DEFAULTS,
     setBillingCycle: (v) => set({ billingCycle: v }),
     setPaymentMethod: (v) => set({ paymentMethod: v }),
+    reset: () => set({ ...DEFAULTS }),
 }));
 
 export const BILLING_CYCLES = ['monthly', 'yearly', 'weekly'];

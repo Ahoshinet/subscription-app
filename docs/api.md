@@ -53,7 +53,7 @@ Register a new user.
 **Request body:**
 ```json
 {
-  "username": "string",   // required, must not be empty
+  "username": "string",   // required, 3-32 chars: letters, digits, ".", "_", "-" (trimmed)
   "password": "string"    // required, min 8 characters
 }
 ```
@@ -74,7 +74,7 @@ Register a new user.
 **Errors:**
 | Status | Reason |
 |---|---|
-| `400 Bad Request` | Empty username or password shorter than 8 characters |
+| `400 Bad Request` | Username fails the format rules above, or password shorter than 8 characters |
 | `409 Conflict` | Username already exists |
 
 ---
@@ -131,7 +131,7 @@ Issue a new JWT token without re-entering credentials. The existing (still-valid
 **Errors:**
 | Status | Reason |
 |---|---|
-| `401 Unauthorized` | Token missing, malformed, or expired |
+| `401 Unauthorized` | Token missing, malformed, expired, or issued before the user's last password change |
 
 ---
 
@@ -175,6 +175,8 @@ Change the authenticated user's password.
 
 **Response `200 OK`:** *(empty body)*
 
+> Changing the password invalidates **all previously issued tokens** (including the one used for this request). Prompt the user to log in again afterwards.
+
 **Errors:**
 | Status | Reason |
 |---|---|
@@ -192,7 +194,7 @@ Update the authenticated user's username.
 **Request body:**
 ```json
 {
-  "username": "string"  // required, must not be empty
+  "username": "string"  // required, 3-32 chars: letters, digits, ".", "_", "-" (trimmed)
 }
 ```
 
@@ -209,7 +211,7 @@ Update the authenticated user's username.
 **Errors:**
 | Status | Reason |
 |---|---|
-| `400 Bad Request` | Empty username |
+| `400 Bad Request` | Username fails the format rules above |
 | `404 Not Found` | User not found |
 | `409 Conflict` | Username already taken |
 
@@ -476,7 +478,7 @@ Update user settings. All fields are optional.
 ```json
 {
   "language": "ja",              // optional, "en" | "ja"
-  "currency": "JPY",             // optional
+  "currency": "JPY",             // optional, "JPY" | "USD" | "EUR" | "GBP"
   "push_notifications": false,   // optional
   "theme": "dark"                // optional, "system" | "light" | "dark"
 }
@@ -487,7 +489,7 @@ Update user settings. All fields are optional.
 **Errors:**
 | Status | Reason |
 |---|---|
-| `400 Bad Request` | Invalid `theme` or `language` value |
+| `400 Bad Request` | Invalid `theme`, `language`, or `currency` value |
 | `401 Unauthorized` | Missing or invalid token |
 
 ---

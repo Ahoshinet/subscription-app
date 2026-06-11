@@ -73,20 +73,54 @@ function parseTransactionFromBody(body: string): PaidyTransaction | null {
   const dateRegex = /(\d{4}年\d{1,2}月\d{1,2}日)/;
   const amountRegex = /(\d{1,3}(?:,\d{3})*)\s*円/;
 
-  const dateMatch = body.match(dateRegex);
-  const amountMatch = body.match(amountRegex);
+  const lines = body.split('\n').map(l => l.trim());
+
+  // Prefer label-anchored lines (e.g. 「ご利用金額」「ご利用日」) so unrelated
+  // figures like 「ご利用上限額 100,000円」 are never picked up. Fall back to
+  // the first matching line for older/unknown mail layouts, skipping known
+  // non-transaction amounts.
+  const findLabeledIdx = (label: RegExp, value: RegExp) =>
+    lines.findIndex(l => label.test(l) && value.test(l));
+
+  let amountLineIdx = findLabeledIdx(/ご利用金額/, amountRegex);
+  if (amountLineIdx === -1) {
+    amountLineIdx = lines.findIndex(l => !/上限/.test(l) && amountRegex.test(l));
+  }
+  const amountMatch = amountLineIdx !== -1 ? lines[amountLineIdx].match(amountRegex) : null;
+
+  const dateLineIdx = findLabeledIdx(/ご利用日/, dateRegex);
+  const dateMatch = dateLineIdx !== -1
+    ? lines[dateLineIdx].match(dateRegex)
+    : body.match(dateRegex);
+
   if (!dateMatch || !amountMatch) return null;
 
   const amount = parseInt(amountMatch[1].replace(/,/g, ''), 10);
 
-  // merchant is the next non-empty line after the amount line
-  const lines = body.split('\n').map(l => l.trim());
-  const amountLineIdx = lines.findIndex(l => amountRegex.test(l));
+  // Merchant: prefer the labeled store line; otherwise keep the old
+  // heuristic of the next non-empty line after the amount line.
   let merchant = '';
-  for (let i = amountLineIdx + 1; i < lines.length; i++) {
-    if (lines[i].length > 0) {
-      merchant = lines[i];
-      break;
+  const merchantLineIdx = lines.findIndex(l => /(ご利用店|加盟店|ショップ名)/.test(l));
+  if (merchantLineIdx !== -1) {
+    merchant = lines[merchantLineIdx]
+      .replace(/^.*?(ご利用店舗?|ご利用店|加盟店名?|ショップ名)\s*[:：]?\s*/, '')
+      .trim();
+    if (!merchant) {
+      // Label and value are on separate lines
+      for (let i = merchantLineIdx + 1; i < lines.length; i++) {
+        if (lines[i].length > 0) {
+          merchant = lines[i];
+          break;
+        }
+      }
+    }
+  }
+  if (!merchant) {
+    for (let i = amountLineIdx + 1; i < lines.length; i++) {
+      if (lines[i].length > 0) {
+        merchant = lines[i];
+        break;
+      }
     }
   }
 

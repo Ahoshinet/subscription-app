@@ -268,8 +268,12 @@ async function tryRefreshToken(): Promise<boolean> {
 // Custom Fetch Wrapper
 async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     checkRateLimit(endpoint);
-    console.log(`[fetchAPI] START ${options.method || 'GET'} ${endpoint}`);
-    console.log(`[fetchAPI] BASE_URL: ${API_BASE_URL}`);
+    // Diagnostics are dev-only: URLs and token presence must not be logged
+    // in production builds.
+    if (__DEV__) {
+        console.log(`[fetchAPI] START ${options.method || 'GET'} ${endpoint}`);
+        console.log(`[fetchAPI] BASE_URL: ${API_BASE_URL}`);
+    }
     if (__DEV__ && options.body && endpoint.includes('/auth/')) {
         try {
             const body = JSON.parse(options.body as string);
@@ -280,9 +284,9 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise
     let token: string | null = null;
     try {
         token = await getToken();
-        console.log(`[fetchAPI] getToken: ${token ? 'exists' : 'null'}`);
+        if (__DEV__) console.log(`[fetchAPI] getToken: ${token ? 'exists' : 'null'}`);
     } catch (e) {
-        console.error(`[fetchAPI] getToken FAILED:`, e);
+        if (__DEV__) console.error(`[fetchAPI] getToken FAILED:`, e);
     }
 
     const headers = {
@@ -292,16 +296,16 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise
     };
 
     const url = `${API_BASE_URL}${endpoint}`;
-    console.log(`[fetchAPI] fetching: ${url}`);
+    if (__DEV__) console.log(`[fetchAPI] fetching: ${url}`);
     let response: Response;
     try {
         response = await fetch(url, {
             ...options,
             headers,
         });
-        console.log(`[fetchAPI] response status: ${response.status}`);
+        if (__DEV__) console.log(`[fetchAPI] response status: ${response.status}`);
     } catch (fetchError: any) {
-        console.error(`[fetchAPI] fetch THREW:`, fetchError?.message, fetchError);
+        if (__DEV__) console.error(`[fetchAPI] fetch THREW:`, fetchError?.message, fetchError);
         throw fetchError;
     }
 
@@ -334,7 +338,7 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise
 
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.log(`[fetchAPI] error response: ${JSON.stringify(errorData)}`);
+        if (__DEV__) console.log(`[fetchAPI] error response: ${JSON.stringify(errorData)}`);
         throw new ApiError(errorData.error || `Request failed with status ${response.status}`, response.status);
     }
 
@@ -409,19 +413,10 @@ export const getApiBaseUrl = () => API_BASE_URL;
 // Helper to check if currently using public (production) API
 export const isUsingPublicApi = () => API_BASE_URL.includes(PRODUCTION_URL);
 
-// Helper to get the server base URL (without /api)
-export const getServerBaseUrl = () => {
-    if (__DEV__) {
-        const hostUri = Constants.expoConfig?.hostUri;
-        if (hostUri) {
-            const host = hostUri.split(':')[0];
-            return `http://${host}:${DEV_PORT}`;
-        }
-        if (Platform.OS === 'android') return `http://10.0.2.2:${DEV_PORT}`;
-        return `http://localhost:${DEV_PORT}`;
-    }
-    return PRODUCTION_URL;
-};
+// Helper to get the server base URL (without /api/v1). Derived from the
+// runtime API_BASE_URL so it follows the dev → production fallback chosen
+// in ensureApiReachable instead of recomputing the dev default.
+export const getServerBaseUrl = () => API_BASE_URL.replace(/\/api\/v1$/, '');
 
 // Payment Method Types
 export interface PaymentMethod {

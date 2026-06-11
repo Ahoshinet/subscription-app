@@ -1,5 +1,6 @@
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
+import i18n from '../i18n';
 import { Subscription } from './api';
 import { getEffectiveNextPaymentDate } from './dateUtils';
 
@@ -31,6 +32,10 @@ function getNotifications(): NotificationsModule | null {
 
 const REMINDER_DAYS = [14, 7, 3, 1] as const;
 
+// iOS silently drops scheduled local notifications beyond 64 pending.
+// Schedule only the soonest reminders and keep a little headroom.
+const MAX_SCHEDULED_NOTIFICATIONS = 60;
+
 export async function requestNotificationPermissions(): Promise<boolean> {
     if (Platform.OS === 'web') return false;
     const N = getNotifications();
@@ -48,6 +53,19 @@ export async function requestNotificationPermissions(): Promise<boolean> {
 }
 
 let scheduleTimer: ReturnType<typeof setTimeout> | null = null;
+
+// Signature of the last successfully scheduled state. Skips the
+// cancel-and-reschedule cycle when nothing reminder-relevant changed
+// (fetchSubscriptions replaces the array identity on every focus).
+let lastScheduleSignature: string | null = null;
+
+function reminderSignature(subscriptions: Subscription[], language: string): string {
+    return language + '|' + subscriptions
+        .filter((s) => s.status === 'active')
+        .map((s) => `${s.id}:${s.next_payment_date}:${s.billing_cycle}:${s.amount}:${s.currency}:${s.service_name}:${s.plan_name ?? ''}`)
+        .sort()
+        .join('|');
+}
 
 export function schedulePaymentReminders(
     subscriptions: Subscription[],
@@ -67,9 +85,13 @@ async function _doSchedule(
     const N = getNotifications();
     if (!N) return;
 
+    const signature = reminderSignature(subscriptions, i18n.language);
+    if (signature === lastScheduleSignature) return;
+
     await N.cancelAllScheduledNotificationsAsync();
 
     const now = new Date();
+    const candidates: { triggerDate: Date; daysBefore: number; sub: Subscription }[] = [];
 
     for (const sub of subscriptions) {
         if (sub.status !== 'active') continue;
@@ -83,27 +105,38 @@ async function _doSchedule(
 
             if (triggerDate.getTime() <= now.getTime()) continue;
 
-            const secondsUntil = Math.floor((triggerDate.getTime() - now.getTime()) / 1000);
-
-            await N.scheduleNotificationAsync({
-                content: {
-                    title: t('notification.payment_reminder_title'),
-                    body: daysBefore === 1
-                        ? t('notification.payment_tomorrow', { name: sub.service_name, plan: sub.plan_name ?? '', price: sub.amount, currency: sub.currency })
-                        : t('notification.payment_in_days', { name: sub.service_name, plan: sub.plan_name ?? '', price: sub.amount, currency: sub.currency, days: daysBefore }),
-                    data: { subscriptionId: sub.id },
-                },
-                trigger: {
-                    type: N.SchedulableTriggerInputTypes.TIME_INTERVAL,
-                    seconds: secondsUntil,
-                    repeats: false,
-                },
-            });
+            candidates.push({ triggerDate, daysBefore, sub });
         }
     }
+
+    // Soonest first, so the iOS pending-notification cap drops only the
+    // most distant reminders.
+    candidates.sort((a, b) => a.triggerDate.getTime() - b.triggerDate.getTime());
+
+    for (const { triggerDate, daysBefore, sub } of candidates.slice(0, MAX_SCHEDULED_NOTIFICATIONS)) {
+        const secondsUntil = Math.floor((triggerDate.getTime() - now.getTime()) / 1000);
+
+        await N.scheduleNotificationAsync({
+            content: {
+                title: t('notification.payment_reminder_title'),
+                body: daysBefore === 1
+                    ? t('notification.payment_tomorrow', { name: sub.service_name, plan: sub.plan_name ?? '', price: sub.amount, currency: sub.currency })
+                    : t('notification.payment_in_days', { name: sub.service_name, plan: sub.plan_name ?? '', price: sub.amount, currency: sub.currency, days: daysBefore }),
+                data: { subscriptionId: sub.id },
+            },
+            trigger: {
+                type: N.SchedulableTriggerInputTypes.TIME_INTERVAL,
+                seconds: secondsUntil,
+                repeats: false,
+            },
+        });
+    }
+
+    lastScheduleSignature = signature;
 }
 
 export async function cancelAllReminders(): Promise<void> {
+    lastScheduleSignature = null;
     const N = getNotifications();
     if (!N) return;
     await N.cancelAllScheduledNotificationsAsync();
