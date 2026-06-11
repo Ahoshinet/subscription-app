@@ -12,7 +12,7 @@ import { useSettingsStore } from '@/store/useSettingsStore';
 import { usePaidyStore } from '@/store/usePaidyStore';
 import { requestNotificationPermissions, schedulePaymentReminders, cancelAllReminders } from '@/lib/notifications';
 
-import { CURRENCY_SYMBOLS, getSystemCurrency } from '@/lib/currency';
+import { CURRENCY_SYMBOLS, getSystemCurrency, toMonthlyAmount } from '@/lib/currency';
 import { getEffectiveNextPaymentDate } from '@/lib/dateUtils';
 
 type SortKey = 'name' | 'amount' | 'date';
@@ -61,7 +61,7 @@ export default function HomeScreen() {
     .filter(sub => sub.status === 'active')
     .reduce<Record<string, number>>((acc, sub) => {
       const curr = sub.currency || 'JPY';
-      acc[curr] = (acc[curr] || 0) + Number(sub.amount || 0);
+      acc[curr] = (acc[curr] || 0) + toMonthlyAmount(Number(sub.amount || 0), sub.billing_cycle);
       return acc;
     }, {});
   if (gmailSignedIn && paidyAmount != null) {
@@ -160,11 +160,11 @@ export default function HomeScreen() {
                     ? t('home.monthly_spending', { amount: '¥0' })
                     : otherCount > 0
                       ? t('home.monthly_spending_multi', {
-                          amount: `${CURRENCY_SYMBOLS[primaryEntry[0]] || primaryEntry[0]}${primaryEntry[1].toLocaleString()}`,
+                          amount: `${CURRENCY_SYMBOLS[primaryEntry[0]] || primaryEntry[0]}${Math.round(primaryEntry[1]).toLocaleString()}`,
                           count: otherCount,
                         })
                       : t('home.monthly_spending', {
-                          amount: `${CURRENCY_SYMBOLS[primaryEntry[0]] || primaryEntry[0]}${primaryEntry[1].toLocaleString()}`,
+                          amount: `${CURRENCY_SYMBOLS[primaryEntry[0]] || primaryEntry[0]}${Math.round(primaryEntry[1]).toLocaleString()}`,
                         })
                   }
                 </Text>
@@ -181,7 +181,7 @@ export default function HomeScreen() {
                 <View className="mt-1">
                   {sortedCurrencies.map(([curr, total]) => (
                     <Text key={curr} className="text-sm text-neutral-400 dark:text-neutral-500 ml-1">
-                      {CURRENCY_SYMBOLS[curr] || curr}{total.toLocaleString()} ({curr})
+                      {CURRENCY_SYMBOLS[curr] || curr}{Math.round(total).toLocaleString()} ({curr})
                     </Text>
                   ))}
                 </View>
@@ -275,6 +275,7 @@ export default function HomeScreen() {
                   planName={sub.plan_name || t('home.standard_plan')}
                   amount={sub.amount}
                   currency={CURRENCY_SYMBOLS[sub.currency] || sub.currency}
+                  billingCycle={sub.billing_cycle}
                   nextPaymentDate={effectiveDate}
                   daysRemaining={daysRemaining}
                   color={sub.id === -1 ? '#1A56DB' : '#3B82F6'}

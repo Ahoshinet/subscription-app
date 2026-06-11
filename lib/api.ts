@@ -1,6 +1,7 @@
 import * as SecureStore from 'expo-secure-store';
 import { Platform, Alert } from 'react-native';
 import Constants from 'expo-constants';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 
 const PRODUCTION_URL = 'https://subscription-manager.daruks.com';
 const DEV_PORT = 8084;
@@ -132,6 +133,22 @@ export interface CreateSubscriptionPayload {
     memo?: string;
     next_payment_date: string;
     status?: string;
+}
+
+// PUT /subscriptions/{id}: omitted fields keep their value; sending an
+// explicit null clears the nullable columns (plan_name, payment_details,
+// icon_url, memo).
+export interface UpdateSubscriptionPayload {
+    service_name?: string;
+    plan_name?: string | null;
+    amount?: number;
+    currency?: string;
+    billing_cycle?: string;
+    payment_method?: string;
+    payment_details?: string | null;
+    icon_url?: string | null;
+    memo?: string | null;
+    next_payment_date?: string;
 }
 
 // Auth Types
@@ -367,7 +384,7 @@ export const subscriptionApi = {
         method: 'POST',
         body: JSON.stringify(data),
     }),
-    update: (id: number, data: Partial<Subscription>) => fetchAPI<Subscription>(`/subscriptions/${id}`, {
+    update: (id: number, data: UpdateSubscriptionPayload) => fetchAPI<Subscription>(`/subscriptions/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),
     }),
@@ -433,6 +450,18 @@ export interface CreatePaymentMethodPayload {
     memo?: string;
 }
 
+// PUT /payment-methods/{id}: omitted fields keep their value; sending an
+// explicit null clears the nullable columns.
+export interface UpdatePaymentMethodPayload {
+    label?: string;
+    icon_name?: string | null;
+    icon_uri?: string | null;
+    color?: string;
+    last4?: string | null;
+    card_brand?: string | null;
+    memo?: string | null;
+}
+
 // Payment Method Endpoints
 export const paymentMethodApi = {
     getAll: () => fetchAPI<PaymentMethod[]>('/payment-methods'),
@@ -440,7 +469,7 @@ export const paymentMethodApi = {
         method: 'POST',
         body: JSON.stringify(data),
     }),
-    update: (id: string, data: Partial<CreatePaymentMethodPayload>) => fetchAPI<void>(`/payment-methods/${id}`, {
+    update: (id: string, data: UpdatePaymentMethodPayload) => fetchAPI<void>(`/payment-methods/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),
     }),
@@ -500,19 +529,30 @@ export const resolveIconUrl = (iconUrl: string): string => {
 export const uploadApi = {
     uploadIcon: async (uri: string): Promise<{ url: string }> => {
         const token = await getToken();
-        const formData = new FormData();
-        const filename = uri.split('/').pop()?.split('?')[0] || 'icon.jpg';
-        const ext = (filename.split('.').pop() || 'jpg').toLowerCase();
+        let uploadUri = uri;
+        let filename = uri.split('/').pop()?.split('?')[0] || 'icon.jpg';
+        let ext = (filename.split('.').pop() || 'jpg').toLowerCase();
+        // The server only accepts png/jpg/jpeg/gif/webp. iOS photos are often
+        // HEIC/HEIF, so convert those to JPEG before uploading instead of
+        // letting the server reject them with 415.
+        if (ext === 'heic' || ext === 'heif') {
+            const converted = await manipulateAsync(uri, [], {
+                compress: 0.9,
+                format: SaveFormat.JPEG,
+            });
+            uploadUri = converted.uri;
+            filename = filename.replace(/\.[^.]+$/, '.jpg');
+            ext = 'jpg';
+        }
         const mimeTypes: Record<string, string> = {
             png: 'image/png',
             gif: 'image/gif',
             webp: 'image/webp',
-            heic: 'image/heic',
-            heif: 'image/heif',
         };
         const mimeType = mimeTypes[ext] || 'image/jpeg';
+        const formData = new FormData();
         formData.append('file', {
-            uri,
+            uri: uploadUri,
             name: filename,
             type: mimeType,
         } as any);

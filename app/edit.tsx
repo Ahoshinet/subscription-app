@@ -97,16 +97,18 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
             } else if (iconUri && isSubscriptionPresetIconValue(iconUri)) {
                 iconUrl = iconUri;
             }
+            // Empty inputs send null so the server clears the stored value
+            // (undefined fields would be omitted and keep the old value).
             await updateSubscription(subscription.id, {
                 service_name: serviceName,
-                plan_name: planName,
+                plan_name: planName.trim() ? planName : null,
                 amount: parsedAmount,
                 currency,
                 billing_cycle: billingCycle,
                 payment_method: paymentMethod,
                 next_payment_date: nextPaymentDate.toISOString(),
                 icon_url: iconUrl,
-                memo: memo || undefined,
+                memo: memo.trim() ? memo : null,
             });
             router.back();
         } catch (error: any) {

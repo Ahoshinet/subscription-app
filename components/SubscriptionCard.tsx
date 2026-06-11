@@ -18,6 +18,7 @@ interface SubscriptionCardProps {
     planName: string;
     amount: number;
     currency?: string;
+    billingCycle?: string;
     nextPaymentDate: string;
     daysRemaining: number;
     color?: string;
@@ -32,6 +33,7 @@ export function SubscriptionCard({
     planName,
     amount,
     currency = '¥',
+    billingCycle = 'monthly',
     nextPaymentDate,
     daysRemaining,
     color = '#E50914',
@@ -139,7 +141,13 @@ export function SubscriptionCard({
                                 {currency}{amount.toLocaleString()}
                             </Text>
                             <Text className="text-xs font-medium text-neutral-500 dark:text-neutral-400 mt-1">
-                                {t('subscription_card.per_month')}
+                                {t(
+                                    billingCycle === 'yearly'
+                                        ? 'subscription_card.per_year'
+                                        : billingCycle === 'weekly'
+                                          ? 'subscription_card.per_week'
+                                          : 'subscription_card.per_month'
+                                )}
                             </Text>
                         </View>
                     </View>

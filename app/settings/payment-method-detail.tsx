@@ -29,9 +29,14 @@ export default function PaymentMethodDetailScreen() {
     const textSub = isDark ? '#8E8E93' : '#6B7280';
     const segBg = isDark ? '#2C2C2E' : '#F2F2F7';
 
-    const handleSave = () => {
-        void updateMethod(id, { memo: memo.trim() || undefined });
-        setIsDirty(false);
+    const handleSave = async () => {
+        try {
+            // null clears the memo on the server (undefined would keep it)
+            await updateMethod(id, { memo: memo.trim() ? memo.trim() : null });
+            setIsDirty(false);
+        } catch (e: any) {
+            Alert.alert(t('common.error'), e.message || t('billing.update_failed'));
+        }
     };
 
     const handleDelete = () => {
@@ -43,9 +48,14 @@ export default function PaymentMethodDetailScreen() {
                 {
                     text: t('billing.delete'),
                     style: 'destructive',
-                    onPress: () => {
-                        void removeMethod(id);
-                        router.back();
+                    onPress: async () => {
+                        try {
+                            await removeMethod(id);
+                            router.back();
+                        } catch (e: any) {
+                            // e.g. 409: subscriptions still reference this method
+                            Alert.alert(t('common.error'), e.message || t('billing.delete_failed'));
+                        }
                     },
                 },
             ],

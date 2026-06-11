@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { subscriptionApi, Subscription, CreateSubscriptionPayload } from '../lib/api';
+import { subscriptionApi, Subscription, CreateSubscriptionPayload, UpdateSubscriptionPayload } from '../lib/api';
 
 interface SubscriptionState {
     subscriptions: Subscription[];
@@ -9,7 +9,7 @@ interface SubscriptionState {
     // Actions
     fetchSubscriptions: () => Promise<void>;
     addSubscription: (data: CreateSubscriptionPayload) => Promise<void>;
-    updateSubscription: (id: number, data: Partial<Subscription>) => Promise<void>;
+    updateSubscription: (id: number, data: UpdateSubscriptionPayload) => Promise<void>;
     deleteSubscription: (id: number) => Promise<void>;
     clearError: () => void;
     resetForLogout: () => void;
@@ -52,7 +52,7 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
         }
     },
 
-    updateSubscription: async (id: number, data: Partial<Subscription>) => {
+    updateSubscription: async (id: number, data: UpdateSubscriptionPayload) => {
         set({ isLoading: true, error: null });
         try {
             const updatedSub = await subscriptionApi.update(id, data);
