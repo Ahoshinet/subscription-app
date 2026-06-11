@@ -371,7 +371,8 @@ export const subscriptionApi = {
         method: 'PUT',
         body: JSON.stringify(data),
     }),
-    updateStatus: (id: number, status: string) => fetchAPI<Subscription>(`/subscriptions/${id}/status`, {
+    // Server returns an empty 200 — there is no body to consume
+    updateStatus: (id: number, status: string) => fetchAPI<void>(`/subscriptions/${id}/status`, {
         method: 'PATCH',
         body: JSON.stringify({ status }),
     }),

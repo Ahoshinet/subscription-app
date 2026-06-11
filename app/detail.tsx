@@ -12,7 +12,6 @@ import { getEffectiveNextPaymentDate } from '../lib/dateUtils';
 const STATUS_COLORS: Record<string, string> = {
     active: '#22C55E',
     inactive: '#EAB308',
-    cancelled: '#EF4444',
 };
 
 export default function DetailScreen() {
