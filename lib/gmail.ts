@@ -1,5 +1,15 @@
 const GMAIL_API_BASE = 'https://gmail.googleapis.com/gmail/v1';
 
+// Thrown when the Gmail access token is expired/revoked (HTTP 401).
+// expo-auth-session access tokens live ~1 hour, so callers must route the
+// user back through the auth prompt when they see this.
+export class GmailAuthError extends Error {
+  constructor() {
+    super('Gmail authorization expired');
+    this.name = 'GmailAuthError';
+  }
+}
+
 export interface PaidyTransaction {
   date: string;
   amount: number;
@@ -122,6 +132,7 @@ async function gmailFetch(path: string, accessToken: string): Promise<any> {
   const res = await fetch(`${GMAIL_API_BASE}${path}`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
+  if (res.status === 401) throw new GmailAuthError();
   if (!res.ok) throw new Error(`Gmail API error: ${res.status}`);
   return res.json();
 }

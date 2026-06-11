@@ -206,6 +206,8 @@
         "open_settings": "Gmail設定を開く",
         "error_signin": "サインインに失敗しました。",
         "error_sync": "同期に失敗しました。",
+        "reauth_required": "Googleのサインインが期限切れです。再連携すると同期を再開できます。",
+        "reauth_button": "Googleと再連携",
         "about_title": "Gmail連携とは？",
         "about_resync": "機種変更・再インストール後はGoogleアカウントへの再サインインが必要です。",
         "about_privacy": "取得したデータはプライバシーポリシーに基づき適切に管理されます。",

@@ -18,6 +18,7 @@ export default function GmailSettingsScreen() {
 
   const {
     isSignedIn,
+    needsReauth,
     googleEmail,
     paidyAmount,
     paidyMonth,
@@ -126,6 +127,25 @@ export default function GmailSettingsScreen() {
                 </Text>
               </View>
             </View>
+
+            {/* Re-auth banner: access token expired or missing on this device */}
+            {needsReauth && (
+              <View className="bg-amber-50 dark:bg-amber-900/20 rounded-2xl border border-amber-200 dark:border-amber-900/50 px-4 py-4 mb-3">
+                <View className="flex-row items-start mb-3">
+                  <Ionicons name="warning-outline" size={18} color="#f59e0b" style={{ marginTop: 1, marginRight: 8 }} />
+                  <Text className="text-sm text-amber-800 dark:text-amber-300 flex-1">
+                    {t('gmail.reauth_required')}
+                  </Text>
+                </View>
+                <Pressable
+                  onPress={() => promptAsync()}
+                  disabled={!request || isLoading}
+                  className="items-center py-3 rounded-xl bg-amber-500"
+                >
+                  <Text className="text-white font-bold text-base">{t('gmail.reauth_button')}</Text>
+                </Pressable>
+              </View>
+            )}
 
             {/* Sync now */}
             <Pressable

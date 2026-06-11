@@ -206,6 +206,8 @@
         "open_settings": "Open Gmail Settings",
         "error_signin": "Sign-in failed.",
         "error_sync": "Sync failed.",
+        "reauth_required": "Google sign-in has expired. Reconnect to keep syncing.",
+        "reauth_button": "Reconnect with Google",
         "about_title": "About Gmail Integration",
         "about_resync": "After a device change or reinstall, you will need to sign in with Google again to sync.",
         "about_privacy": "Your data is handled in accordance with our Privacy Policy.",

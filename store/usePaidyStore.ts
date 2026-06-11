@@ -2,13 +2,17 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
-import { fetchPaidyTransactions, PaidyTransaction } from '@/lib/gmail';
-import { gmailApi } from '@/lib/api';
+import { fetchPaidyTransactions, GmailAuthError, PaidyTransaction } from '@/lib/gmail';
+import { ApiError, gmailApi } from '@/lib/api';
 
 const GMAIL_TOKEN_KEY = 'paidy_gmail_access_token';
 
 interface PaidyState {
   isSignedIn: boolean;
+  /** Gmail access token is missing/expired — the user must re-run the Google auth prompt. */
+  needsReauth: boolean;
+  /** Server-side integration delete failed (e.g. offline); retried on next loadFromServer. */
+  pendingServerDeletion: boolean;
   googleEmail: string | null;
   paidyAmount: number | null;
   paidyMonth: string | null;
@@ -30,6 +34,8 @@ export const usePaidyStore = create<PaidyState>()(
   persist(
     (set, get) => ({
       isSignedIn: false,
+      needsReauth: false,
+      pendingServerDeletion: false,
       googleEmail: null,
       paidyAmount: null,
       paidyMonth: null,
@@ -40,10 +46,31 @@ export const usePaidyStore = create<PaidyState>()(
       error: null,
 
       loadFromServer: async () => {
+        // 前回の連携解除がサーバーに届いていなければ、再取得より先に削除を再試行する。
+        // ここで getIntegration してしまうと解除したはずの連携が復活する。
+        if (get().pendingServerDeletion) {
+          try {
+            await gmailApi.deleteIntegration();
+            set({ pendingServerDeletion: false });
+          } catch (err: any) {
+            if (err instanceof ApiError && err.status === 404) {
+              // レコードは既に無い = 削除完了扱い
+              set({ pendingServerDeletion: false });
+            }
+            // それ以外は次回起動時に再試行
+          }
+          return;
+        }
         try {
           const data = await gmailApi.getIntegration();
+          // この端末に Gmail トークンが無い場合（機種変更など）は再連携が必要
+          let hasToken = false;
+          try {
+            hasToken = (await SecureStore.getItemAsync(GMAIL_TOKEN_KEY)) != null;
+          } catch { /* SecureStore unavailable */ }
           set({
             isSignedIn: true,
+            needsReauth: !hasToken,
             googleEmail: data.gmail_email,
             paidyAmount: data.paidy_amount,
             paidyMonth: data.paidy_month,
@@ -58,14 +85,17 @@ export const usePaidyStore = create<PaidyState>()(
 
       setSignedIn: async (accessToken: string, email: string) => {
         await SecureStore.setItemAsync(GMAIL_TOKEN_KEY, accessToken);
-        set({ isSignedIn: true, googleEmail: email });
+        set({ isSignedIn: true, needsReauth: false, googleEmail: email });
       },
 
       syncPaidy: async () => {
         set({ isLoading: true, error: null });
         try {
           const token = await SecureStore.getItemAsync(GMAIL_TOKEN_KEY);
-          if (!token) throw new Error('No access token');
+          if (!token) {
+            set({ needsReauth: true, isLoading: false, error: 'Gmailとの再連携が必要です' });
+            return;
+          }
 
           const summary = await fetchPaidyTransactions(token);
           const now = new Date().toISOString();
@@ -106,6 +136,11 @@ export const usePaidyStore = create<PaidyState>()(
             });
           }
         } catch (err: any) {
+          if (err instanceof GmailAuthError) {
+            // アクセストークン失効（約1時間）— 再連携を促す
+            set({ needsReauth: true, error: 'Gmailとの再連携が必要です', isLoading: false });
+            return;
+          }
           set({ error: err.message ?? '同期に失敗しました', isLoading: false });
         }
       },
@@ -113,12 +148,24 @@ export const usePaidyStore = create<PaidyState>()(
       signOut: async () => {
         try {
           await SecureStore.deleteItemAsync(GMAIL_TOKEN_KEY);
-          await gmailApi.deleteIntegration();
         } catch {
-          // サーバーエラーやトークンなし時も状態リセットは行う
+          // トークンなし時も状態リセットは行う
+        }
+        // サーバー側の連携レコード削除に失敗したら次回 loadFromServer で再試行する。
+        // 黙って握りつぶすと次回起動時に連携が復活してしまう。
+        let pendingServerDeletion = false;
+        try {
+          await gmailApi.deleteIntegration();
+        } catch (err: any) {
+          // 404 = レコードが元々無い（削除済み）ので成功扱い
+          if (!(err instanceof ApiError && err.status === 404)) {
+            pendingServerDeletion = true;
+          }
         }
         set({
           isSignedIn: false,
+          needsReauth: false,
+          pendingServerDeletion,
           googleEmail: null,
           paidyAmount: null,
           paidyMonth: null,
@@ -137,6 +184,8 @@ export const usePaidyStore = create<PaidyState>()(
         }
         set({
           isSignedIn: false,
+          needsReauth: false,
+          pendingServerDeletion: false,
           googleEmail: null,
           paidyAmount: null,
           paidyMonth: null,
@@ -156,6 +205,8 @@ export const usePaidyStore = create<PaidyState>()(
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         isSignedIn: state.isSignedIn,
+        needsReauth: state.needsReauth,
+        pendingServerDeletion: state.pendingServerDeletion,
         googleEmail: state.googleEmail,
         paidyAmount: state.paidyAmount,
         paidyMonth: state.paidyMonth,
