@@ -63,11 +63,16 @@ export default function RootLayout() {
             router.replace('/login');
         } else if (isAuthenticated && inAuthGroup) {
             router.replace('/(tabs)');
-        } else if (isAuthenticated) {
-            syncPaymentMethods();
-            loadPaidy();
         }
     }, [isAuthenticated, isInitializing, segments]);
+
+    // Server sync runs once per auth session — keying on segments would
+    // re-trigger it on every route change and eat into the rate limit.
+    useEffect(() => {
+        if (isInitializing || !isAuthenticated) return;
+        syncPaymentMethods();
+        loadPaidy();
+    }, [isAuthenticated, isInitializing]);
 
     if (isInitializing) {
         // Return null or a splash screen while checking token
