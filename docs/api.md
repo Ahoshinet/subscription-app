@@ -282,6 +282,8 @@ Get active subscriptions with a payment due within the next 3 days.
 
 Update an existing subscription. All fields are optional; only provided fields are updated.
 
+For the nullable fields `plan_name`, `payment_details`, `icon_url`, and `memo`, sending an explicit `null` clears the stored value, while omitting the field leaves it unchanged.
+
 **Auth required:** Yes
 
 **Path parameter:** `id` — subscription ID (integer)
@@ -290,13 +292,14 @@ Update an existing subscription. All fields are optional; only provided fields a
 ```json
 {
   "service_name": "string",
-  "plan_name": "string",
+  "plan_name": "string | null",
   "amount": 9.99,
   "currency": "USD",
   "billing_cycle": "monthly",
   "payment_method": "string",
   "payment_details": {},
   "icon_url": "/uploads/xxx.png",
+  "memo": "string | null",
   "next_payment_date": "2026-05-15T00:00:00Z"
 }
 ```
@@ -402,6 +405,8 @@ Create a new payment method.
 
 Update a payment method. All fields optional.
 
+For the nullable fields `icon_name`, `icon_uri`, `last4`, `card_brand`, and `memo`, sending an explicit `null` clears the stored value, while omitting the field leaves it unchanged.
+
 **Auth required:** Yes
 
 **Response `200 OK`:** *(empty body)*
@@ -416,7 +421,7 @@ Update a payment method. All fields optional.
 
 ### DELETE /api/v1/payment-methods/{id}
 
-Delete a payment method.
+Delete a payment method. Fails if any subscription still references the method — reassign or delete those subscriptions first.
 
 **Auth required:** Yes
 
@@ -427,6 +432,7 @@ Delete a payment method.
 |---|---|
 | `401 Unauthorized` | Missing or invalid token |
 | `404 Not Found` | Payment method not found or not owned by user |
+| `409 Conflict` | One or more subscriptions still use this payment method |
 
 ---
 

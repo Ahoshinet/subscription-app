@@ -15,12 +15,24 @@ export interface SavedPaymentMethod {
     memo?: string;
 }
 
+// Update payload: a present key with null explicitly clears that field on
+// the server; an absent key leaves it unchanged.
+export interface PaymentMethodUpdates {
+    label?: string;
+    iconName?: string | null;
+    iconUri?: string | null;
+    color?: string;
+    last4?: string | null;
+    cardBrand?: string | null;
+    memo?: string | null;
+}
+
 interface PaymentMethodState {
     methods: SavedPaymentMethod[];
     isSyncing: boolean;
     addMethod: (method: Omit<SavedPaymentMethod, 'id'>) => Promise<string>;
     removeMethod: (id: string) => Promise<void>;
-    updateMethod: (id: string, updates: Partial<Omit<SavedPaymentMethod, 'id'>>) => Promise<void>;
+    updateMethod: (id: string, updates: PaymentMethodUpdates) => Promise<void>;
     syncFromServer: () => Promise<void>;
     resetForLogout: () => Promise<void>;
 }
@@ -48,36 +60,36 @@ export const usePaymentMethodStore = create<PaymentMethodState>()(
                 return created.id;
             },
 
+            // Server-first: local state only changes after the API call
+            // succeeds, so failures (e.g. 409 method-in-use on delete)
+            // propagate to the UI instead of silently diverging.
             removeMethod: async (id) => {
+                await paymentMethodApi.delete(id);
                 set((state) => ({
                     methods: state.methods.filter((m) => m.id !== id),
                 }));
-                try {
-                    await paymentMethodApi.delete(id);
-                } catch {
-                    // Already removed locally
-                }
             },
 
             updateMethod: async (id, updates) => {
+                // JSON.stringify drops undefined values, so absent keys are
+                // omitted from the request while explicit nulls go through.
+                await paymentMethodApi.update(id, {
+                    label: updates.label,
+                    icon_name: 'iconName' in updates ? updates.iconName ?? null : undefined,
+                    icon_uri: 'iconUri' in updates ? updates.iconUri ?? null : undefined,
+                    color: updates.color,
+                    last4: 'last4' in updates ? updates.last4 ?? null : undefined,
+                    card_brand: 'cardBrand' in updates ? updates.cardBrand ?? null : undefined,
+                    memo: 'memo' in updates ? updates.memo ?? null : undefined,
+                });
+                const localUpdates = Object.fromEntries(
+                    Object.entries(updates).map(([k, v]) => [k, v ?? undefined])
+                ) as Partial<Omit<SavedPaymentMethod, 'id'>>;
                 set((state) => ({
                     methods: state.methods.map((m) =>
-                        m.id === id ? { ...m, ...updates } : m
+                        m.id === id ? { ...m, ...localUpdates } : m
                     ),
                 }));
-                try {
-                    await paymentMethodApi.update(id, {
-                        label: updates.label,
-                        icon_name: updates.iconName,
-                        icon_uri: updates.iconUri,
-                        color: updates.color,
-                        last4: updates.last4,
-                        card_brand: updates.cardBrand,
-                        memo: updates.memo,
-                    });
-                } catch {
-                    // Local update already applied
-                }
             },
 
             syncFromServer: async () => {

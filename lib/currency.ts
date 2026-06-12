@@ -37,6 +37,21 @@ export function parseAmountInput(input: string): number | null {
     return value;
 }
 
+// Convert a subscription amount to its monthly equivalent so spending
+// totals don't count weekly/yearly amounts as if they were monthly:
+// yearly is spread across 12 months, weekly uses the average number of
+// weeks per month (52 / 12).
+export function toMonthlyAmount(amount: number, billingCycle: string): number {
+    switch (billingCycle) {
+        case 'yearly':
+            return amount / 12;
+        case 'weekly':
+            return amount * (52 / 12);
+        default:
+            return amount;
+    }
+}
+
 export function getSystemCurrency(): CurrencyId {
     try {
         const locale = Intl.DateTimeFormat().resolvedOptions().locale;

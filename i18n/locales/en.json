@@ -60,7 +60,9 @@
         "icon_source_upload": "Upload",
         "icon_source_library": "Choose from built-in icons",
         "pick_icon_title": "Pick an Icon",
-        "add_failed": "Failed to add payment method. Please try again."
+        "add_failed": "Failed to add payment method. Please try again.",
+        "update_failed": "Failed to update payment method. Please try again.",
+        "delete_failed": "Failed to remove payment method."
     },
     "support": {
         "title": "Help & Support",
@@ -143,7 +145,9 @@
         "next_payment": "Next Payment",
         "today": "Today",
         "in_days": "in {{count}} days",
-        "per_month": "/mo"
+        "per_month": "/mo",
+        "per_year": "/yr",
+        "per_week": "/wk"
     },
     "home": {
         "title": "My Subscriptions",

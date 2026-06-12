@@ -1,6 +1,7 @@
 import * as SecureStore from 'expo-secure-store';
 import { Platform, Alert } from 'react-native';
 import Constants from 'expo-constants';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 
 const PRODUCTION_URL = 'https://subscription-manager.daruks.com';
 const DEV_PORT = 8084;
@@ -134,6 +135,22 @@ export interface CreateSubscriptionPayload {
     status?: string;
 }
 
+// PUT /subscriptions/{id}: omitted fields keep their value; sending an
+// explicit null clears the nullable columns (plan_name, payment_details,
+// icon_url, memo).
+export interface UpdateSubscriptionPayload {
+    service_name?: string;
+    plan_name?: string | null;
+    amount?: number;
+    currency?: string;
+    billing_cycle?: string;
+    payment_method?: string;
+    payment_details?: string | null;
+    icon_url?: string | null;
+    memo?: string | null;
+    next_payment_date?: string;
+}
+
 // Auth Types
 export interface AuthPayload {
     username: string;
@@ -216,15 +233,19 @@ function checkRateLimit(endpoint: string): void {
     }
 }
 
-// Token refresh logic — single in-flight promise so concurrent 401s all wait for the same refresh
-let refreshPromise: Promise<boolean> | null = null;
+// Token refresh logic — single in-flight promise so concurrent 401s all wait
+// for the same refresh. 'unauthorized' means the session is definitively dead
+// (force logout); 'transient' means network/server trouble where the token
+// may still be valid, so the session must be kept.
+type RefreshResult = 'refreshed' | 'unauthorized' | 'transient';
+let refreshPromise: Promise<RefreshResult> | null = null;
 
-async function tryRefreshToken(): Promise<boolean> {
+async function tryRefreshToken(): Promise<RefreshResult> {
     if (refreshPromise) return refreshPromise;
-    refreshPromise = (async () => {
+    refreshPromise = (async (): Promise<RefreshResult> => {
         try {
             const token = await getToken();
-            if (!token) return false;
+            if (!token) return 'unauthorized';
             const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
                 method: 'POST',
                 headers: {
@@ -232,15 +253,17 @@ async function tryRefreshToken(): Promise<boolean> {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            if (!response.ok) return false;
+            if (response.status === 401 || response.status === 403) return 'unauthorized';
+            if (!response.ok) return 'transient';
             const data = await response.json();
             if (data.token) {
                 await setToken(data.token);
-                return true;
+                return 'refreshed';
             }
-            return false;
+            return 'transient';
         } catch {
-            return false;
+            // Network failure — the token itself may still be fine
+            return 'transient';
         }
     })().finally(() => {
         refreshPromise = null;
@@ -290,8 +313,8 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise
 
     // Auto-refresh token on 401
     if (response.status === 401 && token && !endpoint.includes('/auth/refresh')) {
-        const refreshed = await tryRefreshToken();
-        if (refreshed) {
+        const refreshResult = await tryRefreshToken();
+        if (refreshResult === 'refreshed') {
             const newToken = await getToken();
             const retryHeaders = {
                 ...headers,
@@ -309,10 +332,10 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise
             const text = await retryResponse.text();
             return text ? JSON.parse(text) : {} as unknown as T;
         }
-        // Refresh failed: the session is unrecoverable (refresh token expired
-        // beyond the server's grace window) — force logout instead of leaving
-        // the user trapped with a dead token.
-        onUnauthorized?.();
+        // Force logout only when the server definitively rejected the token
+        // (expired beyond the grace window). Transient network/5xx failures
+        // keep the session — the next request will retry the refresh.
+        if (refreshResult === 'unauthorized') onUnauthorized?.();
     }
 
     if (!response.ok) {
@@ -367,7 +390,7 @@ export const subscriptionApi = {
         method: 'POST',
         body: JSON.stringify(data),
     }),
-    update: (id: number, data: Partial<Subscription>) => fetchAPI<Subscription>(`/subscriptions/${id}`, {
+    update: (id: number, data: UpdateSubscriptionPayload) => fetchAPI<Subscription>(`/subscriptions/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),
     }),
@@ -433,6 +456,18 @@ export interface CreatePaymentMethodPayload {
     memo?: string;
 }
 
+// PUT /payment-methods/{id}: omitted fields keep their value; sending an
+// explicit null clears the nullable columns.
+export interface UpdatePaymentMethodPayload {
+    label?: string;
+    icon_name?: string | null;
+    icon_uri?: string | null;
+    color?: string;
+    last4?: string | null;
+    card_brand?: string | null;
+    memo?: string | null;
+}
+
 // Payment Method Endpoints
 export const paymentMethodApi = {
     getAll: () => fetchAPI<PaymentMethod[]>('/payment-methods'),
@@ -440,7 +475,7 @@ export const paymentMethodApi = {
         method: 'POST',
         body: JSON.stringify(data),
     }),
-    update: (id: string, data: Partial<CreatePaymentMethodPayload>) => fetchAPI<void>(`/payment-methods/${id}`, {
+    update: (id: string, data: UpdatePaymentMethodPayload) => fetchAPI<void>(`/payment-methods/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),
     }),
@@ -500,19 +535,30 @@ export const resolveIconUrl = (iconUrl: string): string => {
 export const uploadApi = {
     uploadIcon: async (uri: string): Promise<{ url: string }> => {
         const token = await getToken();
-        const formData = new FormData();
-        const filename = uri.split('/').pop()?.split('?')[0] || 'icon.jpg';
-        const ext = (filename.split('.').pop() || 'jpg').toLowerCase();
+        let uploadUri = uri;
+        let filename = uri.split('/').pop()?.split('?')[0] || 'icon.jpg';
+        let ext = (filename.split('.').pop() || 'jpg').toLowerCase();
+        // The server only accepts png/jpg/jpeg/gif/webp. iOS photos are often
+        // HEIC/HEIF, so convert those to JPEG before uploading instead of
+        // letting the server reject them with 415.
+        if (ext === 'heic' || ext === 'heif') {
+            const converted = await manipulateAsync(uri, [], {
+                compress: 0.9,
+                format: SaveFormat.JPEG,
+            });
+            uploadUri = converted.uri;
+            filename = filename.replace(/\.[^.]+$/, '.jpg');
+            ext = 'jpg';
+        }
         const mimeTypes: Record<string, string> = {
             png: 'image/png',
             gif: 'image/gif',
             webp: 'image/webp',
-            heic: 'image/heic',
-            heif: 'image/heif',
         };
         const mimeType = mimeTypes[ext] || 'image/jpeg';
+        const formData = new FormData();
         formData.append('file', {
-            uri,
+            uri: uploadUri,
             name: filename,
             type: mimeType,
         } as any);
