@@ -233,15 +233,19 @@ function checkRateLimit(endpoint: string): void {
     }
 }
 
-// Token refresh logic — single in-flight promise so concurrent 401s all wait for the same refresh
-let refreshPromise: Promise<boolean> | null = null;
+// Token refresh logic — single in-flight promise so concurrent 401s all wait
+// for the same refresh. 'unauthorized' means the session is definitively dead
+// (force logout); 'transient' means network/server trouble where the token
+// may still be valid, so the session must be kept.
+type RefreshResult = 'refreshed' | 'unauthorized' | 'transient';
+let refreshPromise: Promise<RefreshResult> | null = null;
 
-async function tryRefreshToken(): Promise<boolean> {
+async function tryRefreshToken(): Promise<RefreshResult> {
     if (refreshPromise) return refreshPromise;
-    refreshPromise = (async () => {
+    refreshPromise = (async (): Promise<RefreshResult> => {
         try {
             const token = await getToken();
-            if (!token) return false;
+            if (!token) return 'unauthorized';
             const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
                 method: 'POST',
                 headers: {
@@ -249,15 +253,17 @@ async function tryRefreshToken(): Promise<boolean> {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            if (!response.ok) return false;
+            if (response.status === 401 || response.status === 403) return 'unauthorized';
+            if (!response.ok) return 'transient';
             const data = await response.json();
             if (data.token) {
                 await setToken(data.token);
-                return true;
+                return 'refreshed';
             }
-            return false;
+            return 'transient';
         } catch {
-            return false;
+            // Network failure — the token itself may still be fine
+            return 'transient';
         }
     })().finally(() => {
         refreshPromise = null;
@@ -307,8 +313,8 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise
 
     // Auto-refresh token on 401
     if (response.status === 401 && token && !endpoint.includes('/auth/refresh')) {
-        const refreshed = await tryRefreshToken();
-        if (refreshed) {
+        const refreshResult = await tryRefreshToken();
+        if (refreshResult === 'refreshed') {
             const newToken = await getToken();
             const retryHeaders = {
                 ...headers,
@@ -326,10 +332,10 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise
             const text = await retryResponse.text();
             return text ? JSON.parse(text) : {} as unknown as T;
         }
-        // Refresh failed: the session is unrecoverable (refresh token expired
-        // beyond the server's grace window) — force logout instead of leaving
-        // the user trapped with a dead token.
-        onUnauthorized?.();
+        // Force logout only when the server definitively rejected the token
+        // (expired beyond the grace window). Transient network/5xx failures
+        // keep the session — the next request will retry the refresh.
+        if (refreshResult === 'unauthorized') onUnauthorized?.();
     }
 
     if (!response.ok) {
