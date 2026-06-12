@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Pressable, useColorScheme, KeyboardAvoidingView, ScrollView, Platform, Alert, ActivityIndicator, Image, Modal, Dimensions } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
@@ -41,10 +41,16 @@ export default function AddSubscriptionModal() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [memo, setMemo] = useState('');
 
-    const { billingCycle, paymentMethod } = useAddFormStore();
+    const { billingCycle, paymentMethod, reset: resetAddForm } = useAddFormStore();
     const { currency } = useSettingsStore();
     const { methods: savedPaymentMethods } = usePaymentMethodStore();
     const { addSubscription } = useSubscriptionStore();
+
+    // The store is shared with the edit screen — start from clean defaults
+    // instead of whatever the last edit/add session left behind.
+    useEffect(() => {
+        resetAddForm();
+    }, [resetAddForm]);
 
     const handleSave = async () => {
         if (!serviceName || !amount) {

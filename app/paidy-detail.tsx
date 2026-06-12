@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -29,10 +30,13 @@ export default function PaidyDetailScreen() {
     await syncPaidy();
   };
 
-  if (error) {
-    Alert.alert(t('common.error'), t('gmail.error_sync'));
-    clearError();
-  }
+  // Alert is a side effect — it must not fire during render.
+  useEffect(() => {
+    if (error) {
+      Alert.alert(t('common.error'), t('gmail.error_sync'));
+      clearError();
+    }
+  }, [error, clearError, t]);
 
   return (
     <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-neutral-950">

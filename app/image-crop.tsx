@@ -4,6 +4,7 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import Animated, { useSharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+import { useTranslation } from 'react-i18next';
 import { resolveCrop } from '@/lib/imageCropStore';
 
 const { width: SCREEN_W } = Dimensions.get('window');
@@ -13,6 +14,7 @@ const BORDER = 3;
 
 export default function ImageCropScreen() {
     const router = useRouter();
+    const { t } = useTranslation();
     const { uri, width: wStr, height: hStr } = useLocalSearchParams<{
         uri: string;
         width: string;
@@ -111,11 +113,11 @@ export default function ImageCropScreen() {
 
             <View style={styles.header}>
                 <Pressable onPress={() => router.back()} style={styles.headerBtn}>
-                    <Text style={styles.cancel}>キャンセル</Text>
+                    <Text style={styles.cancel}>{t('image_crop.cancel')}</Text>
                 </Pressable>
-                <Text style={styles.title}>トリミング</Text>
+                <Text style={styles.title}>{t('image_crop.title')}</Text>
                 <Pressable onPress={handleUse} style={styles.headerBtn}>
-                    <Text style={styles.use}>使用する</Text>
+                    <Text style={styles.use}>{t('image_crop.use')}</Text>
                 </Pressable>
             </View>
 
@@ -157,7 +159,7 @@ export default function ImageCropScreen() {
                 </GestureDetector>
             </View>
 
-            <Text style={styles.hint}>ピンチでズーム・ドラッグで位置調整</Text>
+            <Text style={styles.hint}>{t('image_crop.hint')}</Text>
         </View>
     );
 }

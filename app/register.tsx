@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Pressable, useColorScheme, KeyboardAvoidingView, ScrollView, Platform, ActivityIndicator, Alert } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/useAuthStore';
 
 export default function RegisterScreen() {
     const router = useRouter();
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
+    const { t } = useTranslation();
 
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -15,19 +17,32 @@ export default function RegisterScreen() {
     const { register, isLoading, error, clearError } = useAuthStore();
 
     const handleRegister = async () => {
-        if (!username || !password) {
-            Alert.alert('入力エラー', 'ユーザー名とパスワードを入力してください');
+        const trimmedUsername = username.trim();
+        if (!trimmedUsername || !password) {
+            Alert.alert(t('common.input_error'), t('register.error_required'));
+            return;
+        }
+
+        // Mirror the server's username rules so the user gets immediate feedback
+        if (!/^[a-zA-Z0-9._-]{3,32}$/.test(trimmedUsername)) {
+            Alert.alert(t('common.input_error'), t('register.error_username_invalid'));
+            return;
+        }
+
+        // Mirror the server's minimum so the user gets immediate feedback
+        if (password.length < 8) {
+            Alert.alert(t('common.input_error'), t('register.error_password_short'));
             return;
         }
 
         if (password !== confirmPassword) {
-            Alert.alert('入力エラー', 'パスワードが一致しません');
+            Alert.alert(t('common.input_error'), t('register.error_mismatch'));
             return;
         }
 
         clearError();
         try {
-            await register({ username, password });
+            await register({ username: trimmedUsername, password });
             router.replace('/(tabs)');
         } catch (e: any) {
             // Error is handled by the store
@@ -61,7 +76,7 @@ export default function RegisterScreen() {
                         Create Account
                     </Text>
                     <Text className="text-neutral-500 dark:text-neutral-400 text-base text-center">
-                        新しいアカウントを作成して管理をはじめましょう
+                        {t('register.subtitle')}
                     </Text>
                 </View>
 
@@ -73,9 +88,9 @@ export default function RegisterScreen() {
 
                 <View className="space-y-4 mb-8">
                     <View>
-                        <Text className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2 ml-1">ユーザー名</Text>
+                        <Text className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2 ml-1">{t('register.username')}</Text>
                         <TextInput
-                            placeholder="ユーザー名を入力"
+                            placeholder={t('register.username_placeholder')}
                             placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
                             className="w-full bg-white dark:bg-[#1C1C1E] border border-neutral-200 dark:border-neutral-800 rounded-xl px-4 py-4 text-base text-neutral-900 dark:text-white"
                             value={username}
@@ -85,9 +100,9 @@ export default function RegisterScreen() {
                     </View>
 
                     <View>
-                        <Text className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2 ml-1">パスワード</Text>
+                        <Text className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2 ml-1">{t('register.password')}</Text>
                         <TextInput
-                            placeholder="パスワードを入力"
+                            placeholder={t('register.password_placeholder')}
                             placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
                             className="w-full bg-white dark:bg-[#1C1C1E] border border-neutral-200 dark:border-neutral-800 rounded-xl px-4 py-4 text-base text-neutral-900 dark:text-white"
                             value={password}
@@ -99,9 +114,9 @@ export default function RegisterScreen() {
                     </View>
 
                     <View>
-                        <Text className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2 ml-1">パスワード (確認)</Text>
+                        <Text className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2 ml-1">{t('register.password_confirm')}</Text>
                         <TextInput
-                            placeholder="もう一度パスワードを入力"
+                            placeholder={t('register.password_confirm_placeholder')}
                             placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
                             className="w-full bg-white dark:bg-[#1C1C1E] border border-neutral-200 dark:border-neutral-800 rounded-xl px-4 py-4 text-base text-neutral-900 dark:text-white"
                             value={confirmPassword}
@@ -121,7 +136,7 @@ export default function RegisterScreen() {
                     {isLoading ? (
                         <ActivityIndicator color="#fff" />
                     ) : (
-                        <Text className="text-white font-bold text-lg">サインアップ</Text>
+                        <Text className="text-white font-bold text-lg">{t('register.submit')}</Text>
                     )}
                 </Pressable>
             </ScrollView>

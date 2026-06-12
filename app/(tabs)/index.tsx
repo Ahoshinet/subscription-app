@@ -57,36 +57,45 @@ export default function HomeScreen() {
     setRefreshing(false);
   }, [fetchSubscriptions]);
 
-  const spendingByCurrency = subscriptions
-    .filter(sub => sub.status === 'active')
-    .reduce<Record<string, number>>((acc, sub) => {
-      const curr = sub.currency || 'JPY';
-      acc[curr] = (acc[curr] || 0) + toMonthlyAmount(Number(sub.amount || 0), sub.billing_cycle);
-      return acc;
-    }, {});
-  if (gmailSignedIn && paidyAmount != null) {
-    spendingByCurrency['JPY'] = (spendingByCurrency['JPY'] || 0) + paidyAmount;
-  }
-  const systemCurrency = getSystemCurrency();
-  const sortedCurrencies = Object.entries(spendingByCurrency).sort(([a], [b]) => {
-    if (a === systemCurrency) return -1;
-    if (b === systemCurrency) return 1;
-    return spendingByCurrency[b] - spendingByCurrency[a];
-  });
-  const primaryEntry = sortedCurrencies[0];
-  const otherCount = sortedCurrencies.length - 1;
+  // Memoized: these were rebuilt on every render, giving the downstream
+  // filteredAndSorted useMemo a fresh paidyVirtualSub identity each time.
+  const paidyVirtualSub = useMemo(() => (
+    gmailSignedIn && paidyAmount != null ? {
+      id: -1,
+      user_id: '',
+      service_name: 'Paidy後払い',
+      plan_name: paidyMonth ? `${paidyMonth}分` : '',
+      amount: paidyAmount,
+      currency: 'JPY',
+      next_payment_date: paidyNextDate ?? new Date().toISOString(),
+      billing_cycle: 'monthly',
+      status: 'active',
+    } : null
+  ), [gmailSignedIn, paidyAmount, paidyMonth, paidyNextDate]);
 
-  const paidyVirtualSub = gmailSignedIn && paidyAmount != null ? {
-    id: -1,
-    user_id: '',
-    service_name: 'Paidy後払い',
-    plan_name: paidyMonth ? `${paidyMonth}分` : '',
-    amount: paidyAmount,
-    currency: 'JPY',
-    next_payment_date: paidyNextDate ?? new Date().toISOString(),
-    billing_cycle: 'monthly',
-    status: 'active',
-  } : null;
+  const { sortedCurrencies, primaryEntry, otherCount } = useMemo(() => {
+    const spendingByCurrency = subscriptions
+      .filter(sub => sub.status === 'active')
+      .reduce<Record<string, number>>((acc, sub) => {
+        const curr = sub.currency || 'JPY';
+        acc[curr] = (acc[curr] || 0) + toMonthlyAmount(Number(sub.amount || 0), sub.billing_cycle);
+        return acc;
+      }, {});
+    if (gmailSignedIn && paidyAmount != null) {
+      spendingByCurrency['JPY'] = (spendingByCurrency['JPY'] || 0) + paidyAmount;
+    }
+    const systemCurrency = getSystemCurrency();
+    const sorted = Object.entries(spendingByCurrency).sort(([a], [b]) => {
+      if (a === systemCurrency) return -1;
+      if (b === systemCurrency) return 1;
+      return spendingByCurrency[b] - spendingByCurrency[a];
+    });
+    return {
+      sortedCurrencies: sorted,
+      primaryEntry: sorted[0],
+      otherCount: sorted.length - 1,
+    };
+  }, [subscriptions, gmailSignedIn, paidyAmount]);
 
   const filteredAndSorted = useMemo(() => {
     let result: any[] = paidyVirtualSub

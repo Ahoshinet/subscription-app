@@ -192,7 +192,39 @@
     },
     "common": {
         "cancel": "Cancel",
-        "error": "Error"
+        "error": "Error",
+        "input_error": "Input Error"
+    },
+    "login": {
+        "subtitle": "Welcome to the world of subscriptions",
+        "username": "Username",
+        "username_placeholder": "Enter your username",
+        "password": "Password",
+        "password_placeholder": "Enter your password",
+        "submit": "Log In",
+        "no_account": "Don't have an account? ",
+        "register_link": "Sign Up",
+        "error_required": "Please enter your username and password."
+    },
+    "register": {
+        "subtitle": "Create a new account to get started",
+        "username": "Username",
+        "username_placeholder": "Enter a username",
+        "password": "Password",
+        "password_placeholder": "Enter a password",
+        "password_confirm": "Password (Confirm)",
+        "password_confirm_placeholder": "Re-enter your password",
+        "submit": "Sign Up",
+        "error_required": "Please enter your username and password.",
+        "error_username_invalid": "Username must be 3-32 characters and contain only letters, numbers, dots, underscores, or hyphens.",
+        "error_password_short": "Password must be at least 8 characters.",
+        "error_mismatch": "Passwords do not match."
+    },
+    "image_crop": {
+        "title": "Crop",
+        "cancel": "Cancel",
+        "use": "Use",
+        "hint": "Pinch to zoom, drag to adjust"
     },
     "gmail": {
         "section_title": "Integrations",

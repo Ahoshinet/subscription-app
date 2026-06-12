@@ -192,7 +192,39 @@
     },
     "common": {
         "cancel": "キャンセル",
-        "error": "エラー"
+        "error": "エラー",
+        "input_error": "入力エラー"
+    },
+    "login": {
+        "subtitle": "サブスクの世界へようこそ",
+        "username": "ユーザー名",
+        "username_placeholder": "ユーザー名を入力",
+        "password": "パスワード",
+        "password_placeholder": "パスワードを入力",
+        "submit": "ログイン",
+        "no_account": "アカウントをお持ちでないですか？ ",
+        "register_link": "新規登録",
+        "error_required": "ユーザー名とパスワードを入力してください"
+    },
+    "register": {
+        "subtitle": "新しいアカウントを作成して管理をはじめましょう",
+        "username": "ユーザー名",
+        "username_placeholder": "ユーザー名を入力",
+        "password": "パスワード",
+        "password_placeholder": "パスワードを入力",
+        "password_confirm": "パスワード (確認)",
+        "password_confirm_placeholder": "もう一度パスワードを入力",
+        "submit": "サインアップ",
+        "error_required": "ユーザー名とパスワードを入力してください",
+        "error_username_invalid": "ユーザー名は3〜32文字の半角英数字と . _ - のみ使用できます",
+        "error_password_short": "パスワードは8文字以上で入力してください",
+        "error_mismatch": "パスワードが一致しません"
+    },
+    "image_crop": {
+        "title": "トリミング",
+        "cancel": "キャンセル",
+        "use": "使用する",
+        "hint": "ピンチでズーム・ドラッグで位置調整"
     },
     "gmail": {
         "section_title": "連携サービス",
