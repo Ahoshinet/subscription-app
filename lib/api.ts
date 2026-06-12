@@ -422,7 +422,7 @@ export const isUsingPublicApi = () => API_BASE_URL.includes(PRODUCTION_URL);
 // Helper to get the server base URL (without /api/v1). Derived from the
 // runtime API_BASE_URL so it follows the dev → production fallback chosen
 // in ensureApiReachable instead of recomputing the dev default.
-export const getServerBaseUrl = () => API_BASE_URL.replace(/\/api\/v1$/, '');
+export const getServerBaseUrl = () => API_BASE_URL.replace(/\/api\/v1\/?$/, '');
 
 // Payment Method Types
 export interface PaymentMethod {

@@ -23,6 +23,12 @@ export default function RegisterScreen() {
             return;
         }
 
+        // Mirror the server's username rules so the user gets immediate feedback
+        if (!/^[a-zA-Z0-9._-]{3,32}$/.test(trimmedUsername)) {
+            Alert.alert(t('common.input_error'), t('register.error_username_invalid'));
+            return;
+        }
+
         // Mirror the server's minimum so the user gets immediate feedback
         if (password.length < 8) {
             Alert.alert(t('common.input_error'), t('register.error_password_short'));

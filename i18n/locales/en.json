@@ -216,6 +216,7 @@
         "password_confirm_placeholder": "Re-enter your password",
         "submit": "Sign Up",
         "error_required": "Please enter your username and password.",
+        "error_username_invalid": "Username must be 3-32 characters and contain only letters, numbers, dots, underscores, or hyphens.",
         "error_password_short": "Password must be at least 8 characters.",
         "error_mismatch": "Passwords do not match."
     },

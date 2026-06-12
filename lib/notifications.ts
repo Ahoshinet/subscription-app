@@ -114,7 +114,8 @@ async function _doSchedule(
     candidates.sort((a, b) => a.triggerDate.getTime() - b.triggerDate.getTime());
 
     for (const { triggerDate, daysBefore, sub } of candidates.slice(0, MAX_SCHEDULED_NOTIFICATIONS)) {
-        const secondsUntil = Math.floor((triggerDate.getTime() - now.getTime()) / 1000);
+        // expo-notifications can crash on a TIME_INTERVAL trigger of 0 seconds
+        const secondsUntil = Math.max(1, Math.floor((triggerDate.getTime() - now.getTime()) / 1000));
 
         await N.scheduleNotificationAsync({
             content: {
