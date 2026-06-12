@@ -7,29 +7,33 @@
  * (Jan 31 → Feb 28 → Mar 31, not Mar 28). Naive `setMonth(+1)` would overflow
  * instead (Jan 31 → Mar 3) and silently skip the February payment.
  */
+// All arithmetic uses UTC methods: next_payment_date is a UTC timestamp and
+// the server's rollover (chrono on DateTime<Utc>) anchors on the UTC
+// day-of-month. Local-time methods would shift the anchor by a day on
+// devices west of UTC and diverge from the server.
 function addMonthsClamped(base: Date, months: number): Date {
     const result = new Date(base);
-    const anchorDay = base.getDate();
-    result.setDate(1);
-    result.setMonth(result.getMonth() + months);
-    const daysInMonth = new Date(result.getFullYear(), result.getMonth() + 1, 0).getDate();
-    result.setDate(Math.min(anchorDay, daysInMonth));
+    const anchorDay = base.getUTCDate();
+    result.setUTCDate(1);
+    result.setUTCMonth(result.getUTCMonth() + months);
+    const daysInMonth = new Date(Date.UTC(result.getUTCFullYear(), result.getUTCMonth() + 1, 0)).getUTCDate();
+    result.setUTCDate(Math.min(anchorDay, daysInMonth));
     return result;
 }
 
 export function getEffectiveNextPaymentDate(nextPaymentDate: string, billingCycle: string): string {
     const original = new Date(nextPaymentDate);
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setUTCHours(0, 0, 0, 0);
 
     if (original >= today) return nextPaymentDate;
 
     if (billingCycle === 'weekly') {
         const date = new Date(original);
         while (date < today) {
-            date.setDate(date.getDate() + 7);
+            date.setUTCDate(date.getUTCDate() + 7);
         }
-        date.setHours(0, 0, 0, 0);
+        date.setUTCHours(0, 0, 0, 0);
         return date.toISOString();
     }
 
@@ -41,6 +45,6 @@ export function getEffectiveNextPaymentDate(nextPaymentDate: string, billingCycl
         months += step;
         date = addMonthsClamped(original, months);
     }
-    date.setHours(0, 0, 0, 0);
+    date.setUTCHours(0, 0, 0, 0);
     return date.toISOString();
 }

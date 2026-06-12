@@ -101,14 +101,14 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
             // (undefined fields would be omitted and keep the old value).
             await updateSubscription(subscription.id, {
                 service_name: serviceName,
-                plan_name: planName.trim() ? planName : null,
+                plan_name: planName.trim() ? planName.trim() : null,
                 amount: parsedAmount,
                 currency,
                 billing_cycle: billingCycle,
                 payment_method: paymentMethod,
                 next_payment_date: nextPaymentDate.toISOString(),
                 icon_url: iconUrl,
-                memo: memo.trim() ? memo : null,
+                memo: memo.trim() ? memo.trim() : null,
             });
             router.back();
         } catch (error: any) {
