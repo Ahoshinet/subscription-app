@@ -151,6 +151,5 @@ jobs:
         if: github.event_name != 'pull_request' && startsWith(github.ref, 'refs/tags/')
         with:
           files: subscription-app-unsigned.ipa
-          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
