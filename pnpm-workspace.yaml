@@ -15,5 +15,7 @@ overrides:
   'picomatch@>=4.0.0 <4.0.4': 4.0.4
   # GHSA-w7jw-789q-3m8p (critical): transitive via react-native > react-devtools-core
   'shell-quote@<1.8.4': 1.8.4
+  # GHSA-96hv-2xvq-fx4p (high): transitive via react-native > ws
+  'ws@>=7.0.0 <7.5.11': 7.5.11
 patchedDependencies:
   '@expo/dom-webview': patches/@expo__dom-webview.patch
