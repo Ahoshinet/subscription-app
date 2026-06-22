@@ -142,3 +142,39 @@ export async function cancelAllReminders(): Promise<void> {
     if (!N) return;
     await N.cancelAllScheduledNotificationsAsync();
 }
+
+function extractSubscriptionId(
+    response: import('expo-notifications').NotificationResponse | null
+): number | null {
+    const raw = response?.notification.request.content.data?.subscriptionId;
+    if (raw == null) return null;
+    const id = Number(raw);
+    return Number.isFinite(id) ? id : null;
+}
+
+// Wires up notification taps so they open the matching subscription's detail
+// screen. Handles both a running/backgrounded app and a cold start launched
+// from the notification (getLastNotificationResponseAsync). `onOpen` should
+// navigate; it is only called once per tap. Returns a cleanup function.
+export function registerNotificationTapHandler(
+    onOpen: (subscriptionId: number) => void
+): () => void {
+    const N = getNotifications();
+    if (!N) return () => {};
+
+    // A cold-start response is also delivered to the listener on some
+    // platforms, so de-dupe by the response's notification identifier.
+    let handledId: string | null = null;
+    const handle = (response: import('expo-notifications').NotificationResponse | null) => {
+        if (!response) return;
+        const notificationId = response.notification.request.identifier;
+        if (notificationId === handledId) return;
+        handledId = notificationId;
+        const subscriptionId = extractSubscriptionId(response);
+        if (subscriptionId != null) onOpen(subscriptionId);
+    };
+
+    N.getLastNotificationResponseAsync().then(handle);
+    const sub = N.addNotificationResponseReceivedListener(handle);
+    return () => sub.remove();
+}

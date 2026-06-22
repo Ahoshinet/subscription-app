@@ -15,6 +15,7 @@ import { useSettingsStore } from '@/store/useSettingsStore';
 import { usePaymentMethodStore } from '@/store/usePaymentMethodStore';
 import { usePaidyStore } from '@/store/usePaidyStore';
 import { ensureApiReachable } from '@/lib/api';
+import { registerNotificationTapHandler } from '@/lib/notifications';
 import '@/i18n';
 import { useTranslation } from 'react-i18next';
 
@@ -72,6 +73,15 @@ export default function RootLayout() {
         if (isInitializing || !isAuthenticated) return;
         syncPaymentMethods();
         loadPaidy();
+    }, [isAuthenticated, isInitializing]);
+
+    // Tapping a payment reminder opens that subscription's detail screen.
+    // Gated on auth so we never push detail over the login redirect.
+    useEffect(() => {
+        if (isInitializing || !isAuthenticated) return;
+        return registerNotificationTapHandler((subscriptionId) => {
+            router.push({ pathname: '/detail', params: { id: String(subscriptionId) } });
+        });
     }, [isAuthenticated, isInitializing]);
 
     if (isInitializing) {
