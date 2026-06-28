@@ -595,10 +595,10 @@ Serve an uploaded file. No authentication required.
 
 ## Error Codes
 
-| Status Code | Meaning |
-|---|---|
-| `400 Bad Request` | Invalid request body or parameters |
-| `401 Unauthorized` | Missing, expired, or invalid JWT token |
-| `404 Not Found` | Resource not found |
-| `409 Conflict` | Duplicate resource (e.g. username taken) |
-| `500 Internal Server Error` | Unexpected server-side error |
+| Status Code                 | Meaning                                  |
+|-----------------------------|------------------------------------------|
+| `400 Bad Request`           | Invalid request body or parameters       |
+| `401 Unauthorized`          | Missing, expired, or invalid JWT token   |
+| `404 Not Found`             | Resource not found                       |
+| `409 Conflict`              | Duplicate resource (e.g. username taken) |
+| `500 Internal Server Error` | Unexpected server-side error             |

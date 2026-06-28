@@ -59,12 +59,12 @@ git checkout -b fix/your-bug-fix
 
 ブランチ命名規則 / Branch naming convention:
 
-| 種類 / Type | プレフィックス / Prefix |
-| ----------- | ----------------------- |
-| 新機能 / Feature | `feature/` |
-| バグ修正 / Bug fix | `fix/` |
-| ドキュメント / Docs | `docs/` |
-| リファクタリング / Refactor | `refactor/` |
+| 種類 / Type           | プレフィックス / Prefix |
+|---------------------|------------------|
+| 新機能 / Feature       | `feature/`       |
+| バグ修正 / Bug fix      | `fix/`           |
+| ドキュメント / Docs       | `docs/`          |
+| リファクタリング / Refactor | `refactor/`      |
 
 ### 3. 変更を加える / Make Changes
 
