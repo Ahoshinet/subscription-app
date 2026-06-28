@@ -147,7 +147,9 @@
         "in_days": "in {{count}} days",
         "per_month": "/mo",
         "per_year": "/yr",
-        "per_week": "/wk"
+        "per_week": "/wk",
+        "inactive": "Inactive",
+        "paused_note": "Payments paused"
     },
     "home": {
         "title": "My Subscriptions",

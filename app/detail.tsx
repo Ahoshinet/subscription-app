@@ -11,7 +11,7 @@ import { getEffectiveNextPaymentDate } from '../lib/dateUtils';
 
 const STATUS_COLORS: Record<string, string> = {
     active: '#22C55E',
-    inactive: '#EAB308',
+    inactive: '#9CA3AF', // Tailwind Gray-400 — matches the muted inactive treatment on SubscriptionCard
 };
 
 export default function DetailScreen() {

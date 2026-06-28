@@ -24,6 +24,7 @@ interface SubscriptionCardProps {
     color?: string;
     iconName?: keyof typeof Ionicons.glyphMap;
     iconUrl?: string;
+    status?: string;
     onPress?: () => void;
 }
 
@@ -39,6 +40,7 @@ export function SubscriptionCard({
     color = '#E50914',
     iconName = 'play-circle',
     iconUrl,
+    status = 'active',
     onPress,
 }: SubscriptionCardProps) {
     'use no memo';
@@ -75,10 +77,17 @@ export function SubscriptionCard({
     // Calculate generic progress percentage (0-30 days max for visual)
     const progressPercent = Math.max(0, Math.min(100, (1 - daysRemaining / 30) * 100));
 
+    const isInactive = status === 'inactive';
+
     // Accessibility and Colorblind-safe formatting
     const isUrgent = daysRemaining <= 3;
     const accessibleColor = isUrgent ? '#F97316' : '#3B82F6'; // Tailwind Orange-500 : Blue-500
     const accessibleIcon = isUrgent ? 'warning' : 'hourglass-outline';
+
+    // Inactive cards are muted and use a neutral gray accent so paused
+    // subscriptions are clearly distinguishable from active ones at a glance.
+    const inactiveColor = '#9CA3AF'; // Tailwind Gray-400
+    const iconBadgeColor = isInactive ? inactiveColor : color;
 
     // Fallback semi-transparent colors
     const blurBackgroundColor = isDark ? 'rgba(28, 28, 30, 0.45)' : 'rgba(255, 255, 255, 0.6)';
@@ -94,7 +103,7 @@ export function SubscriptionCard({
             onPress={handlePress}
             className="mb-5"
         >
-            <Animated.View style={animatedStyle}>
+            <Animated.View style={[animatedStyle, isInactive && { opacity: 0.6 }]}>
                 <View style={{ borderRadius: 24 }} className="border border-neutral-200 dark:border-white/10">
                 <BlurView
                     intensity={100}
@@ -106,22 +115,22 @@ export function SubscriptionCard({
                         {/* Icon Badge */}
                         <View
                             className="w-14 h-14 rounded-2xl items-center justify-center mr-4"
-                            style={{ backgroundColor: `${color}20` }}
+                            style={{ backgroundColor: `${iconBadgeColor}20` }}
                         >
                             {presetIcon ? (
                                 presetIcon.pack === 'fontawesome5' ? (
-                                    <FontAwesome5 name={presetIcon.name as any} size={30} color={presetIcon.color} />
+                                    <FontAwesome5 name={presetIcon.name as any} size={30} color={isInactive ? inactiveColor : presetIcon.color} />
                                 ) : (
-                                    <Ionicons name={presetIcon.name as any} size={32} color={presetIcon.color} />
+                                    <Ionicons name={presetIcon.name as any} size={32} color={isInactive ? inactiveColor : presetIcon.color} />
                                 )
                             ) : iconUrl && !imageError ? (
                                 <Image
                                     source={{ uri: resolveIconUrl(iconUrl) }}
-                                    style={{ width: 56, height: 56, borderRadius: 16 }}
+                                    style={{ width: 56, height: 56, borderRadius: 16, opacity: isInactive ? 0.5 : 1 }}
                                     onError={() => setErroredIconUrl(iconUrl)}
                                 />
                             ) : (
-                                <Ionicons name={iconName} size={32} color={color} />
+                                <Ionicons name={iconName} size={32} color={iconBadgeColor} />
                             )}
                         </View>
 
@@ -130,9 +139,18 @@ export function SubscriptionCard({
                             <Text className="text-xl font-bold text-neutral-900 dark:text-neutral-100 mb-1">
                                 {serviceName}
                             </Text>
-                            <Text className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
-                                {planName}
-                            </Text>
+                            {isInactive ? (
+                                <View className="flex-row items-center self-start rounded-full px-2 py-0.5 bg-neutral-400/15">
+                                    <Ionicons name="pause-circle" size={13} color={inactiveColor} style={{ marginRight: 3 }} />
+                                    <Text className="text-xs font-bold uppercase tracking-wider" style={{ color: inactiveColor }}>
+                                        {t('subscription_card.inactive')}
+                                    </Text>
+                                </View>
+                            ) : (
+                                <Text className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                                    {planName}
+                                </Text>
+                            )}
                         </View>
 
                         {/* Pricing Info */}
@@ -153,6 +171,14 @@ export function SubscriptionCard({
                     </View>
 
                     {/* Bottom Status / Timeline Area */}
+                    {isInactive ? (
+                        <View className="px-5 pb-5 mt-1 flex-row items-center">
+                            <Ionicons name="pause" size={16} color={inactiveColor} style={{ marginRight: 4 }} />
+                            <Text className="text-sm font-bold uppercase tracking-wider" style={{ color: inactiveColor }}>
+                                {t('subscription_card.paused_note')}
+                            </Text>
+                        </View>
+                    ) : (
                     <View className="px-5 pb-5 mt-1">
                         <View className="flex-row justify-between items-center mb-3">
                             <View className="flex-row items-center">
@@ -184,6 +210,7 @@ export function SubscriptionCard({
                             />
                         </View>
                     </View>
+                    )}
                 </BlurView>
                 </View>
             </Animated.View>

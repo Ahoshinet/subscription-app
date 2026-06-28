@@ -147,7 +147,9 @@
         "in_days": "{{count}}日後",
         "per_month": "/月",
         "per_year": "/年",
-        "per_week": "/週"
+        "per_week": "/週",
+        "inactive": "非アクティブ",
+        "paused_note": "支払いは停止中"
     },
     "home": {
         "title": "My Subscriptions",

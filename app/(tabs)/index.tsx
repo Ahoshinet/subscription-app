@@ -290,6 +290,7 @@ export default function HomeScreen() {
                   color={sub.id === -1 ? '#1A56DB' : '#3B82F6'}
                   iconName={sub.id === -1 ? 'card' : 'cube'}
                   iconUrl={sub.id === -1 ? undefined : sub.icon_url}
+                  status={sub.status}
                   onPress={sub.id === -1 ? () => router.push('/paidy-detail' as any) : undefined}
                 />
               );
