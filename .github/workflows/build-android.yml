@@ -92,6 +92,17 @@ jobs:
           path: subscription-app-release.apk
           retention-days: 7
 
+      # タグ付き push 時のみ GitHub Release を作成
+      # （CDN アップロードより先に実行し、CDN 障害で Release が失われないようにする）
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        if: github.event_name != 'pull_request' && startsWith(github.ref, 'refs/tags/')
+        with:
+          files: subscription-app-release.apk
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       # CDN にアップロード（タグ push または手動実行時のみ）
       - name: Upload APK to CDN
         if: github.event_name != 'pull_request'
@@ -119,13 +130,3 @@ jobs:
             echo "::error::CDN upload failed with status ${HTTP_STATUS}"
             exit 1
           fi
-
-      # タグ付き push 時のみ GitHub Release を作成
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v3
-        if: github.event_name != 'pull_request' && startsWith(github.ref, 'refs/tags/')
-        with:
-          files: subscription-app-release.apk
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
