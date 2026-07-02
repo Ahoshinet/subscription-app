@@ -11,6 +11,7 @@ import { useSubscriptionStore } from '@/store/useSubscriptionStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { usePaidyStore } from '@/store/usePaidyStore';
 import { requestNotificationPermissions, schedulePaymentReminders, cancelAllReminders } from '@/lib/notifications';
+import * as Haptics from 'expo-haptics';
 
 import { CURRENCY_SYMBOLS, getSystemCurrency, toMonthlyAmount } from '@/lib/currency';
 import { getEffectiveNextPaymentDate } from '@/lib/dateUtils';
@@ -52,6 +53,9 @@ export default function HomeScreen() {
   }, [subscriptions, pushNotifications]);
 
   const onRefresh = useCallback(async () => {
+    if (process.env.EXPO_OS === 'ios') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
     setRefreshing(true);
     await fetchSubscriptions();
     setRefreshing(false);
