@@ -46,9 +46,6 @@ updates:
       - dependency-name: "react-native-worklets"
       - dependency-name: "@react-native-async-storage/async-storage"
       - dependency-name: "@react-native-community/datetimepicker"
-      - dependency-name: "@react-navigation/bottom-tabs"
-      - dependency-name: "@react-navigation/native"
-      - dependency-name: "@react-navigation/elements"
       - dependency-name: "typescript"
     
   # Enable version updates for GitHub Actions
