@@ -28,11 +28,11 @@ updates:
       # eslint-plugin-react does not support ESLint v10 yet
       - dependency-name: "eslint"
         versions: ["10.x", ">=10.0.0"]
-      # expo SDK v56+ is not yet supported; stay on SDK v55
+      # expo SDK v58+ is not yet supported; stay on SDK v57
       - dependency-name: "expo"
-        versions: [">=56.0.0"]
+        versions: [">=58.0.0"]
       - dependency-name: "expo-*"
-        versions: [">=56.0.0"]
+        versions: [">=58.0.0"]
       # --- expo SDK managed packages ---
       # These are pinned by expo SDK and must be updated via `expo install --fix`
       # when upgrading expo, not independently via Dependabot.
