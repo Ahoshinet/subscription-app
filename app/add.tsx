@@ -41,8 +41,8 @@ export default function AddSubscriptionModal() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [memo, setMemo] = useState('');
 
-    const { billingCycle, paymentMethod, reset: resetAddForm } = useAddFormStore();
-    const { currency } = useSettingsStore();
+    const { billingCycle, paymentMethod, currency, setCurrency, reset: resetAddForm } = useAddFormStore();
+    const { currency: defaultCurrency } = useSettingsStore();
     const { methods: savedPaymentMethods } = usePaymentMethodStore();
     const { addSubscription } = useSubscriptionStore();
 
@@ -50,7 +50,8 @@ export default function AddSubscriptionModal() {
     // instead of whatever the last edit/add session left behind.
     useEffect(() => {
         resetAddForm();
-    }, [resetAddForm]);
+        setCurrency(defaultCurrency);
+    }, [resetAddForm, setCurrency, defaultCurrency]);
 
     const handleSave = async () => {
         if (!serviceName || !amount) {

@@ -63,18 +63,17 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
     const [iconUri, setIconUri] = useState<string | null>(subscription.icon_url ?? null);
     const [iconPreviewError, setIconPreviewError] = useState(false);
     const [showIconPickerModal, setShowIconPickerModal] = useState(false);
-    const [showCurrencyPickerModal, setShowCurrencyPickerModal] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [memo, setMemo] = useState(subscription.memo || '');
-    const [currency, setCurrency] = useState<CurrencyId>((subscription.currency as CurrencyId) || 'JPY');
 
-    const { billingCycle, paymentMethod, setBillingCycle, setPaymentMethod } = useAddFormStore();
+    const { billingCycle, paymentMethod, currency, setBillingCycle, setPaymentMethod, setCurrency } = useAddFormStore();
     const { methods: paymentMethods } = usePaymentMethodStore();
 
     useEffect(() => {
         setBillingCycle(subscription.billing_cycle);
         setPaymentMethod(subscription.payment_method);
-    }, [subscription, setBillingCycle, setPaymentMethod]);
+        setCurrency((subscription.currency as CurrencyId) || 'JPY');
+    }, [subscription, setBillingCycle, setPaymentMethod, setCurrency]);
 
     const handleSave = async () => {
         if (!serviceName || !amount) {
@@ -279,7 +278,7 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
                             />
                         </View>
                         <Pressable
-                            onPress={() => setShowCurrencyPickerModal(true)}
+                            onPress={() => router.push('/settings/currency-picker' as any)}
                             className="px-4 flex-row items-center justify-between"
                             style={rowStyle}
                         >
@@ -418,48 +417,6 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
                                 {t('billing.cancel')}
                             </Text>
                         </Pressable>
-                    </View>
-                </View>
-            </Modal>
-
-            <Modal
-                transparent
-                animationType="fade"
-                visible={showCurrencyPickerModal}
-                onRequestClose={() => setShowCurrencyPickerModal(false)}
-            >
-                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.45)' }}>
-                    <Pressable
-                        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-                        onPress={() => setShowCurrencyPickerModal(false)}
-                    />
-
-                    <View
-                        style={{
-                            width: ICON_PICKER_WIDTH,
-                            borderRadius: 16,
-                            backgroundColor: isDark ? '#1C1C1E' : '#FFFFFF',
-                            paddingVertical: 6,
-                            overflow: 'hidden',
-                        }}
-                    >
-                        {CURRENCIES.map((c, index) => (
-                            <Pressable
-                                key={c.id}
-                                onPress={() => {
-                                    setCurrency(c.id);
-                                    setShowCurrencyPickerModal(false);
-                                }}
-                                className={`px-4 py-3.5 flex-row items-center justify-between ${index < CURRENCIES.length - 1 ? 'border-b border-neutral-200 dark:border-neutral-800' : ''}`}
-                            >
-                                <Text className="text-neutral-900 dark:text-white text-base">
-                                    {c.symbol} {c.id} - {c.name}
-                                </Text>
-                                {currency === c.id && (
-                                    <Ionicons name="checkmark" size={22} color="#3B82F6" />
-                                )}
-                            </Pressable>
-                        ))}
                     </View>
                 </View>
             </Modal>
