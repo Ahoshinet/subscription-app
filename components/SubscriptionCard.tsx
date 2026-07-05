@@ -136,7 +136,11 @@ export function SubscriptionCard({
 
                         {/* Service Info */}
                         <View className="flex-1">
-                            <Text className="text-xl font-bold text-neutral-900 dark:text-neutral-100 mb-1">
+                            <Text
+                                className="text-xl font-bold text-neutral-900 dark:text-neutral-100 mb-1"
+                                numberOfLines={1}
+                                ellipsizeMode="tail"
+                            >
                                 {serviceName}
                             </Text>
                             {isInactive ? (
@@ -147,15 +151,24 @@ export function SubscriptionCard({
                                     </Text>
                                 </View>
                             ) : (
-                                <Text className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                                <Text
+                                    className="text-sm font-medium text-neutral-500 dark:text-neutral-400"
+                                    numberOfLines={1}
+                                    ellipsizeMode="tail"
+                                >
                                     {planName}
                                 </Text>
                             )}
                         </View>
 
                         {/* Pricing Info */}
-                        <View className="items-end">
-                            <Text className="text-xl font-bold text-neutral-900 dark:text-neutral-100">
+                        <View className="items-end" style={{ maxWidth: '50%', flexShrink: 1 }}>
+                            <Text
+                                className="text-xl font-bold text-neutral-900 dark:text-neutral-100"
+                                numberOfLines={1}
+                                adjustsFontSizeToFit
+                                minimumFontScale={0.6}
+                            >
                                 {currency}{amount.toLocaleString()}
                             </Text>
                             <Text className="text-xs font-medium text-neutral-500 dark:text-neutral-400 mt-1">
