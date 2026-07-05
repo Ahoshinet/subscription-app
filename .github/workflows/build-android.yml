@@ -55,11 +55,22 @@ jobs:
       - name: Expo Prebuild (Android)
         run: npx expo@~${EXPO_SDK_VERSION}.0.0 prebuild -p android --clean --no-install
 
-      - name: Build APK (Release)
+      # 実機向け: 現行端末はすべて arm64-v8a。全ABI同梱だとAPKが100MBを超え
+      # CDN (Cloudflare) のアップロード上限に掛かるため arm64 のみに絞る
+      - name: Build APK (arm64-v8a)
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease 2>&1 | tee gradle-build.log
+          ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a 2>&1 | tee gradle-build.log
+          cp "$(find app/build/outputs/apk/release -name '*.apk' | head -1)" ../subscription-app-release-arm64-v8a.apk
+
+      # エミュレータ向け (タグ push / 手動実行時のみ)
+      - name: Build APK (x86_64, emulator)
+        if: github.event_name != 'pull_request'
+        run: |
+          cd android
+          ./gradlew assembleRelease -PreactNativeArchitectures=x86_64 2>&1 | tee -a gradle-build.log
+          cp "$(find app/build/outputs/apk/release -name '*.apk' | head -1)" ../subscription-app-release-x86_64.apk
 
       - name: Extract build errors on failure
         if: failure()
@@ -68,12 +79,6 @@ jobs:
             echo '---- error lines ----'
             grep -n 'ERROR\|FAILURE\|error:' android/gradle-build.log || true
           fi
-
-      - name: Find and rename APK
-        run: |
-          APK_PATH=$(find android/app/build/outputs/apk/release -name "*.apk" | head -1)
-          echo "Found APK: ${APK_PATH}"
-          cp "${APK_PATH}" subscription-app-release.apk
 
       - name: Upload build logs
         if: always()
@@ -89,7 +94,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: subscription-app-release-apk
-          path: subscription-app-release.apk
+          path: subscription-app-release-*.apk
           retention-days: 7
 
       # タグ付き push 時のみ GitHub Release を作成
@@ -98,12 +103,12 @@ jobs:
         uses: softprops/action-gh-release@v3
         if: github.event_name != 'pull_request' && startsWith(github.ref, 'refs/tags/')
         with:
-          files: subscription-app-release.apk
+          files: subscription-app-release-*.apk
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # CDN にアップロード（タグ push または手動実行時のみ）
+      # CDN にアップロード（タグ push または手動実行時のみ、実機向け arm64 版のみ）
       - name: Upload APK to CDN
         if: github.event_name != 'pull_request'
         run: |
@@ -122,7 +127,7 @@ jobs:
             -X POST \
             -H "Authorization: Bearer ${{ secrets.CDN_UPLOAD_TOKEN }}" \
             -H "User-Agent: GitHub-Actions/CDN-Upload" \
-            -F "file=@subscription-app-release.apk;filename=${REMOTE_FILE}" \
+            -F "file=@subscription-app-release-arm64-v8a.apk;filename=${REMOTE_FILE}" \
             "${UPLOAD_URL}")
           echo "HTTP Status: ${HTTP_STATUS}"
           cat response.json
