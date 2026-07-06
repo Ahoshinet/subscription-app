@@ -44,7 +44,7 @@ export function isAmountInputAboveMax(input: string): boolean {
     if (!Number.isFinite(value) || value < 0) return false;
     if (value > MAX_AMOUNT) return true;
 
-    const decimalMatch = normalized.match(/^(\d+)(?:\.(\d*))?$/);
+    const decimalMatch = normalized.match(/^\+?(\d+)(?:\.(\d*))?$/);
     if (!decimalMatch) return false;
 
     const integerPart = decimalMatch[1].replace(/^0+(?=\d)/, '');
