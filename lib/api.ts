@@ -2,6 +2,7 @@ import * as SecureStore from 'expo-secure-store';
 import { Platform, Alert } from 'react-native';
 import Constants from 'expo-constants';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+import { File as FileSystemFile } from 'expo-file-system';
 
 const PRODUCTION_URL = 'https://subscription-manager.daruks.com';
 const DEV_PORT = 8084;
@@ -532,7 +533,7 @@ export const uploadApi = {
         const token = await getToken();
         let uploadUri = uri;
         let filename = uri.split('/').pop()?.split('?')[0] || 'icon.jpg';
-        let ext = (filename.split('.').pop() || 'jpg').toLowerCase();
+        const ext = (filename.split('.').pop() || 'jpg').toLowerCase();
         // The server only accepts png/jpg/jpeg/gif/webp. iOS photos are often
         // HEIC/HEIF, so convert those to JPEG before uploading instead of
         // letting the server reject them with 415.
@@ -543,20 +544,20 @@ export const uploadApi = {
             });
             uploadUri = converted.uri;
             filename = filename.replace(/\.[^.]+$/, '.jpg');
-            ext = 'jpg';
         }
-        const mimeTypes: Record<string, string> = {
-            png: 'image/png',
-            gif: 'image/gif',
-            webp: 'image/webp',
-        };
-        const mimeType = mimeTypes[ext] || 'image/jpeg';
         const formData = new FormData();
-        formData.append('file', {
-            uri: uploadUri,
-            name: filename,
-            type: mimeType,
-        } as any);
+        if (Platform.OS === 'web') {
+            // No file:// paths on web — the picker hands out blob:/data:
+            // URIs that fetch can read back into a Blob.
+            const blob = await (await fetch(uploadUri)).blob();
+            formData.append('file', blob, filename);
+        } else {
+            // Expo's WinterCG fetch rejects React Native's legacy
+            // { uri, name, type } parts with "Unsupported FormDataPart
+            // implementation" — it only accepts strings, Blobs, or objects
+            // exposing bytes(), like expo-file-system's File.
+            formData.append('file', new FileSystemFile(uploadUri) as unknown as Blob);
+        }
 
         const response = await fetch(`${API_BASE_URL}/upload/icon`, {
             method: 'POST',
