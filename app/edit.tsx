@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { View, Text, TextInput, Pressable, useColorScheme, KeyboardAvoidingView, ScrollView, Platform, Alert, ActivityIndicator, Image, Modal, Dimensions } from 'react-native';
 import { Stack, useRouter, useLocalSearchParams, useNavigation } from 'expo-router';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
@@ -76,13 +76,17 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
     }, [subscription, setBillingCycle, setPaymentMethod, setCurrency]);
 
     const navigation = useNavigation();
+    const initialNextPaymentTimestamp = useMemo(
+        () => new Date(subscription.next_payment_date).getTime(),
+        [subscription.next_payment_date],
+    );
     const isDirty =
         serviceName !== subscription.service_name ||
         planName !== (subscription.plan_name || '') ||
         amount !== String(subscription.amount) ||
         memo !== (subscription.memo || '') ||
         iconUri !== (subscription.icon_url ?? null) ||
-        nextPaymentDate.getTime() !== new Date(subscription.next_payment_date).getTime() ||
+        nextPaymentDate.getTime() !== initialNextPaymentTimestamp ||
         billingCycle !== subscription.billing_cycle ||
         paymentMethod !== subscription.payment_method ||
         currency !== ((subscription.currency as CurrencyId) || 'JPY');
