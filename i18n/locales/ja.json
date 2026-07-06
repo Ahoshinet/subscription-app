@@ -289,7 +289,11 @@
         "title": "編集",
         "submit": "保存",
         "error_failed": "更新に失敗しました",
-        "not_found": "サブスクリプションが見つかりません"
+        "not_found": "サブスクリプションが見つかりません",
+        "discard_title": "変更を破棄しますか？",
+        "discard_message": "保存されていない変更があります。破棄してもよろしいですか？",
+        "discard_confirm": "破棄",
+        "discard_keep": "編集を続ける"
     },
     "detail": {
         "edit_button": "編集",

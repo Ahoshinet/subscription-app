@@ -289,7 +289,11 @@
         "title": "Edit",
         "submit": "Save",
         "error_failed": "Failed to update.",
-        "not_found": "Subscription not found."
+        "not_found": "Subscription not found.",
+        "discard_title": "Discard changes?",
+        "discard_message": "You have unsaved changes. Are you sure you want to discard them?",
+        "discard_confirm": "Discard",
+        "discard_keep": "Keep Editing"
     },
     "detail": {
         "edit_button": "Edit",

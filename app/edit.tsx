@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, Pressable, useColorScheme, KeyboardAvoidingView, ScrollView, Platform, Alert, ActivityIndicator, Image, Modal, Dimensions } from 'react-native';
-import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
+import { Stack, useRouter, useLocalSearchParams, useNavigation } from 'expo-router';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useSubscriptionStore } from '../store/useSubscriptionStore';
 import { useAddFormStore } from '../store/useAddFormStore';
@@ -75,6 +75,45 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
         setCurrency((subscription.currency as CurrencyId) || 'JPY');
     }, [subscription, setBillingCycle, setPaymentMethod, setCurrency]);
 
+    const navigation = useNavigation();
+    const isDirty =
+        serviceName !== subscription.service_name ||
+        planName !== (subscription.plan_name || '') ||
+        amount !== String(subscription.amount) ||
+        memo !== (subscription.memo || '') ||
+        iconUri !== (subscription.icon_url ?? null) ||
+        nextPaymentDate.getTime() !== new Date(subscription.next_payment_date).getTime() ||
+        billingCycle !== subscription.billing_cycle ||
+        paymentMethod !== subscription.payment_method ||
+        currency !== ((subscription.currency as CurrencyId) || 'JPY');
+    // Refs so the beforeRemove listener sees current values without
+    // re-subscribing on every keystroke.
+    const isDirtyRef = useRef(isDirty);
+    const skipDirtyGuardRef = useRef(false);
+    useEffect(() => {
+        isDirtyRef.current = isDirty;
+    }, [isDirty]);
+
+    // Confirm before the screen is removed with unsaved edits — covers the
+    // × button, the Android back button, and the modal swipe-down gesture.
+    useEffect(() => {
+        return navigation.addListener('beforeRemove', (e) => {
+            if (skipDirtyGuardRef.current || !isDirtyRef.current) return;
+            e.preventDefault();
+            Alert.alert(t('edit.discard_title'), t('edit.discard_message'), [
+                { text: t('edit.discard_keep'), style: 'cancel' },
+                {
+                    text: t('edit.discard_confirm'),
+                    style: 'destructive',
+                    onPress: () => {
+                        skipDirtyGuardRef.current = true;
+                        navigation.dispatch(e.data.action);
+                    },
+                },
+            ]);
+        });
+    }, [navigation, t]);
+
     const handleSave = async () => {
         if (!serviceName || !amount) {
             Alert.alert(t('subscription_form.error_title'), t('subscription_form.error_required'));
@@ -113,6 +152,7 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
                 icon_url: iconUrl,
                 memo: memo.trim() ? memo.trim() : null,
             });
+            skipDirtyGuardRef.current = true;
             router.back();
         } catch (error: any) {
             Alert.alert(t('common.error'), error.message || t('edit.error_failed'));
