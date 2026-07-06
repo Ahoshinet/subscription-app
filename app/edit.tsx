@@ -11,7 +11,7 @@ import { setCropHandler } from '../lib/imageCropStore';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
 import { usePaymentMethodStore } from '../store/usePaymentMethodStore';
-import { CURRENCIES, CurrencyId, parseAmountInput } from '../lib/currency';
+import { CURRENCIES, CurrencyId, parseAmountInput, MAX_AMOUNT } from '../lib/currency';
 import {
     isSubscriptionPresetIconValue,
     parseSubscriptionPresetIconValue,
@@ -83,6 +83,10 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
         const parsedAmount = parseAmountInput(amount);
         if (parsedAmount === null) {
             Alert.alert(t('subscription_form.error_title'), t('subscription_form.error_invalid_amount'));
+            return;
+        }
+        if (parsedAmount > MAX_AMOUNT) {
+            Alert.alert(t('subscription_form.error_title'), t('subscription_form.error_amount_too_large'));
             return;
         }
 

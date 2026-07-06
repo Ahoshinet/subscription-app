@@ -23,6 +23,12 @@ const REGION_TO_CURRENCY: Record<string, CurrencyId> = {
     FI: 'EUR', IE: 'EUR', GR: 'EUR', LU: 'EUR',
 };
 
+// The largest amount that can survive the round trip through IEEE 754
+// doubles (JS numbers / JSON). Anything above this is silently rounded
+// (e.g. 1145141919364364810 becomes …800), so inputs beyond it must be
+// rejected instead of stored corrupted.
+export const MAX_AMOUNT = Number.MAX_SAFE_INTEGER;
+
 // Parse a user-entered amount string. Accepts full-width digits and
 // thousand separators (e.g. "１,０００"). Returns null when the input is
 // empty or not a valid non-negative finite number.
