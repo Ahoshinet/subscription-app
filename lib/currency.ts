@@ -23,14 +23,47 @@ const REGION_TO_CURRENCY: Record<string, CurrencyId> = {
     FI: 'EUR', IE: 'EUR', GR: 'EUR', LU: 'EUR',
 };
 
+// The largest amount that can survive the round trip through IEEE 754
+// doubles (JS numbers / JSON). Anything above this is silently rounded
+// (e.g. 1145141919364364810 becomes …800), so inputs beyond it must be
+// rejected instead of stored corrupted.
+export const MAX_AMOUNT = Number.MAX_SAFE_INTEGER;
+
+function normalizeAmountInput(input: string): string {
+    return input
+        .replace(/[０-９．]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xfee0))
+        .replace(/[,，]/g, '')
+        .trim();
+}
+
+export function isAmountInputAboveMax(input: string): boolean {
+    const normalized = normalizeAmountInput(input);
+    if (!normalized) return false;
+
+    const value = Number(normalized);
+    if (!Number.isFinite(value) || value < 0) return false;
+    if (value > MAX_AMOUNT) return true;
+
+    const decimalMatch = normalized.match(/^\+?(\d+)(?:\.(\d*))?$/);
+    if (!decimalMatch) return false;
+
+    const integerPart = decimalMatch[1].replace(/^0+(?=\d)/, '');
+    const maxInteger = String(MAX_AMOUNT);
+    if (integerPart.length !== maxInteger.length) {
+        return integerPart.length > maxInteger.length;
+    }
+    if (integerPart !== maxInteger) {
+        return integerPart > maxInteger;
+    }
+
+    return /[1-9]/.test(decimalMatch[2] ?? '');
+}
+
 // Parse a user-entered amount string. Accepts full-width digits and
 // thousand separators (e.g. "１,０００"). Returns null when the input is
 // empty or not a valid non-negative finite number.
 export function parseAmountInput(input: string): number | null {
-    const normalized = input
-        .replace(/[０-９．]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xfee0))
-        .replace(/[,，]/g, '')
-        .trim();
+    const normalized = normalizeAmountInput(input);
     if (!normalized) return null;
     const value = Number(normalized);
     if (!Number.isFinite(value) || value < 0) return null;

@@ -266,6 +266,7 @@
         "error_title": "Input Error",
         "error_required": "Service name and amount are required.",
         "error_invalid_amount": "Amount must be a number of 0 or more.",
+        "error_amount_too_large": "Amount is too large to be stored accurately. Please enter a smaller value.",
         "service_name": "Service Name",
         "service_name_placeholder": "e.g. Netflix",
         "plan_name": "Plan Name",
@@ -288,7 +289,11 @@
         "title": "Edit",
         "submit": "Save",
         "error_failed": "Failed to update.",
-        "not_found": "Subscription not found."
+        "not_found": "Subscription not found.",
+        "discard_title": "Discard changes?",
+        "discard_message": "You have unsaved changes. Are you sure you want to discard them?",
+        "discard_confirm": "Discard",
+        "discard_keep": "Keep Editing"
     },
     "detail": {
         "edit_button": "Edit",

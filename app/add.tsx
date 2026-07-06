@@ -18,7 +18,7 @@ import {
 } from '../lib/subscriptionIcon';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-import { CURRENCIES, parseAmountInput } from '../lib/currency';
+import { CURRENCIES, isAmountInputAboveMax, parseAmountInput } from '../lib/currency';
 
 const ICON_PICKER_WIDTH = Math.min(SCREEN_WIDTH - 32, 360);
 const ICON_PICKER_GAP = 10;
@@ -56,6 +56,10 @@ export default function AddSubscriptionModal() {
     const handleSave = async () => {
         if (!serviceName || !amount) {
             Alert.alert(t('subscription_form.error_title'), t('subscription_form.error_required'));
+            return;
+        }
+        if (isAmountInputAboveMax(amount)) {
+            Alert.alert(t('subscription_form.error_title'), t('subscription_form.error_amount_too_large'));
             return;
         }
         const parsedAmount = parseAmountInput(amount);

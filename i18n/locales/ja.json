@@ -266,6 +266,7 @@
         "error_title": "入力エラー",
         "error_required": "サービス名と料金は必須です",
         "error_invalid_amount": "料金は0以上の数値で入力してください",
+        "error_amount_too_large": "料金が大きすぎて正確に保存できません。より小さい値を入力してください",
         "service_name": "サービス名",
         "service_name_placeholder": "例: Netflix",
         "plan_name": "プラン名",
@@ -288,7 +289,11 @@
         "title": "編集",
         "submit": "保存",
         "error_failed": "更新に失敗しました",
-        "not_found": "サブスクリプションが見つかりません"
+        "not_found": "サブスクリプションが見つかりません",
+        "discard_title": "変更を破棄しますか？",
+        "discard_message": "保存されていない変更があります。破棄してもよろしいですか？",
+        "discard_confirm": "破棄",
+        "discard_keep": "編集を続ける"
     },
     "detail": {
         "edit_button": "編集",
