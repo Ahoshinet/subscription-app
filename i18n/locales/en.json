@@ -323,5 +323,11 @@
         "payment_reminder_title": "Payment Reminder",
         "payment_tomorrow": "{{name}} {{plan}} ({{price}}{{currency}}) payment is due tomorrow.",
         "payment_in_days": "{{name}} {{plan}} ({{price}}{{currency}}) payment is due in {{days}} days."
+    },
+    "update": {
+        "available_title": "New Version Available",
+        "available_message": "Current version: v{{currentVersion}}\nLatest version: v{{latestVersion}}\n\nYou can view the update on GitHub.",
+        "later": "Later",
+        "open_repository": "Open GitHub"
     }
 }

@@ -323,5 +323,11 @@
         "payment_reminder_title": "お支払いリマインダー",
         "payment_tomorrow": "{{name}}の{{plan}}（{{price}}{{currency}}）のお支払いが明日になっています。",
         "payment_in_days": "{{name}}の{{plan}}（{{price}}{{currency}}）のお支払いが{{days}}日後です。"
+    },
+    "update": {
+        "available_title": "新しいバージョンがあります",
+        "available_message": "現在のバージョン: v{{currentVersion}}\n最新バージョン: v{{latestVersion}}\n\nGitHubで更新内容を確認できます。",
+        "later": "後で",
+        "open_repository": "GitHubを開く"
     }
 }

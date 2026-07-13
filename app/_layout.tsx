@@ -3,20 +3,20 @@ import { StatusBar } from 'expo-status-bar';
 import * as WebBrowser from 'expo-web-browser';
 import 'react-native-reanimated';
 import '../global.css';
-
-WebBrowser.maybeCompleteAuthSession();
-
-import { useColorScheme as useRNColorScheme } from 'react-native';
+import { Alert, Linking, useColorScheme as useRNColorScheme } from 'react-native';
 import { useColorScheme as useNativeWindColorScheme } from 'nativewind';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { usePaymentMethodStore } from '@/store/usePaymentMethodStore';
 import { usePaidyStore } from '@/store/usePaidyStore';
 import { ensureApiReachable } from '@/lib/api';
 import { registerNotificationTapHandler } from '@/lib/notifications';
+import { checkRepositoryUpdate } from '@/lib/versionCheck';
 import '@/i18n';
 import { useTranslation } from 'react-i18next';
+
+WebBrowser.maybeCompleteAuthSession();
 
 export const unstable_settings = {
     anchor: '(tabs)',
@@ -29,7 +29,8 @@ export default function RootLayout() {
     const { language, theme } = useSettingsStore();
     const { syncFromServer: syncPaymentMethods } = usePaymentMethodStore();
     const { loadFromServer: loadPaidy } = usePaidyStore();
-    const { i18n } = useTranslation();
+    const { i18n, t } = useTranslation();
+    const didCheckRepositoryUpdate = useRef(false);
 
     // Apply user's theme preference
     const effectiveColorScheme = theme === 'system' ? systemColorScheme : theme;
@@ -41,6 +42,33 @@ export default function RootLayout() {
     useEffect(() => {
         ensureApiReachable().then(() => checkAuth());
     }, []);
+
+    useEffect(() => {
+        if (isInitializing || didCheckRepositoryUpdate.current) return;
+        didCheckRepositoryUpdate.current = true;
+        let isMounted = true;
+
+        checkRepositoryUpdate()
+            .then((update) => {
+                if (!isMounted || !update) return;
+                Alert.alert(
+                    t('update.available_title'),
+                    t('update.available_message', {
+                        currentVersion: update.currentVersion,
+                        latestVersion: update.latestVersion,
+                    }),
+                    [
+                        { text: t('update.later'), style: 'cancel' },
+                        { text: t('update.open_repository'), onPress: () => Linking.openURL(update.releaseUrl) },
+                    ],
+                );
+            })
+            .catch(() => {});
+
+        return () => {
+            isMounted = false;
+        };
+    }, [isInitializing, t]);
 
     useEffect(() => {
         // Ensure the language specified in settings is applied
