@@ -81,11 +81,11 @@
     },
     "privacy": {
         "title": "Privacy Policy",
-        "effective_date": "Last Updated: May 2, 2026 (Originally Effective: March 15, 2026)",
+        "effective_date": "Last Updated: July 21, 2026 (Originally Effective: March 15, 2026)",
         "s1_title": "Article 1 (Introduction)",
         "s1_body": "Ahoshinet Groups (Administrator: darui3018823, the \"Operator\") establishes this Privacy Policy regarding the handling of personal information in \"Subscription Manager App\" (the \"Service\"). By using the Service, you agree to this Privacy Policy.",
         "s2_title": "Article 2 (Information We Collect)",
-        "s2_body": "The Service collects the following information:\n\n\u00b7 Email address (upon account registration)\n\u00b7 Subscription information (name, amount, billing cycle, and other user-entered data)\n\u00b7 Payment method information (card brand, last 4 digits, custom name, etc.)\n\u00b7 Google account email address (only when the Google integration feature is used)\n\u00b7 Parsed results from Paidy billing emails (only when the Google integration feature is used)\n\nWe do not collect any other information such as device data, location, or behavioral logs.",
+        "s2_body": "The Service collects the following information:\n\n\u00b7 Email address (upon account registration)\n\u00b7 Subscription information (name, amount, billing cycle, and other user-entered data)\n\u00b7 Payment method information (card brand, last 4 digits, custom name, etc.)\n\u00b7 Account time zone (initialized from the device and editable in Settings)\n\u00b7 Google account email address (only when the Google integration feature is used)\n\u00b7 Parsed results from Paidy billing emails (only when the Google integration feature is used)\n\nWe do not collect other device identifiers, location information, or behavioral logs.",
         "s3_title": "Article 3 (Purpose of Use)",
         "s3_body": "Collected information is used solely for the following purposes:\n\n\u00b7 Providing and maintaining the Service\n\u00b7 Improving the Service and developing new features\n\u00b7 Identity verification and account management\n\u00b7 Responding to inquiries",
         "s4_title": "Article 4 (Third-Party Disclosure)",
