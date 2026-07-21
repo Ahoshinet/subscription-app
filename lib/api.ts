@@ -117,6 +117,7 @@ export interface Subscription {
     icon_url?: string;
     memo?: string;
     next_payment_date: string;
+    billing_anchor_day?: number;
     status: string;
     created_at?: string;
     updated_at?: string;

@@ -72,9 +72,9 @@ export function daysBetweenDateOnly(from: string, to: string): number {
     return Math.round((toDate.getTime() - fromDate.getTime()) / 86_400_000);
 }
 
-function addMonthsClamped(base: Date, months: number): Date {
+function addMonthsClamped(base: Date, months: number, billingAnchorDay?: number): Date {
     const result = new Date(base);
-    const anchorDay = base.getUTCDate();
+    const anchorDay = Math.min(31, Math.max(1, billingAnchorDay ?? base.getUTCDate()));
     result.setUTCDate(1);
     result.setUTCMonth(result.getUTCMonth() + months);
     const daysInMonth = new Date(
@@ -92,6 +92,7 @@ export function getEffectiveNextPaymentDate(
     nextPaymentDate: string,
     billingCycle: string,
     todayDate: string,
+    billingAnchorDay?: number,
 ): string {
     const original = toUtcDate(nextPaymentDate);
     const today = toUtcDate(todayDate);
@@ -105,10 +106,10 @@ export function getEffectiveNextPaymentDate(
 
     const step = billingCycle === 'yearly' ? 12 : 1;
     let months = step;
-    let date = addMonthsClamped(original, months);
+    let date = addMonthsClamped(original, months, billingAnchorDay);
     while (date < today) {
         months += step;
-        date = addMonthsClamped(original, months);
+        date = addMonthsClamped(original, months, billingAnchorDay);
     }
     return fromUtcDate(date);
 }

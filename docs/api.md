@@ -576,11 +576,14 @@ Serve an uploaded file. No authentication required.
   "payment_details": "string (JSON) | null",
   "icon_url": "string | null",
   "next_payment_date": "string (YYYY-MM-DD calendar date)",
+  "billing_anchor_day": "integer (1-31, read-only schedule anchor)",
   "status": "\"active\" | \"inactive\"",
   "created_at": "string (ISO 8601)",
   "updated_at": "string (ISO 8601)"
 }
 ```
+
+`billing_anchor_day` preserves the intended monthly or yearly billing day after a short month. For example, a value of `31` produces February's last valid day and returns to the 31st in March. Clients do not send this field; changing `next_payment_date` resets it automatically.
 
 ### UserSettings
 
