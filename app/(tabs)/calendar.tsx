@@ -17,7 +17,9 @@ import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { useSubscriptionStore } from '../../store/useSubscriptionStore';
-import { getEffectiveNextPaymentDate } from '../../lib/dateUtils';
+import { getEffectiveNextPaymentDate, parseDateOnly } from '../../lib/dateUtils';
+import { getTodayDateInTimeZone } from '../../lib/timeZone';
+import { useSettingsStore } from '../../store/useSettingsStore';
 import { CURRENCY_SYMBOLS } from '../../lib/currency';
 import { parseSubscriptionPresetIconValue } from '../../lib/subscriptionIcon';
 import { Subscription, resolveIconUrl } from '../../lib/api';
@@ -38,30 +40,36 @@ function getPaymentDaysInMonth(
     billingCycle: string,
     year: number,
     month: number,
+    todayDate: string,
 ): number[] {
-    const effective = new Date(getEffectiveNextPaymentDate(nextPaymentDate, billingCycle));
+    const effectiveDate = getEffectiveNextPaymentDate(nextPaymentDate, billingCycle, todayDate);
+    const effective = parseDateOnly(effectiveDate);
+    if (!effective) return [];
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     // No payments happen in months before the first (effective) payment month
-    const beforeFirstPayment = year < effective.getFullYear()
-        || (year === effective.getFullYear() && month < effective.getMonth());
+    const effectiveYear = effective.year;
+    const effectiveMonth = effective.month - 1;
+    const effectiveDay = effective.day;
+    const beforeFirstPayment = year < effectiveYear
+        || (year === effectiveYear && month < effectiveMonth);
 
     if (billingCycle === 'monthly') {
         if (beforeFirstPayment) return [];
-        return [Math.min(effective.getDate(), daysInMonth)];
+        return [Math.min(effectiveDay, daysInMonth)];
     }
     if (billingCycle === 'yearly') {
         if (beforeFirstPayment) return [];
-        return effective.getMonth() === month ? [Math.min(effective.getDate(), daysInMonth)] : [];
+        return effectiveMonth === month ? [Math.min(effectiveDay, daysInMonth)] : [];
     }
     if (billingCycle === 'weekly') {
-        const target = new Date(year, month, 1);
-        const targetEnd = new Date(year, month + 1, 0);
-        const d = new Date(effective);
-        while (d < target) d.setDate(d.getDate() + 7);
+        const target = new Date(Date.UTC(year, month, 1));
+        const targetEnd = new Date(Date.UTC(year, month + 1, 0));
+        const d = new Date(Date.UTC(effective.year, effective.month - 1, effective.day));
+        while (d < target) d.setUTCDate(d.getUTCDate() + 7);
         const days: number[] = [];
         while (d <= targetEnd) {
-            days.push(d.getDate());
-            d.setDate(d.getDate() + 7);
+            days.push(d.getUTCDate());
+            d.setUTCDate(d.getUTCDate() + 7);
         }
         return days;
     }
@@ -91,13 +99,19 @@ export default function CalendarScreen() {
     const isDark = colorScheme === 'dark';
     const router = useRouter();
     const { subscriptions, fetchSubscriptions } = useSubscriptionStore();
+    const { timeZone } = useSettingsStore();
 
-    const today = new Date();
-    const [year, setYear] = useState(today.getFullYear());
-    const [month, setMonth] = useState(today.getMonth());
+    const todayDate = getTodayDateInTimeZone(timeZone);
+    const accountToday = parseDateOnly(todayDate) ?? {
+        year: new Date().getFullYear(),
+        month: new Date().getMonth() + 1,
+        day: new Date().getDate(),
+    };
+    const [year, setYear] = useState(accountToday.year);
+    const [month, setMonth] = useState(accountToday.month - 1);
     const [selectedDay, setSelectedDay] = useState<number | null>(null);
     const [showPicker, setShowPicker] = useState(false);
-    const [pickerDate, setPickerDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
+    const [pickerDate, setPickerDate] = useState(new Date(accountToday.year, accountToday.month - 1, 1));
 
     // Keep a ref so gesture callbacks can read current month/year without stale closure
     const currentRef = useRef({ month, year });
@@ -110,15 +124,21 @@ export default function CalendarScreen() {
     const isJa = i18n.language === 'ja';
     const weekdays = isJa ? WEEKDAYS_JA : WEEKDAYS_EN;
 
-    const todayY = today.getFullYear();
-    const todayM = today.getMonth();
-    const todayD = today.getDate();
+    const todayY = accountToday.year;
+    const todayM = accountToday.month - 1;
+    const todayD = accountToday.day;
 
     const dayToSubs = useMemo(() => {
         const map: Record<number, Subscription[]> = {};
         for (const sub of subscriptions) {
             if (sub.status !== 'active') continue;
-            const days = getPaymentDaysInMonth(sub.next_payment_date, sub.billing_cycle, year, month);
+            const days = getPaymentDaysInMonth(
+                sub.next_payment_date,
+                sub.billing_cycle,
+                year,
+                month,
+                todayDate,
+            );
             for (const d of days) {
                 const isPastDay = year < todayY
                     || (year === todayY && month < todayM)
@@ -127,7 +147,7 @@ export default function CalendarScreen() {
             }
         }
         return map;
-    }, [subscriptions, year, month, todayY, todayM, todayD]);
+    }, [subscriptions, year, month, todayY, todayM, todayD, todayDate]);
 
     const totalPayments = useMemo(
         () => Object.values(dayToSubs).reduce((sum, subs) => sum + subs.length, 0),

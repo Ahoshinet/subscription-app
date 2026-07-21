@@ -53,8 +53,9 @@ Register a new user.
 **Request body:**
 ```json
 {
-  "username": "string",   // required, 3-32 chars: letters, digits, ".", "_", "-" (trimmed)
-  "password": "string"    // required, min 8 characters
+  "username": "string",        // required, 3-32 chars: letters, digits, ".", "_", "-" (trimmed)
+  "password": "string",        // required, min 8 characters
+  "time_zone": "Asia/Tokyo"    // required, IANA time-zone identifier
 }
 ```
 
@@ -74,7 +75,7 @@ Register a new user.
 **Errors:**
 | Status | Reason |
 |---|---|
-| `400 Bad Request` | Username fails the format rules above, or password shorter than 8 characters |
+| `400 Bad Request` | Username/password validation fails, or `time_zone` is not a valid IANA identifier |
 | `409 Conflict` | Username already exists |
 
 ---
@@ -236,7 +237,7 @@ Create a new subscription.
   "payment_method": "string",      // required
   "payment_details": {},           // optional, any JSON object
   "icon_url": "/uploads/xxx.png",  // optional
-  "next_payment_date": "2026-04-15T00:00:00Z"  // required, ISO 8601
+  "next_payment_date": "2026-04-15"  // required, YYYY-MM-DD calendar date
 }
 ```
 
@@ -302,7 +303,7 @@ For the nullable fields `plan_name`, `payment_details`, `icon_url`, and `memo`, 
   "payment_details": {},
   "icon_url": "/uploads/xxx.png",
   "memo": "string | null",
-  "next_payment_date": "2026-05-15T00:00:00Z"
+  "next_payment_date": "2026-05-15"
 }
 ```
 
@@ -454,6 +455,7 @@ Get user settings. Returns default values if no settings have been saved yet.
   "currency": "USD",
   "push_notifications": true,
   "theme": "system",
+  "time_zone": "Asia/Tokyo",
   "updated_at": "2026-03-15T00:00:00Z"
 }
 ```
@@ -465,6 +467,7 @@ Get user settings. Returns default values if no settings have been saved yet.
 | `currency` | `"USD"` |
 | `push_notifications` | `true` |
 | `theme` | `"system"` |
+| `time_zone` | `"Asia/Tokyo"` |
 
 ---
 
@@ -480,7 +483,8 @@ Update user settings. All fields are optional.
   "language": "ja",              // optional, "en" | "ja"
   "currency": "JPY",             // optional, "JPY" | "USD" | "EUR" | "GBP"
   "push_notifications": false,   // optional
-  "theme": "dark"                // optional, "system" | "light" | "dark"
+  "theme": "dark",               // optional, "system" | "light" | "dark"
+  "time_zone": "Europe/London"   // optional, IANA time-zone identifier
 }
 ```
 
@@ -489,7 +493,7 @@ Update user settings. All fields are optional.
 **Errors:**
 | Status | Reason |
 |---|---|
-| `400 Bad Request` | Invalid `theme`, `language`, or `currency` value |
+| `400 Bad Request` | Invalid `theme`, `language`, `currency`, or IANA `time_zone` value |
 | `401 Unauthorized` | Missing or invalid token |
 
 ---
@@ -571,7 +575,7 @@ Serve an uploaded file. No authentication required.
   "payment_method": "string",
   "payment_details": "string (JSON) | null",
   "icon_url": "string | null",
-  "next_payment_date": "string (ISO 8601)",
+  "next_payment_date": "string (YYYY-MM-DD calendar date)",
   "status": "\"active\" | \"inactive\"",
   "created_at": "string (ISO 8601)",
   "updated_at": "string (ISO 8601)"
@@ -587,6 +591,7 @@ Serve an uploaded file. No authentication required.
   "currency": "string",
   "push_notifications": "boolean",
   "theme": "\"system\" | \"light\" | \"dark\"",
+  "time_zone": "string (IANA identifier)",
   "updated_at": "string (ISO 8601)"
 }
 ```

@@ -7,7 +7,9 @@ import { usePaymentMethodStore } from '../store/usePaymentMethodStore';
 import { useTranslation } from 'react-i18next';
 import { parseSubscriptionPresetIconValue } from '../lib/subscriptionIcon';
 import { subscriptionApi, resolveIconUrl } from '../lib/api';
-import { getEffectiveNextPaymentDate } from '../lib/dateUtils';
+import { formatDateOnlyForDisplay, getEffectiveNextPaymentDate } from '../lib/dateUtils';
+import { getTodayDateInTimeZone } from '../lib/timeZone';
+import { useSettingsStore } from '../store/useSettingsStore';
 
 const STATUS_COLORS: Record<string, string> = {
     active: '#22C55E',
@@ -26,7 +28,9 @@ export default function DetailScreen() {
     const { subscriptions, deleteSubscription, fetchSubscriptions } = useSubscriptionStore();
     const subscription = subscriptions.find(s => s.id === Number(id));
     const { methods: paymentMethods } = usePaymentMethodStore();
+    const { timeZone } = useSettingsStore();
     const { t } = useTranslation();
+    const todayDate = getTodayDateInTimeZone(timeZone);
 
     if (!subscription) {
         return (
@@ -186,7 +190,14 @@ export default function DetailScreen() {
                     <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6">
                         <DetailRow label={t('detail.label_service_name')} value={subscription.service_name} isFirst />
                         <DetailRow label={t('detail.label_plan_name')} value={subscription.plan_name || '—'} />
-                        <DetailRow label={t('detail.label_next_payment')} value={formatDate(getEffectiveNextPaymentDate(subscription.next_payment_date, subscription.billing_cycle))} />
+                        <DetailRow
+                            label={t('detail.label_next_payment')}
+                            value={formatDateOnlyForDisplay(getEffectiveNextPaymentDate(
+                                subscription.next_payment_date,
+                                subscription.billing_cycle,
+                                todayDate,
+                            ))}
+                        />
                         <DetailRow label={t('detail.label_billing_cycle')} value={t(`billing_cycle.${subscription.billing_cycle}`, { defaultValue: subscription.billing_cycle })} />
                         <DetailRow label={t('detail.label_payment_method')} value={resolvePaymentMethod()} isLast />
                     </View>

@@ -2,7 +2,8 @@ import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 import i18n from '../i18n';
 import { Subscription } from './api';
-import { getEffectiveNextPaymentDate } from './dateUtils';
+import { addDaysToDateOnly, getEffectiveNextPaymentDate } from './dateUtils';
+import { getTodayDateInTimeZone, zonedDateTimeToDate } from './timeZone';
 
 type NotificationsModule = typeof import('expo-notifications');
 
@@ -59,8 +60,8 @@ let scheduleTimer: ReturnType<typeof setTimeout> | null = null;
 // (fetchSubscriptions replaces the array identity on every focus).
 let lastScheduleSignature: string | null = null;
 
-function reminderSignature(subscriptions: Subscription[], language: string): string {
-    return language + '|' + subscriptions
+function reminderSignature(subscriptions: Subscription[], language: string, timeZone: string): string {
+    return `${language}:${timeZone}|` + subscriptions
         .filter((s) => s.status === 'active')
         .map((s) => `${s.id}:${s.next_payment_date}:${s.billing_cycle}:${s.amount}:${s.currency}:${s.service_name}:${s.plan_name ?? ''}`)
         .sort()
@@ -69,39 +70,46 @@ function reminderSignature(subscriptions: Subscription[], language: string): str
 
 export function schedulePaymentReminders(
     subscriptions: Subscription[],
-    t: (key: string, options?: Record<string, unknown>) => string
+    t: (key: string, options?: Record<string, unknown>) => string,
+    timeZone: string,
 ): void {
     if (scheduleTimer) clearTimeout(scheduleTimer);
     scheduleTimer = setTimeout(() => {
         scheduleTimer = null;
-        _doSchedule(subscriptions, t);
+        _doSchedule(subscriptions, t, timeZone);
     }, 300);
 }
 
 async function _doSchedule(
     subscriptions: Subscription[],
-    t: (key: string, options?: Record<string, unknown>) => string
+    t: (key: string, options?: Record<string, unknown>) => string,
+    timeZone: string,
 ): Promise<void> {
     const N = getNotifications();
     if (!N) return;
 
-    const signature = reminderSignature(subscriptions, i18n.language);
+    const signature = reminderSignature(subscriptions, i18n.language, timeZone);
     if (signature === lastScheduleSignature) return;
 
     await N.cancelAllScheduledNotificationsAsync();
 
     const now = new Date();
+    const todayDate = getTodayDateInTimeZone(timeZone);
     const candidates: { triggerDate: Date; daysBefore: number; sub: Subscription }[] = [];
 
     for (const sub of subscriptions) {
         if (sub.status !== 'active') continue;
 
-        const paymentDate = new Date(getEffectiveNextPaymentDate(sub.next_payment_date, sub.billing_cycle));
+        const paymentDate = getEffectiveNextPaymentDate(
+            sub.next_payment_date,
+            sub.billing_cycle,
+            todayDate,
+        );
 
         for (const daysBefore of REMINDER_DAYS) {
-            const triggerDate = new Date(paymentDate);
-            triggerDate.setDate(triggerDate.getDate() - daysBefore);
-            triggerDate.setHours(9, 0, 0, 0);
+            const reminderDate = addDaysToDateOnly(paymentDate, -daysBefore);
+            const triggerDate = zonedDateTimeToDate(reminderDate, timeZone, 9, 0);
+            if (!triggerDate) continue;
 
             if (triggerDate.getTime() <= now.getTime()) continue;
 

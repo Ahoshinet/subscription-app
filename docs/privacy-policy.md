@@ -1,6 +1,6 @@
 # プライバシーポリシー / Privacy Policy
 
-**最終更新日 / Last Updated:** 2026年5月2日 / May 2, 2026  
+**最終更新日 / Last Updated:** 2026年7月21日 / July 21, 2026
 **制定日 / Originally Effective:** 2026年3月15日 / March 15, 2026
 
 ---
@@ -20,20 +20,22 @@ Ahoshinet Groups (Administrator: darui3018823, the "Operator") establishes this 
 - メールアドレス（アカウント登録時）
 - サブスクリプション情報（名称・金額・支払周期など、ユーザーが入力した情報）
 - 支払方法情報（カードブランド・下4桁・カスタム名称など）
+- アカウントのタイムゾーン（端末から初期設定され、設定画面で変更可能）
 - Googleアカウントのメールアドレス（Google連携機能を利用した場合のみ）
 - Paidy合同会社からの請求メールの解析結果（Google連携機能を利用した場合のみ）
 
-上記以外の情報（デバイス情報・位置情報・行動ログ等）は取得しません。
+上記以外の端末識別情報、位置情報、行動ログ等は取得しません。
 
 The Service collects the following information:
 
 - Email address (upon account registration)
 - Subscription information (name, amount, billing cycle, and other user-entered data)
 - Payment method information (card brand, last 4 digits, custom name, etc.)
+- Account time zone (initialized from the device and editable in Settings)
 - Google account email address (only when the Google integration feature is used)
 - Parsed results from Paidy billing emails (only when the Google integration feature is used)
 
-We do not collect any other information such as device data, location, or behavioral logs.
+We do not collect other device identifiers, location information, or behavioral logs.
 
 ---
 

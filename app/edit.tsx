@@ -19,6 +19,7 @@ import {
     SubscriptionIconPack,
     buildSubscriptionPresetIconValue,
 } from '../lib/subscriptionIcon';
+import { dateOnlyToLocalDate, formatDateOnly } from '../lib/dateUtils';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -58,7 +59,7 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
     const [serviceName, setServiceName] = useState(subscription.service_name);
     const [planName, setPlanName] = useState(subscription.plan_name || '');
     const [amount, setAmount] = useState(String(subscription.amount));
-    const [nextPaymentDate, setNextPaymentDate] = useState(() => new Date(subscription.next_payment_date));
+    const [nextPaymentDate, setNextPaymentDate] = useState(() => dateOnlyToLocalDate(subscription.next_payment_date));
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [iconUri, setIconUri] = useState<string | null>(subscription.icon_url ?? null);
     const [iconPreviewError, setIconPreviewError] = useState(false);
@@ -76,8 +77,8 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
     }, [subscription, setBillingCycle, setPaymentMethod, setCurrency]);
 
     const navigation = useNavigation();
-    const initialNextPaymentTimestamp = useMemo(
-        () => new Date(subscription.next_payment_date).getTime(),
+    const initialNextPaymentDate = useMemo(
+        () => subscription.next_payment_date,
         [subscription.next_payment_date],
     );
     const isDirty =
@@ -86,7 +87,7 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
         amount !== String(subscription.amount) ||
         memo !== (subscription.memo || '') ||
         iconUri !== (subscription.icon_url ?? null) ||
-        nextPaymentDate.getTime() !== initialNextPaymentTimestamp ||
+        formatDateOnly(nextPaymentDate) !== initialNextPaymentDate ||
         billingCycle !== subscription.billing_cycle ||
         paymentMethod !== subscription.payment_method ||
         currency !== ((subscription.currency as CurrencyId) || 'JPY');
@@ -152,7 +153,7 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
                 currency,
                 billing_cycle: billingCycle,
                 payment_method: paymentMethod,
-                next_payment_date: nextPaymentDate.toISOString(),
+                next_payment_date: formatDateOnly(nextPaymentDate),
                 icon_url: iconUrl,
                 memo: memo.trim() ? memo.trim() : null,
             });
