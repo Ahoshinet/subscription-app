@@ -5,7 +5,7 @@ import { usePaymentMethodStore } from './usePaymentMethodStore';
 import { usePaidyStore } from './usePaidyStore';
 import { useSubscriptionStore } from './useSubscriptionStore';
 import { cancelAllReminders } from '../lib/notifications';
-import { activateAuthSession, invalidateAuthSession } from '../lib/authSession';
+import { activateAuthSession, getAuthTokenUserId, invalidateAuthSession } from '../lib/authSession';
 
 interface AuthState {
     user: User | null;
@@ -108,8 +108,9 @@ export const useAuthStore = create<AuthState>((set) => ({
 
     checkAuth: async () => {
         set({ isInitializing: true, error: null });
+        let token: string | null = null;
         try {
-            const token = await getToken();
+            token = await getToken();
             if (!token) {
                 invalidateAuthSession();
                 await resetUserScopedStores();
@@ -133,8 +134,16 @@ export const useAuthStore = create<AuthState>((set) => ({
 
             if (!isAuthFailure) {
                 // Transient error: keep the token, let the user in with locally
-                // persisted data; the token is re-validated on next launch.
-                set({ isAuthenticated: true, isInitializing: false });
+                // persisted data. The JWT subject is used only to scope local
+                // async work; the server still validates the token on requests.
+                const userId = token ? getAuthTokenUserId(token) : null;
+                const currentToken = await getToken();
+                if (userId && currentToken === token) {
+                    activateAuthSession(userId);
+                    set({ isAuthenticated: true, isInitializing: false });
+                } else {
+                    set({ user: null, isAuthenticated: false, isInitializing: false });
+                }
                 return;
             }
 
