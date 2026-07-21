@@ -9,6 +9,8 @@ import { captureAuthSession, isAuthSessionCurrent } from '../lib/authSession';
 export type Language = 'en' | 'ja';
 export type ThemePreference = 'system' | 'light' | 'dark';
 
+const mutationQueues = new Map<string, Promise<void>>();
+
 interface SettingsState {
     language: Language;
     currency: CurrencyId;
@@ -99,13 +101,30 @@ export const useSettingsStore = create<SettingsState>()(
             syncToServer: async (patch) => {
                 const session = captureAuthSession();
                 if (!session) return;
+                const fields = Object.keys(patch).sort().join(',');
+                const queueKey = `${session.userId}:${fields}`;
+                const previous = mutationQueues.get(queueKey) ?? Promise.resolve();
                 set({ isSyncing: true });
+                const mutation = previous
+                    .catch(() => {})
+                    .then(async () => {
+                        if (!isAuthSessionCurrent(session)) return;
+                        await settingsApi.update(patch as any);
+                    });
+                mutationQueues.set(queueKey, mutation);
                 try {
-                    await settingsApi.update(patch as any);
+                    await mutation;
                 } catch {
                     if (isAuthSessionCurrent(session)) set({ syncError: true });
                 } finally {
-                    if (isAuthSessionCurrent(session)) set({ isSyncing: false });
+                    if (mutationQueues.get(queueKey) === mutation) {
+                        mutationQueues.delete(queueKey);
+                    }
+                    const hasPendingForUser = Array.from(mutationQueues.keys())
+                        .some((key) => key.startsWith(`${session.userId}:`));
+                    if (isAuthSessionCurrent(session) && !hasPendingForUser) {
+                        set({ isSyncing: false });
+                    }
                 }
             },
         }),

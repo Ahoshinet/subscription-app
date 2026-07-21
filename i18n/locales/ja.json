@@ -22,7 +22,9 @@
         "title": "タイムゾーン",
         "search": "地域名で検索",
         "section": "IANAタイムゾーン",
-        "current_device": "現在の端末"
+        "current_device": "現在の端末",
+        "unsupported": "{{zone}} はこの端末で利用できません。日付と通知を正しく計算するため、別のタイムゾーンを選択してください。",
+        "unsupported_short": "未対応"
     },
     "profile": {
         "title": "プロフィール",

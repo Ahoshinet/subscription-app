@@ -144,22 +144,11 @@ export const usePaidyStore = create<PaidyState>()(
               last_synced_at: now,
             });
           } else {
+            // A valid empty result is not evidence that the previous summary
+            // was wrong. Preserve it instead of erasing billing data.
             set({
-              paidyAmount: null,
-              paidyMonth: null,
-              nextPaymentDate: null,
-              transactions: [],
               lastSyncedAt: now,
               isLoading: false,
-            });
-            if (!isAuthSessionCurrent(session)) return;
-            await gmailApi.upsertIntegration({
-              gmail_email: get().googleEmail ?? '',
-              paidy_amount: null,
-              paidy_month: null,
-              paidy_next_payment_date: null,
-              paidy_transactions: null,
-              last_synced_at: now,
             });
           }
         } catch (err: any) {

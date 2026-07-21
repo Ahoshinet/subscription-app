@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { paymentMethodApi } from '../lib/api';
+import { PaymentMethod, paymentMethodApi, uploadApi } from '../lib/api';
 import { captureAuthSession, isAuthSessionCurrent } from '../lib/authSession';
 
 export interface SavedPaymentMethod {
@@ -38,6 +38,18 @@ interface PaymentMethodState {
     resetForLogout: () => Promise<void>;
 }
 
+const fromApiPaymentMethod = (method: PaymentMethod): SavedPaymentMethod => ({
+    id: method.id,
+    type: method.type as SavedPaymentMethod['type'],
+    label: method.label,
+    iconName: method.icon_name,
+    iconUri: method.icon_uri,
+    color: method.color,
+    last4: method.last4,
+    cardBrand: method.card_brand,
+    memo: method.memo,
+});
+
 export const usePaymentMethodStore = create<PaymentMethodState>()(
     persist(
         (set, get) => ({
@@ -45,20 +57,34 @@ export const usePaymentMethodStore = create<PaymentMethodState>()(
             isSyncing: false,
 
             addMethod: async (method) => {
-                const created = await paymentMethodApi.create({
-                    type: method.type,
-                    label: method.label,
-                    icon_name: method.iconName,
-                    icon_uri: method.iconUri,
-                    color: method.color,
-                    last4: method.last4,
-                    card_brand: method.cardBrand,
-                    memo: method.memo,
-                });
-                set((state) => ({
-                    methods: [...state.methods, { ...method, id: created.id }],
-                }));
-                return created.id;
+                let pendingIconUrl: string | undefined;
+                try {
+                    let iconUri = method.iconUri;
+                    if (iconUri && !iconUri.startsWith('/uploads/') && !iconUri.startsWith('http')) {
+                        const uploaded = await uploadApi.uploadIcon(iconUri);
+                        iconUri = uploaded.url;
+                        pendingIconUrl = uploaded.url;
+                    }
+                    const created = await paymentMethodApi.create({
+                        type: method.type,
+                        label: method.label,
+                        icon_name: method.iconName,
+                        icon_uri: iconUri,
+                        color: method.color,
+                        last4: method.last4,
+                        card_brand: method.cardBrand,
+                        memo: method.memo,
+                    });
+                    set((state) => ({
+                        methods: [...state.methods, fromApiPaymentMethod(created)],
+                    }));
+                    return created.id;
+                } catch (error) {
+                    if (pendingIconUrl?.startsWith('/uploads/pending/')) {
+                        await uploadApi.deletePending(pendingIconUrl).catch(() => {});
+                    }
+                    throw error;
+                }
             },
 
             // Server-first: local state only changes after the API call
@@ -98,19 +124,30 @@ export const usePaymentMethodStore = create<PaymentMethodState>()(
                 if (!session) return;
                 try {
                     set({ isSyncing: true });
-                    const serverMethods = await paymentMethodApi.getAll();
+                    let serverMethods = await paymentMethodApi.getAll();
                     if (!isAuthSessionCurrent(session)) return;
-                    const mapped: SavedPaymentMethod[] = serverMethods.map((m) => ({
-                        id: m.id,
-                        type: m.type as SavedPaymentMethod['type'],
-                        label: m.label,
-                        iconName: m.icon_name,
-                        iconUri: m.icon_uri,
-                        color: m.color,
-                        last4: m.last4,
-                        cardBrand: m.card_brand,
-                        memo: m.memo,
-                    }));
+                    let migratedLegacyIcon = false;
+                    for (const method of serverMethods) {
+                        const localUri = method.icon_uri;
+                        if (!localUri || !/^(file|content|blob|data):/.test(localUri)) continue;
+                        let pendingUrl: string | undefined;
+                        try {
+                            const uploaded = await uploadApi.uploadIcon(localUri);
+                            pendingUrl = uploaded.url;
+                            await paymentMethodApi.update(method.id, { icon_uri: pendingUrl });
+                            migratedLegacyIcon = true;
+                        } catch {
+                            if (pendingUrl?.startsWith('/uploads/pending/')) {
+                                await uploadApi.deletePending(pendingUrl).catch(() => {});
+                            }
+                        }
+                        if (!isAuthSessionCurrent(session)) return;
+                    }
+                    if (migratedLegacyIcon) {
+                        serverMethods = await paymentMethodApi.getAll();
+                        if (!isAuthSessionCurrent(session)) return;
+                    }
+                    const mapped = serverMethods.map(fromApiPaymentMethod);
                     set({ methods: mapped, isSyncing: false });
                 } catch {
                     if (isAuthSessionCurrent(session)) set({ isSyncing: false });

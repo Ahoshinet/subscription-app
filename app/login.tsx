@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, TextInput, Pressable, useColorScheme, KeyboardAvoidingView, ScrollView, Platform, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TextInput, Pressable, KeyboardAvoidingView, ScrollView, Platform, ActivityIndicator, Alert } from 'react-native';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useRouter, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/useAuthStore';

@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import React, { useState, useRef, useCallback } from 'react';
-import { View, StyleSheet, Pressable, Platform, useColorScheme } from 'react-native';
+import { View, StyleSheet, Pressable, Platform } from 'react-native';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';

@@ -36,6 +36,7 @@ Authorization: Bearer <token>
   - [Update settings](#put-apiv1settings)
 - [Upload](#upload)
   - [Upload icon](#post-apiv1uploadicon)
+  - [Delete pending icon](#delete-apiv1uploadicon)
   - [Serve uploaded file](#get-uploadsfilename)
 - [Data Models](#data-models)
 - [Error Codes](#error-codes)
@@ -237,7 +238,7 @@ Create a new subscription.
   "payment_method": "string",      // required
   "payment_details": {},           // optional, any JSON object
   "icon_url": "/uploads/xxx.png",  // optional
-  "next_payment_date": "2026-04-15"  // required, YYYY-MM-DD calendar date
+  "next_payment_date": "2026-04-15"  // required, YYYY-MM-DD, years 2000-2100
 }
 ```
 
@@ -395,6 +396,11 @@ Create a new payment method.
 
 **Response `201 Created`:** *(returns the created PaymentMethod object)*
 
+For a custom image, first upload it with `POST /api/v1/upload/icon` and send
+the returned temporary path as `icon_uri`. The created object contains its
+permanent server URL; device-local `file:`, `content:`, and `blob:` URLs must
+not be sent.
+
 **Errors:**
 | Status | Reason |
 |---|---|
@@ -508,7 +514,7 @@ Upload a service icon image.
 
 **Content-Type:** `multipart/form-data`
 
-**Form field:** any field with a file attached (PNG, JPG, etc.)
+**Form field:** a PNG, JPEG, GIF, or WebP image of at most 5 MiB
 
 **Response `201 Created`:**
 ```json
@@ -635,4 +641,14 @@ Serve an uploaded file. No authentication required.
 | `401 Unauthorized`          | Missing, expired, or invalid JWT token   |
 | `404 Not Found`             | Resource not found                       |
 | `409 Conflict`              | Duplicate resource (e.g. username taken) |
+| `413 Payload Too Large`     | File or upload quota exceeded             |
+| `415 Unsupported Media Type` | Unsupported or invalid image             |
+| `429 Too Many Requests`     | Rate limit exceeded                       |
 | `500 Internal Server Error` | Unexpected server-side error             |
+| `507 Insufficient Storage`  | Service-wide upload quota exceeded        |
+
+Every non-success response has a JSON body:
+
+```json
+{ "error": "Human-readable error message" }
+```

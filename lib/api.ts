@@ -4,6 +4,7 @@ import Constants from 'expo-constants';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { File as FileSystemFile } from 'expo-file-system';
 import { captureAuthSession, isAuthSessionCurrent } from './authSession';
+import { fetchWithTimeout } from './fetchWithTimeout';
 
 const PRODUCTION_URL = 'https://subscription-manager.daruks.com';
 const DEV_PORT = 8084;
@@ -44,11 +45,8 @@ export async function ensureApiReachable(): Promise<void> {
     } catch { /* SecureStore unavailable, continue */ }
 
     try {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 3000);
         const healthUrl = API_BASE_URL.replace(/\/api\/v1$/, '/health');
-        const res = await fetch(healthUrl, { signal: controller.signal });
-        clearTimeout(timeout);
+        const res = await fetchWithTimeout(healthUrl, {}, 3000);
         if (res.ok) return;
     } catch { /* local server unreachable */ }
 
@@ -274,7 +272,7 @@ async function tryRefreshToken(): Promise<RefreshResult> {
             const token = await getToken();
             if (refreshSession && !isAuthSessionCurrent(refreshSession)) return 'transient';
             if (!token) return 'unauthorized';
-            const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+            const response = await fetchWithTimeout(`${API_BASE_URL}/auth/refresh`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -339,7 +337,7 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise
     if (__DEV__) console.log(`[fetchAPI] fetching: ${url}`);
     let response: Response;
     try {
-        response = await fetch(url, {
+        response = await fetchWithTimeout(url, {
             ...options,
             headers,
         });
@@ -361,7 +359,7 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise
                 ...headers,
                 Authorization: `Bearer ${newToken}`,
             };
-            const retryResponse = await fetch(`${API_BASE_URL}${endpoint}`, {
+            const retryResponse = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, {
                 ...options,
                 headers: retryHeaders,
             });
@@ -593,7 +591,7 @@ export const uploadApi = {
         if (Platform.OS === 'web') {
             // No file:// paths on web — the picker hands out blob:/data:
             // URIs that fetch can read back into a Blob.
-            const blob = await (await fetch(uploadUri)).blob();
+            const blob = await (await fetchWithTimeout(uploadUri)).blob();
             formData.append('file', blob, filename);
         } else {
             // Expo's WinterCG fetch rejects React Native's legacy
@@ -603,13 +601,13 @@ export const uploadApi = {
             formData.append('file', new FileSystemFile(uploadUri) as unknown as Blob);
         }
 
-        const response = await fetch(`${API_BASE_URL}/upload/icon`, {
+        const response = await fetchWithTimeout(`${API_BASE_URL}/upload/icon`, {
             method: 'POST',
             headers: {
                 ...(token ? { Authorization: `Bearer ${token}` } : {}),
             },
             body: formData,
-        });
+        }, 30_000);
         if (uploadSession && !isAuthSessionCurrent(uploadSession)) {
             throw new Error('Authentication session changed');
         }

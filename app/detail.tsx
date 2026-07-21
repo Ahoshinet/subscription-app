@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Pressable, useColorScheme, Alert, Image, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, Pressable, Alert, Image, ActivityIndicator } from 'react-native';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useSubscriptionStore } from '../store/useSubscriptionStore';

@@ -22,7 +22,9 @@
         "title": "Time Zone",
         "search": "Search by region",
         "section": "IANA TIME ZONES",
-        "current_device": "Current device"
+        "current_device": "Current device",
+        "unsupported": "{{zone}} is not supported by this device. Select another time zone to keep dates and reminders accurate.",
+        "unsupported_short": "Unsupported"
     },
     "profile": {
         "title": "Profile",

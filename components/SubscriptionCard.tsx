@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, useColorScheme, Image } from 'react-native';
+import { View, Text, Pressable, Image } from 'react-native';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTranslation } from 'react-i18next';
 import Animated, {
     useAnimatedStyle,

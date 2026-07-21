@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { useTranslation } from 'react-i18next';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { usePaidyStore } from '@/store/usePaidyStore';
+import { isTimeZoneSupported } from '@/lib/timeZone';
 
 // Component for a section header
 const SectionHeader = ({ title }: { title: string }) => (
@@ -150,7 +151,7 @@ export default function SettingsScreen() {
           <SettingsRow
             icon="globe-outline"
             title={t('settings.time_zone')}
-            value={timeZone}
+            value={isTimeZoneSupported(timeZone) ? timeZone : `${timeZone} · ${t('time_zone.unsupported_short')}`}
             onPress={() => router.push('/settings/time-zone' as any)}
           />
           <SettingsRow

@@ -1,4 +1,5 @@
 import Constants from 'expo-constants';
+import { fetchWithTimeout } from './fetchWithTimeout';
 
 const REPOSITORY = 'Ahoshinet/subscription-app';
 const GITHUB_API_BASE_URL = `https://api.github.com/repos/${REPOSITORY}`;
@@ -53,25 +54,17 @@ function compareVersions(left: string, right: string): number {
 }
 
 async function fetchJson<T>(url: string): Promise<T> {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    const response = await fetchWithTimeout(url, {
+        headers: {
+            Accept: 'application/vnd.github+json',
+        },
+    }, REQUEST_TIMEOUT_MS);
 
-    try {
-        const response = await fetch(url, {
-            headers: {
-                Accept: 'application/vnd.github+json',
-            },
-            signal: controller.signal,
-        });
-
-        if (!response.ok) {
-            throw new Error(`GitHub request failed with status ${response.status}`);
-        }
-
-        return response.json() as Promise<T>;
-    } finally {
-        clearTimeout(timeout);
+    if (!response.ok) {
+        throw new Error(`GitHub request failed with status ${response.status}`);
     }
+
+    return response.json() as Promise<T>;
 }
 
 async function fetchLatestRelease(): Promise<LatestRepositoryVersion | null> {
