@@ -63,7 +63,7 @@ let lastScheduleSignature: string | null = null;
 function reminderSignature(subscriptions: Subscription[], language: string, timeZone: string): string {
     return `${language}:${timeZone}|` + subscriptions
         .filter((s) => s.status === 'active')
-        .map((s) => `${s.id}:${s.next_payment_date}:${s.billing_cycle}:${s.amount}:${s.currency}:${s.service_name}:${s.plan_name ?? ''}`)
+        .map((s) => `${s.id}:${s.next_payment_date}:${s.billing_cycle}:${s.billing_anchor_day ?? ''}:${s.amount}:${s.currency}:${s.service_name}:${s.plan_name ?? ''}`)
         .sort()
         .join('|');
 }
@@ -104,6 +104,7 @@ async function _doSchedule(
             sub.next_payment_date,
             sub.billing_cycle,
             todayDate,
+            sub.billing_anchor_day,
         );
 
         for (const daysBefore of REMINDER_DAYS) {

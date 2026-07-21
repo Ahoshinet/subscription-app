@@ -277,7 +277,12 @@ export default function HomeScreen() {
             {filteredAndSorted.map((sub: any) => {
               const effectiveDate = sub.id === -1
                 ? sub.next_payment_date
-                : getEffectiveNextPaymentDate(sub.next_payment_date, sub.billing_cycle, todayDate);
+                : getEffectiveNextPaymentDate(
+                  sub.next_payment_date,
+                  sub.billing_cycle,
+                  todayDate,
+                  sub.billing_anchor_day,
+                );
               const daysRemaining = Math.max(0, daysBetweenDateOnly(todayDate, effectiveDate));
 
               return (

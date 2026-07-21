@@ -41,15 +41,21 @@ function getPaymentDaysInMonth(
     year: number,
     month: number,
     todayDate: string,
+    billingAnchorDay?: number,
 ): number[] {
-    const effectiveDate = getEffectiveNextPaymentDate(nextPaymentDate, billingCycle, todayDate);
+    const effectiveDate = getEffectiveNextPaymentDate(
+        nextPaymentDate,
+        billingCycle,
+        todayDate,
+        billingAnchorDay,
+    );
     const effective = parseDateOnly(effectiveDate);
     if (!effective) return [];
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     // No payments happen in months before the first (effective) payment month
     const effectiveYear = effective.year;
     const effectiveMonth = effective.month - 1;
-    const effectiveDay = effective.day;
+    const effectiveDay = Math.min(31, Math.max(1, billingAnchorDay ?? effective.day));
     const beforeFirstPayment = year < effectiveYear
         || (year === effectiveYear && month < effectiveMonth);
 
@@ -138,6 +144,7 @@ export default function CalendarScreen() {
                 year,
                 month,
                 todayDate,
+                sub.billing_anchor_day,
             );
             for (const d of days) {
                 const isPastDay = year < todayY

@@ -196,6 +196,7 @@ export default function DetailScreen() {
                                 subscription.next_payment_date,
                                 subscription.billing_cycle,
                                 todayDate,
+                                subscription.billing_anchor_day,
                             ))}
                         />
                         <DetailRow label={t('detail.label_billing_cycle')} value={t(`billing_cycle.${subscription.billing_cycle}`, { defaultValue: subscription.billing_cycle })} />
