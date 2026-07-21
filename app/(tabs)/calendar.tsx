@@ -41,27 +41,33 @@ function getPaymentDaysInMonth(
 ): number[] {
     const effective = new Date(getEffectiveNextPaymentDate(nextPaymentDate, billingCycle));
     const daysInMonth = new Date(year, month + 1, 0).getDate();
+    // next_payment_date is a UTC calendar date. Reading it with local-time
+    // getters can move midnight UTC into the previous month on devices west
+    // of UTC (for example, July 1 becomes June 30).
     // No payments happen in months before the first (effective) payment month
-    const beforeFirstPayment = year < effective.getFullYear()
-        || (year === effective.getFullYear() && month < effective.getMonth());
+    const effectiveYear = effective.getUTCFullYear();
+    const effectiveMonth = effective.getUTCMonth();
+    const effectiveDay = effective.getUTCDate();
+    const beforeFirstPayment = year < effectiveYear
+        || (year === effectiveYear && month < effectiveMonth);
 
     if (billingCycle === 'monthly') {
         if (beforeFirstPayment) return [];
-        return [Math.min(effective.getDate(), daysInMonth)];
+        return [Math.min(effectiveDay, daysInMonth)];
     }
     if (billingCycle === 'yearly') {
         if (beforeFirstPayment) return [];
-        return effective.getMonth() === month ? [Math.min(effective.getDate(), daysInMonth)] : [];
+        return effectiveMonth === month ? [Math.min(effectiveDay, daysInMonth)] : [];
     }
     if (billingCycle === 'weekly') {
-        const target = new Date(year, month, 1);
-        const targetEnd = new Date(year, month + 1, 0);
+        const target = new Date(Date.UTC(year, month, 1));
+        const targetEnd = new Date(Date.UTC(year, month + 1, 0));
         const d = new Date(effective);
-        while (d < target) d.setDate(d.getDate() + 7);
+        while (d < target) d.setUTCDate(d.getUTCDate() + 7);
         const days: number[] = [];
         while (d <= targetEnd) {
-            days.push(d.getDate());
-            d.setDate(d.getDate() + 7);
+            days.push(d.getUTCDate());
+            d.setUTCDate(d.getUTCDate() + 7);
         }
         return days;
     }
