@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import {
     View, Text, TouchableOpacity,
-    ScrollView, useColorScheme, Image, Dimensions, Modal, Platform,
+    ScrollView, Image, Dimensions, Modal, Platform,
 } from 'react-native';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';

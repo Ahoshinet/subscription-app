@@ -9,6 +9,7 @@ import {
     formatTimeZoneOffset,
     getDeviceTimeZone,
     getSupportedTimeZones,
+    isTimeZoneSupported,
 } from '@/lib/timeZone';
 
 export default function TimeZoneSettingsScreen() {
@@ -19,6 +20,7 @@ export default function TimeZoneSettingsScreen() {
     const { timeZone, setTimeZone } = useSettingsStore();
     const [query, setQuery] = useState('');
     const deviceTimeZone = getDeviceTimeZone();
+    const selectedZoneSupported = isTimeZoneSupported(timeZone);
     const allTimeZones = useMemo(() => getSupportedTimeZones(), []);
     const filteredTimeZones = useMemo(() => {
         const normalized = query.trim().toLowerCase();
@@ -43,6 +45,13 @@ export default function TimeZoneSettingsScreen() {
             />
 
             <View className="px-4 pt-4 pb-3">
+                {!selectedZoneSupported ? (
+                    <View className="mb-3 rounded-xl bg-amber-100 dark:bg-amber-900/30 px-4 py-3">
+                        <Text className="text-sm text-amber-900 dark:text-amber-200">
+                            {t('time_zone.unsupported', { zone: timeZone })}
+                        </Text>
+                    </View>
+                ) : null}
                 <View className="bg-white dark:bg-[#1C1C1E] rounded-xl flex-row items-center px-3" style={{ height: 44 }}>
                     <Ionicons name="search" size={18} color={isDark ? '#6B7280' : '#9CA3AF'} />
                     <TextInput

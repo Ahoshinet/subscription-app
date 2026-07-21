@@ -1,3 +1,5 @@
+import { fetchWithTimeout } from './fetchWithTimeout';
+
 const GMAIL_API_BASE = 'https://gmail.googleapis.com/gmail/v1';
 
 // Thrown when the Gmail access token is expired/revoked (HTTP 401).
@@ -140,7 +142,7 @@ function toISODate(d: Date): string {
 
 async function fetchJpHolidaysForYear(year: number): Promise<Set<string>> {
   try {
-    const res = await fetch(`https://holidays-jp.github.io/api/v1/${year}/date.json`);
+    const res = await fetchWithTimeout(`https://holidays-jp.github.io/api/v1/${year}/date.json`);
     if (!res.ok) return new Set();
     const data: Record<string, string> = await res.json();
     return new Set(Object.keys(data));
@@ -163,7 +165,7 @@ async function nextPaymentDateFromMonth(month: string): Promise<string> {
 }
 
 async function gmailFetch(path: string, accessToken: string): Promise<any> {
-  const res = await fetch(`${GMAIL_API_BASE}${path}`, {
+  const res = await fetchWithTimeout(`${GMAIL_API_BASE}${path}`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
   if (res.status === 401) throw new GmailAuthError();
@@ -172,34 +174,56 @@ async function gmailFetch(path: string, accessToken: string): Promise<any> {
 }
 
 export async function fetchPaidyTransactions(accessToken: string): Promise<PaidySummary | null> {
-  // Japanese in the query URL can be misinterpreted; filter by subject in code instead.
-  const query = encodeURIComponent('from:noreply@paidy.com');
-  const listData = await gmailFetch(
-    `/users/me/messages?q=${query}&maxResults=50`,
-    accessToken
-  );
+    // Japanese in the query URL can be misinterpreted; filter by subject in code instead.
+  const query = encodeURIComponent('from:noreply@paidy.com newer_than:90d');
+  const messages: any[] = [];
+  let pageToken: string | undefined;
+  do {
+    const pageParam = pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : '';
+    const listData = await gmailFetch(
+      `/users/me/messages?q=${query}&maxResults=100${pageParam}`,
+      accessToken
+    );
+    messages.push(...(listData.messages ?? []));
+    pageToken = listData.nextPageToken;
+  } while (pageToken);
 
-  const messages: any[] = listData.messages ?? [];
   if (messages.length === 0) return null;
 
   const transactions: PaidyTransaction[] = [];
+  let processingFailed = false;
 
-  await Promise.all(
-    messages.map(async (msg: any) => {
+  // Avoid firing hundreds of Gmail detail requests at once while still
+  // keeping synchronization reasonably fast.
+  for (let start = 0; start < messages.length; start += 10) {
+    const batch = messages.slice(start, start + 10);
+    await Promise.all(batch.map(async (msg: any) => {
       try {
         const detail = await gmailFetch(`/users/me/messages/${msg.id}?format=full`, accessToken);
         const headers: any[] = detail.payload?.headers ?? [];
         const subject = headers.find((h: any) => h.name.toLowerCase() === 'subject')?.value ?? '';
         if (!subject.includes('ご利用確定のお知らせ')) return;
         const body = findTextPlainPart(detail.payload);
-        if (!body) return;
+        if (!body) {
+          processingFailed = true;
+          return;
+        }
         const tx = parseTransactionFromBody(body);
-        if (tx) transactions.push(tx);
-      } catch {
-        // skip malformed messages
+        if (tx) {
+          transactions.push(tx);
+        } else {
+          processingFailed = true;
+        }
+      } catch (error) {
+        if (error instanceof GmailAuthError) throw error;
+        processingFailed = true;
       }
-    })
-  );
+    }));
+  }
+
+  if (processingFailed) {
+    throw new Error('Some Paidy messages could not be retrieved or parsed');
+  }
 
   if (transactions.length === 0) return null;
 
@@ -227,7 +251,7 @@ export async function fetchPaidyTransactions(accessToken: string): Promise<Paidy
 }
 
 export async function fetchGoogleUserEmail(accessToken: string): Promise<string> {
-  const res = await fetch('https://www.googleapis.com/userinfo/v2/me', {
+  const res = await fetchWithTimeout('https://www.googleapis.com/userinfo/v2/me', {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
   if (!res.ok) throw new Error('Failed to fetch Google user info');

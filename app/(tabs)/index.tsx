@@ -42,16 +42,20 @@ export default function HomeScreen() {
 
   // Schedule payment reminder notifications
   useEffect(() => {
+    let cancelled = false;
     if (subscriptions.length > 0 && pushNotifications) {
-      (async () => {
+      void (async () => {
         const granted = await requestNotificationPermissions();
-        if (granted) {
-          await schedulePaymentReminders(subscriptions, t, timeZone);
+        if (granted && !cancelled) {
+          schedulePaymentReminders(subscriptions, t, timeZone);
         }
       })();
-    } else if (!pushNotifications) {
-      cancelAllReminders();
+    } else {
+      void cancelAllReminders();
     }
+    return () => {
+      cancelled = true;
+    };
   }, [subscriptions, pushNotifications, timeZone, t]);
 
   const onRefresh = useCallback(async () => {

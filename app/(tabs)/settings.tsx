@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { useTranslation } from 'react-i18next';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { usePaidyStore } from '@/store/usePaidyStore';
+import { isTimeZoneSupported } from '@/lib/timeZone';
 
 // Component for a section header
 const SectionHeader = ({ title }: { title: string }) => (
@@ -150,7 +151,7 @@ export default function SettingsScreen() {
           <SettingsRow
             icon="globe-outline"
             title={t('settings.time_zone')}
-            value={timeZone}
+            value={isTimeZoneSupported(timeZone) ? timeZone : `${timeZone} · ${t('time_zone.unsupported_short')}`}
             onPress={() => router.push('/settings/time-zone' as any)}
           />
           <SettingsRow
@@ -206,8 +207,12 @@ export default function SettingsScreen() {
         {/* Logout Button */}
         <Pressable
           onPress={async () => {
-            await logout();
-            router.replace('/login');
+            try {
+              await logout();
+              router.replace('/login');
+            } catch (error: any) {
+              Alert.alert(t('common.error'), error.message || 'ログアウトに失敗しました');
+            }
           }}
           className="mt-4 mb-8 items-center py-4 rounded-xl bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-900/50"
         >

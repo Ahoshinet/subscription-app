@@ -54,7 +54,7 @@ jobs:
 
     - name: Push changes
       run: |
-        git add package.json
+        git add app.json package.json
         git commit -m "chore: bump version to v${{ steps.get_version.outputs.VERSION }}"
         git tag "v${{ steps.get_version.outputs.VERSION }}"
         git push origin main

@@ -4,9 +4,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { settingsApi } from '../lib/api';
 import { CurrencyId, getSystemCurrency } from '../lib/currency';
 import { getDeviceTimeZone } from '../lib/timeZone';
+import { captureAuthSession, isAuthSessionCurrent } from '../lib/authSession';
 
 export type Language = 'en' | 'ja';
 export type ThemePreference = 'system' | 'light' | 'dark';
+
+const mutationQueues = new Map<string, Promise<void>>();
 
 interface SettingsState {
     language: Language;
@@ -74,9 +77,12 @@ export const useSettingsStore = create<SettingsState>()(
             },
 
             syncFromServer: async () => {
+                const session = captureAuthSession();
+                if (!session) return;
                 try {
                     set({ isSyncing: true });
                     const settings = await settingsApi.get();
+                    if (!isAuthSessionCurrent(session)) return;
                     set({
                         language: (settings.language as Language) || 'en',
                         currency: (settings.currency as CurrencyId) || getSystemCurrency(),
@@ -86,18 +92,39 @@ export const useSettingsStore = create<SettingsState>()(
                         isSyncing: false,
                     });
                 } catch {
-                    set({ isSyncing: false, syncError: true });
+                    if (isAuthSessionCurrent(session)) {
+                        set({ isSyncing: false, syncError: true });
+                    }
                 }
             },
 
             syncToServer: async (patch) => {
+                const session = captureAuthSession();
+                if (!session) return;
+                const fields = Object.keys(patch).sort().join(',');
+                const queueKey = `${session.userId}:${fields}`;
+                const previous = mutationQueues.get(queueKey) ?? Promise.resolve();
                 set({ isSyncing: true });
+                const mutation = previous
+                    .catch(() => {})
+                    .then(async () => {
+                        if (!isAuthSessionCurrent(session)) return;
+                        await settingsApi.update(patch as any);
+                    });
+                mutationQueues.set(queueKey, mutation);
                 try {
-                    await settingsApi.update(patch as any);
+                    await mutation;
                 } catch {
-                    set({ syncError: true });
+                    if (isAuthSessionCurrent(session)) set({ syncError: true });
                 } finally {
-                    set({ isSyncing: false });
+                    if (mutationQueues.get(queueKey) === mutation) {
+                        mutationQueues.delete(queueKey);
+                    }
+                    const hasPendingForUser = Array.from(mutationQueues.keys())
+                        .some((key) => key.startsWith(`${session.userId}:`));
+                    if (isAuthSessionCurrent(session) && !hasPendingForUser) {
+                        set({ isSyncing: false });
+                    }
                 }
             },
         }),

@@ -41,7 +41,18 @@ export function getSupportedTimeZones(): string[] {
     } catch {
         // Older Hermes versions do not expose supportedValuesOf.
     }
-    return Array.from(new Set([getDeviceTimeZone(), ...zones, ...FALLBACK_TIME_ZONES])).sort();
+    return Array.from(new Set([getDeviceTimeZone(), ...zones, ...FALLBACK_TIME_ZONES]))
+        .filter(isTimeZoneSupported)
+        .sort();
+}
+
+export function isTimeZoneSupported(timeZone: string): boolean {
+    try {
+        new Intl.DateTimeFormat('en-US', { timeZone }).format(new Date());
+        return true;
+    } catch {
+        return false;
+    }
 }
 
 function formatToPartsInTimeZone(
@@ -49,19 +60,16 @@ function formatToPartsInTimeZone(
     timeZone: string,
     options: Intl.DateTimeFormatOptions,
 ): Intl.DateTimeFormatPart[] | null {
-    const fallbackTimeZones = [timeZone, getDeviceTimeZone(), DEFAULT_TIME_ZONE, 'UTC'];
-    for (const candidate of new Set(fallbackTimeZones)) {
-        try {
-            return new Intl.DateTimeFormat('en-US', {
-                ...options,
-                timeZone: candidate,
-            }).formatToParts(instant);
-        } catch {
-            // Try the next supported zone when account data is invalid or the
-            // platform's Intl implementation lacks the requested IANA zone.
-        }
+    try {
+        return new Intl.DateTimeFormat('en-US', {
+            ...options,
+            timeZone,
+        }).formatToParts(instant);
+    } catch {
+        // Never silently substitute a different zone: callers can surface the
+        // unsupported account setting and ask the user to choose another one.
+        return null;
     }
-    return null;
 }
 
 export function getTodayDateInTimeZone(timeZone: string): string {
@@ -72,11 +80,8 @@ export function getTodayDateInTimeZone(timeZone: string): string {
         day: '2-digit',
     });
     if (!parts) {
-        return [
-            String(now.getFullYear()).padStart(4, '0'),
-            String(now.getMonth() + 1).padStart(2, '0'),
-            String(now.getDate()).padStart(2, '0'),
-        ].join('-');
+        console.warn(`[timeZone] Unsupported time zone: ${timeZone}`);
+        return now.toISOString().slice(0, 10);
     }
     const value = (type: Intl.DateTimeFormatPartTypes) =>
         parts.find((part) => part.type === type)?.value ?? '';
@@ -84,22 +89,42 @@ export function getTodayDateInTimeZone(timeZone: string): string {
 }
 
 export function formatTimeZoneOffset(timeZone: string): string {
-    try {
-        const part = new Intl.DateTimeFormat('en-US', {
-            timeZone,
-            timeZoneName: 'longOffset',
-        }).formatToParts(new Date()).find((item) => item.type === 'timeZoneName');
-        return part?.value?.replace('GMT', 'UTC') ?? timeZone;
-    } catch {
-        return timeZone;
-    }
+    const instant = new Date();
+    const parts = formatToPartsInTimeZone(instant, timeZone, {
+        hourCycle: 'h23',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+    });
+    if (!parts) return `${timeZone} (unsupported)`;
+
+    const value = (type: Intl.DateTimeFormatPartTypes) =>
+        Number(parts.find((part) => part.type === type)?.value ?? Number.NaN);
+    const zonedAsUtc = Date.UTC(
+        value('year'),
+        value('month') - 1,
+        value('day'),
+        value('hour'),
+        value('minute'),
+        value('second'),
+    );
+    if (!Number.isFinite(zonedAsUtc)) return `${timeZone} (unsupported)`;
+    const instantToSecond = Math.floor(instant.getTime() / 1000) * 1000;
+    const offsetMinutes = Math.round((zonedAsUtc - instantToSecond) / 60_000);
+    if (offsetMinutes === 0) return 'UTC';
+    const sign = offsetMinutes >= 0 ? '+' : '-';
+    const absolute = Math.abs(offsetMinutes);
+    return `UTC${sign}${String(Math.floor(absolute / 60)).padStart(2, '0')}:${String(absolute % 60).padStart(2, '0')}`;
 }
 
 function partsAsUtc(parts: DateOnlyParts, hour: number, minute: number): number {
     return Date.UTC(parts.year, parts.month - 1, parts.day, hour, minute, 0, 0);
 }
 
-function dateTimePartsAt(instant: Date, timeZone: string): DateOnlyParts & { hour: number; minute: number } {
+function dateTimePartsAt(instant: Date, timeZone: string): (DateOnlyParts & { hour: number; minute: number }) | null {
     const formatted = formatToPartsInTimeZone(instant, timeZone, {
         hourCycle: 'h23',
         year: 'numeric',
@@ -108,15 +133,7 @@ function dateTimePartsAt(instant: Date, timeZone: string): DateOnlyParts & { hou
         hour: '2-digit',
         minute: '2-digit',
     });
-    if (!formatted) {
-        return {
-            year: instant.getUTCFullYear(),
-            month: instant.getUTCMonth() + 1,
-            day: instant.getUTCDate(),
-            hour: instant.getUTCHours(),
-            minute: instant.getUTCMinutes(),
-        };
-    }
+    if (!formatted) return null;
     const value = (type: Intl.DateTimeFormatPartTypes) =>
         Number(formatted.find((part) => part.type === type)?.value ?? 0);
     return {
@@ -144,6 +161,7 @@ export function zonedDateTimeToDate(
     // the target instant. Reminder time is 09:00, so it is never ambiguous.
     for (let i = 0; i < 2; i++) {
         const observed = dateTimePartsAt(candidate, timeZone);
+        if (!observed) return null;
         const observedAsUtc = partsAsUtc(observed, observed.hour, observed.minute);
         candidate = new Date(candidate.getTime() + (localAsUtc - observedAsUtc));
     }

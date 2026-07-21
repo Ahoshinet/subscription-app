@@ -1,6 +1,6 @@
 # プライバシーポリシー / Privacy Policy
 
-**最終更新日 / Last Updated:** 2026年7月21日 / July 21, 2026
+**最終更新日 / Last Updated:** 2026年7月22日 / July 22, 2026
 **制定日 / Originally Effective:** 2026年3月15日 / March 15, 2026
 
 ---
@@ -17,7 +17,7 @@ Ahoshinet Groups (Administrator: darui3018823, the "Operator") establishes this 
 
 本サービスでは、以下の情報を取得します。
 
-- メールアドレス（アカウント登録時）
+- ユーザー名（アカウント登録時。メールアドレスは登録情報として取得しません）
 - サブスクリプション情報（名称・金額・支払周期など、ユーザーが入力した情報）
 - 支払方法情報（カードブランド・下4桁・カスタム名称など）
 - アカウントのタイムゾーン（端末から初期設定され、設定画面で変更可能）
@@ -28,7 +28,7 @@ Ahoshinet Groups (Administrator: darui3018823, the "Operator") establishes this 
 
 The Service collects the following information:
 
-- Email address (upon account registration)
+- Username (upon account registration; an email address is not collected as registration data)
 - Subscription information (name, amount, billing cycle, and other user-entered data)
 - Payment method information (card brand, last 4 digits, custom name, etc.)
 - Account time zone (initialized from the device and editable in Settings)
@@ -73,11 +73,11 @@ The Operator will not provide, disclose, or sell collected personal information 
 
 ## 第5条（外部サービスの利用）/ Article 5 (Third-Party Services)
 
-本サービスは現在、Google Analytics・Firebase・Sentry等のサードパーティ製データ解析・追跡ツールを使用していません。また、本サービスはネイティブアプリのみで提供されており、WebビューによるCookie等のトラッキング技術は使用していません。
+本サービスは現在、Google Analytics・Firebase・Sentry等のサードパーティ製データ解析・追跡ツールを使用していません。本サービスはAndroid、iOSおよびWebで提供されます。Web版は認証トークンをブラウザのセッションストレージに保持しますが、追跡目的のCookieやローカルストレージは使用しません。
 
 Google連携機能を利用した場合は、Gmail APIを通じてGoogleのサーバーと通信します。詳細は第12条をご参照ください。
 
-The Service does not currently use any third-party analytics or tracking tools such as Google Analytics, Firebase, or Sentry. As the Service is a native app with no web views, no cookies or equivalent tracking technologies are used.
+The Service does not currently use third-party analytics or tracking tools such as Google Analytics, Firebase, or Sentry. The Service is available on Android, iOS, and Web. The Web version stores its authentication token in browser session storage, but does not use tracking cookies or local storage for authentication.
 
 When the Google integration feature is used, the Service communicates with Google's servers via the Gmail API. See Article 12 for details.
 

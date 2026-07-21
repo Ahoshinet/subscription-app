@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Pressable, useColorScheme, KeyboardAvoidingView, ScrollView, Platform, Alert, ActivityIndicator, Image, Modal, Dimensions } from 'react-native';
+import { View, Text, TextInput, Pressable, KeyboardAvoidingView, ScrollView, Platform, Alert, ActivityIndicator, Image, Modal, Dimensions } from 'react-native';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useSubscriptionStore } from '../store/useSubscriptionStore';
@@ -74,11 +75,13 @@ export default function AddSubscriptionModal() {
         }
 
         setIsSubmitting(true);
+        let pendingIconUrl: string | undefined;
         try {
             let iconUrl: string | undefined;
             if (iconUri) {
                 const uploadResult = await uploadApi.uploadIcon(iconUri);
                 iconUrl = uploadResult.url;
+                pendingIconUrl = uploadResult.url;
             } else if (selectedPresetIcon) {
                 iconUrl = buildSubscriptionPresetIconValue(
                     selectedPresetIcon.pack,
@@ -100,6 +103,9 @@ export default function AddSubscriptionModal() {
             });
             router.back();
         } catch (error: any) {
+            if (pendingIconUrl?.startsWith('/uploads/pending/')) {
+                await uploadApi.deletePending(pendingIconUrl).catch(() => {});
+            }
             Alert.alert(t('common.error'), error.message || t('add.error_failed'));
         } finally {
             setIsSubmitting(false);

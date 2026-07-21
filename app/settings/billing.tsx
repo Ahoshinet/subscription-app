@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { usePaymentMethodStore } from '@/store/usePaymentMethodStore';
 import { AddPaymentMethodSheet } from '@/components/AddPaymentMethodSheet';
+import { resolveIconUrl } from '@/lib/api';
 
 export default function BillingScreen() {
     const colorScheme = useColorScheme();
@@ -63,7 +64,7 @@ export default function BillingScreen() {
                                             >
                                                 {method.iconUri ? (
                                                     <Image
-                                                        source={{ uri: method.iconUri }}
+                                                        source={{ uri: resolveIconUrl(method.iconUri) }}
                                                         style={{ width: 32, height: 32, borderRadius: 8 }}
                                                     />
                                                 ) : (

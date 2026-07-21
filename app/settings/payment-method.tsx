@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, useColorScheme, Image } from 'react-native';
+import { View, Text, Pressable, Image } from 'react-native';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useAddFormStore } from '../../store/useAddFormStore';
 import { usePaymentMethodStore } from '../../store/usePaymentMethodStore';
 import { AddPaymentMethodSheet } from '../../components/AddPaymentMethodSheet';
+import { resolveIconUrl } from '@/lib/api';
 
 export default function PaymentMethodPickerScreen() {
     const { t } = useTranslation();
@@ -74,7 +76,7 @@ export default function PaymentMethodPickerScreen() {
                                         >
                                             {method.iconUri ? (
                                                 <Image
-                                                    source={{ uri: method.iconUri }}
+                                                    source={{ uri: resolveIconUrl(method.iconUri) }}
                                                     style={{ width: 26, height: 26, borderRadius: 6 }}
                                                 />
                                             ) : (

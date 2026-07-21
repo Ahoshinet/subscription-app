@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import {
     View, Text, TextInput, Pressable,
-    Alert, Image, ScrollView, useColorScheme,
+    Alert, Image, ScrollView,
 } from 'react-native';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { usePaymentMethodStore } from '@/store/usePaymentMethodStore';
+import { resolveIconUrl } from '@/lib/api';
 
 export default function PaymentMethodDetailScreen() {
     const params = useLocalSearchParams<{ id: string }>();
@@ -102,7 +104,7 @@ export default function PaymentMethodDetailScreen() {
                     >
                         {method.iconUri ? (
                             <Image
-                                source={{ uri: method.iconUri }}
+                                source={{ uri: resolveIconUrl(method.iconUri) }}
                                 style={{ width: 50, height: 50, borderRadius: 14 }}
                             />
                         ) : (

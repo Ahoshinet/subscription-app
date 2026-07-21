@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import {
     Modal, View, Text, Pressable, Animated,
-    ScrollView, TextInput, Image, useColorScheme,
+    ScrollView, TextInput, Image,
     Platform, Dimensions, KeyboardAvoidingView, Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
 import { usePaymentMethodStore } from '@/store/usePaymentMethodStore';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 const SHEET_HORIZONTAL_PADDING = 20;
