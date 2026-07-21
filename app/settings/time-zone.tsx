@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, Pressable, ScrollView, TextInput } from 'react-native';
+import { View, Text, Pressable, FlatList, TextInput } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -57,38 +57,48 @@ export default function TimeZoneSettingsScreen() {
                 </View>
             </View>
 
-            <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
-                <Text className="text-xs font-bold text-neutral-500 dark:text-neutral-400 tracking-wider ml-4 mb-2 mt-2">
-                    {t('time_zone.section')}
-                </Text>
-                <View className="rounded-2xl overflow-hidden border border-neutral-200/50 dark:border-white/10">
-                    {filteredTimeZones.map((zone, index) => {
-                        const selected = zone === timeZone;
-                        return (
-                            <Pressable
-                                key={zone}
-                                onPress={() => selectTimeZone(zone)}
-                                className={`bg-white dark:bg-[#1C1C1E] flex-row items-center px-4 py-3 ${
-                                    index < filteredTimeZones.length - 1
-                                        ? 'border-b border-neutral-100 dark:border-white/5'
-                                        : ''
-                                }`}
-                            >
-                                <View className="flex-1 mr-3">
-                                    <Text className="text-base font-medium text-neutral-900 dark:text-white">
-                                        {zone}
-                                    </Text>
-                                    <Text className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
-                                        {formatTimeZoneOffset(zone)}
-                                        {zone === deviceTimeZone ? ` · ${t('time_zone.current_device')}` : ''}
-                                    </Text>
-                                </View>
-                                {selected ? <Ionicons name="checkmark" size={24} color="#3B82F6" /> : null}
-                            </Pressable>
-                        );
-                    })}
-                </View>
-            </ScrollView>
+            <FlatList
+                data={filteredTimeZones}
+                keyExtractor={(zone) => zone}
+                contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}
+                ListHeaderComponent={
+                    <Text className="text-xs font-bold text-neutral-500 dark:text-neutral-400 tracking-wider ml-4 mb-2 mt-2">
+                        {t('time_zone.section')}
+                    </Text>
+                }
+                renderItem={({ item: zone, index }) => {
+                    const selected = zone === timeZone;
+                    const isFirst = index === 0;
+                    const isLast = index === filteredTimeZones.length - 1;
+                    return (
+                        <Pressable
+                            onPress={() => selectTimeZone(zone)}
+                            className={[
+                                'bg-white dark:bg-[#1C1C1E] flex-row items-center px-4 py-3 border-x border-neutral-200/50 dark:border-white/10',
+                                isFirst ? 'rounded-t-2xl border-t' : '',
+                                isLast
+                                    ? 'rounded-b-2xl border-b'
+                                    : 'border-b border-b-neutral-100 dark:border-b-white/5',
+                            ].join(' ')}
+                        >
+                            <View className="flex-1 mr-3">
+                                <Text className="text-base font-medium text-neutral-900 dark:text-white">
+                                    {zone}
+                                </Text>
+                                <Text className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                                    {formatTimeZoneOffset(zone)}
+                                    {zone === deviceTimeZone ? ` · ${t('time_zone.current_device')}` : ''}
+                                </Text>
+                            </View>
+                            {selected ? <Ionicons name="checkmark" size={24} color="#3B82F6" /> : null}
+                        </Pressable>
+                    );
+                }}
+                initialNumToRender={20}
+                maxToRenderPerBatch={20}
+                windowSize={10}
+                keyboardShouldPersistTaps="handled"
+            />
         </View>
     );
 }

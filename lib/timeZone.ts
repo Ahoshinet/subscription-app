@@ -44,14 +44,40 @@ export function getSupportedTimeZones(): string[] {
     return Array.from(new Set([getDeviceTimeZone(), ...zones, ...FALLBACK_TIME_ZONES])).sort();
 }
 
+function formatToPartsInTimeZone(
+    instant: Date,
+    timeZone: string,
+    options: Intl.DateTimeFormatOptions,
+): Intl.DateTimeFormatPart[] | null {
+    const fallbackTimeZones = [timeZone, getDeviceTimeZone(), DEFAULT_TIME_ZONE, 'UTC'];
+    for (const candidate of new Set(fallbackTimeZones)) {
+        try {
+            return new Intl.DateTimeFormat('en-US', {
+                ...options,
+                timeZone: candidate,
+            }).formatToParts(instant);
+        } catch {
+            // Try the next supported zone when account data is invalid or the
+            // platform's Intl implementation lacks the requested IANA zone.
+        }
+    }
+    return null;
+}
+
 export function getTodayDateInTimeZone(timeZone: string): string {
-    const formatter = new Intl.DateTimeFormat('en-US', {
-        timeZone,
+    const now = new Date();
+    const parts = formatToPartsInTimeZone(now, timeZone, {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
     });
-    const parts = formatter.formatToParts(new Date());
+    if (!parts) {
+        return [
+            String(now.getFullYear()).padStart(4, '0'),
+            String(now.getMonth() + 1).padStart(2, '0'),
+            String(now.getDate()).padStart(2, '0'),
+        ].join('-');
+    }
     const value = (type: Intl.DateTimeFormatPartTypes) =>
         parts.find((part) => part.type === type)?.value ?? '';
     return `${value('year')}-${value('month')}-${value('day')}`;
@@ -74,15 +100,23 @@ function partsAsUtc(parts: DateOnlyParts, hour: number, minute: number): number 
 }
 
 function dateTimePartsAt(instant: Date, timeZone: string): DateOnlyParts & { hour: number; minute: number } {
-    const formatted = new Intl.DateTimeFormat('en-US', {
-        timeZone,
+    const formatted = formatToPartsInTimeZone(instant, timeZone, {
         hourCycle: 'h23',
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
         hour: '2-digit',
         minute: '2-digit',
-    }).formatToParts(instant);
+    });
+    if (!formatted) {
+        return {
+            year: instant.getUTCFullYear(),
+            month: instant.getUTCMonth() + 1,
+            day: instant.getUTCDate(),
+            hour: instant.getUTCHours(),
+            minute: instant.getUTCMinutes(),
+        };
+    }
     const value = (type: Intl.DateTimeFormatPartTypes) =>
         Number(formatted.find((part) => part.type === type)?.value ?? 0);
     return {
