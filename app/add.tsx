@@ -16,9 +16,11 @@ import {
     SubscriptionIconPack,
     buildSubscriptionPresetIconValue,
 } from '../lib/subscriptionIcon';
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
 import { CURRENCIES, isAmountInputAboveMax, parseAmountInput } from '../lib/currency';
+import { dateOnlyToLocalDate, formatDateOnly } from '../lib/dateUtils';
+import { getTodayDateInTimeZone } from '../lib/timeZone';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const ICON_PICKER_WIDTH = Math.min(SCREEN_WIDTH - 32, 360);
 const ICON_PICKER_GAP = 10;
@@ -33,7 +35,10 @@ export default function AddSubscriptionModal() {
     const [serviceName, setServiceName] = useState('');
     const [planName, setPlanName] = useState('');
     const [amount, setAmount] = useState('');
-    const [nextPaymentDate, setNextPaymentDate] = useState(new Date());
+    const [nextPaymentDate, setNextPaymentDate] = useState(() => {
+        const accountTimeZone = useSettingsStore.getState().timeZone;
+        return dateOnlyToLocalDate(getTodayDateInTimeZone(accountTimeZone));
+    });
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [iconUri, setIconUri] = useState<string | null>(null);
     const [selectedPresetIcon, setSelectedPresetIcon] = useState<{ pack: SubscriptionIconPack; name: string; color: string } | null>(null);
@@ -88,7 +93,7 @@ export default function AddSubscriptionModal() {
                 currency,
                 billing_cycle: billingCycle,
                 payment_method: paymentMethod,
-                next_payment_date: nextPaymentDate.toISOString(),
+                next_payment_date: formatDateOnly(nextPaymentDate),
                 status: 'active',
                 icon_url: iconUrl,
                 memo: memo || undefined,

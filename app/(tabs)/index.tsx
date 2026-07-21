@@ -14,7 +14,8 @@ import { requestNotificationPermissions, schedulePaymentReminders, cancelAllRemi
 import * as Haptics from 'expo-haptics';
 
 import { CURRENCY_SYMBOLS, getSystemCurrency, toMonthlyAmount } from '@/lib/currency';
-import { getEffectiveNextPaymentDate } from '@/lib/dateUtils';
+import { daysBetweenDateOnly, getEffectiveNextPaymentDate } from '@/lib/dateUtils';
+import { getTodayDateInTimeZone } from '@/lib/timeZone';
 
 type SortKey = 'name' | 'amount' | 'date';
 
@@ -25,12 +26,13 @@ export default function HomeScreen() {
   const { t } = useTranslation();
 
   const { subscriptions, isLoading, error, fetchSubscriptions } = useSubscriptionStore();
-  const { pushNotifications } = useSettingsStore();
+  const { pushNotifications, timeZone } = useSettingsStore();
   const { isSignedIn: gmailSignedIn, paidyAmount, paidyMonth, nextPaymentDate: paidyNextDate } = usePaidyStore();
   const [refreshing, setRefreshing] = useState(false);
   const [spendingExpanded, setSpendingExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('date');
+  const todayDate = getTodayDateInTimeZone(timeZone);
 
   useFocusEffect(
     useCallback(() => {
@@ -44,13 +46,13 @@ export default function HomeScreen() {
       (async () => {
         const granted = await requestNotificationPermissions();
         if (granted) {
-          await schedulePaymentReminders(subscriptions, t);
+          await schedulePaymentReminders(subscriptions, t, timeZone);
         }
       })();
     } else if (!pushNotifications) {
       cancelAllReminders();
     }
-  }, [subscriptions, pushNotifications]);
+  }, [subscriptions, pushNotifications, timeZone, t]);
 
   const onRefresh = useCallback(async () => {
     if (process.env.EXPO_OS === 'ios') {
@@ -71,11 +73,11 @@ export default function HomeScreen() {
       plan_name: paidyMonth ? `${paidyMonth}分` : '',
       amount: paidyAmount,
       currency: 'JPY',
-      next_payment_date: paidyNextDate ?? new Date().toISOString(),
+      next_payment_date: paidyNextDate ?? todayDate,
       billing_cycle: 'monthly',
       status: 'active',
     } : null
-  ), [gmailSignedIn, paidyAmount, paidyMonth, paidyNextDate]);
+  ), [gmailSignedIn, paidyAmount, paidyMonth, paidyNextDate, todayDate]);
 
   const { sortedCurrencies, primaryEntry, otherCount } = useMemo(() => {
     const spendingByCurrency = subscriptions
@@ -122,7 +124,7 @@ export default function HomeScreen() {
           return b.amount - a.amount;
         case 'date':
         default:
-          return new Date(a.next_payment_date).getTime() - new Date(b.next_payment_date).getTime();
+          return a.next_payment_date.localeCompare(b.next_payment_date);
       }
     });
 
@@ -275,10 +277,8 @@ export default function HomeScreen() {
             {filteredAndSorted.map((sub: any) => {
               const effectiveDate = sub.id === -1
                 ? sub.next_payment_date
-                : getEffectiveNextPaymentDate(sub.next_payment_date, sub.billing_cycle);
-              const nextPaymentDate = new Date(effectiveDate);
-              const diffTime = nextPaymentDate.getTime() - new Date().getTime();
-              const daysRemaining = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+                : getEffectiveNextPaymentDate(sub.next_payment_date, sub.billing_cycle, todayDate);
+              const daysRemaining = Math.max(0, daysBetweenDateOnly(todayDate, effectiveDate));
 
               return (
                 <SubscriptionCard

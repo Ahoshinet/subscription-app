@@ -8,6 +8,7 @@
         "preferences": "環境設定",
         "dark_mode": "ダークモード",
         "language": "言語",
+        "time_zone": "タイムゾーン",
         "push_notifications": "プッシュ通知",
         "app_info": "アプリ情報",
         "help_support": "ヘルプとサポート",
@@ -16,6 +17,12 @@
         "version": "アプリについて",
         "log_out": "ログアウト",
         "sync_error": "設定の同期に失敗しました。変更はローカルに保存されています。"
+    },
+    "time_zone": {
+        "title": "タイムゾーン",
+        "search": "地域名で検索",
+        "section": "IANAタイムゾーン",
+        "current_device": "現在の端末"
     },
     "profile": {
         "title": "プロフィール",

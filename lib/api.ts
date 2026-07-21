@@ -156,6 +156,7 @@ export interface UpdateSubscriptionPayload {
 export interface AuthPayload {
     username: string;
     password?: string; // used for requests
+    time_zone?: string; // required by registration, omitted by login
 }
 
 export interface User {
@@ -174,6 +175,7 @@ export interface UserSettings {
     currency: string;
     push_notifications: boolean;
     theme: string;
+    time_zone: string;
 }
 
 export interface ChangePasswordPayload {

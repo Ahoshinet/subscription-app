@@ -4,6 +4,7 @@ import { useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/useAuthStore';
+import { getDeviceTimeZone } from '../lib/timeZone';
 
 export default function RegisterScreen() {
     const router = useRouter();
@@ -42,7 +43,11 @@ export default function RegisterScreen() {
 
         clearError();
         try {
-            await register({ username: trimmedUsername, password });
+            await register({
+                username: trimmedUsername,
+                password,
+                time_zone: getDeviceTimeZone(),
+            });
             router.replace('/(tabs)');
         } catch (e: any) {
             // Error is handled by the store

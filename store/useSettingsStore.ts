@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { settingsApi } from '../lib/api';
 import { CurrencyId, getSystemCurrency } from '../lib/currency';
+import { getDeviceTimeZone } from '../lib/timeZone';
 
 export type Language = 'en' | 'ja';
 export type ThemePreference = 'system' | 'light' | 'dark';
@@ -12,6 +13,7 @@ interface SettingsState {
     currency: CurrencyId;
     pushNotifications: boolean;
     theme: ThemePreference;
+    timeZone: string;
     isSyncing: boolean;
     syncError: boolean;
 
@@ -19,6 +21,7 @@ interface SettingsState {
     setCurrency: (currency: CurrencyId) => void;
     setPushNotifications: (enabled: boolean) => void;
     setTheme: (theme: ThemePreference) => void;
+    setTimeZone: (timeZone: string) => void;
     clearSyncError: () => void;
     resetForLogout: () => Promise<void>;
     syncFromServer: () => Promise<void>;
@@ -32,6 +35,7 @@ export const useSettingsStore = create<SettingsState>()(
             currency: getSystemCurrency(),
             pushNotifications: true,
             theme: 'system',
+            timeZone: getDeviceTimeZone(),
             isSyncing: false,
             syncError: false,
 
@@ -51,6 +55,10 @@ export const useSettingsStore = create<SettingsState>()(
                 set({ theme });
                 get().syncToServer({ theme });
             },
+            setTimeZone: (timeZone) => {
+                set({ timeZone });
+                get().syncToServer({ time_zone: timeZone });
+            },
             clearSyncError: () => set({ syncError: false }),
             resetForLogout: async () => {
                 set({
@@ -58,6 +66,7 @@ export const useSettingsStore = create<SettingsState>()(
                     currency: getSystemCurrency(),
                     pushNotifications: true,
                     theme: 'system',
+                    timeZone: getDeviceTimeZone(),
                     isSyncing: false,
                     syncError: false,
                 });
@@ -73,6 +82,7 @@ export const useSettingsStore = create<SettingsState>()(
                         currency: (settings.currency as CurrencyId) || getSystemCurrency(),
                         pushNotifications: settings.push_notifications ?? true,
                         theme: (settings.theme as ThemePreference) || 'system',
+                        timeZone: settings.time_zone || getDeviceTimeZone(),
                         isSyncing: false,
                     });
                 } catch {
@@ -99,6 +109,7 @@ export const useSettingsStore = create<SettingsState>()(
                 currency: state.currency,
                 pushNotifications: state.pushNotifications,
                 theme: state.theme,
+                timeZone: state.timeZone,
             }),
         }
     )

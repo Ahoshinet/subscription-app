@@ -8,6 +8,7 @@
         "preferences": "Preferences",
         "dark_mode": "Dark Mode",
         "language": "Language",
+        "time_zone": "Time Zone",
         "push_notifications": "Push Notifications",
         "app_info": "App Info",
         "help_support": "Help & Support",
@@ -16,6 +17,12 @@
         "version": "About",
         "log_out": "Log Out",
         "sync_error": "Failed to sync settings. Changes are saved locally."
+    },
+    "time_zone": {
+        "title": "Time Zone",
+        "search": "Search by region",
+        "section": "IANA TIME ZONES",
+        "current_device": "Current device"
     },
     "profile": {
         "title": "Profile",
