@@ -3,6 +3,7 @@ import { Platform, Alert } from 'react-native';
 import Constants from 'expo-constants';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { File as FileSystemFile } from 'expo-file-system';
+import { captureAuthSession, isAuthSessionCurrent } from './authSession';
 
 const PRODUCTION_URL = 'https://subscription-manager.daruks.com';
 const DEV_PORT = 8084;
@@ -191,6 +192,9 @@ export interface UpdateProfilePayload {
 
 export const getToken = async () => {
     try {
+        if (Platform.OS === 'web') {
+            return globalThis.sessionStorage?.getItem(TOKEN_KEY) ?? null;
+        }
         return await SecureStore.getItemAsync(TOKEN_KEY);
     } catch (error) {
         console.error('SecureStore.get failed:', error);
@@ -199,18 +203,36 @@ export const getToken = async () => {
 };
 
 export const setToken = async (token: string) => {
-    try {
-        await SecureStore.setItemAsync(TOKEN_KEY, token);
-    } catch (error) {
-        console.error('SecureStore.set failed:', error);
+    if (Platform.OS === 'web') {
+        if (!globalThis.sessionStorage) {
+            throw new Error('Web session storage is unavailable');
+        }
+        globalThis.sessionStorage.setItem(TOKEN_KEY, token);
+        if (globalThis.sessionStorage.getItem(TOKEN_KEY) !== token) {
+            throw new Error('Failed to persist the authentication token');
+        }
+        return;
+    }
+    await SecureStore.setItemAsync(TOKEN_KEY, token);
+    if (await SecureStore.getItemAsync(TOKEN_KEY) !== token) {
+        throw new Error('Failed to persist the authentication token');
     }
 };
 
 export const clearToken = async () => {
-    try {
-        await SecureStore.deleteItemAsync(TOKEN_KEY);
-    } catch (error) {
-        console.error('SecureStore.delete failed:', error);
+    if (Platform.OS === 'web') {
+        if (!globalThis.sessionStorage) {
+            throw new Error('Web session storage is unavailable');
+        }
+        globalThis.sessionStorage.removeItem(TOKEN_KEY);
+        if (globalThis.sessionStorage.getItem(TOKEN_KEY) !== null) {
+            throw new Error('Failed to remove the authentication token');
+        }
+        return;
+    }
+    await SecureStore.deleteItemAsync(TOKEN_KEY);
+    if (await SecureStore.getItemAsync(TOKEN_KEY) !== null) {
+        throw new Error('Failed to remove the authentication token');
     }
 };
 
@@ -246,9 +268,11 @@ let refreshPromise: Promise<RefreshResult> | null = null;
 
 async function tryRefreshToken(): Promise<RefreshResult> {
     if (refreshPromise) return refreshPromise;
+    const refreshSession = captureAuthSession();
     refreshPromise = (async (): Promise<RefreshResult> => {
         try {
             const token = await getToken();
+            if (refreshSession && !isAuthSessionCurrent(refreshSession)) return 'transient';
             if (!token) return 'unauthorized';
             const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
                 method: 'POST',
@@ -257,10 +281,12 @@ async function tryRefreshToken(): Promise<RefreshResult> {
                     Authorization: `Bearer ${token}`,
                 },
             });
+            if (refreshSession && !isAuthSessionCurrent(refreshSession)) return 'transient';
             if (response.status === 401 || response.status === 403) return 'unauthorized';
             if (!response.ok) return 'transient';
             const data = await response.json();
             if (data.token) {
+                if (refreshSession && !isAuthSessionCurrent(refreshSession)) return 'transient';
                 await setToken(data.token);
                 return 'refreshed';
             }
@@ -277,6 +303,7 @@ async function tryRefreshToken(): Promise<RefreshResult> {
 
 // Custom Fetch Wrapper
 async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const requestSession = captureAuthSession();
     checkRateLimit(endpoint);
     // Diagnostics are dev-only: URLs and token presence must not be logged
     // in production builds.
@@ -298,6 +325,9 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise
     } catch (e) {
         if (__DEV__) console.error(`[fetchAPI] getToken FAILED:`, e);
     }
+    if (requestSession && !isAuthSessionCurrent(requestSession)) {
+        throw new Error('Authentication session changed');
+    }
 
     const headers = {
         'Content-Type': 'application/json',
@@ -313,6 +343,9 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise
             ...options,
             headers,
         });
+        if (requestSession && !isAuthSessionCurrent(requestSession)) {
+            throw new Error('Authentication session changed');
+        }
         if (__DEV__) console.log(`[fetchAPI] response status: ${response.status}`);
     } catch (fetchError: any) {
         if (__DEV__) console.error(`[fetchAPI] fetch THREW:`, fetchError?.message, fetchError);
@@ -532,8 +565,16 @@ export const resolveIconUrl = (iconUrl: string): string => {
 
 // Upload Endpoints
 export const uploadApi = {
+    deletePending: (url: string) => fetchAPI<void>('/upload/icon', {
+        method: 'DELETE',
+        body: JSON.stringify({ url }),
+    }),
     uploadIcon: async (uri: string): Promise<{ url: string }> => {
+        const uploadSession = captureAuthSession();
         const token = await getToken();
+        if (uploadSession && !isAuthSessionCurrent(uploadSession)) {
+            throw new Error('Authentication session changed');
+        }
         let uploadUri = uri;
         let filename = uri.split('/').pop()?.split('?')[0] || 'icon.jpg';
         const ext = (filename.split('.').pop() || 'jpg').toLowerCase();
@@ -569,6 +610,9 @@ export const uploadApi = {
             },
             body: formData,
         });
+        if (uploadSession && !isAuthSessionCurrent(uploadSession)) {
+            throw new Error('Authentication session changed');
+        }
 
         if (!response.ok) {
             throw new Error(`Upload failed with status ${response.status}`);

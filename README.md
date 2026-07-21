@@ -29,7 +29,10 @@ A mobile/web application to manage all your subscription services in one place. 
 | [Zustand](https://zustand-demo.pmnd.rs/) (v5) | State management |
 | [NativeWind](https://www.nativewind.dev/) (v4) | Tailwind CSS for React Native |
 | [react-i18next](https://react.i18next.com/) | Internationalization |
-| [expo-secure-store](https://docs.expo.dev/versions/latest/sdk/securestore/) | Secure token storage |
+| [expo-secure-store](https://docs.expo.dev/versions/latest/sdk/securestore/) | Secure token storage on Android/iOS |
+
+On Web, the authentication token is kept in browser session storage and is
+cleared when the browser session ends; it is not persisted in local storage.
 
 ## Getting Started
 

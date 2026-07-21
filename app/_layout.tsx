@@ -8,8 +8,6 @@ import { useColorScheme as useNativeWindColorScheme } from 'nativewind';
 import { useEffect, useRef } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
-import { usePaymentMethodStore } from '@/store/usePaymentMethodStore';
-import { usePaidyStore } from '@/store/usePaidyStore';
 import { ensureApiReachable } from '@/lib/api';
 import { registerNotificationTapHandler } from '@/lib/notifications';
 import { checkRepositoryUpdate } from '@/lib/versionCheck';
@@ -27,8 +25,6 @@ export default function RootLayout() {
     const { setColorScheme } = useNativeWindColorScheme();
     const { isAuthenticated, isInitializing, checkAuth } = useAuthStore();
     const { language, theme } = useSettingsStore();
-    const { syncFromServer: syncPaymentMethods } = usePaymentMethodStore();
-    const { loadFromServer: loadPaidy } = usePaidyStore();
     const { i18n, t } = useTranslation();
     const didCheckRepositoryUpdate = useRef(false);
 
@@ -93,14 +89,6 @@ export default function RootLayout() {
             router.replace('/(tabs)');
         }
     }, [isAuthenticated, isInitializing, segments]);
-
-    // Server sync runs once per auth session — keying on segments would
-    // re-trigger it on every route change and eat into the rate limit.
-    useEffect(() => {
-        if (isInitializing || !isAuthenticated) return;
-        syncPaymentMethods();
-        loadPaidy();
-    }, [isAuthenticated, isInitializing]);
 
     // Tapping a payment reminder opens that subscription's detail screen.
     // Gated on auth so we never push detail over the login redirect.

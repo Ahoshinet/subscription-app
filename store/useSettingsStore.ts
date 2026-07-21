@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { settingsApi } from '../lib/api';
 import { CurrencyId, getSystemCurrency } from '../lib/currency';
 import { getDeviceTimeZone } from '../lib/timeZone';
+import { captureAuthSession, isAuthSessionCurrent } from '../lib/authSession';
 
 export type Language = 'en' | 'ja';
 export type ThemePreference = 'system' | 'light' | 'dark';
@@ -74,9 +75,12 @@ export const useSettingsStore = create<SettingsState>()(
             },
 
             syncFromServer: async () => {
+                const session = captureAuthSession();
+                if (!session) return;
                 try {
                     set({ isSyncing: true });
                     const settings = await settingsApi.get();
+                    if (!isAuthSessionCurrent(session)) return;
                     set({
                         language: (settings.language as Language) || 'en',
                         currency: (settings.currency as CurrencyId) || getSystemCurrency(),
@@ -86,18 +90,22 @@ export const useSettingsStore = create<SettingsState>()(
                         isSyncing: false,
                     });
                 } catch {
-                    set({ isSyncing: false, syncError: true });
+                    if (isAuthSessionCurrent(session)) {
+                        set({ isSyncing: false, syncError: true });
+                    }
                 }
             },
 
             syncToServer: async (patch) => {
+                const session = captureAuthSession();
+                if (!session) return;
                 set({ isSyncing: true });
                 try {
                     await settingsApi.update(patch as any);
                 } catch {
-                    set({ syncError: true });
+                    if (isAuthSessionCurrent(session)) set({ syncError: true });
                 } finally {
-                    set({ isSyncing: false });
+                    if (isAuthSessionCurrent(session)) set({ isSyncing: false });
                 }
             },
         }),

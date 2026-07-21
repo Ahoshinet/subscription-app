@@ -4,6 +4,8 @@ import { useSettingsStore } from './useSettingsStore';
 import { usePaymentMethodStore } from './usePaymentMethodStore';
 import { usePaidyStore } from './usePaidyStore';
 import { useSubscriptionStore } from './useSubscriptionStore';
+import { cancelAllReminders } from '../lib/notifications';
+import { activateAuthSession, invalidateAuthSession } from '../lib/authSession';
 
 interface AuthState {
     user: User | null;
@@ -23,13 +25,22 @@ interface AuthState {
 const resetUserScopedStores = async () => {
     useSubscriptionStore.getState().resetForLogout();
     await Promise.allSettled([
+        cancelAllReminders(),
         useSettingsStore.getState().resetForLogout(),
         usePaymentMethodStore.getState().resetForLogout(),
         usePaidyStore.getState().resetForLogout(),
     ]);
 };
 
-export const useAuthStore = create<AuthState>((set, get) => ({
+const syncUserScopedStores = async () => {
+    await Promise.allSettled([
+        useSettingsStore.getState().syncFromServer(),
+        usePaymentMethodStore.getState().syncFromServer(),
+        usePaidyStore.getState().loadFromServer(),
+    ]);
+};
+
+export const useAuthStore = create<AuthState>((set) => ({
     user: null,
     isAuthenticated: false,
     isLoading: false,
@@ -41,14 +52,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         try {
             const response = await authApi.login(data);
             await setToken(response.token);
+            activateAuthSession(response.user.id);
             set({
                 user: response.user,
                 isAuthenticated: true,
                 isLoading: false
             });
-            // Sync settings and payment methods from server after login
-            useSettingsStore.getState().syncFromServer();
-            usePaymentMethodStore.getState().syncFromServer();
+            await syncUserScopedStores();
         } catch (err: any) {
             set({ error: err.message || 'Login failed', isLoading: false });
             throw err;
@@ -60,14 +70,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         try {
             const response = await authApi.register(data);
             await setToken(response.token);
+            activateAuthSession(response.user.id);
             set({
                 user: response.user,
                 isAuthenticated: true,
                 isLoading: false
             });
-            // Sync settings and payment methods from server after register
-            useSettingsStore.getState().syncFromServer();
-            usePaymentMethodStore.getState().syncFromServer();
+            await syncUserScopedStores();
         } catch (err: any) {
             set({ error: err.message || 'Registration failed', isLoading: false });
             throw err;
@@ -77,24 +86,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     logout: async () => {
         set({ isLoading: true });
         try {
-            try {
-                await clearToken();
-            } finally {
-                await resetUserScopedStores();
-            }
+            // Do not present a successful logout while a reusable credential
+            // may still be present on the device.
+            await clearToken();
+            invalidateAuthSession();
+            await resetUserScopedStores();
             set({
                 user: null,
                 isAuthenticated: false,
                 isLoading: false,
                 error: null
             });
-        } catch {
+        } catch (err: any) {
             set({
-                user: null,
-                isAuthenticated: false,
                 isLoading: false,
-                error: null,
+                error: err.message || 'ログアウトに失敗しました',
             });
+            throw err;
         }
     },
 
@@ -103,19 +111,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         try {
             const token = await getToken();
             if (!token) {
-                set({ isInitializing: false, isAuthenticated: false });
+                invalidateAuthSession();
+                await resetUserScopedStores();
+                set({ user: null, isInitializing: false, isAuthenticated: false });
                 return;
             }
 
             const user = await authApi.me();
+            activateAuthSession(user.id);
             set({
                 user,
                 isAuthenticated: true,
                 isInitializing: false
             });
-            // Sync settings and payment methods from server on app startup
-            useSettingsStore.getState().syncFromServer();
-            usePaymentMethodStore.getState().syncFromServer();
+            await syncUserScopedStores();
         } catch (err: any) {
             // Only destroy credentials on a definitive auth failure. A network
             // error (offline / server down) must not log the user out.
@@ -129,11 +138,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 return;
             }
 
-            try {
-                await clearToken();
-            } catch {
-                // Continue local cleanup even if secure token removal fails.
-            }
+            await clearToken().catch((clearError) => {
+                console.error('Failed to remove rejected credential:', clearError);
+            });
+            invalidateAuthSession();
             await resetUserScopedStores();
             set({
                 user: null,
@@ -150,6 +158,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 // is returned to the login screen instead of hitting errors on every action.
 setOnUnauthorized(() => {
     if (useAuthStore.getState().isAuthenticated) {
-        useAuthStore.getState().logout();
+        void useAuthStore.getState().logout().catch(() => {});
     }
 });

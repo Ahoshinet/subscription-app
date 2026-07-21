@@ -513,17 +513,43 @@ Upload a service icon image.
 **Response `201 Created`:**
 ```json
 {
-  "url": "/uploads/550e8400-e29b-41d4-a716-446655440000.png"
+  "url": "/uploads/pending/550e8400-e29b-41d4-a716-446655440000.png"
 }
 ```
 
-Use the returned `url` as the `icon_url` field when creating or updating a subscription.
+Use the returned temporary `url` as the `icon_url` field when creating or
+updating a subscription. The successful subscription response contains the
+permanent icon URL. Unattached temporary uploads expire after 24 hours.
 
 **Errors:**
 | Status | Reason |
 |---|---|
 | `400 Bad Request` | No file field found in the request |
 | `401 Unauthorized` | Missing or invalid token |
+| `413 Payload Too Large` | File or per-user quota exceeded |
+| `415 Unsupported Media Type` | Unsupported extension or invalid image signature |
+| `429 Too Many Requests` | Upload rate limit exceeded |
+| `507 Insufficient Storage` | Service-wide upload quota exceeded |
+
+---
+
+### DELETE /api/v1/upload/icon
+
+Delete an unattached temporary upload after a cancelled or failed mutation.
+
+**Auth required:** Yes
+
+**Request body:**
+```json
+{
+  "url": "/uploads/pending/550e8400-e29b-41d4-a716-446655440000.png"
+}
+```
+
+**Response:** `204 No Content`
+
+Only a temporary upload owned by the authenticated user can be deleted.
+An already attached temporary upload returns `409 Conflict` and is retained.
 
 ---
 

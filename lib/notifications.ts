@@ -54,6 +54,7 @@ export async function requestNotificationPermissions(): Promise<boolean> {
 }
 
 let scheduleTimer: ReturnType<typeof setTimeout> | null = null;
+let scheduleGeneration = 0;
 
 // Signature of the last successfully scheduled state. Skips the
 // cancel-and-reschedule cycle when nothing reminder-relevant changed
@@ -73,10 +74,11 @@ export function schedulePaymentReminders(
     t: (key: string, options?: Record<string, unknown>) => string,
     timeZone: string,
 ): void {
+    const generation = ++scheduleGeneration;
     if (scheduleTimer) clearTimeout(scheduleTimer);
     scheduleTimer = setTimeout(() => {
         scheduleTimer = null;
-        _doSchedule(subscriptions, t, timeZone);
+        void _doSchedule(subscriptions, t, timeZone, generation);
     }, 300);
 }
 
@@ -84,14 +86,17 @@ async function _doSchedule(
     subscriptions: Subscription[],
     t: (key: string, options?: Record<string, unknown>) => string,
     timeZone: string,
+    generation: number,
 ): Promise<void> {
     const N = getNotifications();
     if (!N) return;
+    if (generation !== scheduleGeneration) return;
 
     const signature = reminderSignature(subscriptions, i18n.language, timeZone);
     if (signature === lastScheduleSignature) return;
 
     await N.cancelAllScheduledNotificationsAsync();
+    if (generation !== scheduleGeneration) return;
 
     const now = new Date();
     const todayDate = getTodayDateInTimeZone(timeZone);
@@ -123,6 +128,10 @@ async function _doSchedule(
     candidates.sort((a, b) => a.triggerDate.getTime() - b.triggerDate.getTime());
 
     for (const { triggerDate, daysBefore, sub } of candidates.slice(0, MAX_SCHEDULED_NOTIFICATIONS)) {
+        if (generation !== scheduleGeneration) {
+            await N.cancelAllScheduledNotificationsAsync();
+            return;
+        }
         // expo-notifications can crash on a TIME_INTERVAL trigger of 0 seconds
         const secondsUntil = Math.max(1, Math.floor((triggerDate.getTime() - now.getTime()) / 1000));
 
@@ -140,12 +149,21 @@ async function _doSchedule(
                 repeats: false,
             },
         });
+        if (generation !== scheduleGeneration) {
+            await N.cancelAllScheduledNotificationsAsync();
+            return;
+        }
     }
 
     lastScheduleSignature = signature;
 }
 
 export async function cancelAllReminders(): Promise<void> {
+    scheduleGeneration += 1;
+    if (scheduleTimer) {
+        clearTimeout(scheduleTimer);
+        scheduleTimer = null;
+    }
     lastScheduleSignature = null;
     const N = getNotifications();
     if (!N) return;

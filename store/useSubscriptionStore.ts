@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { subscriptionApi, Subscription, CreateSubscriptionPayload, UpdateSubscriptionPayload } from '../lib/api';
+import { captureAuthSession, isAuthSessionCurrent } from '../lib/authSession';
 
 interface SubscriptionState {
     subscriptions: Subscription[];
@@ -21,19 +22,25 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
     error: null,
 
     fetchSubscriptions: async () => {
+        const session = captureAuthSession();
+        if (!session) return;
         set({ isLoading: true, error: null });
         try {
             // Ask the server to roll over overdue payment dates first; it
             // returns the refreshed list in the same call.
             const { subscriptions } = await subscriptionApi.renew();
+            if (!isAuthSessionCurrent(session)) return;
             set({ subscriptions, isLoading: false });
         } catch {
             // Older servers (or transient renew failures) — fall back to a plain list fetch
             try {
                 const data = await subscriptionApi.getAll();
+                if (!isAuthSessionCurrent(session)) return;
                 set({ subscriptions: data, isLoading: false });
             } catch (err: any) {
-                set({ error: err.message || 'Failed to fetch subscriptions', isLoading: false });
+                if (isAuthSessionCurrent(session)) {
+                    set({ error: err.message || 'Failed to fetch subscriptions', isLoading: false });
+                }
             }
         }
     },

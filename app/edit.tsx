@@ -135,12 +135,14 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
         }
 
         setIsSubmitting(true);
+        let pendingIconUrl: string | undefined;
         try {
             let iconUrl: string | undefined = subscription.icon_url;
             // Only upload if the uri changed and isn't already a server URL
             if (iconUri && !iconUri.startsWith('/uploads') && !iconUri.startsWith('http') && !isSubscriptionPresetIconValue(iconUri)) {
                 const uploadResult = await uploadApi.uploadIcon(iconUri);
                 iconUrl = uploadResult.url;
+                pendingIconUrl = uploadResult.url;
             } else if (iconUri && isSubscriptionPresetIconValue(iconUri)) {
                 iconUrl = iconUri;
             }
@@ -160,6 +162,9 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
             skipDirtyGuardRef.current = true;
             router.back();
         } catch (error: any) {
+            if (pendingIconUrl?.startsWith('/uploads/pending/')) {
+                await uploadApi.deletePending(pendingIconUrl).catch(() => {});
+            }
             Alert.alert(t('common.error'), error.message || t('edit.error_failed'));
         } finally {
             setIsSubmitting(false);

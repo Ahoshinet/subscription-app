@@ -29,7 +29,10 @@
 | [Zustand](https://zustand-demo.pmnd.rs/) (v5) | 状態管理 |
 | [NativeWind](https://www.nativewind.dev/) (v4) | Tailwind CSS for React Native |
 | [react-i18next](https://react.i18next.com/) | 国際化 |
-| [expo-secure-store](https://docs.expo.dev/versions/latest/sdk/securestore/) | トークンの安全な保存 |
+| [expo-secure-store](https://docs.expo.dev/versions/latest/sdk/securestore/) | Android/iOSでのトークンの安全な保存 |
+
+Web版の認証トークンはブラウザのセッションストレージにのみ保持され、
+ブラウザセッション終了時に削除されます。ローカルストレージには永続化しません。
 
 ## セットアップ
 

@@ -4,8 +4,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import { fetchPaidyTransactions, GmailAuthError, PaidyTransaction } from '@/lib/gmail';
 import { ApiError, gmailApi } from '@/lib/api';
+import { captureAuthSession, isAuthSessionCurrent } from '@/lib/authSession';
 
-const GMAIL_TOKEN_KEY = 'paidy_gmail_access_token';
+const LEGACY_GMAIL_TOKEN_KEY = 'paidy_gmail_access_token';
+const knownGmailTokenKeys = new Set<string>();
+
+function gmailTokenKey(userId: string): string {
+  const key = `${LEGACY_GMAIL_TOKEN_KEY}:${userId}`;
+  knownGmailTokenKeys.add(key);
+  return key;
+}
 
 interface PaidyState {
   isSignedIn: boolean;
@@ -46,16 +54,18 @@ export const usePaidyStore = create<PaidyState>()(
       error: null,
 
       loadFromServer: async () => {
+        const session = captureAuthSession();
+        if (!session) return;
         // 前回の連携解除がサーバーに届いていなければ、再取得より先に削除を再試行する。
         // ここで getIntegration してしまうと解除したはずの連携が復活する。
         if (get().pendingServerDeletion) {
           try {
             await gmailApi.deleteIntegration();
-            set({ pendingServerDeletion: false });
+            if (isAuthSessionCurrent(session)) set({ pendingServerDeletion: false });
           } catch (err: any) {
             if (err instanceof ApiError && err.status === 404) {
               // レコードは既に無い = 削除完了扱い
-              set({ pendingServerDeletion: false });
+              if (isAuthSessionCurrent(session)) set({ pendingServerDeletion: false });
             }
             // それ以外は次回起動時に再試行
           }
@@ -66,8 +76,12 @@ export const usePaidyStore = create<PaidyState>()(
           // この端末に Gmail トークンが無い場合（機種変更など）は再連携が必要
           let hasToken = false;
           try {
-            hasToken = (await SecureStore.getItemAsync(GMAIL_TOKEN_KEY)) != null;
+            hasToken = (await SecureStore.getItemAsync(gmailTokenKey(session.userId))) != null;
+            // A legacy token was not account-scoped and cannot safely be
+            // assigned after account switching.
+            await SecureStore.deleteItemAsync(LEGACY_GMAIL_TOKEN_KEY);
           } catch { /* SecureStore unavailable */ }
+          if (!isAuthSessionCurrent(session)) return;
           set({
             isSignedIn: true,
             needsReauth: !hasToken,
@@ -84,20 +98,31 @@ export const usePaidyStore = create<PaidyState>()(
       },
 
       setSignedIn: async (accessToken: string, email: string) => {
-        await SecureStore.setItemAsync(GMAIL_TOKEN_KEY, accessToken);
-        set({ isSignedIn: true, needsReauth: false, googleEmail: email });
+        const session = captureAuthSession();
+        if (!session) return;
+        const tokenKey = gmailTokenKey(session.userId);
+        await SecureStore.setItemAsync(tokenKey, accessToken);
+        if (isAuthSessionCurrent(session)) {
+          set({ isSignedIn: true, needsReauth: false, googleEmail: email });
+        } else {
+          await SecureStore.deleteItemAsync(tokenKey).catch(() => {});
+        }
       },
 
       syncPaidy: async () => {
+        const session = captureAuthSession();
+        if (!session) return;
         set({ isLoading: true, error: null });
         try {
-          const token = await SecureStore.getItemAsync(GMAIL_TOKEN_KEY);
+          const token = await SecureStore.getItemAsync(gmailTokenKey(session.userId));
+          if (!isAuthSessionCurrent(session)) return;
           if (!token) {
             set({ needsReauth: true, isLoading: false, error: 'Gmailとの再連携が必要です' });
             return;
           }
 
           const summary = await fetchPaidyTransactions(token);
+          if (!isAuthSessionCurrent(session)) return;
           const now = new Date().toISOString();
 
           if (summary) {
@@ -109,6 +134,7 @@ export const usePaidyStore = create<PaidyState>()(
               lastSyncedAt: now,
               isLoading: false,
             });
+            if (!isAuthSessionCurrent(session)) return;
             await gmailApi.upsertIntegration({
               gmail_email: get().googleEmail ?? '',
               paidy_amount: summary.totalAmount,
@@ -126,6 +152,7 @@ export const usePaidyStore = create<PaidyState>()(
               lastSyncedAt: now,
               isLoading: false,
             });
+            if (!isAuthSessionCurrent(session)) return;
             await gmailApi.upsertIntegration({
               gmail_email: get().googleEmail ?? '',
               paidy_amount: null,
@@ -136,6 +163,7 @@ export const usePaidyStore = create<PaidyState>()(
             });
           }
         } catch (err: any) {
+          if (!isAuthSessionCurrent(session)) return;
           if (err instanceof GmailAuthError) {
             // アクセストークン失効（約1時間）— 再連携を促す
             set({ needsReauth: true, error: 'Gmailとの再連携が必要です', isLoading: false });
@@ -146,11 +174,14 @@ export const usePaidyStore = create<PaidyState>()(
       },
 
       signOut: async () => {
+        const session = captureAuthSession();
+        if (!session) return;
         try {
-          await SecureStore.deleteItemAsync(GMAIL_TOKEN_KEY);
+          await SecureStore.deleteItemAsync(gmailTokenKey(session.userId));
         } catch {
           // トークンなし時も状態リセットは行う
         }
+        if (!isAuthSessionCurrent(session)) return;
         // サーバー側の連携レコード削除に失敗したら次回 loadFromServer で再試行する。
         // 黙って握りつぶすと次回起動時に連携が復活してしまう。
         let pendingServerDeletion = false;
@@ -162,6 +193,7 @@ export const usePaidyStore = create<PaidyState>()(
             pendingServerDeletion = true;
           }
         }
+        if (!isAuthSessionCurrent(session)) return;
         set({
           isSignedIn: false,
           needsReauth: false,
@@ -177,11 +209,10 @@ export const usePaidyStore = create<PaidyState>()(
       },
 
       resetForLogout: async () => {
-        try {
-          await SecureStore.deleteItemAsync(GMAIL_TOKEN_KEY);
-        } catch {
-          // Local store reset should still proceed if secure storage is unavailable.
-        }
+        await Promise.allSettled([
+          SecureStore.deleteItemAsync(LEGACY_GMAIL_TOKEN_KEY),
+          ...Array.from(knownGmailTokenKeys, (key) => SecureStore.deleteItemAsync(key)),
+        ]);
         set({
           isSignedIn: false,
           needsReauth: false,

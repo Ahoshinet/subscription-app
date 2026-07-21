@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { paymentMethodApi } from '../lib/api';
+import { captureAuthSession, isAuthSessionCurrent } from '../lib/authSession';
 
 export interface SavedPaymentMethod {
     id: string;
@@ -93,9 +94,12 @@ export const usePaymentMethodStore = create<PaymentMethodState>()(
             },
 
             syncFromServer: async () => {
+                const session = captureAuthSession();
+                if (!session) return;
                 try {
                     set({ isSyncing: true });
                     const serverMethods = await paymentMethodApi.getAll();
+                    if (!isAuthSessionCurrent(session)) return;
                     const mapped: SavedPaymentMethod[] = serverMethods.map((m) => ({
                         id: m.id,
                         type: m.type as SavedPaymentMethod['type'],
@@ -109,7 +113,7 @@ export const usePaymentMethodStore = create<PaymentMethodState>()(
                     }));
                     set({ methods: mapped, isSyncing: false });
                 } catch {
-                    set({ isSyncing: false });
+                    if (isAuthSessionCurrent(session)) set({ isSyncing: false });
                 }
             },
 
