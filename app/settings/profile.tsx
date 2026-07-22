@@ -5,6 +5,7 @@ import { Stack, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/useAuthStore';
 import { authApi } from '@/lib/api';
+import { singleLineTextInputStyle } from '@/lib/textInputStyles';
 
 export default function ProfileScreen() {
     const colorScheme = useColorScheme();
@@ -40,6 +41,7 @@ export default function ProfileScreen() {
                             <Text className="text-neutral-900 dark:text-white text-base w-24">{t('profile.name')}</Text>
                             <TextInput
                                 className="flex-1 text-base text-neutral-900 dark:text-white"
+                                style={singleLineTextInputStyle}
                                 value={name}
                                 onChangeText={setName}
                                 placeholder={t('profile.name')}

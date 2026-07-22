@@ -11,6 +11,7 @@ import {
     getSupportedTimeZones,
     isTimeZoneSupported,
 } from '@/lib/timeZone';
+import { singleLineTextInputStyle } from '@/lib/textInputStyles';
 
 export default function TimeZoneSettingsScreen() {
     const colorScheme = useColorScheme();
@@ -62,6 +63,7 @@ export default function TimeZoneSettingsScreen() {
                         autoCapitalize="none"
                         autoCorrect={false}
                         className="flex-1 text-base text-neutral-900 dark:text-white ml-2"
+                        style={singleLineTextInputStyle}
                     />
                 </View>
             </View>

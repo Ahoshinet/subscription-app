@@ -4,6 +4,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useRouter, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/useAuthStore';
+import { singleLineTextInputStyle } from '../lib/textInputStyles';
 
 export default function LoginScreen() {
     const router = useRouter();
@@ -72,7 +73,8 @@ export default function LoginScreen() {
                         <TextInput
                             placeholder={t('login.username_placeholder')}
                             placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
-                            className="w-full bg-white dark:bg-[#1C1C1E] border border-neutral-200 dark:border-neutral-800 rounded-xl px-4 py-4 text-base text-neutral-900 dark:text-white"
+                            className="w-full h-14 bg-white dark:bg-[#1C1C1E] border border-neutral-200 dark:border-neutral-800 rounded-xl px-4 text-base text-neutral-900 dark:text-white"
+                            style={singleLineTextInputStyle}
                             value={username}
                             onChangeText={setUsername}
                             autoCapitalize="none"
@@ -86,7 +88,8 @@ export default function LoginScreen() {
                         <TextInput
                             placeholder={t('login.password_placeholder')}
                             placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
-                            className="w-full bg-white dark:bg-[#1C1C1E] border border-neutral-200 dark:border-neutral-800 rounded-xl px-4 py-4 text-base text-neutral-900 dark:text-white"
+                            className="w-full h-14 bg-white dark:bg-[#1C1C1E] border border-neutral-200 dark:border-neutral-800 rounded-xl px-4 text-base text-neutral-900 dark:text-white"
+                            style={singleLineTextInputStyle}
                             value={password}
                             onChangeText={setPassword}
                             secureTextEntry

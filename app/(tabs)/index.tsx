@@ -16,6 +16,7 @@ import * as Haptics from 'expo-haptics';
 import { CURRENCY_SYMBOLS, getSystemCurrency, toMonthlyAmount } from '@/lib/currency';
 import { daysBetweenDateOnly, getEffectiveNextPaymentDate } from '@/lib/dateUtils';
 import { getTodayDateInTimeZone } from '@/lib/timeZone';
+import { singleLineTextInputStyle } from '@/lib/textInputStyles';
 
 type SortKey = 'name' | 'amount' | 'date';
 
@@ -225,7 +226,7 @@ export default function HomeScreen() {
                 placeholder={t('home.search_placeholder')}
                 placeholderTextColor={isDark ? '#52525B' : '#A1A1AA'}
                 className="flex-1 text-base text-neutral-900 dark:text-white ml-2"
-                style={{ height: 44, paddingTop: 0, paddingBottom: 0 }}
+                style={[{ height: 44 }, singleLineTextInputStyle]}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 autoCorrect={false}

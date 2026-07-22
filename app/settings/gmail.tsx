@@ -140,9 +140,9 @@ export default function GmailSettingsScreen() {
                 <Pressable
                   onPress={() => promptAsync()}
                   disabled={!request || isLoading}
-                  className="items-center py-3 rounded-xl bg-amber-500"
+                  className="items-center py-3 rounded-xl bg-white/80 dark:bg-[#1C1C1E] border border-amber-200 dark:border-amber-800/50"
                 >
-                  <Text className="text-white font-bold text-base">{t('gmail.reauth_button')}</Text>
+                  <Text className="text-amber-600 dark:text-amber-400 font-bold text-base">{t('gmail.reauth_button')}</Text>
                 </Pressable>
               </View>
             )}
@@ -151,11 +151,11 @@ export default function GmailSettingsScreen() {
             <Pressable
               onPress={syncPaidy}
               disabled={isLoading}
-              className="items-center py-4 rounded-xl bg-blue-500 mb-3"
+              className="items-center py-4 rounded-xl bg-white dark:bg-[#1C1C1E] border border-neutral-200/50 dark:border-white/10 mb-3"
             >
               {isLoading
-                ? <ActivityIndicator color="#fff" />
-                : <Text className="text-white font-bold text-base">{t('gmail.sync_now')}</Text>
+                ? <ActivityIndicator color="#3B82F6" />
+                : <Text className="text-blue-500 font-bold text-base">{t('gmail.sync_now')}</Text>
               }
             </Pressable>
 
@@ -163,7 +163,7 @@ export default function GmailSettingsScreen() {
             <Pressable
               onPress={handleSignOut}
               disabled={isLoading}
-              className="items-center py-4 rounded-xl bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-900/50"
+              className="items-center py-4 rounded-xl bg-white dark:bg-[#1C1C1E] border border-neutral-200/50 dark:border-white/10"
             >
               <Text className="text-red-600 dark:text-red-400 font-bold text-base">
                 {t('gmail.sign_out')}
@@ -188,14 +188,14 @@ export default function GmailSettingsScreen() {
             <Pressable
               onPress={() => promptAsync()}
               disabled={!request || isLoading}
-              className="items-center py-4 rounded-xl bg-blue-500"
+              className="items-center py-4 rounded-xl bg-white dark:bg-[#1C1C1E] border border-neutral-200/50 dark:border-white/10"
             >
               {isLoading
-                ? <ActivityIndicator color="#fff" />
+                ? <ActivityIndicator color="#3B82F6" />
                 : (
                   <View className="flex-row items-center">
-                    <Ionicons name="logo-google" size={20} color="#fff" style={{ marginRight: 8 }} />
-                    <Text className="text-white font-bold text-base">{t('gmail.sign_in')}</Text>
+                    <Ionicons name="logo-google" size={20} color="#3B82F6" style={{ marginRight: 8 }} />
+                    <Text className="text-blue-500 font-bold text-base">{t('gmail.sign_in')}</Text>
                   </View>
                 )
               }

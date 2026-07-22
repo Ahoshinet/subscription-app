@@ -4,6 +4,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Stack, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { authApi } from '@/lib/api';
+import { singleLineTextInputStyle } from '@/lib/textInputStyles';
 
 export default function PasswordScreen() {
     const colorScheme = useColorScheme();
@@ -39,6 +40,7 @@ export default function PasswordScreen() {
                         <View className="p-4 border-b border-neutral-200 dark:border-neutral-800 flex-row items-center">
                             <TextInput
                                 className="flex-1 text-base text-neutral-900 dark:text-white"
+                                style={singleLineTextInputStyle}
                                 value={currentPassword}
                                 onChangeText={setCurrentPassword}
                                 secureTextEntry
@@ -49,6 +51,7 @@ export default function PasswordScreen() {
                         <View className="p-4 border-b border-neutral-200 dark:border-neutral-800 flex-row items-center">
                             <TextInput
                                 className="flex-1 text-base text-neutral-900 dark:text-white"
+                                style={singleLineTextInputStyle}
                                 value={newPassword}
                                 onChangeText={setNewPassword}
                                 secureTextEntry
@@ -59,6 +62,7 @@ export default function PasswordScreen() {
                         <View className="p-4 flex-row items-center">
                             <TextInput
                                 className="flex-1 text-base text-neutral-900 dark:text-white"
+                                style={singleLineTextInputStyle}
                                 value={confirmPassword}
                                 onChangeText={setConfirmPassword}
                                 secureTextEntry

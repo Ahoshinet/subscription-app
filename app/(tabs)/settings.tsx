@@ -214,7 +214,7 @@ export default function SettingsScreen() {
               Alert.alert(t('common.error'), error.message || 'ログアウトに失敗しました');
             }
           }}
-          className="mt-4 mb-8 items-center py-4 rounded-xl bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-900/50"
+          className="mt-4 mb-8 items-center py-4 rounded-xl bg-white dark:bg-[#1C1C1E] border border-neutral-200/50 dark:border-white/10"
         >
           <Text className="text-red-600 dark:text-red-400 font-bold text-base">
             {t('settings.log_out')}

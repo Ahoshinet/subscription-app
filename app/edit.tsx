@@ -13,6 +13,7 @@ import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/dat
 import { useTranslation } from 'react-i18next';
 import { usePaymentMethodStore } from '../store/usePaymentMethodStore';
 import { CURRENCIES, CurrencyId, isAmountInputAboveMax, parseAmountInput } from '../lib/currency';
+import { singleLineTextInputStyle } from '../lib/textInputStyles';
 import {
     isSubscriptionPresetIconValue,
     parseSubscriptionPresetIconValue,
@@ -220,7 +221,7 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
 
     const rowStyle = { height: 48 };
     const labelStyle = { fontSize: 15, width: 90 };
-    const inputStyle = { fontSize: 15, height: 48, paddingTop: 0, paddingBottom: 0 };
+    const inputStyle = { ...singleLineTextInputStyle, fontSize: 15, height: 48 };
     const presetIcon = parseSubscriptionPresetIconValue(iconUri);
 
     return (

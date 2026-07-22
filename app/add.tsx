@@ -18,6 +18,7 @@ import {
     buildSubscriptionPresetIconValue,
 } from '../lib/subscriptionIcon';
 import { CURRENCIES, isAmountInputAboveMax, parseAmountInput } from '../lib/currency';
+import { singleLineTextInputStyle } from '../lib/textInputStyles';
 import { dateOnlyToLocalDate, formatDateOnly } from '../lib/dateUtils';
 import { getTodayDateInTimeZone } from '../lib/timeZone';
 
@@ -174,7 +175,7 @@ export default function AddSubscriptionModal() {
     // Shared row style for perfect vertical centering
     const rowStyle = { height: 48 };
     const labelStyle = { fontSize: 15, width: 90 };
-    const inputStyle = { fontSize: 15, height: 48, paddingTop: 0, paddingBottom: 0 };
+    const inputStyle = { ...singleLineTextInputStyle, fontSize: 15, height: 48 };
 
     return (
         <KeyboardAvoidingView

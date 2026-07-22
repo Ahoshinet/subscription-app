@@ -9,6 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { usePaymentMethodStore } from '@/store/usePaymentMethodStore';
 import { resolveIconUrl } from '@/lib/api';
+import { singleLineTextInputStyle } from '@/lib/textInputStyles';
 
 export default function PaymentMethodDetailScreen() {
     const params = useLocalSearchParams<{ id: string }>();
@@ -146,7 +147,10 @@ export default function PaymentMethodDetailScreen() {
                         onChangeText={(v) => { setMemo(v); setIsDirty(true); }}
                         placeholder={t('billing.memo_placeholder')}
                         placeholderTextColor={textSub}
-                        style={{ fontSize: 16, color: textPrimary, paddingVertical: 14 }}
+                        style={{
+                            ...singleLineTextInputStyle,
+                            height: 48, fontSize: 16, color: textPrimary,
+                        }}
                         returnKeyType="done"
                         clearButtonMode="while-editing"
                     />

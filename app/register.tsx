@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/useAuthStore';
 import { getDeviceTimeZone } from '../lib/timeZone';
+import { singleLineTextInputStyle } from '../lib/textInputStyles';
 
 export default function RegisterScreen() {
     const router = useRouter();
@@ -98,7 +99,8 @@ export default function RegisterScreen() {
                         <TextInput
                             placeholder={t('register.username_placeholder')}
                             placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
-                            className="w-full bg-white dark:bg-[#1C1C1E] border border-neutral-200 dark:border-neutral-800 rounded-xl px-4 py-4 text-base text-neutral-900 dark:text-white"
+                            className="w-full h-14 bg-white dark:bg-[#1C1C1E] border border-neutral-200 dark:border-neutral-800 rounded-xl px-4 text-base text-neutral-900 dark:text-white"
+                            style={singleLineTextInputStyle}
                             value={username}
                             onChangeText={setUsername}
                             autoCapitalize="none"
@@ -110,7 +112,8 @@ export default function RegisterScreen() {
                         <TextInput
                             placeholder={t('register.password_placeholder')}
                             placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
-                            className="w-full bg-white dark:bg-[#1C1C1E] border border-neutral-200 dark:border-neutral-800 rounded-xl px-4 py-4 text-base text-neutral-900 dark:text-white"
+                            className="w-full h-14 bg-white dark:bg-[#1C1C1E] border border-neutral-200 dark:border-neutral-800 rounded-xl px-4 text-base text-neutral-900 dark:text-white"
+                            style={singleLineTextInputStyle}
                             value={password}
                             onChangeText={setPassword}
                             secureTextEntry
@@ -124,7 +127,8 @@ export default function RegisterScreen() {
                         <TextInput
                             placeholder={t('register.password_confirm_placeholder')}
                             placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
-                            className="w-full bg-white dark:bg-[#1C1C1E] border border-neutral-200 dark:border-neutral-800 rounded-xl px-4 py-4 text-base text-neutral-900 dark:text-white"
+                            className="w-full h-14 bg-white dark:bg-[#1C1C1E] border border-neutral-200 dark:border-neutral-800 rounded-xl px-4 text-base text-neutral-900 dark:text-white"
+                            style={singleLineTextInputStyle}
                             value={confirmPassword}
                             onChangeText={setConfirmPassword}
                             secureTextEntry
