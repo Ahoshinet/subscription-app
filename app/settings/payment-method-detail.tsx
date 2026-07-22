@@ -30,8 +30,6 @@ export default function PaymentMethodDetailScreen() {
     const cardBg = isDark ? '#1C1C1E' : '#FFFFFF';
     const textPrimary = isDark ? '#FFFFFF' : '#000000';
     const textSub = isDark ? '#8E8E93' : '#6B7280';
-    const segBg = isDark ? '#2C2C2E' : '#F2F2F7';
-
     const handleSave = async () => {
         try {
             // null clears the memo on the server (undefined would keep it)

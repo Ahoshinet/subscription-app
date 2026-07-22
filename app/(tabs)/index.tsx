@@ -38,7 +38,7 @@ export default function HomeScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchSubscriptions();
-    }, [])
+    }, [fetchSubscriptions])
   );
 
   // Schedule payment reminder notifications

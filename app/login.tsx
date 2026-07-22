@@ -34,7 +34,7 @@ export default function LoginScreen() {
             await login({ username: trimmedUsername, password });
             // The Root Layout will handle the redirect once authenticated
             router.replace('/(tabs)');
-        } catch (e: any) {
+        } catch {
             // Error is handled by the store
         } finally {
             isSubmitting.current = false;

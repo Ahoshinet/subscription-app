@@ -37,7 +37,7 @@ export default function RootLayout() {
 
     useEffect(() => {
         ensureApiReachable().then(() => checkAuth());
-    }, []);
+    }, [checkAuth]);
 
     useEffect(() => {
         if (isInitializing || didCheckRepositoryUpdate.current) return;
@@ -76,7 +76,7 @@ export default function RootLayout() {
     useEffect(() => {
         // Sync NativeWind color scheme with settings
         setColorScheme(theme === 'system' ? (systemColorScheme === 'dark' ? 'dark' : 'light') : theme);
-    }, [theme, systemColorScheme]);
+    }, [setColorScheme, systemColorScheme, theme]);
 
     useEffect(() => {
         if (isInitializing) return;
@@ -88,7 +88,7 @@ export default function RootLayout() {
         } else if (isAuthenticated && inAuthGroup) {
             router.replace('/(tabs)');
         }
-    }, [isAuthenticated, isInitializing, segments]);
+    }, [isAuthenticated, isInitializing, router, segments]);
 
     // Tapping a payment reminder opens that subscription's detail screen.
     // Gated on auth so we never push detail over the login redirect.
@@ -97,7 +97,7 @@ export default function RootLayout() {
         return registerNotificationTapHandler((subscriptionId) => {
             router.push({ pathname: '/detail', params: { id: String(subscriptionId) } });
         });
-    }, [isAuthenticated, isInitializing]);
+    }, [isAuthenticated, isInitializing, router]);
 
     if (isInitializing) {
         // Return null or a splash screen while checking token

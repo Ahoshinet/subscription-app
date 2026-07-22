@@ -71,14 +71,14 @@ export default function GmailSettingsScreen() {
         Alert.alert(t('common.error'), t('gmail.error_signin'));
       }
     })();
-  }, [response]);
+  }, [response, setSignedIn, syncPaidy, t]);
 
   useEffect(() => {
     if (error) {
       Alert.alert(t('common.error'), t('gmail.error_sync'));
       clearError();
     }
-  }, [error]);
+  }, [clearError, error, t]);
 
   const handleSignOut = () => {
     Alert.alert(

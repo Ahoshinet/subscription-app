@@ -51,7 +51,7 @@ export default function RegisterScreen() {
                 time_zone: getDeviceTimeZone(),
             });
             router.replace('/(tabs)');
-        } catch (e: any) {
+        } catch {
             // Error is handled by the store
         }
     };

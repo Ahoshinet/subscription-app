@@ -78,7 +78,7 @@ export default function SettingsScreen() {
   const router = useRouter();
   const { logout, user } = useAuthStore();
   const { t } = useTranslation();
-  const { theme, setTheme, pushNotifications, setPushNotifications, language, timeZone, syncError, clearSyncError } = useSettingsStore();
+  const { setTheme, pushNotifications, setPushNotifications, language, timeZone, syncError, clearSyncError } = useSettingsStore();
   const { isSignedIn: gmailSignedIn, googleEmail } = usePaidyStore();
 
   useEffect(() => {
@@ -86,7 +86,7 @@ export default function SettingsScreen() {
       Alert.alert(t('common.error'), t('settings.sync_error'));
       clearSyncError();
     }
-  }, [syncError]);
+  }, [clearSyncError, syncError, t]);
 
   // If theme is system, fallback to colorScheme, else use theme preference
   const isDark = colorScheme === 'dark';

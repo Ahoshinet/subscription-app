@@ -126,7 +126,7 @@ export default function CalendarScreen() {
 
     useEffect(() => {
         if (subscriptions.length === 0) fetchSubscriptions();
-    }, []);
+    }, [fetchSubscriptions, subscriptions.length]);
 
     const isJa = i18n.language === 'ja';
     const weekdays = isJa ? WEEKDAYS_JA : WEEKDAYS_EN;
@@ -227,7 +227,7 @@ export default function CalendarScreen() {
             }
         });
         /* eslint-enable react-hooks/immutability */
-    }, [applyMonthChange]);
+    }, [animating, applyMonthChange, translateX]);
 
     /* eslint-disable react-hooks/immutability, react-hooks/refs */
     const swipeGesture = useMemo(() =>
@@ -277,7 +277,7 @@ export default function CalendarScreen() {
                     translateX.value = withSpring(0, { damping: 20, stiffness: 300 });
                 }
             }),
-        [applyMonthChange],
+        [animating, applyMonthChange, translateX],
     );
     /* eslint-enable react-hooks/immutability, react-hooks/refs */
 
