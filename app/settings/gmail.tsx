@@ -15,8 +15,6 @@ export default function GmailSettingsScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const { t } = useTranslation();
-  const connectedStatusColor = isDark ? '#73967b' : '#5f8067';
-  const connectedStatusBackgroundColor = isDark ? '#1b2520' : '#eef3ef';
   const reauthAccentColor = isDark ? '#b89b67' : '#8f703d';
 
   const {
@@ -98,11 +96,8 @@ export default function GmailSettingsScreen() {
             {/* Connected status */}
             <View className="bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden border border-neutral-200 dark:border-white/10 mb-4">
               <View className="flex-row items-center px-4 py-4 border-b border-neutral-100 dark:border-white/5">
-                <View
-                  className="w-9 h-9 rounded-lg items-center justify-center mr-3"
-                  style={{ backgroundColor: connectedStatusBackgroundColor }}
-                >
-                  <Ionicons name="checkmark-circle" size={20} color={connectedStatusColor} />
+                <View className="w-9 h-9 items-center justify-center mr-3">
+                  <Ionicons name="checkmark" size={26} color={isDark ? '#737373' : '#171717'} />
                 </View>
                 <View className="flex-1">
                   <Text className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
