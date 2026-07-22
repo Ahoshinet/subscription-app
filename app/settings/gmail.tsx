@@ -15,6 +15,12 @@ export default function GmailSettingsScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const { t } = useTranslation();
+  const connectedStatusColor = isDark ? '#73967b' : '#5f8067';
+  const connectedStatusBackgroundColor = isDark ? '#1b2520' : '#eef3ef';
+  const reauthAccentColor = isDark ? '#b89b67' : '#8f703d';
+  const reauthTextColor = isDark ? '#c4ae85' : '#765c32';
+  const reauthSurfaceColor = isDark ? '#1c1915' : '#faf8f3';
+  const reauthBorderColor = isDark ? '#453b2d' : '#e3dac9';
 
   const {
     isSignedIn,
@@ -95,8 +101,11 @@ export default function GmailSettingsScreen() {
             {/* Connected status */}
             <View className="bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden border border-neutral-200 dark:border-white/10 mb-4">
               <View className="flex-row items-center px-4 py-4 border-b border-neutral-100 dark:border-white/5">
-                <View className="w-9 h-9 rounded-lg bg-green-100 dark:bg-green-900/30 items-center justify-center mr-3">
-                  <Ionicons name="checkmark-circle" size={20} color="#22c55e" />
+                <View
+                  className="w-9 h-9 rounded-lg items-center justify-center mr-3"
+                  style={{ backgroundColor: connectedStatusBackgroundColor }}
+                >
+                  <Ionicons name="checkmark-circle" size={20} color={connectedStatusColor} />
                 </View>
                 <View className="flex-1">
                   <Text className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
@@ -130,19 +139,25 @@ export default function GmailSettingsScreen() {
 
             {/* Re-auth banner: access token expired or missing on this device */}
             {needsReauth && (
-              <View className="bg-amber-50 dark:bg-amber-900/20 rounded-2xl border border-amber-200 dark:border-amber-900/50 px-4 py-4 mb-3">
+              <View
+                className="rounded-2xl border px-4 py-4 mb-3"
+                style={{ backgroundColor: reauthSurfaceColor, borderColor: reauthBorderColor }}
+              >
                 <View className="flex-row items-start mb-3">
-                  <Ionicons name="warning-outline" size={18} color="#f59e0b" style={{ marginTop: 1, marginRight: 8 }} />
-                  <Text className="text-sm text-amber-800 dark:text-amber-300 flex-1">
+                  <Ionicons name="warning-outline" size={18} color={reauthAccentColor} style={{ marginTop: 1, marginRight: 8 }} />
+                  <Text className="text-sm flex-1" style={{ color: reauthTextColor }}>
                     {t('gmail.reauth_required')}
                   </Text>
                 </View>
                 <Pressable
                   onPress={() => promptAsync()}
                   disabled={!request || isLoading}
-                  className="items-center py-3 rounded-xl bg-white/80 dark:bg-[#1C1C1E] border border-amber-200 dark:border-amber-800/50"
+                  className="items-center py-3 rounded-xl bg-white/80 dark:bg-[#1C1C1E] border"
+                  style={{ borderColor: reauthBorderColor }}
                 >
-                  <Text className="text-amber-600 dark:text-amber-400 font-bold text-base">{t('gmail.reauth_button')}</Text>
+                  <Text className="font-bold text-base" style={{ color: reauthAccentColor }}>
+                    {t('gmail.reauth_button')}
+                  </Text>
                 </Pressable>
               </View>
             )}
