@@ -18,9 +18,6 @@ export default function GmailSettingsScreen() {
   const connectedStatusColor = isDark ? '#73967b' : '#5f8067';
   const connectedStatusBackgroundColor = isDark ? '#1b2520' : '#eef3ef';
   const reauthAccentColor = isDark ? '#b89b67' : '#8f703d';
-  const reauthTextColor = isDark ? '#c4ae85' : '#765c32';
-  const reauthSurfaceColor = isDark ? '#1c1915' : '#faf8f3';
-  const reauthBorderColor = isDark ? '#453b2d' : '#e3dac9';
 
   const {
     isSignedIn,
@@ -139,21 +136,17 @@ export default function GmailSettingsScreen() {
 
             {/* Re-auth banner: access token expired or missing on this device */}
             {needsReauth && (
-              <View
-                className="rounded-2xl border px-4 py-4 mb-3"
-                style={{ backgroundColor: reauthSurfaceColor, borderColor: reauthBorderColor }}
-              >
+              <View className="bg-white dark:bg-[#1C1C1E] rounded-2xl border border-neutral-200 dark:border-white/10 px-4 py-4 mb-3">
                 <View className="flex-row items-start mb-3">
-                  <Ionicons name="warning-outline" size={18} color={reauthAccentColor} style={{ marginTop: 1, marginRight: 8 }} />
-                  <Text className="text-sm flex-1" style={{ color: reauthTextColor }}>
+                  <Ionicons name="warning-outline" size={18} color={isDark ? '#8c8c93' : '#9ca3af'} style={{ marginTop: 1, marginRight: 8 }} />
+                  <Text className="text-sm text-neutral-600 dark:text-neutral-400 flex-1">
                     {t('gmail.reauth_required')}
                   </Text>
                 </View>
                 <Pressable
                   onPress={() => promptAsync()}
                   disabled={!request || isLoading}
-                  className="items-center py-3 rounded-xl bg-white/80 dark:bg-[#1C1C1E] border"
-                  style={{ borderColor: reauthBorderColor }}
+                  className="items-center py-3 rounded-xl bg-neutral-50 dark:bg-white/5 border border-neutral-200 dark:border-white/10"
                 >
                   <Text className="font-bold text-base" style={{ color: reauthAccentColor }}>
                     {t('gmail.reauth_button')}
