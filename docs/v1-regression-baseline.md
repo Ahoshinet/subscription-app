@@ -197,6 +197,40 @@ Measure release builds on one representative physical iOS device and one
 representative physical Android device. Use the same seeded account and network
 for the baseline and candidate.
 
+### Measurement protocol
+
+Use the tagged `v0.16.0` release build for the baseline and the exact candidate
+commit for the comparison. Do not compare a development build with a release
+build.
+
+1. Use the same physical device, OS version, account, 100-subscription data set,
+   network, theme, and language for both builds.
+2. Disable battery saver, connect to the same network, close unrelated apps,
+   and let the device temperature return to normal before each run.
+3. Record five samples per timing and report the median. Preserve the individual
+   samples in the release-candidate record.
+4. For "dashboard usable", use a screen recording and count from launch until
+   the loading state has disappeared and the list accepts input. Android's
+   `am start -W` and iOS launch instrumentation are useful secondary proxies,
+   but do not replace this user-visible endpoint.
+5. Measure detail opening and edited-subscription saving from the initiating
+   tap until the destination or updated value is visible and interactive.
+6. Measure peak memory while scrolling the seeded dashboard with Android Studio
+   Profiler and Xcode Instruments. Point-in-time memory readings are supporting
+   evidence only.
+
+For Android, after installing and preparing the release build, collect repeatable
+activity-start and PSS proxy data with:
+
+```bash
+pnpm perf:android -- --label baseline --output docs/performance/android-v0.16.0.json
+pnpm perf:android -- --label candidate --output docs/performance/android-candidate.json
+```
+
+The command refuses emulators by default and records device/build metadata. The
+output files are evidence attachments; copy the user-visible medians and
+profiler peak into the table below.
+
 | Metric | iOS baseline | Android baseline | Candidate | Notes |
 |---|---:|---:|---:|---|
 | Cold launch to usable dashboard |  |  |  | |
@@ -209,6 +243,20 @@ for the baseline and candidate.
 Record at least five timing samples and use the median. Performance work must
 name the measured regression or improvement; an unmeasured rewrite does not
 advance the v1 release.
+
+### Optimization decision
+
+Investigate a candidate when a repeated comparison on the same device shows
+either:
+
+- A timing median worse by both more than 10% and more than 100 ms
+- Dashboard peak memory worse by more than 10%
+- A visible interaction stall or dropped-frame regression
+
+Keep an optimization only when the repeated measurement improves the named
+problem without failing the regression gates. If no measured problem crosses
+these criteria, record `No optimization required` for Goal 6; making no code
+change is the expected outcome, not a missing release step.
 
 ## Release-candidate record
 
