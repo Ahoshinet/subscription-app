@@ -228,12 +228,10 @@ export default function DetailScreen() {
                                     value={displayedIsActive}
                                     onValueChange={(value) => void handleToggleStatus(value)}
                                     disabled={isTogglingStatus}
-                                    trackColor={Platform.OS === 'android'
-                                        ? {
-                                            false: isDark ? '#3F3F46' : '#E4E4E7',
-                                            true: isDark ? '#60A5FA' : '#3B82F6',
-                                        }
-                                        : undefined}
+                                    trackColor={{
+                                        false: isDark ? '#3F3F46' : '#E4E4E7',
+                                        true: '#3B82F6',
+                                    }}
                                     thumbColor={Platform.OS === 'android'
                                         ? (displayedIsActive
                                             ? '#FFFFFF'
