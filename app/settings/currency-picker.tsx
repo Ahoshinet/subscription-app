@@ -37,6 +37,7 @@ export default function CurrencyPickerScreen() {
                             key={c.id}
                             onPress={() => handleSelect(c.id)}
                             className={`px-4 py-3.5 flex-row items-center justify-between ${index < CURRENCIES.length - 1 ? 'border-b border-neutral-200 dark:border-neutral-800' : ''}`}
+                            style={{ minHeight: 52 }}
                         >
                             <Text className="text-neutral-900 dark:text-white text-base">
                                 {c.symbol} {c.id} — {c.name}

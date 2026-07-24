@@ -316,15 +316,17 @@ Release. The existing `v1.0.0-rc.1` tag and prerelease remain unchanged:
 - Release notes: [`v1.0.0-release-notes.md`](./v1.0.0-release-notes.md)
 - No `v1.0.0` tag or stable GitHub Release is created during preparation
 
-The prepared source includes two UI consistency fixes after `v1.0.0-rc.1`:
+The prepared source includes three UI consistency fixes after `v1.0.0-rc.1`:
 
 - The Details status switch now uses the same blue enabled track as the
   Settings switch on iOS and Android.
 - Login and registration failures now use native error dialogs like other
   submitted actions instead of persistent form banners.
+- Billing Cycle and Currency picker rows now keep the same height with or
+  without a checkmark, and Edit form input text is vertically centered.
 
 Before tagging, repeat the final review and record the still-pending real-device,
-upgrade, and performance results above. Because the switch fix was made after
+upgrade, and performance results above. Because these fixes were made after
 `v1.0.0-rc.1`, the release policy calls for `v1.0.0-rc.2` if the corrected
 binary needs another candidate round; in that case, change the prepared release
 version to `1.0.0-rc.2` while retaining native build identifiers 3.
