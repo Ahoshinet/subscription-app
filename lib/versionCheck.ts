@@ -40,6 +40,10 @@ function parseVersion(version: string): VersionParts | null {
     return [Number(match[1]), Number(match[2]), Number(match[3])];
 }
 
+function isStableVersion(version: string): boolean {
+    return /^v?\d+\.\d+\.\d+(?:\+[^-]+)?$/i.test(version.trim());
+}
+
 function compareVersions(left: string, right: string): number {
     const leftParts = parseVersion(left);
     const rightParts = parseVersion(right);
@@ -85,7 +89,11 @@ async function fetchLatestTag(): Promise<LatestRepositoryVersion | null> {
         const tags = await fetchJson<GitHubTag[]>(`${GITHUB_API_BASE_URL}/tags?per_page=100`);
         const semverTags = tags
             .map((tag) => tag.name)
-            .filter((name): name is string => !!name && parseVersion(name) !== null)
+            .filter((name): name is string =>
+                !!name
+                && isStableVersion(name)
+                && parseVersion(name) !== null
+            )
             .sort((left, right) => compareVersions(right, left));
 
         const latestTag = semverTags[0] ?? null;
