@@ -7,6 +7,11 @@ export const CURRENCIES = [
 
 export type CurrencyId = typeof CURRENCIES[number]['id'];
 
+export function isCurrencyId(value: unknown): value is CurrencyId {
+    return typeof value === 'string'
+        && CURRENCIES.some((currency) => currency.id === value);
+}
+
 export const CURRENCY_SYMBOLS: Record<string, string> = {
     JPY: '¥',
     USD: '$',

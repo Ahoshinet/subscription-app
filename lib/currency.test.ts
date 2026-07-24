@@ -2,12 +2,20 @@ import { describe, expect, test } from '@jest/globals';
 
 import {
     MAX_AMOUNT,
+    isCurrencyId,
     isAmountInputAboveMax,
     parseAmountInput,
     toMonthlyAmount,
 } from './currency';
 
 describe('currency', () => {
+    test('validates supported currency identifiers', () => {
+        expect(isCurrencyId('JPY')).toBe(true);
+        expect(isCurrencyId('GBP')).toBe(true);
+        expect(isCurrencyId('BTC')).toBe(false);
+        expect(isCurrencyId(null)).toBe(false);
+    });
+
     test('parses normalized non-negative amounts', () => {
         expect(parseAmountInput('１,２３４．５０')).toBe(1234.5);
         expect(parseAmountInput(' 1，000 ')).toBe(1000);

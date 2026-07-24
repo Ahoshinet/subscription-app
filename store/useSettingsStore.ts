@@ -1,13 +1,31 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { settingsApi } from '../lib/api';
-import { CurrencyId, getSystemCurrency } from '../lib/currency';
+import { settingsApi, UserSettings } from '../lib/api';
+import { CurrencyId, getSystemCurrency, isCurrencyId } from '../lib/currency';
 import { getDeviceTimeZone } from '../lib/timeZone';
 import { captureAuthSession, isAuthSessionCurrent } from '../lib/authSession';
 
 export type Language = 'en' | 'ja';
 export type ThemePreference = 'system' | 'light' | 'dark';
+
+const LANGUAGES: readonly Language[] = ['en', 'ja'];
+const THEME_PREFERENCES: readonly ThemePreference[] = ['system', 'light', 'dark'];
+
+export function isLanguage(value: unknown): value is Language {
+    return typeof value === 'string'
+        && LANGUAGES.some((language) => language === value);
+}
+
+export function isThemePreference(value: unknown): value is ThemePreference {
+    return typeof value === 'string'
+        && THEME_PREFERENCES.some((theme) => theme === value);
+}
+
+type SettingsPatch = Partial<Pick<
+    UserSettings,
+    'language' | 'currency' | 'push_notifications' | 'theme' | 'time_zone'
+>>;
 
 const mutationQueues = new Map<string, Promise<void>>();
 const SETTINGS_STORAGE_KEY = 'settings-storage';
@@ -29,7 +47,7 @@ interface SettingsState {
     clearSyncError: () => void;
     resetForLogout: () => Promise<void>;
     syncFromServer: () => Promise<void>;
-    syncToServer: (patch: Record<string, unknown>) => Promise<void>;
+    syncToServer: (patch: SettingsPatch) => Promise<void>;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -85,10 +103,14 @@ export const useSettingsStore = create<SettingsState>()(
                     const settings = await settingsApi.get();
                     if (!isAuthSessionCurrent(session)) return;
                     set({
-                        language: (settings.language as Language) || 'en',
-                        currency: (settings.currency as CurrencyId) || getSystemCurrency(),
+                        language: isLanguage(settings.language) ? settings.language : 'en',
+                        currency: isCurrencyId(settings.currency)
+                            ? settings.currency
+                            : getSystemCurrency(),
                         pushNotifications: settings.push_notifications ?? true,
-                        theme: (settings.theme as ThemePreference) || 'system',
+                        theme: isThemePreference(settings.theme)
+                            ? settings.theme
+                            : 'system',
                         timeZone: settings.time_zone || getDeviceTimeZone(),
                         isSyncing: false,
                     });
@@ -110,7 +132,7 @@ export const useSettingsStore = create<SettingsState>()(
                     .catch(() => {})
                     .then(async () => {
                         if (!isAuthSessionCurrent(session)) return;
-                        await settingsApi.update(patch as any);
+                        await settingsApi.update(patch);
                     });
                 mutationQueues.set(queueKey, mutation);
                 try {
