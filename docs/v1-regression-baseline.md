@@ -283,3 +283,23 @@ If the final RC passes without a fix, run `pnpm version:build` to increment only
 the two native build identifiers, remove the RC suffix from project metadata,
 commit that metadata-only promotion, and tag it `v1.0.0`. If a fix is required,
 increment the native build identifiers and issue the next RC instead.
+
+### v1.0.0-rc.1 — 2026-07-25
+
+- Candidate: commit `589a45c3268b34385487a566572a7ee32ff0915b`,
+  tag `v1.0.0-rc.1`, Android `versionCode` 2, iOS `buildNumber` 2
+- Automated checks:
+  [Code Quality](https://github.com/Ahoshinet/subscription-app/actions/runs/30120117771),
+  [Tests](https://github.com/Ahoshinet/subscription-app/actions/runs/30120183805),
+  [Android](https://github.com/Ahoshinet/subscription-app/actions/runs/30120183895),
+  and
+  [iOS](https://github.com/Ahoshinet/subscription-app/actions/runs/30120183795)
+  passed
+- Release:
+  [GitHub prerelease](https://github.com/Ahoshinet/subscription-app/releases/tag/v1.0.0-rc.1)
+  contains arm64-v8a APK, x86_64 APK, and unsigned IPA assets
+- Devices and OS versions: pending real-device validation
+- Upgrade test from `v0.16.0`: pending
+- Performance comparison: pending
+- Known failures: none in automated release checks; real-device gates remain
+  open
