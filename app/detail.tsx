@@ -126,7 +126,20 @@ export default function DetailScreen() {
                             accessibilityRole="button"
                             accessibilityLabel={t('detail.edit_button')}
                             onPress={() => router.push(`/edit?id=${subscription.id}` as any)}
-                            style={{ minWidth: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
+                            style={({ pressed }) => ({
+                                minWidth: Platform.OS === 'ios' ? 72 : 44,
+                                height: 44,
+                                paddingHorizontal: Platform.OS === 'ios' ? 18 : 0,
+                                borderRadius: Platform.OS === 'ios' ? 22 : 0,
+                                borderWidth: Platform.OS === 'ios' ? 1 : 0,
+                                borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
+                                backgroundColor: Platform.OS === 'ios'
+                                    ? (isDark ? '#1C1C1C' : '#E9E9EB')
+                                    : 'transparent',
+                                opacity: pressed ? 0.65 : 1,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            })}
                         >
                             {Platform.OS === 'android' ? (
                                 <MaterialIcons
@@ -135,7 +148,13 @@ export default function DetailScreen() {
                                     color={isDark ? '#60A5FA' : '#3B82F6'}
                                 />
                             ) : (
-                                <Text className="text-blue-500 dark:text-blue-400 text-lg font-semibold">
+                                <Text
+                                    style={{
+                                        color: isDark ? '#F5F5F5' : '#1C1C1E',
+                                        fontSize: 17,
+                                        fontWeight: '600',
+                                    }}
+                                >
                                     {t('detail.edit_button')}
                                 </Text>
                             )}
