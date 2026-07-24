@@ -49,6 +49,8 @@ current automated baseline covers:
 - Gmail message pagination, MIME/plain-text decoding, Paidy transaction
   extraction, latest-month totals, business-day rollover, partial-failure
   rejection, and external-response validation
+- UI error normalization, typed dashboard rows and routes, validated
+  language/currency selections, and runtime-validated icon names
 - Date-only calculations and recurring payment rollover
 - Amount parsing and monthly normalization
 - Time-zone conversion and offset formatting
@@ -64,15 +66,15 @@ Coverage is collected from all TypeScript modules in `lib/` and `store/`,
 including files that no test imports. Test files themselves are excluded.
 
 The initial measurement was recorded from `f0ccbfc` on 2026-07-24. The current
-measurement was recorded from `c9a2278` after the Gmail parsing regression
-coverage and external-response validation on 2026-07-25:
+measurement was recorded from `f2c9959` after UI type hardening and icon-name
+validation on 2026-07-25:
 
 | Metric | Initial | Current | Enforced minimum |
 |---|---:|---:|---:|
-| Statements | 46.61% | 74.44% | 72% |
-| Branches | 38.44% | 63.12% | 60% |
-| Functions | 46.00% | 71.42% | 69% |
-| Lines | 48.94% | 77.55% | 75% |
+| Statements | 46.61% | 74.50% | 72% |
+| Branches | 38.44% | 63.35% | 60% |
+| Functions | 46.00% | 71.80% | 69% |
+| Lines | 48.94% | 77.62% | 75% |
 
 The minimums intentionally leave a small margin for instrumentation differences
 while preventing unreviewed coverage loss. Raise them as uncovered critical
