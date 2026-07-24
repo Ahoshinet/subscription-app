@@ -23,13 +23,16 @@ A mobile/web application to manage all your subscription services in one place. 
 
 | Technology | Purpose |
 |---|---|
-| [Expo](https://expo.dev) (v55) | React Native framework |
-| [TypeScript](https://www.typescriptlang.org/) (v5.9) | Type safety |
-| [Expo Router](https://docs.expo.dev/router/introduction/) (v55) | File-based routing |
+| [Expo](https://expo.dev) (v57) | React Native framework |
+| [TypeScript](https://www.typescriptlang.org/) (v7) | Type safety |
+| [Expo Router](https://docs.expo.dev/router/introduction/) (v57) | File-based routing |
 | [Zustand](https://zustand-demo.pmnd.rs/) (v5) | State management |
 | [NativeWind](https://www.nativewind.dev/) (v4) | Tailwind CSS for React Native |
 | [react-i18next](https://react.i18next.com/) | Internationalization |
 | [expo-secure-store](https://docs.expo.dev/versions/latest/sdk/securestore/) | Secure token storage on Android/iOS |
+
+TypeScript 7 powers command-line type checking and supported editor integrations.
+A TypeScript 6 compatibility package remains installed for ESLint until the TypeScript 7 API is available.
 
 On Web, the authentication token is kept in browser session storage and is
 cleared when the browser session ends; it is not persisted in local storage.

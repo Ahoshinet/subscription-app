@@ -1,17 +1,41 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, Image } from 'react-native';
+import { View, Text, Pressable, Image, Platform, PlatformColor } from 'react-native';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTranslation } from 'react-i18next';
-import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withSpring,
-} from 'react-native-reanimated';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
 import { parseSubscriptionPresetIconValue } from '@/lib/subscriptionIcon';
 import { resolveIconUrl } from '@/lib/api';
+import { SubscriptionCardMenu } from '@/components/SubscriptionCardMenu';
+import type { SubscriptionCardMenuAction } from '@/components/SubscriptionCardMenu.types';
+
+const iosTimelineColors = Platform.OS === 'ios'
+    ? {
+        label: PlatformColor('secondaryLabelColor'),
+        value: PlatformColor('labelColor'),
+        indicator: PlatformColor('systemBlueColor'),
+        warning: PlatformColor('systemOrangeColor'),
+        track: PlatformColor('systemGray5Color'),
+    }
+    : null;
+
+const materialTimelineColors = {
+    light: {
+        label: '#52525B',
+        value: '#3F3F46',
+        indicator: '#3B82F6',
+        warningIndicator: '#F97316',
+        track: '#E4E4E7',
+    },
+    dark: {
+        label: '#A1A1AA',
+        value: '#E4E4E7',
+        indicator: '#60A5FA',
+        warningIndicator: '#FB923C',
+        track: '#3F3F46',
+    },
+};
 
 interface SubscriptionCardProps {
     id: number;
@@ -27,6 +51,10 @@ interface SubscriptionCardProps {
     iconUrl?: string;
     status?: string;
     onPress?: () => void;
+    onEdit?: () => void;
+    onToggleStatus?: () => void;
+    onDelete?: () => void;
+    actionsDisabled?: boolean;
 }
 
 export function SubscriptionCard({
@@ -43,29 +71,15 @@ export function SubscriptionCard({
     iconUrl,
     status = 'active',
     onPress,
+    onEdit,
+    onToggleStatus,
+    onDelete,
+    actionsDisabled = false,
 }: SubscriptionCardProps) {
-    'use no memo';
-    const scale = useSharedValue(1);
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
     const router = useRouter();
     const { t } = useTranslation();
-
-    const animatedStyle = useAnimatedStyle(() => {
-        return {
-            transform: [{ scale: scale.value }],
-        };
-    });
-
-    const handlePressIn = () => {
-        // eslint-disable-next-line react-hooks/immutability
-        scale.value = withSpring(0.98, { damping: 15, stiffness: 250 });
-    };
-
-    const handlePressOut = () => {
-        // eslint-disable-next-line react-hooks/immutability
-        scale.value = withSpring(1, { damping: 15, stiffness: 250 });
-    };
 
     const handlePress = () => {
         if (onPress) {
@@ -80,10 +94,18 @@ export function SubscriptionCard({
 
     const isInactive = status === 'inactive';
 
-    // Accessibility and Colorblind-safe formatting
+    // Keep the timeline palette native on iOS while retaining the app's
+    // Material-oriented blue and neutral surface roles elsewhere.
     const isUrgent = daysRemaining <= 3;
-    const accessibleColor = isUrgent ? '#F97316' : '#3B82F6'; // Tailwind Orange-500 : Blue-500
     const accessibleIcon = isUrgent ? 'warning' : 'hourglass-outline';
+    const materialColors = materialTimelineColors[isDark ? 'dark' : 'light'];
+    const statusLabelColor = iosTimelineColors?.label ?? materialColors.label;
+    const dueTextColor = iosTimelineColors?.value ?? materialColors.value;
+    const progressColor = iosTimelineColors
+        ? (isUrgent ? iosTimelineColors.warning : iosTimelineColors.indicator)
+        : (isUrgent ? materialColors.warningIndicator : materialColors.indicator);
+    const statusIconColor = isUrgent ? progressColor : statusLabelColor;
+    const progressTrackColor = iosTimelineColors?.track ?? materialColors.track;
 
     // Inactive cards are muted and use a neutral gray accent so paused
     // subscriptions are clearly distinguishable from active ones at a glance.
@@ -96,15 +118,46 @@ export function SubscriptionCard({
     const presetIcon = parseSubscriptionPresetIconValue(iconUrl);
     const [erroredIconUrl, setErroredIconUrl] = useState<string | undefined>(undefined);
     const imageError = iconUrl !== undefined && iconUrl === erroredIconUrl;
+    const hasLongPressActions = Boolean(onEdit && onToggleStatus && onDelete);
+    const menuActions: SubscriptionCardMenuAction[] = [
+        {
+            id: 'edit',
+            title: t('subscription_card.action_edit'),
+            image: 'pencil',
+            attributes: { disabled: actionsDisabled },
+        },
+        {
+            id: 'toggle-status',
+            title: isInactive
+                ? t('subscription_card.action_mark_active')
+                : t('subscription_card.action_mark_inactive'),
+            image: isInactive ? 'play.circle' : 'pause.circle',
+            attributes: { disabled: actionsDisabled },
+        },
+        {
+            id: 'delete',
+            title: t('subscription_card.action_delete'),
+            image: 'trash',
+            attributes: { destructive: true, disabled: actionsDisabled },
+        },
+    ];
 
-    return (
-        <Pressable
-            onPressIn={handlePressIn}
-            onPressOut={handlePressOut}
-            onPress={handlePress}
-            className="mb-5"
-        >
-            <Animated.View style={[animatedStyle, isInactive && { opacity: 0.6 }]}>
+    const handleMenuAction = (actionId: string) => {
+        switch (actionId) {
+            case 'edit':
+                onEdit?.();
+                break;
+            case 'toggle-status':
+                onToggleStatus?.();
+                break;
+            case 'delete':
+                onDelete?.();
+                break;
+        }
+    };
+
+    const card = (
+        <View style={isInactive && { opacity: 0.6 }}>
                 <View style={{ borderRadius: 24 }} className="border border-neutral-200 dark:border-white/10">
                 <BlurView
                     intensity={100}
@@ -196,30 +249,38 @@ export function SubscriptionCard({
                     <View className="px-5 pb-5 mt-1">
                         <View className="flex-row justify-between items-center mb-3">
                             <View className="flex-row items-center">
-                                <Ionicons name={accessibleIcon} size={16} color={accessibleColor} style={{ marginRight: 4 }} />
-                                <Text className="text-sm font-bold uppercase tracking-wider" style={{ color: accessibleColor }}>
+                                <Ionicons name={accessibleIcon} size={16} color={statusIconColor} style={{ marginRight: 5 }} />
+                                <Text
+                                    className="text-sm"
+                                    style={{
+                                        color: statusLabelColor,
+                                        fontWeight: Platform.OS === 'ios' ? '600' : '500',
+                                    }}
+                                >
                                     {isUrgent ? t('subscription_card.action_required') : t('subscription_card.next_payment')}
                                 </Text>
                             </View>
 
-                            <Text className="text-base text-neutral-700 dark:text-neutral-300">
-                                {daysRemaining === 0 ? (
-                                    <Text className="font-extrabold" style={{ color: accessibleColor }}>{t('subscription_card.today')}</Text>
-                                ) : (
-                                    <Text className="font-extrabold" style={{ color: accessibleColor }}>{t('subscription_card.in_days', { count: daysRemaining })}</Text>
-                                )}
+                            <Text
+                                className="text-base"
+                                style={{ color: dueTextColor, fontWeight: '700' }}
+                            >
+                                {daysRemaining === 0
+                                    ? t('subscription_card.today')
+                                    : t('subscription_card.in_days', { count: daysRemaining })}
                             </Text>
                         </View>
 
-                        {/* Progress Bar Background */}
-                        <View className="h-2 w-full bg-neutral-200/50 dark:bg-black/40 rounded-full overflow-hidden">
-                            {/* Progress Bar Fill */}
+                        <View
+                            className="w-full rounded-full overflow-hidden"
+                            style={{ height: 4, backgroundColor: progressTrackColor }}
+                            accessible={false}
+                        >
                             <View
                                 className="h-full rounded-full"
                                 style={{
                                     width: `${progressPercent}%`,
-                                    backgroundColor: accessibleColor,
-                                    opacity: 0.9
+                                    backgroundColor: progressColor,
                                 }}
                             />
                         </View>
@@ -227,7 +288,26 @@ export function SubscriptionCard({
                     )}
                 </BlurView>
                 </View>
-            </Animated.View>
-        </Pressable>
+        </View>
+    );
+
+    return (
+        <View style={{ marginBottom: 20 }}>
+            {hasLongPressActions ? (
+                <SubscriptionCardMenu
+                    actions={menuActions}
+                    onSelectAction={handleMenuAction}
+                    onPress={handlePress}
+                    accessibilityHint={t('subscription_card.actions_accessibility_hint')}
+                    testID={`subscription-card-menu-${id}`}
+                >
+                    {card}
+                </SubscriptionCardMenu>
+            ) : (
+                <Pressable onPress={handlePress} accessibilityRole="button">
+                    {card}
+                </Pressable>
+            )}
+        </View>
     );
 }

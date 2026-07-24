@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { View, Text, Pressable, Dimensions, StyleSheet, StatusBar } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import Animated, { useSharedValue, useAnimatedStyle } from 'react-native-reanimated';
@@ -82,7 +82,7 @@ export default function ImageCropScreen() {
         ],
     }));
 
-    const handleUse = useCallback(async () => {
+    const handleUse = async () => {
         const s = scale.value;
         const tx = translateX.value;
         const ty = translateY.value;
@@ -104,7 +104,7 @@ export default function ImageCropScreen() {
 
         resolveCrop(result.uri);
         router.back();
-    }, [uri, imageW, imageH, baseScale, router]);
+    };
 
     return (
         <View style={styles.root}>

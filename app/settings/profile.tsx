@@ -5,6 +5,7 @@ import { Stack, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/useAuthStore';
 import { authApi } from '@/lib/api';
+import { singleLineTextInputStyle } from '@/lib/textInputStyles';
 
 export default function ProfileScreen() {
     const colorScheme = useColorScheme();
@@ -25,12 +26,12 @@ export default function ProfileScreen() {
                 options={{
                     title: t('profile.title'),
                     headerBackTitle: ' ',
-                    headerStyle: { backgroundColor: isDark ? '#000000' : '#ffffff' },
+                    headerStyle: { backgroundColor: isDark ? '#0A0A0A' : '#ffffff' },
                     headerTintColor: isDark ? '#ffffff' : '#000000',
                 }}
             />
             <ScrollView
-                className="flex-1 bg-neutral-50 dark:bg-black pt-6"
+                className="flex-1 bg-neutral-50 dark:bg-neutral-950 pt-6"
                 keyboardDismissMode="on-drag"
                 keyboardShouldPersistTaps="handled"
             >
@@ -40,6 +41,7 @@ export default function ProfileScreen() {
                             <Text className="text-neutral-900 dark:text-white text-base w-24">{t('profile.name')}</Text>
                             <TextInput
                                 className="flex-1 text-base text-neutral-900 dark:text-white"
+                                style={singleLineTextInputStyle}
                                 value={name}
                                 onChangeText={setName}
                                 placeholder={t('profile.name')}
@@ -50,7 +52,8 @@ export default function ProfileScreen() {
                     </View>
 
                     <Pressable
-                        className="bg-blue-500 rounded-xl p-4 items-center"
+                        className="items-center py-4 rounded-xl bg-white dark:bg-[#1C1C1E] border border-neutral-200/50 dark:border-white/10"
+                        style={{ opacity: isSaving ? 0.6 : 1 }}
                         disabled={isSaving}
                         onPress={async () => {
                             if (!name.trim()) return;
@@ -67,9 +70,9 @@ export default function ProfileScreen() {
                         }}
                     >
                         {isSaving ? (
-                            <ActivityIndicator color="#ffffff" />
+                            <ActivityIndicator color="#3B82F6" />
                         ) : (
-                            <Text className="text-white font-bold text-base">
+                            <Text className="text-blue-500 font-bold text-base">
                                 {t('profile.save')}
                             </Text>
                         )}

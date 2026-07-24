@@ -4,6 +4,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Stack, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { authApi } from '@/lib/api';
+import { singleLineTextInputStyle } from '@/lib/textInputStyles';
 
 export default function PasswordScreen() {
     const colorScheme = useColorScheme();
@@ -25,12 +26,12 @@ export default function PasswordScreen() {
                 options={{
                     title: t('password.title'),
                     headerBackTitle: ' ',
-                    headerStyle: { backgroundColor: isDark ? '#000000' : '#ffffff' },
+                    headerStyle: { backgroundColor: isDark ? '#0A0A0A' : '#ffffff' },
                     headerTintColor: isDark ? '#ffffff' : '#000000',
                 }}
             />
             <ScrollView
-                className="flex-1 bg-neutral-50 dark:bg-black pt-6"
+                className="flex-1 bg-neutral-50 dark:bg-neutral-950 pt-6"
                 keyboardDismissMode="on-drag"
                 keyboardShouldPersistTaps="handled"
             >
@@ -39,6 +40,7 @@ export default function PasswordScreen() {
                         <View className="p-4 border-b border-neutral-200 dark:border-neutral-800 flex-row items-center">
                             <TextInput
                                 className="flex-1 text-base text-neutral-900 dark:text-white"
+                                style={singleLineTextInputStyle}
                                 value={currentPassword}
                                 onChangeText={setCurrentPassword}
                                 secureTextEntry
@@ -49,6 +51,7 @@ export default function PasswordScreen() {
                         <View className="p-4 border-b border-neutral-200 dark:border-neutral-800 flex-row items-center">
                             <TextInput
                                 className="flex-1 text-base text-neutral-900 dark:text-white"
+                                style={singleLineTextInputStyle}
                                 value={newPassword}
                                 onChangeText={setNewPassword}
                                 secureTextEntry
@@ -59,6 +62,7 @@ export default function PasswordScreen() {
                         <View className="p-4 flex-row items-center">
                             <TextInput
                                 className="flex-1 text-base text-neutral-900 dark:text-white"
+                                style={singleLineTextInputStyle}
                                 value={confirmPassword}
                                 onChangeText={setConfirmPassword}
                                 secureTextEntry
@@ -69,7 +73,8 @@ export default function PasswordScreen() {
                     </View>
 
                     <Pressable
-                        className="bg-blue-500 rounded-xl p-4 items-center"
+                        className="items-center py-4 rounded-xl bg-white dark:bg-[#1C1C1E] border border-neutral-200/50 dark:border-white/10"
+                        style={{ opacity: isSaving ? 0.6 : 1 }}
                         disabled={isSaving}
                         onPress={async () => {
                             if (newPassword !== confirmPassword) {
@@ -96,9 +101,9 @@ export default function PasswordScreen() {
                         }}
                     >
                         {isSaving ? (
-                            <ActivityIndicator color="#ffffff" />
+                            <ActivityIndicator color="#3B82F6" />
                         ) : (
-                            <Text className="text-white font-bold text-base">
+                            <Text className="text-blue-500 font-bold text-base">
                                 {t('password.update')}
                             </Text>
                         )}

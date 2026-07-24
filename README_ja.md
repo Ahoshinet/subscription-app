@@ -23,13 +23,16 @@
 
 | 技術 | 用途 |
 |---|---|
-| [Expo](https://expo.dev) (v55) | React Native フレームワーク |
-| [TypeScript](https://www.typescriptlang.org/) (v5.9) | 型安全性 |
-| [Expo Router](https://docs.expo.dev/router/introduction/) (v55) | ファイルベースルーティング |
+| [Expo](https://expo.dev) (v57) | React Native フレームワーク |
+| [TypeScript](https://www.typescriptlang.org/) (v7) | 型安全性 |
+| [Expo Router](https://docs.expo.dev/router/introduction/) (v57) | ファイルベースルーティング |
 | [Zustand](https://zustand-demo.pmnd.rs/) (v5) | 状態管理 |
 | [NativeWind](https://www.nativewind.dev/) (v4) | Tailwind CSS for React Native |
 | [react-i18next](https://react.i18next.com/) | 国際化 |
 | [expo-secure-store](https://docs.expo.dev/versions/latest/sdk/securestore/) | Android/iOSでのトークンの安全な保存 |
+
+コマンドラインの型チェックと対応エディターでは TypeScript 7 を使用します。
+TypeScript 7 API が利用可能になるまでは、ESLint 用に TypeScript 6 互換パッケージも併用します。
 
 Web版の認証トークンはブラウザのセッションストレージにのみ保持され、
 ブラウザセッション終了時に削除されます。ローカルストレージには永続化しません。

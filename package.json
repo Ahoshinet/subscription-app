@@ -1,7 +1,7 @@
 {
   "name": "subscription-app",
   "main": "expo-router/entry",
-  "version": "0.15.2",
+  "version": "0.15.3",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
@@ -9,11 +9,14 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
+    "typecheck": "tsc --noEmit",
+    "typecheck:legacy": "tsc6 --noEmit",
     "version:patch": "node update-version.js patch",
     "version:minor": "node update-version.js minor",
     "version:major": "node update-version.js major"
   },
   "dependencies": {
+    "@expo/ui": "~57.0.7",
     "@expo/vector-icons": "^15.1.1",
     "@gorhom/bottom-sheet": "^5.2.14",
     "@react-native-async-storage/async-storage": "2.2.0",
@@ -53,10 +56,18 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@typescript/native": "npm:typescript@^7.0.2",
     "@types/react": "~19.2.14",
     "eslint": "^9.39.5",
     "eslint-config-expo": "~57.0.0",
-    "typescript": "~6.0.3"
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
+  },
+  "expo": {
+    "install": {
+      "exclude": [
+        "typescript"
+      ]
+    }
   },
   "private": true
 }

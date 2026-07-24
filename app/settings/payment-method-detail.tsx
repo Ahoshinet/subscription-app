@@ -9,6 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { usePaymentMethodStore } from '@/store/usePaymentMethodStore';
 import { resolveIconUrl } from '@/lib/api';
+import { singleLineTextInputStyle } from '@/lib/textInputStyles';
 
 export default function PaymentMethodDetailScreen() {
     const params = useLocalSearchParams<{ id: string }>();
@@ -25,12 +26,10 @@ export default function PaymentMethodDetailScreen() {
 
     if (!method) return null;
 
-    const bg = isDark ? '#000000' : '#F2F2F7';
+    const bg = isDark ? '#0A0A0A' : '#F2F2F7';
     const cardBg = isDark ? '#1C1C1E' : '#FFFFFF';
     const textPrimary = isDark ? '#FFFFFF' : '#000000';
     const textSub = isDark ? '#8E8E93' : '#6B7280';
-    const segBg = isDark ? '#2C2C2E' : '#F2F2F7';
-
     const handleSave = async () => {
         try {
             // null clears the memo on the server (undefined would keep it)
@@ -70,7 +69,7 @@ export default function PaymentMethodDetailScreen() {
                 options={{
                     title: t('billing.title'),
                     headerBackTitle: ' ',
-                    headerStyle: { backgroundColor: isDark ? '#1C1C1E' : '#F2F2F7' },
+                    headerStyle: { backgroundColor: isDark ? '#0A0A0A' : '#F2F2F7' },
                     headerTintColor: textPrimary,
                     headerShadowVisible: false,
                 }}
@@ -146,7 +145,10 @@ export default function PaymentMethodDetailScreen() {
                         onChangeText={(v) => { setMemo(v); setIsDirty(true); }}
                         placeholder={t('billing.memo_placeholder')}
                         placeholderTextColor={textSub}
-                        style={{ fontSize: 16, color: textPrimary, paddingVertical: 14 }}
+                        style={{
+                            ...singleLineTextInputStyle,
+                            height: 48, fontSize: 16, color: textPrimary,
+                        }}
                         returnKeyType="done"
                         clearButtonMode="while-editing"
                     />

@@ -1,20 +1,29 @@
 import * as Google from 'expo-auth-session/providers/google';
-import { Platform, View, Text, Pressable, ActivityIndicator, Alert, ScrollView, Linking } from 'react-native';
+import { Platform, View, Text, Pressable, ActivityIndicator, Alert, ScrollView, Linking, Animated, Easing } from 'react-native';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePaidyStore } from '@/store/usePaidyStore';
 import { fetchGoogleUserEmail } from '@/lib/gmail';
 import { GOOGLE_IOS_CLIENT_ID, GOOGLE_ANDROID_CLIENT_ID, GOOGLE_WEB_CLIENT_ID, GOOGLE_DEV_REDIRECT_URI, GOOGLE_IOS_REDIRECT_URI } from '@/constants/googleConfig';
 
 const DOCS_URL = 'https://github.com/Ahoshinet/subscription-app/blob/main/docs/gmail-integration.md';
+const RAINBOW_STOPS = [0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1];
+const LIGHT_RAINBOW_COLORS = ['#ffffff', '#fee2e2', '#ffedd5', '#fef3c7', '#dcfce7', '#cffafe', '#dbeafe', '#f3e8ff', '#ffffff'];
+const DARK_RAINBOW_COLORS = ['#1c1c1e', '#48171f', '#47270d', '#403a0b', '#103a24', '#0b3542', '#18274a', '#351644', '#1c1c1e'];
 
 export default function GmailSettingsScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const { t } = useTranslation();
+  const [gamingProgress] = useState(() => new Animated.Value(0));
+  const gamingAnimation = useRef<Animated.CompositeAnimation | null>(null);
+  const gamingBackgroundColor = gamingProgress.interpolate({
+    inputRange: RAINBOW_STOPS,
+    outputRange: isDark ? DARK_RAINBOW_COLORS : LIGHT_RAINBOW_COLORS,
+  });
 
   const {
     isSignedIn,
@@ -62,14 +71,14 @@ export default function GmailSettingsScreen() {
         Alert.alert(t('common.error'), t('gmail.error_signin'));
       }
     })();
-  }, [response]);
+  }, [response, setSignedIn, syncPaidy, t]);
 
   useEffect(() => {
     if (error) {
       Alert.alert(t('common.error'), t('gmail.error_sync'));
       clearError();
     }
-  }, [error]);
+  }, [clearError, error, t]);
 
   const handleSignOut = () => {
     Alert.alert(
@@ -82,9 +91,33 @@ export default function GmailSettingsScreen() {
     );
   };
 
+  const startGamingEffect = () => {
+    gamingAnimation.current?.stop();
+    gamingProgress.setValue(0);
+    gamingAnimation.current = Animated.loop(
+      Animated.timing(gamingProgress, {
+        toValue: 1,
+        duration: 1800,
+        easing: Easing.linear,
+        useNativeDriver: false,
+      }),
+      { iterations: 3 },
+    );
+    gamingAnimation.current.start();
+  };
+
   return (
-    <View className="flex-1 bg-neutral-50 dark:bg-black">
-      <Stack.Screen options={{ title: `${t('gmail.settings_title')} β` }} />
+    <View className="flex-1 bg-neutral-50 dark:bg-neutral-950">
+      <Stack.Screen
+        options={{
+          title: `${t('gmail.settings_title')} β`,
+          headerShown: true,
+          headerBackTitle: ' ',
+          headerStyle: { backgroundColor: isDark ? '#0A0A0A' : '#ffffff' },
+          headerTintColor: isDark ? '#ffffff' : '#000000',
+          headerShadowVisible: true,
+        }}
+      />
       <ScrollView
         className="flex-1 px-4"
         showsVerticalScrollIndicator={false}
@@ -94,19 +127,23 @@ export default function GmailSettingsScreen() {
           <>
             {/* Connected status */}
             <View className="bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden border border-neutral-200 dark:border-white/10 mb-4">
-              <View className="flex-row items-center px-4 py-4 border-b border-neutral-100 dark:border-white/5">
-                <View className="w-9 h-9 rounded-lg bg-green-100 dark:bg-green-900/30 items-center justify-center mr-3">
-                  <Ionicons name="checkmark-circle" size={20} color="#22c55e" />
-                </View>
-                <View className="flex-1">
-                  <Text className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
-                    {t('gmail.connected_as', { email: '' })}
-                  </Text>
-                  <Text className="text-base font-semibold text-neutral-900 dark:text-white" numberOfLines={1}>
-                    {googleEmail}
-                  </Text>
-                </View>
-              </View>
+              <Pressable onPress={startGamingEffect} accessibilityRole="button">
+                <Animated.View style={{ backgroundColor: gamingBackgroundColor }}>
+                  <View className="flex-row items-center px-4 py-4 border-b border-neutral-100 dark:border-white/5">
+                    <View className="w-9 h-9 items-center justify-center mr-3">
+                      <Ionicons name="checkmark" size={26} color={isDark ? '#737373' : '#171717'} />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+                        {t('gmail.connected_as', { email: '' })}
+                      </Text>
+                      <Text className="text-base font-semibold text-neutral-900 dark:text-white" numberOfLines={1}>
+                        {googleEmail}
+                      </Text>
+                    </View>
+                  </View>
+                </Animated.View>
+              </Pressable>
 
               {paidyAmount != null && (
                 <View className="px-4 py-4 border-b border-neutral-100 dark:border-white/5">
@@ -130,19 +167,21 @@ export default function GmailSettingsScreen() {
 
             {/* Re-auth banner: access token expired or missing on this device */}
             {needsReauth && (
-              <View className="bg-amber-50 dark:bg-amber-900/20 rounded-2xl border border-amber-200 dark:border-amber-900/50 px-4 py-4 mb-3">
+              <View className="bg-white dark:bg-[#1C1C1E] rounded-2xl border border-neutral-200 dark:border-white/10 px-4 py-4 mb-3">
                 <View className="flex-row items-start mb-3">
-                  <Ionicons name="warning-outline" size={18} color="#f59e0b" style={{ marginTop: 1, marginRight: 8 }} />
-                  <Text className="text-sm text-amber-800 dark:text-amber-300 flex-1">
+                  <Ionicons name="warning-outline" size={18} color={isDark ? '#8c8c93' : '#9ca3af'} style={{ marginTop: 1, marginRight: 8 }} />
+                  <Text className="text-sm text-neutral-600 dark:text-neutral-400 flex-1">
                     {t('gmail.reauth_required')}
                   </Text>
                 </View>
                 <Pressable
                   onPress={() => promptAsync()}
                   disabled={!request || isLoading}
-                  className="items-center py-3 rounded-xl bg-amber-500"
+                  className="items-center py-3 rounded-xl bg-neutral-50 dark:bg-white/5 border border-neutral-200 dark:border-white/10"
                 >
-                  <Text className="text-white font-bold text-base">{t('gmail.reauth_button')}</Text>
+                  <Text className="text-amber-600 dark:text-amber-400 font-bold text-base">
+                    {t('gmail.reauth_button')}
+                  </Text>
                 </Pressable>
               </View>
             )}
@@ -151,11 +190,11 @@ export default function GmailSettingsScreen() {
             <Pressable
               onPress={syncPaidy}
               disabled={isLoading}
-              className="items-center py-4 rounded-xl bg-blue-500 mb-3"
+              className="items-center py-4 rounded-xl bg-white dark:bg-[#1C1C1E] border border-neutral-200/50 dark:border-white/10 mb-3"
             >
               {isLoading
-                ? <ActivityIndicator color="#fff" />
-                : <Text className="text-white font-bold text-base">{t('gmail.sync_now')}</Text>
+                ? <ActivityIndicator color="#3B82F6" />
+                : <Text className="text-blue-500 font-bold text-base">{t('gmail.sync_now')}</Text>
               }
             </Pressable>
 
@@ -163,7 +202,7 @@ export default function GmailSettingsScreen() {
             <Pressable
               onPress={handleSignOut}
               disabled={isLoading}
-              className="items-center py-4 rounded-xl bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-900/50"
+              className="items-center py-4 rounded-xl bg-white dark:bg-[#1C1C1E] border border-neutral-200/50 dark:border-white/10"
             >
               <Text className="text-red-600 dark:text-red-400 font-bold text-base">
                 {t('gmail.sign_out')}
@@ -188,14 +227,14 @@ export default function GmailSettingsScreen() {
             <Pressable
               onPress={() => promptAsync()}
               disabled={!request || isLoading}
-              className="items-center py-4 rounded-xl bg-blue-500"
+              className="items-center py-4 rounded-xl bg-white dark:bg-[#1C1C1E] border border-neutral-200/50 dark:border-white/10"
             >
               {isLoading
-                ? <ActivityIndicator color="#fff" />
+                ? <ActivityIndicator color="#3B82F6" />
                 : (
                   <View className="flex-row items-center">
-                    <Ionicons name="logo-google" size={20} color="#fff" style={{ marginRight: 8 }} />
-                    <Text className="text-white font-bold text-base">{t('gmail.sign_in')}</Text>
+                    <Ionicons name="logo-google" size={20} color="#3B82F6" style={{ marginRight: 8 }} />
+                    <Text className="text-blue-500 font-bold text-base">{t('gmail.sign_in')}</Text>
                   </View>
                 )
               }

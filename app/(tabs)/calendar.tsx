@@ -126,7 +126,7 @@ export default function CalendarScreen() {
 
     useEffect(() => {
         if (subscriptions.length === 0) fetchSubscriptions();
-    }, []);
+    }, [fetchSubscriptions, subscriptions.length]);
 
     const isJa = i18n.language === 'ja';
     const weekdays = isJa ? WEEKDAYS_JA : WEEKDAYS_EN;
@@ -227,7 +227,7 @@ export default function CalendarScreen() {
             }
         });
         /* eslint-enable react-hooks/immutability */
-    }, [applyMonthChange]);
+    }, [animating, applyMonthChange, translateX]);
 
     /* eslint-disable react-hooks/immutability, react-hooks/refs */
     const swipeGesture = useMemo(() =>
@@ -277,7 +277,7 @@ export default function CalendarScreen() {
                     translateX.value = withSpring(0, { damping: 20, stiffness: 300 });
                 }
             }),
-        [applyMonthChange],
+        [animating, applyMonthChange, translateX],
     );
     /* eslint-enable react-hooks/immutability, react-hooks/refs */
 
@@ -413,7 +413,7 @@ export default function CalendarScreen() {
 
             {/* Section label */}
             <View className="px-4 pt-3 pb-1 flex-row items-center justify-between">
-                <Text className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">
+                <Text className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">
                     {selectedLabel ?? (isJa ? `${month + 1}月の支払` : `${new Date(year, month).toLocaleDateString(i18n.language, { month: 'long' })} payments`)}
                 </Text>
                 {totalsByCurrency ? (
@@ -450,11 +450,8 @@ export default function CalendarScreen() {
                                 >
                                     {/* Day badge */}
                                     <View style={{ width: 30, alignItems: 'center', marginRight: 10 }}>
-                                        <Text style={{ fontSize: 16, fontWeight: '700', color: '#3B82F6', lineHeight: 18 }}>
+                                        <Text style={{ fontSize: 16, fontWeight: '700', color: '#3B82F6' }}>
                                             {day}
-                                        </Text>
-                                        <Text style={{ fontSize: 9, color: isDark ? '#737373' : '#a3a3a3' }}>
-                                            {isJa ? '日' : 'th'}
                                         </Text>
                                     </View>
                                     <View className="w-9 h-9 rounded-xl items-center justify-center mr-3 bg-neutral-100 dark:bg-neutral-800">

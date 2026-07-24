@@ -24,11 +24,11 @@ export default function SupportScreen() {
                 options={{
                     title: t('support.title'),
                     headerBackTitle: ' ',
-                    headerStyle: { backgroundColor: isDark ? '#000000' : '#ffffff' },
+                    headerStyle: { backgroundColor: isDark ? '#0A0A0A' : '#ffffff' },
                     headerTintColor: isDark ? '#ffffff' : '#000000',
                 }}
             />
-            <View className="flex-1 bg-neutral-50 dark:bg-black pt-6">
+            <View className="flex-1 bg-neutral-50 dark:bg-neutral-950 pt-6">
                 <ScrollView className="flex-1 px-4">
                     <View className="bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden shadow-sm shadow-neutral-200/50 dark:shadow-none border border-neutral-200/50 dark:border-white/10 mb-6">
 

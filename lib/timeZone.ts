@@ -35,15 +35,30 @@ export function getSupportedTimeZones(): string[] {
     const intlWithSupportedValues = Intl as typeof Intl & {
         supportedValuesOf?: (key: 'timeZone') => string[];
     };
+    const referenceInstant = new Date();
     let zones: string[] = [];
     try {
         zones = intlWithSupportedValues.supportedValuesOf?.('timeZone') ?? [];
     } catch {
         // Older Hermes versions do not expose supportedValuesOf.
     }
-    return Array.from(new Set([getDeviceTimeZone(), ...zones, ...FALLBACK_TIME_ZONES]))
-        .filter(isTimeZoneSupported)
-        .sort();
+    const supportedZones = Array.from(
+        new Set([getDeviceTimeZone(), ...zones, ...FALLBACK_TIME_ZONES]),
+    ).filter(isTimeZoneSupported);
+    const offsetByZone = new Map(
+        supportedZones.map((zone) => [zone, getTimeZoneOffsetMinutes(zone, referenceInstant)]),
+    );
+
+    return supportedZones.sort((left, right) => {
+        const leftOffset = offsetByZone.get(left);
+        const rightOffset = offsetByZone.get(right);
+
+        if (leftOffset !== rightOffset) {
+            return (leftOffset ?? Number.POSITIVE_INFINITY)
+                - (rightOffset ?? Number.POSITIVE_INFINITY);
+        }
+        return left.localeCompare(right);
+    });
 }
 
 export function isTimeZoneSupported(timeZone: string): boolean {
@@ -88,8 +103,7 @@ export function getTodayDateInTimeZone(timeZone: string): string {
     return `${value('year')}-${value('month')}-${value('day')}`;
 }
 
-export function formatTimeZoneOffset(timeZone: string): string {
-    const instant = new Date();
+function getTimeZoneOffsetMinutes(timeZone: string, instant: Date): number | null {
     const parts = formatToPartsInTimeZone(instant, timeZone, {
         hourCycle: 'h23',
         year: 'numeric',
@@ -99,7 +113,7 @@ export function formatTimeZoneOffset(timeZone: string): string {
         minute: '2-digit',
         second: '2-digit',
     });
-    if (!parts) return `${timeZone} (unsupported)`;
+    if (!parts) return null;
 
     const value = (type: Intl.DateTimeFormatPartTypes) =>
         Number(parts.find((part) => part.type === type)?.value ?? Number.NaN);
@@ -111,9 +125,14 @@ export function formatTimeZoneOffset(timeZone: string): string {
         value('minute'),
         value('second'),
     );
-    if (!Number.isFinite(zonedAsUtc)) return `${timeZone} (unsupported)`;
+    if (!Number.isFinite(zonedAsUtc)) return null;
     const instantToSecond = Math.floor(instant.getTime() / 1000) * 1000;
-    const offsetMinutes = Math.round((zonedAsUtc - instantToSecond) / 60_000);
+    return Math.round((zonedAsUtc - instantToSecond) / 60_000);
+}
+
+export function formatTimeZoneOffset(timeZone: string): string {
+    const offsetMinutes = getTimeZoneOffsetMinutes(timeZone, new Date());
+    if (offsetMinutes === null) return `${timeZone} (unsupported)`;
     if (offsetMinutes === 0) return 'UTC';
     const sign = offsetMinutes >= 0 ? '+' : '-';
     const absolute = Math.abs(offsetMinutes);

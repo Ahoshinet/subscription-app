@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
 import { usePaymentMethodStore } from '@/store/usePaymentMethodStore';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { singleLineTextInputStyle } from '@/lib/textInputStyles';
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 const SHEET_HORIZONTAL_PADDING = 20;
@@ -432,7 +433,10 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                         onChangeText={setBrandMemo}
                                         placeholder={t('billing.memo_placeholder')}
                                         placeholderTextColor={textSub}
-                                        style={{ fontSize: 16, color: textPrimary, paddingVertical: 14 }}
+                                        style={{
+                                            ...singleLineTextInputStyle,
+                                            height: 48, fontSize: 16, color: textPrimary,
+                                        }}
                                     />
                                 </View>
 
@@ -507,9 +511,11 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                         keyboardType="numeric"
                                         maxLength={4}
                                         style={{
+                                            ...singleLineTextInputStyle,
+                                            height: 64,
                                             fontSize: 28, fontWeight: '700',
                                             letterSpacing: 10, color: textPrimary,
-                                            paddingVertical: 14, textAlign: 'center',
+                                            textAlign: 'center',
                                         }}
                                     />
                                 </View>
@@ -534,7 +540,10 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                         onChangeText={setCardMemo}
                                         placeholder={t('billing.memo_placeholder')}
                                         placeholderTextColor={textSub}
-                                        style={{ fontSize: 16, color: textPrimary, paddingVertical: 14 }}
+                                        style={{
+                                            ...singleLineTextInputStyle,
+                                            height: 48, fontSize: 16, color: textPrimary,
+                                        }}
                                     />
                                 </View>
 
@@ -602,7 +611,10 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                         onChangeText={setCustomLabel}
                                         placeholder={t('billing.method_name_placeholder')}
                                         placeholderTextColor={textSub}
-                                        style={{ fontSize: 16, color: textPrimary, paddingVertical: 14 }}
+                                        style={{
+                                            ...singleLineTextInputStyle,
+                                            height: 48, fontSize: 16, color: textPrimary,
+                                        }}
                                     />
                                 </View>
 
@@ -626,7 +638,10 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                         onChangeText={setCustomMemo}
                                         placeholder={t('billing.memo_placeholder')}
                                         placeholderTextColor={textSub}
-                                        style={{ fontSize: 16, color: textPrimary, paddingVertical: 14 }}
+                                        style={{
+                                            ...singleLineTextInputStyle,
+                                            height: 48, fontSize: 16, color: textPrimary,
+                                        }}
                                     />
                                 </View>
 

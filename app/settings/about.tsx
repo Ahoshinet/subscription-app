@@ -116,13 +116,13 @@ export default function AboutScreen() {
                 options={{
                     title: t('settings.version'),
                     headerBackTitle: ' ',
-                    headerStyle: { backgroundColor: isDark ? '#000000' : '#ffffff' },
+                    headerStyle: { backgroundColor: isDark ? '#0A0A0A' : '#ffffff' },
                     headerTintColor: textPrimary,
                     headerShadowVisible: false,
                 }}
             />
             <ScrollView
-                className="flex-1 bg-neutral-50 dark:bg-black"
+                className="flex-1 bg-neutral-50 dark:bg-neutral-950"
                 contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 28, paddingBottom: 48 }}
                 showsVerticalScrollIndicator={false}
             >

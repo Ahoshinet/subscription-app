@@ -13,6 +13,7 @@ import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/dat
 import { useTranslation } from 'react-i18next';
 import { usePaymentMethodStore } from '../store/usePaymentMethodStore';
 import { CURRENCIES, CurrencyId, isAmountInputAboveMax, parseAmountInput } from '../lib/currency';
+import { singleLineTextInputStyle } from '../lib/textInputStyles';
 import {
     isSubscriptionPresetIconValue,
     parseSubscriptionPresetIconValue,
@@ -220,7 +221,7 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
 
     const rowStyle = { height: 48 };
     const labelStyle = { fontSize: 15, width: 90 };
-    const inputStyle = { fontSize: 15, height: 48, paddingTop: 0, paddingBottom: 0 };
+    const inputStyle = { ...singleLineTextInputStyle, fontSize: 15, height: 48 };
     const presetIcon = parseSubscriptionPresetIconValue(iconUri);
 
     return (
@@ -252,16 +253,16 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
                             )}
                         </Pressable>
                     ),
-                    headerStyle: { backgroundColor: isDark ? '#1C1C1E' : '#F2F2F7' },
+                    headerStyle: { backgroundColor: isDark ? '#0A0A0A' : '#ffffff' },
                     headerTintColor: isDark ? '#FFFFFF' : '#000000',
                     headerTitleAlign: 'center',
-                    headerShadowVisible: false,
+                    headerShadowVisible: true,
                     headerShown: true,
                 }}
             />
 
             <ScrollView
-                className="flex-1 bg-[#F2F2F7] dark:bg-black"
+                className="flex-1 bg-[#F2F2F7] dark:bg-neutral-950"
                 contentContainerStyle={{ paddingTop: 24, paddingBottom: 40 }}
                 keyboardDismissMode="on-drag"
                 keyboardShouldPersistTaps="handled"
@@ -297,7 +298,7 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
                     </View>
 
                     {/* Main Form Group */}
-                    <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6">
+                    <View className="bg-white dark:bg-[#1C1C1C] rounded-xl overflow-hidden mb-6">
                         <View className="border-b border-neutral-200 dark:border-neutral-800 px-4 flex-row items-center" style={rowStyle}>
                             <Text className="text-neutral-900 dark:text-white" style={labelStyle}>{t('subscription_form.service_name')}:</Text>
                             <TextInput
@@ -346,7 +347,7 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
                     </View>
 
                     {/* Payment Details Group */}
-                    <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6">
+                    <View className="bg-white dark:bg-[#1C1C1C] rounded-xl overflow-hidden mb-6">
                         <Pressable
                             onPress={() => setShowDatePicker(!showDatePicker)}
                             className="border-b border-neutral-200 dark:border-neutral-800 p-4 pl-4 flex-row items-center justify-between"
@@ -394,7 +395,7 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
                     </View>
 
                     {/* Memo / Notes Group */}
-                    <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6">
+                    <View className="bg-white dark:bg-[#1C1C1C] rounded-xl overflow-hidden mb-6">
                         <TextInput
                             placeholder={t('subscription_form.memo_placeholder')}
                             placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
@@ -424,7 +425,7 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
                         style={{
                             width: ICON_PICKER_WIDTH,
                             borderRadius: 16,
-                            backgroundColor: isDark ? '#1C1C1E' : '#FFFFFF',
+                            backgroundColor: isDark ? '#1C1C1C' : '#FFFFFF',
                             paddingHorizontal: 14,
                             paddingTop: 14,
                             paddingBottom: 12,

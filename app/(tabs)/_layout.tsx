@@ -1,17 +1,16 @@
 import { Tabs } from 'expo-router';
-import React, { useState, useRef, useCallback } from 'react';
-import { View, StyleSheet, Pressable, Platform } from 'react-native';
+import React from 'react';
+import { View, StyleSheet, Pressable } from 'react-native';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Text } from 'react-native';
 
 /**
  * Custom Floating Bottom Tab Bar (V1: Expo BlurView)
  * Future expansion (V2): Platform.select allowing iOS Liquid Glass or OS-native equivalents
  */
-function CustomTabBar({ state, descriptors, navigation }: any) {
+function CustomTabBar({ state, navigation }: any) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
 
@@ -27,7 +26,6 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
           ]}
         >
           {state.routes.map((route: any, index: number) => {
-            const { options } = descriptors[route.key];
             const isFocused = state.index === index;
 
             let iconName: keyof typeof Ionicons.glyphMap = 'help';
@@ -70,9 +68,6 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
 }
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Tabs
