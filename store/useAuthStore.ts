@@ -6,6 +6,7 @@ import { usePaidyStore } from './usePaidyStore';
 import { useSubscriptionStore } from './useSubscriptionStore';
 import { cancelAllReminders } from '../lib/notifications';
 import { activateAuthSession, getAuthTokenUserId, invalidateAuthSession } from '../lib/authSession';
+import { getErrorMessage } from '../lib/errors';
 
 interface AuthState {
     user: User | null;
@@ -59,9 +60,9 @@ export const useAuthStore = create<AuthState>((set) => ({
                 isLoading: false
             });
             await syncUserScopedStores();
-        } catch (err: any) {
-            set({ error: err.message || 'Login failed', isLoading: false });
-            throw err;
+        } catch (error: unknown) {
+            set({ error: getErrorMessage(error, 'Login failed'), isLoading: false });
+            throw error;
         }
     },
 
@@ -77,9 +78,12 @@ export const useAuthStore = create<AuthState>((set) => ({
                 isLoading: false
             });
             await syncUserScopedStores();
-        } catch (err: any) {
-            set({ error: err.message || 'Registration failed', isLoading: false });
-            throw err;
+        } catch (error: unknown) {
+            set({
+                error: getErrorMessage(error, 'Registration failed'),
+                isLoading: false,
+            });
+            throw error;
         }
     },
 
@@ -97,12 +101,12 @@ export const useAuthStore = create<AuthState>((set) => ({
                 isLoading: false,
                 error: null
             });
-        } catch (err: any) {
+        } catch (error: unknown) {
             set({
                 isLoading: false,
-                error: err.message || 'ログアウトに失敗しました',
+                error: getErrorMessage(error, 'ログアウトに失敗しました'),
             });
-            throw err;
+            throw error;
         }
     },
 
@@ -126,11 +130,11 @@ export const useAuthStore = create<AuthState>((set) => ({
                 isInitializing: false
             });
             await syncUserScopedStores();
-        } catch (err: any) {
+        } catch (error: unknown) {
             // Only destroy credentials on a definitive auth failure. A network
             // error (offline / server down) must not log the user out.
-            const isAuthFailure = err instanceof ApiError
-                && (err.status === 401 || err.status === 403 || err.status === 404);
+            const isAuthFailure = error instanceof ApiError
+                && (error.status === 401 || error.status === 403 || error.status === 404);
 
             if (!isAuthFailure) {
                 // Transient error: keep the token, let the user in with locally
