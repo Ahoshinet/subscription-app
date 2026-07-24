@@ -31,6 +31,8 @@ current automated baseline covers:
 
 - Authentication session generation and credential subject parsing
 - Authentication request headers, token refresh, and unauthorized handling
+- Login, registration, logout, launch restoration, and offline authentication
+  state transitions
 - Subscription list, create, update, status, and delete API requests
 - Date-only calculations and recurring payment rollover
 - Amount parsing and monthly normalization
