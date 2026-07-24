@@ -26,12 +26,12 @@ export default function PasswordScreen() {
                 options={{
                     title: t('password.title'),
                     headerBackTitle: ' ',
-                    headerStyle: { backgroundColor: isDark ? '#000000' : '#ffffff' },
+                    headerStyle: { backgroundColor: isDark ? '#0A0A0A' : '#ffffff' },
                     headerTintColor: isDark ? '#ffffff' : '#000000',
                 }}
             />
             <ScrollView
-                className="flex-1 bg-neutral-50 dark:bg-black pt-6"
+                className="flex-1 bg-neutral-50 dark:bg-neutral-950 pt-6"
                 keyboardDismissMode="on-drag"
                 keyboardShouldPersistTaps="handled"
             >

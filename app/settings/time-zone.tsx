@@ -35,12 +35,12 @@ export default function TimeZoneSettingsScreen() {
     };
 
     return (
-        <View className="flex-1 bg-neutral-50 dark:bg-black">
+        <View className="flex-1 bg-neutral-50 dark:bg-neutral-950">
             <Stack.Screen
                 options={{
                     title: t('time_zone.title'),
                     headerBackTitle: ' ',
-                    headerStyle: { backgroundColor: isDark ? '#000000' : '#ffffff' },
+                    headerStyle: { backgroundColor: isDark ? '#0A0A0A' : '#ffffff' },
                     headerTintColor: isDark ? '#ffffff' : '#000000',
                 }}
             />

@@ -26,7 +26,7 @@ export default function PaymentMethodDetailScreen() {
 
     if (!method) return null;
 
-    const bg = isDark ? '#000000' : '#F2F2F7';
+    const bg = isDark ? '#0A0A0A' : '#F2F2F7';
     const cardBg = isDark ? '#1C1C1E' : '#FFFFFF';
     const textPrimary = isDark ? '#FFFFFF' : '#000000';
     const textSub = isDark ? '#8E8E93' : '#6B7280';
@@ -69,7 +69,7 @@ export default function PaymentMethodDetailScreen() {
                 options={{
                     title: t('billing.title'),
                     headerBackTitle: ' ',
-                    headerStyle: { backgroundColor: isDark ? '#1C1C1E' : '#F2F2F7' },
+                    headerStyle: { backgroundColor: isDark ? '#0A0A0A' : '#F2F2F7' },
                     headerTintColor: textPrimary,
                     headerShadowVisible: false,
                 }}
