@@ -111,9 +111,11 @@ export default function GmailSettingsScreen() {
       <Stack.Screen
         options={{
           title: `${t('gmail.settings_title')} β`,
+          headerShown: true,
+          headerBackTitle: ' ',
           headerStyle: { backgroundColor: isDark ? '#0A0A0A' : '#ffffff' },
           headerTintColor: isDark ? '#ffffff' : '#000000',
-          headerShadowVisible: false,
+          headerShadowVisible: true,
         }}
       />
       <ScrollView

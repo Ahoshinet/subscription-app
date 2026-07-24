@@ -244,6 +244,7 @@
         "section_title": "Integrations",
         "row_title": "Gmail (Paidy)",
         "settings_title": "Gmail Integration",
+        "connected": "Connected",
         "not_connected": "Not connected",
         "connected_as": "Connected as: {{email}}",
         "sign_in": "Sign in with Google",

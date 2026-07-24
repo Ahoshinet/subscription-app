@@ -79,7 +79,7 @@ export default function SettingsScreen() {
   const { logout, user } = useAuthStore();
   const { t } = useTranslation();
   const { setTheme, pushNotifications, setPushNotifications, language, timeZone, syncError, clearSyncError } = useSettingsStore();
-  const { isSignedIn: gmailSignedIn, googleEmail } = usePaidyStore();
+  const { isSignedIn: gmailSignedIn } = usePaidyStore();
   const [logoutConfirmationVisible, setLogoutConfirmationVisible] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -208,7 +208,7 @@ export default function SettingsScreen() {
             isLast
             icon="mail-outline"
             title={`${t('gmail.row_title')} β`}
-            value={gmailSignedIn ? googleEmail ?? t('gmail.not_connected') : t('gmail.not_connected')}
+            value={gmailSignedIn ? t('gmail.connected') : t('gmail.not_connected')}
             onPress={() => router.push('/settings/gmail' as any)}
           />
         </View>
