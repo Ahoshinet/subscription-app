@@ -127,9 +127,8 @@ export default function DetailScreen() {
                             accessibilityLabel={t('detail.edit_button')}
                             onPress={() => router.push(`/edit?id=${subscription.id}` as any)}
                             style={({ pressed }) => ({
-                                minWidth: Platform.OS === 'ios' ? 72 : 44,
+                                width: Platform.OS === 'ios' ? 72 : 44,
                                 height: 44,
-                                paddingHorizontal: Platform.OS === 'ios' ? 18 : 0,
                                 borderRadius: Platform.OS === 'ios' ? 22 : 0,
                                 borderWidth: Platform.OS === 'ios' ? 1 : 0,
                                 borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
@@ -137,6 +136,7 @@ export default function DetailScreen() {
                                     ? (isDark ? '#1C1C1C' : '#E9E9EB')
                                     : 'transparent',
                                 opacity: pressed ? 0.65 : 1,
+                                flexShrink: 0,
                                 alignItems: 'center',
                                 justifyContent: 'center',
                             })}
