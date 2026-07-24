@@ -46,6 +46,9 @@ current automated baseline covers:
   routing
 - Paidy integration loading, account-scoped token storage, reauthentication,
   synchronization, deletion retry, cross-session isolation, and logout reset
+- Gmail message pagination, MIME/plain-text decoding, Paidy transaction
+  extraction, latest-month totals, business-day rollover, partial-failure
+  rejection, and external-response validation
 - Date-only calculations and recurring payment rollover
 - Amount parsing and monthly normalization
 - Time-zone conversion and offset formatting
@@ -61,15 +64,15 @@ Coverage is collected from all TypeScript modules in `lib/` and `store/`,
 including files that no test imports. Test files themselves are excluded.
 
 The initial measurement was recorded from `f0ccbfc` on 2026-07-24. The current
-measurement was recorded from `0806aa7` after the Paidy Store regression
-coverage and error-type hardening on 2026-07-25:
+measurement was recorded from `c9a2278` after the Gmail parsing regression
+coverage and external-response validation on 2026-07-25:
 
 | Metric | Initial | Current | Enforced minimum |
 |---|---:|---:|---:|
-| Statements | 46.61% | 62.68% | 61% |
-| Branches | 38.44% | 52.27% | 50% |
-| Functions | 46.00% | 61.99% | 60% |
-| Lines | 48.94% | 65.64% | 63% |
+| Statements | 46.61% | 74.44% | 72% |
+| Branches | 38.44% | 63.12% | 60% |
+| Functions | 46.00% | 71.42% | 69% |
+| Lines | 48.94% | 77.55% | 75% |
 
 The minimums intentionally leave a small margin for instrumentation differences
 while preventing unreviewed coverage loss. Raise them as uncovered critical
