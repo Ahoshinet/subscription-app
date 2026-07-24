@@ -4,6 +4,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useRouter, Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/useAuthStore';
+import { getErrorMessage } from '../lib/errors';
 import { singleLineTextInputStyle } from '../lib/textInputStyles';
 
 export default function LoginScreen() {
@@ -14,7 +15,7 @@ export default function LoginScreen() {
 
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const { login, isLoading, error, clearError } = useAuthStore();
+    const { login, isLoading, clearError } = useAuthStore();
     const isSubmitting = useRef(false);
 
     const handleLogin = async () => {
@@ -34,8 +35,12 @@ export default function LoginScreen() {
             await login({ username: trimmedUsername, password });
             // The Root Layout will handle the redirect once authenticated
             router.replace('/(tabs)');
-        } catch {
-            // Error is handled by the store
+        } catch (error: unknown) {
+            Alert.alert(
+                t('login.error_title'),
+                getErrorMessage(error, t('login.error_failed')),
+            );
+            clearError();
         } finally {
             isSubmitting.current = false;
         }
@@ -60,12 +65,6 @@ export default function LoginScreen() {
                         {t('login.subtitle')}
                     </Text>
                 </View>
-
-                {error && (
-                    <View className="bg-red-100 dark:bg-red-900/30 p-4 rounded-xl mb-6 border border-red-200 dark:border-red-900/50">
-                        <Text className="text-red-600 dark:text-red-400 text-center">{error}</Text>
-                    </View>
-                )}
 
                 <View className="space-y-4 mb-6">
                     <View>

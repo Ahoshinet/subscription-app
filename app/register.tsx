@@ -5,6 +5,7 @@ import { useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/useAuthStore';
+import { getErrorMessage } from '../lib/errors';
 import { getDeviceTimeZone } from '../lib/timeZone';
 import { singleLineTextInputStyle } from '../lib/textInputStyles';
 
@@ -17,7 +18,7 @@ export default function RegisterScreen() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const { register, isLoading, error, clearError } = useAuthStore();
+    const { register, isLoading, clearError } = useAuthStore();
 
     const handleRegister = async () => {
         const trimmedUsername = username.trim();
@@ -51,8 +52,12 @@ export default function RegisterScreen() {
                 time_zone: getDeviceTimeZone(),
             });
             router.replace('/(tabs)');
-        } catch {
-            // Error is handled by the store
+        } catch (error: unknown) {
+            Alert.alert(
+                t('register.error_title'),
+                getErrorMessage(error, t('register.error_failed')),
+            );
+            clearError();
         }
     };
 
@@ -86,12 +91,6 @@ export default function RegisterScreen() {
                         {t('register.subtitle')}
                     </Text>
                 </View>
-
-                {error && (
-                    <View className="bg-red-100 dark:bg-red-900/30 p-4 rounded-xl mb-6 border border-red-200 dark:border-red-900/50">
-                        <Text className="text-red-600 dark:text-red-400 text-center">{error}</Text>
-                    </View>
-                )}
 
                 <View className="space-y-4 mb-8">
                     <View>

@@ -316,9 +316,12 @@ Release. The existing `v1.0.0-rc.1` tag and prerelease remain unchanged:
 - Release notes: [`v1.0.0-release-notes.md`](./v1.0.0-release-notes.md)
 - No `v1.0.0` tag or stable GitHub Release is created during preparation
 
-The prepared source includes one visual consistency fix after `v1.0.0-rc.1`:
-the Details status switch now uses the same blue enabled track as the Settings
-switch on iOS and Android.
+The prepared source includes two UI consistency fixes after `v1.0.0-rc.1`:
+
+- The Details status switch now uses the same blue enabled track as the
+  Settings switch on iOS and Android.
+- Login and registration failures now use native error dialogs like other
+  submitted actions instead of persistent form banners.
 
 Before tagging, repeat the final review and record the still-pending real-device,
 upgrade, and performance results above. Because the switch fix was made after

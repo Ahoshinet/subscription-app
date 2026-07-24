@@ -223,6 +223,8 @@
         "submit": "Log In",
         "no_account": "Don't have an account? ",
         "register_link": "Sign Up",
+        "error_title": "Login Failed",
+        "error_failed": "Unable to log in. Please try again.",
         "error_required": "Please enter your username and password."
     },
     "register": {
@@ -234,6 +236,8 @@
         "password_confirm": "Password (Confirm)",
         "password_confirm_placeholder": "Re-enter your password",
         "submit": "Sign Up",
+        "error_title": "Registration Failed",
+        "error_failed": "Unable to create your account. Please try again.",
         "error_required": "Please enter your username and password.",
         "error_username_invalid": "Username must be 3-32 characters and contain only letters, numbers, dots, underscores, or hyphens.",
         "error_password_short": "Password must be at least 8 characters.",
