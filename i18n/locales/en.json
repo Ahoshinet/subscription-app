@@ -317,7 +317,7 @@
         "edit_button": "Edit",
         "delete_button": "Delete This Subscription",
         "delete_title": "Confirm Delete",
-        "delete_message": "Are you sure you want to delete {{name}}?",
+        "delete_message": "Are you sure you want to delete \"{{name}}\"?",
         "delete_confirm": "Delete",
         "error_delete_failed": "Failed to delete.",
         "error_status_failed": "Failed to update status.",
