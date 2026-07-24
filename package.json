@@ -11,6 +11,7 @@
     "lint": "expo lint",
     "test": "jest --watch",
     "test:ci": "jest --ci --runInBand",
+    "test:coverage": "jest --ci --runInBand --coverage",
     "typecheck": "tsc --noEmit",
     "typecheck:legacy": "tsc6 --noEmit",
     "version:patch": "node update-version.js patch",

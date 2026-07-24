@@ -8,4 +8,19 @@ module.exports = {
   transformIgnorePatterns: [
     'node_modules/(?!(\\.pnpm|((jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|expo-router|@react-navigation/.*|react-native-svg)))',
   ],
+  collectCoverageFrom: [
+    'lib/**/*.ts',
+    'store/**/*.ts',
+    '!**/*.test.ts',
+  ],
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text-summary', 'lcov'],
+  coverageThreshold: {
+    global: {
+      statements: 45,
+      branches: 35,
+      functions: 45,
+      lines: 45,
+    },
+  },
 };

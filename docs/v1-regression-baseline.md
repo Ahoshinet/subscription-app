@@ -22,6 +22,7 @@ Run the following before a change is accepted:
 
 ```bash
 pnpm test:ci
+pnpm test:coverage
 pnpm typecheck
 pnpm lint
 ```
@@ -46,6 +47,27 @@ current automated baseline covers:
 
 Automated coverage supplements the device checks below; it does not replace
 them.
+
+### Coverage baseline
+
+Coverage is collected from all TypeScript modules in `lib/` and `store/`,
+including files that no test imports. Test files themselves are excluded.
+
+The initial measurement was recorded from `f0ccbfc` on 2026-07-24:
+
+| Metric | Measured | Enforced minimum |
+|---|---:|---:|
+| Statements | 46.61% | 45% |
+| Branches | 38.44% | 35% |
+| Functions | 46.00% | 45% |
+| Lines | 48.94% | 45% |
+
+The minimums intentionally leave a small margin for instrumentation differences
+while preventing unreviewed coverage loss. Raise them as uncovered critical
+modules gain tests. Do not lower them merely to make a regression pass.
+
+GitHub Actions enforces these minimums on every push and pull request and keeps
+the generated coverage report as an artifact for 14 days.
 
 ## Critical behavior checklist
 
