@@ -10,7 +10,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.darui3018823.subscriptionapp",
-      "buildNumber": "2",
+      "buildNumber": "3",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSAppTransportSecurity": {
@@ -34,7 +34,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.darui3018823.subscriptionapp",
-      "versionCode": 2
+      "versionCode": 3
     },
     "web": {
       "output": "static",
@@ -72,7 +72,7 @@
       "reactCompiler": true
     },
     "extra": {
-      "releaseVersion": "1.0.0-rc.1",
+      "releaseVersion": "1.0.0",
       "router": {},
       "eas": {
         "projectId": "1dda9ef5-a425-4a8e-8012-aaae4c0e02ff"

@@ -303,3 +303,39 @@ increment the native build identifiers and issue the next RC instead.
 - Performance comparison: pending
 - Known failures: none in automated release checks; real-device gates remain
   open
+
+## v1.0.0 release preparation — 2026-07-25
+
+The release metadata is prepared for a separate stable `v1.0.0` tag and GitHub
+Release. The existing `v1.0.0-rc.1` tag and prerelease remain unchanged:
+
+- Project and displayed release version: `1.0.0`
+- Native marketing version: `1.0.0`
+- Android `versionCode`: 3
+- iOS `buildNumber`: 3
+- Release notes: [`v1.0.0-release-notes.md`](./v1.0.0-release-notes.md)
+- No `v1.0.0` tag or stable GitHub Release is created during preparation
+
+The prepared source includes one visual consistency fix after `v1.0.0-rc.1`:
+the Details status switch now uses the same blue enabled track as the Settings
+switch on iOS and Android.
+
+Before tagging, repeat the final review and record the still-pending real-device,
+upgrade, and performance results above. Because the switch fix was made after
+`v1.0.0-rc.1`, the release policy calls for `v1.0.0-rc.2` if the corrected
+binary needs another candidate round; in that case, change the prepared release
+version to `1.0.0-rc.2` while retaining native build identifiers 3.
+
+After final approval:
+
+1. Confirm the promotion commit is the intended `main` HEAD and the worktree is
+   clean.
+2. Create and push the annotated `v1.0.0` tag at that exact commit.
+3. Confirm Tests, Code Quality, Android, and iOS workflows pass. Do not build an
+   APK locally.
+4. Confirm the GitHub Release is not a prerelease and contains both APK assets
+   and the unsigned IPA.
+5. Replace the generated GitHub Release body with
+   [`v1.0.0-release-notes.md`](./v1.0.0-release-notes.md).
+6. Confirm GitHub's latest stable release endpoint returns `v1.0.0`; this is
+   what existing stable App builds use for normal-launch update discovery.
