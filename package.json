@@ -1,7 +1,7 @@
 {
   "name": "subscription-app",
   "main": "expo-router/entry",
-  "version": "0.16.0",
+  "version": "1.0.0",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
@@ -17,7 +17,8 @@
     "perf:android": "node ./scripts/measure-android-performance.js",
     "version:patch": "node update-version.js patch",
     "version:minor": "node update-version.js minor",
-    "version:major": "node update-version.js major"
+    "version:major": "node update-version.js major",
+    "version:build": "node update-version.js build"
   },
   "dependencies": {
     "@expo/ui": "~57.0.7",
