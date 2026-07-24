@@ -34,6 +34,10 @@ current automated baseline covers:
 - Login, registration, logout, launch restoration, and offline authentication
   state transitions
 - Subscription list, create, update, status, and delete API requests
+- Payment-method CRUD, icon upload cleanup, legacy icon migration, and
+  cross-session response isolation
+- Notification permission, scheduling, de-duplication, cancellation, and tap
+  routing
 - Date-only calculations and recurring payment rollover
 - Amount parsing and monthly normalization
 - Time-zone conversion and offset formatting

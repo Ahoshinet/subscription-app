@@ -4,6 +4,7 @@ import * as SecureStore from 'expo-secure-store';
 import {
     ApiError,
     authApi,
+    paymentMethodApi,
     setOnUnauthorized,
     subscriptionApi,
     type CreateSubscriptionPayload,
@@ -178,6 +179,64 @@ describe('api client', () => {
                 body: JSON.stringify({ status: 'paused' }),
             },
             { endpoint: '/subscriptions/42', method: 'DELETE', body: undefined },
+        ]);
+    });
+
+    test('preserves the payment-method CRUD request contract', async () => {
+        getItemAsyncMock.mockResolvedValue('token-1');
+        const method = {
+            id: 'method-1',
+            user_id: 'user-1',
+            type: 'credit_card',
+            label: 'Main card',
+            color: '#3B82F6',
+            last4: '4242',
+        };
+        fetchWithTimeoutMock
+            .mockResolvedValueOnce(response(200, [method]))
+            .mockResolvedValueOnce(response(200, method))
+            .mockResolvedValueOnce(response(200))
+            .mockResolvedValueOnce(response(200));
+
+        await expect(paymentMethodApi.getAll()).resolves.toEqual([method]);
+        await expect(paymentMethodApi.create({
+            type: 'credit_card',
+            label: 'Main card',
+            color: '#3B82F6',
+            last4: '4242',
+        })).resolves.toEqual(method);
+        await expect(paymentMethodApi.update('method-1', {
+            last4: null,
+            memo: null,
+        })).resolves.toEqual({});
+        await expect(paymentMethodApi.delete('method-1')).resolves.toEqual({});
+
+        expect(fetchWithTimeoutMock.mock.calls.map(([url, init]) => ({
+            endpoint: String(url).match(/\/api\/v1(.*)$/)?.[1],
+            method: init?.method,
+            body: init?.body,
+        }))).toEqual([
+            { endpoint: '/payment-methods', method: undefined, body: undefined },
+            {
+                endpoint: '/payment-methods',
+                method: 'POST',
+                body: JSON.stringify({
+                    type: 'credit_card',
+                    label: 'Main card',
+                    color: '#3B82F6',
+                    last4: '4242',
+                }),
+            },
+            {
+                endpoint: '/payment-methods/method-1',
+                method: 'PUT',
+                body: JSON.stringify({ last4: null, memo: null }),
+            },
+            {
+                endpoint: '/payment-methods/method-1',
+                method: 'DELETE',
+                body: undefined,
+            },
         ]);
     });
 
