@@ -26,6 +26,7 @@ Authorization: Bearer <token>
   - [Update](#put-apiv1subscriptionsid)
   - [Delete](#delete-apiv1subscriptionsid)
   - [Toggle status](#patch-apiv1subscriptionsidstatus)
+  - [Renew overdue payments](#post-apiv1subscriptionsrenew)
 - [Payment Methods](#payment-methods)
   - [List](#get-apiv1payment-methods)
   - [Create](#post-apiv1payment-methods)
@@ -34,10 +35,16 @@ Authorization: Bearer <token>
 - [Settings](#settings)
   - [Get settings](#get-apiv1settings)
   - [Update settings](#put-apiv1settings)
+- [Gmail Integration](#gmail-integration)
+  - [Get integration](#get-apiv1gmailintegration)
+  - [Upsert integration](#put-apiv1gmailintegration)
+  - [Delete integration](#delete-apiv1gmailintegration)
 - [Upload](#upload)
   - [Upload icon](#post-apiv1uploadicon)
   - [Delete pending icon](#delete-apiv1uploadicon)
   - [Serve uploaded file](#get-uploadsfilename)
+- [Version](#version)
+  - [Get server version](#get-apiv1version)
 - [Data Models](#data-models)
 - [Error Codes](#error-codes)
 
@@ -352,13 +359,42 @@ Toggle the status of a subscription (`active` / `inactive`).
 }
 ```
 
-**Response `200 OK`:** *(returns the updated [Subscription](#subscription) object)*
+**Response `200 OK`:** *(empty body)*
 
 **Errors:**
 | Status | Reason |
 |---|---|
 | `401 Unauthorized` | Missing or invalid token |
 | `404 Not Found` | Subscription not found or not owned by user |
+
+---
+
+### POST /api/v1/subscriptions/renew
+
+Advance overdue active subscriptions to their next payment date and return the refreshed list.
+
+**Auth required:** Yes
+
+**Request body:** *(empty)*
+
+**Response `200 OK`:**
+```json
+{
+  "updated": 2,
+  "subscriptions": [
+    {
+      "id": 1,
+      "service_name": "Netflix",
+      ...
+    }
+  ]
+}
+```
+
+**Errors:**
+| Status | Reason |
+|---|---|
+| `401 Unauthorized` | Missing or invalid token |
 
 ---
 
@@ -504,6 +540,78 @@ Update user settings. All fields are optional.
 
 ---
 
+## Gmail Integration
+
+These endpoints store and retrieve the parsed Paidy summary used by the optional Gmail integration. Google access tokens and raw email content are not sent to these endpoints.
+
+### GET /api/v1/gmail/integration
+
+Get the saved Gmail integration summary for the authenticated user.
+
+**Auth required:** Yes
+
+**Response `200 OK`:** *(returns a [GmailIntegration](#gmailintegration) object)*
+
+**Errors:**
+| Status | Reason |
+|---|---|
+| `401 Unauthorized` | Missing or invalid token |
+| `404 Not Found` | Gmail integration has not been set up |
+
+---
+
+### PUT /api/v1/gmail/integration
+
+Create or update the saved Gmail integration summary for the authenticated user.
+
+**Auth required:** Yes
+
+**Request body:**
+```json
+{
+  "gmail_email": "alice@example.com",
+  "paidy_amount": 12000,
+  "paidy_month": "2026-07",
+  "paidy_next_payment_date": "2026-08-27",
+  "paidy_transactions": [
+    {
+      "date": "2026-07-10",
+      "amount": 3000,
+      "merchant": "Example Store"
+    }
+  ],
+  "last_synced_at": "2026-07-22T12:00:00Z"
+}
+```
+
+Nullable Paidy fields may be `null` when no matching billing summary is available.
+
+**Response `200 OK`:** *(returns a [GmailIntegration](#gmailintegration) object)*
+
+**Errors:**
+| Status | Reason |
+|---|---|
+| `400 Bad Request` | Request validation failed |
+| `401 Unauthorized` | Missing or invalid token |
+
+---
+
+### DELETE /api/v1/gmail/integration
+
+Delete the saved Gmail integration summary for the authenticated user.
+
+**Auth required:** Yes
+
+**Response `200 OK`:** *(empty body)*
+
+**Errors:**
+| Status | Reason |
+|---|---|
+| `401 Unauthorized` | Missing or invalid token |
+| `404 Not Found` | Gmail integration has not been set up |
+
+---
+
 ## Upload
 
 ### POST /api/v1/upload/icon
@@ -569,6 +677,28 @@ Serve an uploaded file. No authentication required.
 
 ---
 
+## Version
+
+### GET /api/v1/version
+
+Get the API server version.
+
+**Auth required:** Yes
+
+**Response `200 OK`:**
+```json
+{
+  "version": "0.15.3"
+}
+```
+
+**Errors:**
+| Status | Reason |
+|---|---|
+| `401 Unauthorized` | Missing or invalid token |
+
+---
+
 ## Data Models
 
 ### User
@@ -627,6 +757,26 @@ Serve an uploaded file. No authentication required.
   "push_notifications": "boolean",
   "theme": "\"system\" | \"light\" | \"dark\"",
   "time_zone": "string (IANA identifier)",
+  "updated_at": "string (ISO 8601)"
+}
+```
+
+### GmailIntegration
+
+```json
+{
+  "gmail_email": "string",
+  "paidy_amount": "number | null",
+  "paidy_month": "string (YYYY-MM) | null",
+  "paidy_next_payment_date": "string (YYYY-MM-DD calendar date) | null",
+  "paidy_transactions": [
+    {
+      "date": "string",
+      "amount": "number",
+      "merchant": "string"
+    }
+  ],
+  "last_synced_at": "string (ISO 8601)",
   "updated_at": "string (ISO 8601)"
 }
 ```
