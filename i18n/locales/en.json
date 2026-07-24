@@ -16,12 +16,15 @@
         "privacy_policy": "Privacy Policy",
         "version": "About",
         "log_out": "Log Out",
+        "log_out_confirm_title": "Log out?",
+        "log_out_confirm_message": "You’ll need to sign in again to access your subscriptions.",
+        "log_out_failed": "Failed to log out. Please try again.",
         "sync_error": "Failed to sync settings. Changes are saved locally."
     },
     "time_zone": {
         "title": "Time Zone",
         "search": "Search by region",
-        "section": "IANA TIME ZONES",
+        "section": "IANA time zones",
         "current_device": "Current device",
         "unsupported": "{{zone}} is not supported by this device. Select another time zone to keep dates and reminders accurate.",
         "unsupported_short": "Unsupported"

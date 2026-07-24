@@ -52,7 +52,8 @@ export default function ProfileScreen() {
                     </View>
 
                     <Pressable
-                        className="bg-blue-500 rounded-xl p-4 items-center"
+                        className="items-center py-4 rounded-xl bg-white dark:bg-[#1C1C1E] border border-neutral-200/50 dark:border-white/10"
+                        style={{ opacity: isSaving ? 0.6 : 1 }}
                         disabled={isSaving}
                         onPress={async () => {
                             if (!name.trim()) return;
@@ -69,9 +70,9 @@ export default function ProfileScreen() {
                         }}
                     >
                         {isSaving ? (
-                            <ActivityIndicator color="#ffffff" />
+                            <ActivityIndicator color="#3B82F6" />
                         ) : (
-                            <Text className="text-white font-bold text-base">
+                            <Text className="text-blue-500 font-bold text-base">
                                 {t('profile.save')}
                             </Text>
                         )}

@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { View, Text, Switch, Pressable, ScrollView, Alert } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, Switch, Pressable, ScrollView, Alert, Platform, Modal } from 'react-native';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -80,6 +80,8 @@ export default function SettingsScreen() {
   const { t } = useTranslation();
   const { setTheme, pushNotifications, setPushNotifications, language, timeZone, syncError, clearSyncError } = useSettingsStore();
   const { isSignedIn: gmailSignedIn, googleEmail } = usePaidyStore();
+  const [logoutConfirmationVisible, setLogoutConfirmationVisible] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     if (syncError) {
@@ -92,6 +94,40 @@ export default function SettingsScreen() {
   const isDark = colorScheme === 'dark';
 
   const languageLabel = language === 'en' ? 'English' : '日本語';
+
+  const performLogout = async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+    setLogoutConfirmationVisible(false);
+    try {
+      await logout();
+      router.replace('/login');
+    } catch (error: any) {
+      Alert.alert(t('common.error'), error.message || t('settings.log_out_failed'));
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
+  const confirmLogout = () => {
+    if (Platform.OS === 'ios') {
+      Alert.alert(
+        t('settings.log_out_confirm_title'),
+        t('settings.log_out_confirm_message'),
+        [
+          { text: t('common.cancel'), style: 'cancel' },
+          {
+            text: t('settings.log_out'),
+            style: 'destructive',
+            onPress: () => void performLogout(),
+          },
+        ],
+      );
+      return;
+    }
+
+    setLogoutConfirmationVisible(true);
+  };
 
   return (
     <View className="flex-1 bg-neutral-50 dark:bg-neutral-950 pt-16">
@@ -206,14 +242,9 @@ export default function SettingsScreen() {
 
         {/* Logout Button */}
         <Pressable
-          onPress={async () => {
-            try {
-              await logout();
-              router.replace('/login');
-            } catch (error: any) {
-              Alert.alert(t('common.error'), error.message || 'ログアウトに失敗しました');
-            }
-          }}
+          onPress={confirmLogout}
+          disabled={isLoggingOut}
+          style={{ opacity: isLoggingOut ? 0.6 : 1 }}
           className="mt-4 mb-8 items-center py-4 rounded-xl bg-white dark:bg-[#1C1C1E] border border-neutral-200/50 dark:border-white/10"
         >
           <Text className="text-red-600 dark:text-red-400 font-bold text-base">
@@ -222,6 +253,79 @@ export default function SettingsScreen() {
         </Pressable>
 
       </ScrollView>
+
+      <Modal
+        visible={logoutConfirmationVisible}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => setLogoutConfirmationVisible(false)}
+      >
+        <View
+          className="flex-1 items-center justify-center px-6"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.45)' }}
+        >
+          <Pressable
+            className="absolute inset-0"
+            onPress={() => setLogoutConfirmationVisible(false)}
+            accessible={false}
+          />
+          <View
+            accessibilityRole="alert"
+            accessibilityViewIsModal
+            style={{
+              width: '100%',
+              maxWidth: 400,
+              borderRadius: 28,
+              paddingHorizontal: 24,
+              paddingTop: 24,
+              paddingBottom: 12,
+              backgroundColor: isDark ? '#1C1C1C' : '#F7F2FA',
+            }}
+          >
+            <Text
+              style={{
+                color: isDark ? '#F5F5F5' : '#1D1B20',
+                fontSize: 24,
+                lineHeight: 32,
+                fontWeight: '600',
+              }}
+            >
+              {t('settings.log_out_confirm_title')}
+            </Text>
+            <Text
+              style={{
+                color: isDark ? '#CAC4D0' : '#49454F',
+                fontSize: 14,
+                lineHeight: 20,
+                marginTop: 12,
+              }}
+            >
+              {t('settings.log_out_confirm_message')}
+            </Text>
+            <View className="flex-row justify-end mt-5">
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => setLogoutConfirmationVisible(false)}
+                className="min-h-12 justify-center px-3"
+              >
+                <Text className="text-blue-500 font-semibold text-sm">
+                  {t('common.cancel')}
+                </Text>
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => void performLogout()}
+                className="min-h-12 justify-center px-3 ml-1"
+              >
+                <Text className="text-red-600 dark:text-red-400 font-semibold text-sm">
+                  {t('settings.log_out')}
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }

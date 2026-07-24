@@ -16,6 +16,9 @@
         "privacy_policy": "プライバシーポリシー",
         "version": "アプリについて",
         "log_out": "ログアウト",
+        "log_out_confirm_title": "ログアウトしますか？",
+        "log_out_confirm_message": "サブスクリプションを確認するには、再度ログインが必要です。",
+        "log_out_failed": "ログアウトに失敗しました。もう一度お試しください。",
         "sync_error": "設定の同期に失敗しました。変更はローカルに保存されています。"
     },
     "time_zone": {

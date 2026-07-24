@@ -413,7 +413,7 @@ export default function CalendarScreen() {
 
             {/* Section label */}
             <View className="px-4 pt-3 pb-1 flex-row items-center justify-between">
-                <Text className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">
+                <Text className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">
                     {selectedLabel ?? (isJa ? `${month + 1}月の支払` : `${new Date(year, month).toLocaleDateString(i18n.language, { month: 'long' })} payments`)}
                 </Text>
                 {totalsByCurrency ? (
