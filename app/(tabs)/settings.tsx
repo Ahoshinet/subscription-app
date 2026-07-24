@@ -17,6 +17,18 @@ const SectionHeader = ({ title }: { title: string }) => (
   </Text>
 );
 
+interface SettingsRowProps {
+  icon: keyof typeof Ionicons.glyphMap;
+  title: string;
+  value?: string;
+  type?: 'link' | 'toggle';
+  isFirst?: boolean;
+  isLast?: boolean;
+  onPress?: () => void;
+  toggleValue?: boolean;
+  onToggle?: (value: boolean) => void;
+}
+
 // Component for a single settings row
 const SettingsRow = ({
   icon,
@@ -28,7 +40,7 @@ const SettingsRow = ({
   onPress,
   toggleValue = false,
   onToggle
-}: any) => {
+}: SettingsRowProps) => {
   return (
     <Pressable
       onPress={type === 'link' ? onPress : undefined}
