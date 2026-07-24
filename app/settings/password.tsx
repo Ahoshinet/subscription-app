@@ -5,6 +5,7 @@ import { Stack, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { authApi } from '@/lib/api';
 import { singleLineTextInputStyle } from '@/lib/textInputStyles';
+import { getErrorMessage } from '@/lib/errors';
 
 export default function PasswordScreen() {
     const colorScheme = useColorScheme();
@@ -93,8 +94,11 @@ export default function PasswordScreen() {
                                 });
                                 Alert.alert('Success', 'Password updated successfully');
                                 router.back();
-                            } catch (err: any) {
-                                Alert.alert('Error', err.message || 'Failed to update password');
+                            } catch (error: unknown) {
+                                Alert.alert(
+                                    'Error',
+                                    getErrorMessage(error, 'Failed to update password'),
+                                );
                             } finally {
                                 setIsSaving(false);
                             }

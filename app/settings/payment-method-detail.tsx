@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { usePaymentMethodStore } from '@/store/usePaymentMethodStore';
 import { resolveIconUrl } from '@/lib/api';
 import { singleLineTextInputStyle } from '@/lib/textInputStyles';
+import { getErrorMessage } from '@/lib/errors';
 
 export default function PaymentMethodDetailScreen() {
     const params = useLocalSearchParams<{ id: string }>();
@@ -35,8 +36,11 @@ export default function PaymentMethodDetailScreen() {
             // null clears the memo on the server (undefined would keep it)
             await updateMethod(id, { memo: memo.trim() ? memo.trim() : null });
             setIsDirty(false);
-        } catch (e: any) {
-            Alert.alert(t('common.error'), e.message || t('billing.update_failed'));
+        } catch (error: unknown) {
+            Alert.alert(
+                t('common.error'),
+                getErrorMessage(error, t('billing.update_failed')),
+            );
         }
     };
 
@@ -53,9 +57,12 @@ export default function PaymentMethodDetailScreen() {
                         try {
                             await removeMethod(id);
                             router.back();
-                        } catch (e: any) {
+                        } catch (error: unknown) {
                             // e.g. 409: subscriptions still reference this method
-                            Alert.alert(t('common.error'), e.message || t('billing.delete_failed'));
+                            Alert.alert(
+                                t('common.error'),
+                                getErrorMessage(error, t('billing.delete_failed')),
+                            );
                         }
                     },
                 },

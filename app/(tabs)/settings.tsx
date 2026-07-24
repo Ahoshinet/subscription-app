@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { usePaidyStore } from '@/store/usePaidyStore';
 import { isTimeZoneSupported } from '@/lib/timeZone';
+import { getErrorMessage } from '@/lib/errors';
 
 // Component for a section header
 const SectionHeader = ({ title }: { title: string }) => (
@@ -102,8 +103,11 @@ export default function SettingsScreen() {
     try {
       await logout();
       router.replace('/login');
-    } catch (error: any) {
-      Alert.alert(t('common.error'), error.message || t('settings.log_out_failed'));
+    } catch (error: unknown) {
+      Alert.alert(
+        t('common.error'),
+        getErrorMessage(error, t('settings.log_out_failed')),
+      );
     } finally {
       setIsLoggingOut(false);
     }

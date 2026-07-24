@@ -22,6 +22,7 @@ import {
     buildSubscriptionPresetIconValue,
 } from '../lib/subscriptionIcon';
 import { dateOnlyToLocalDate, formatDateOnly } from '../lib/dateUtils';
+import { getErrorMessage } from '../lib/errors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -163,11 +164,14 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
             });
             skipDirtyGuardRef.current = true;
             router.back();
-        } catch (error: any) {
+        } catch (error: unknown) {
             if (pendingIconUrl?.startsWith('/uploads/pending/')) {
                 await uploadApi.deletePending(pendingIconUrl).catch(() => {});
             }
-            Alert.alert(t('common.error'), error.message || t('edit.error_failed'));
+            Alert.alert(
+                t('common.error'),
+                getErrorMessage(error, t('edit.error_failed')),
+            );
         } finally {
             setIsSubmitting(false);
         }

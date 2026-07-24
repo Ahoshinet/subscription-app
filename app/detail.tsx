@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { parseSubscriptionPresetIconValue } from '../lib/subscriptionIcon';
 import { subscriptionApi, resolveIconUrl } from '../lib/api';
 import { formatDateOnlyForDisplay, getEffectiveNextPaymentDate } from '../lib/dateUtils';
+import { getErrorMessage } from '../lib/errors';
 import { getTodayDateInTimeZone } from '../lib/timeZone';
 import { useSettingsStore } from '../store/useSettingsStore';
 
@@ -75,8 +76,11 @@ export default function DetailScreen() {
         try {
             await subscriptionApi.updateStatus(subscription.id, newStatus);
             await fetchSubscriptions();
-        } catch (e: any) {
-            Alert.alert(t('common.error'), e.message || t('detail.error_status_failed'));
+        } catch (error: unknown) {
+            Alert.alert(
+                t('common.error'),
+                getErrorMessage(error, t('detail.error_status_failed')),
+            );
         } finally {
             setPendingIsActive(null);
             setIsTogglingStatus(false);
@@ -97,9 +101,12 @@ export default function DetailScreen() {
                         try {
                             await deleteSubscription(subscription.id);
                             router.back();
-                        } catch (e: any) {
+                        } catch (error: unknown) {
                             setIsDeleting(false);
-                            Alert.alert(t('common.error'), e.message || t('detail.error_delete_failed'));
+                            Alert.alert(
+                                t('common.error'),
+                                getErrorMessage(error, t('detail.error_delete_failed')),
+                            );
                         }
                     },
                 },
@@ -114,7 +121,7 @@ export default function DetailScreen() {
         return translated || '—';
     };
 
-    const iconUrl = (subscription as any).icon_url;
+    const iconUrl = subscription.icon_url;
     const presetIcon = parseSubscriptionPresetIconValue(iconUrl);
 
     return (
@@ -245,11 +252,11 @@ export default function DetailScreen() {
                     </View>
 
                     {/* Memo */}
-                    {(subscription as any).memo ? (
+                    {subscription.memo ? (
                         <View className="bg-white dark:bg-[#1C1C1C] rounded-xl overflow-hidden mb-6">
                             <View className="px-4 py-3.5">
                                 <Text className="text-neutral-500 dark:text-neutral-400 text-sm mb-1">{t('detail.label_memo')}</Text>
-                                <Text className="text-neutral-900 dark:text-white text-base">{(subscription as any).memo}</Text>
+                                <Text className="text-neutral-900 dark:text-white text-base">{subscription.memo}</Text>
                             </View>
                         </View>
                     ) : null}

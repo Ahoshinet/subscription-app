@@ -21,6 +21,7 @@ import { CURRENCIES, isAmountInputAboveMax, parseAmountInput } from '../lib/curr
 import { singleLineTextInputStyle } from '../lib/textInputStyles';
 import { dateOnlyToLocalDate, formatDateOnly } from '../lib/dateUtils';
 import { getTodayDateInTimeZone } from '../lib/timeZone';
+import { getErrorMessage } from '../lib/errors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -103,11 +104,14 @@ export default function AddSubscriptionModal() {
                 memo: memo || undefined,
             });
             router.back();
-        } catch (error: any) {
+        } catch (error: unknown) {
             if (pendingIconUrl?.startsWith('/uploads/pending/')) {
                 await uploadApi.deletePending(pendingIconUrl).catch(() => {});
             }
-            Alert.alert(t('common.error'), error.message || t('add.error_failed'));
+            Alert.alert(
+                t('common.error'),
+                getErrorMessage(error, t('add.error_failed')),
+            );
         } finally {
             setIsSubmitting(false);
         }

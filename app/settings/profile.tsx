@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/useAuthStore';
 import { authApi } from '@/lib/api';
 import { singleLineTextInputStyle } from '@/lib/textInputStyles';
+import { getErrorMessage } from '@/lib/errors';
 
 export default function ProfileScreen() {
     const colorScheme = useColorScheme();
@@ -62,8 +63,11 @@ export default function ProfileScreen() {
                                 const updated = await authApi.updateProfile({ username: name.trim() });
                                 useAuthStore.setState({ user: updated });
                                 router.back();
-                            } catch (err: any) {
-                                Alert.alert('Error', err.message || 'Failed to update profile');
+                            } catch (error: unknown) {
+                                Alert.alert(
+                                    'Error',
+                                    getErrorMessage(error, 'Failed to update profile'),
+                                );
                             } finally {
                                 setIsSaving(false);
                             }
