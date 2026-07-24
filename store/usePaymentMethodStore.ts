@@ -6,9 +6,20 @@ import { captureAuthSession, isAuthSessionCurrent } from '../lib/authSession';
 
 const PAYMENT_METHODS_STORAGE_KEY = 'payment-methods-storage';
 
+const SAVED_PAYMENT_METHOD_TYPES = ['preset', 'credit_card', 'custom'] as const;
+
+export type SavedPaymentMethodType = typeof SAVED_PAYMENT_METHOD_TYPES[number];
+
+export function isSavedPaymentMethodType(
+    value: unknown,
+): value is SavedPaymentMethodType {
+    return typeof value === 'string'
+        && SAVED_PAYMENT_METHOD_TYPES.some((type) => type === value);
+}
+
 export interface SavedPaymentMethod {
     id: string;
-    type: 'preset' | 'credit_card' | 'custom';
+    type: SavedPaymentMethodType;
     label: string;
     iconName?: string;
     iconUri?: string;
@@ -42,7 +53,7 @@ interface PaymentMethodState {
 
 const fromApiPaymentMethod = (method: PaymentMethod): SavedPaymentMethod => ({
     id: method.id,
-    type: method.type as SavedPaymentMethod['type'],
+    type: isSavedPaymentMethodType(method.type) ? method.type : 'custom',
     label: method.label,
     iconName: method.icon_name,
     iconUri: method.icon_uri,
@@ -111,9 +122,24 @@ export const usePaymentMethodStore = create<PaymentMethodState>()(
                     card_brand: 'cardBrand' in updates ? updates.cardBrand ?? null : undefined,
                     memo: 'memo' in updates ? updates.memo ?? null : undefined,
                 });
-                const localUpdates = Object.fromEntries(
-                    Object.entries(updates).map(([k, v]) => [k, v ?? undefined])
-                ) as Partial<Omit<SavedPaymentMethod, 'id'>>;
+                const localUpdates: Partial<Omit<SavedPaymentMethod, 'id'>> = {};
+                if ('label' in updates) localUpdates.label = updates.label;
+                if ('iconName' in updates) {
+                    localUpdates.iconName = updates.iconName ?? undefined;
+                }
+                if ('iconUri' in updates) {
+                    localUpdates.iconUri = updates.iconUri ?? undefined;
+                }
+                if ('color' in updates) localUpdates.color = updates.color;
+                if ('last4' in updates) {
+                    localUpdates.last4 = updates.last4 ?? undefined;
+                }
+                if ('cardBrand' in updates) {
+                    localUpdates.cardBrand = updates.cardBrand ?? undefined;
+                }
+                if ('memo' in updates) {
+                    localUpdates.memo = updates.memo ?? undefined;
+                }
                 set((state) => ({
                     methods: state.methods.map((m) =>
                         m.id === id ? { ...m, ...localUpdates } : m

@@ -215,6 +215,18 @@ describe('usePaymentMethodStore', () => {
         }));
     });
 
+    test('normalizes an unsupported server method type to custom', async () => {
+        activateAuthSession('user-1');
+        getAllMock.mockResolvedValue([{
+            ...serverMethod,
+            type: 'future_method_type',
+        }]);
+
+        await usePaymentMethodStore.getState().syncFromServer();
+
+        expect(usePaymentMethodStore.getState().methods[0].type).toBe('custom');
+    });
+
     test('does not apply a response after the authenticated user changes', async () => {
         let resolveRequest: (methods: PaymentMethod[]) => void = () => {};
         getAllMock.mockReturnValue(new Promise((resolve) => {
