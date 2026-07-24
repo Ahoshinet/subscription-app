@@ -266,13 +266,12 @@ Get all subscriptions for the authenticated user.
 
 **Auth required:** Yes
 
-**Response `200 OK`:** *(array of [Subscription](#subscription) objects)*
+**Response `200 OK`:** *(abbreviated array of [Subscription](#subscription) objects)*
 ```json
 [
   {
     "id": 1,
-    "service_name": "Netflix",
-    ...
+    "service_name": "Netflix"
   }
 ]
 ```
@@ -377,15 +376,14 @@ Advance overdue active subscriptions to their next payment date and return the r
 
 **Request body:** *(empty)*
 
-**Response `200 OK`:**
+**Response `200 OK`:** *(abbreviated; each item in `subscriptions` is a [Subscription](#subscription))*
 ```json
 {
   "updated": 2,
   "subscriptions": [
     {
       "id": 1,
-      "service_name": "Netflix",
-      ...
+      "service_name": "Netflix"
     }
   ]
 }

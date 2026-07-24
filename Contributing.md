@@ -10,9 +10,9 @@ All types of contributions are welcome.
 
 ## 行動規範 / Code of Conduct
 
-このプロジェクトは [行動規範 / Code of Conduct](./CODE_OF_CONDUCT.md) を定めています。参加にあたっては必ずお読みください。
+敬意を持って建設的に交流し、嫌がらせや差別的な言動を行わないでください。
 
-This project has a [Code of Conduct](./CODE_OF_CONDUCT.md). Please read it before participating.
+Please communicate respectfully and constructively, without harassment or discriminatory behavior.
 
 ---
 
@@ -114,10 +114,10 @@ If you have any questions about contributing, feel free to reach out.
 
 ## ライセンス / License
 
-このプロジェクトは [BSD 2-Clause License](./License) の下で公開されています。
+このプロジェクトは [BSD 2-Clause License](./LICENSE) の下で公開されています。
 
 コントリビューションを行うことで、あなたのコードが BSD 2-Clause License の下で配布されることに同意したものとみなします。
 
-This project is licensed under the [BSD 2-Clause License](./License).
+This project is licensed under the [BSD 2-Clause License](./LICENSE).
 
 By contributing, you agree that your contributions will be licensed under the BSD 2-Clause License.
