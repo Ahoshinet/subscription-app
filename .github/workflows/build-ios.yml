@@ -2,8 +2,6 @@ name: Build iOS IPA (Unsigned)
 
 on:
   pull_request:
-    branches:
-      - main
   push:
     tags:
       - 'v*' # v1.0.0 などのタグが打たれた時に起動
