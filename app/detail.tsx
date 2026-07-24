@@ -229,7 +229,7 @@ export default function DetailScreen() {
                                 />
                             </View>
                         </View>
-                        <DetailRow label={t('detail.label_service_name')} value={subscription.service_name} isFirst />
+                        <DetailRow label={t('detail.label_service_name')} value={subscription.service_name} />
                         <DetailRow label={t('detail.label_plan_name')} value={subscription.plan_name || '—'} />
                         <DetailRow
                             label={t('detail.label_next_payment')}
@@ -256,7 +256,7 @@ export default function DetailScreen() {
 
                     {/* Info Group */}
                     <View className="bg-white dark:bg-[#1C1C1C] rounded-xl overflow-hidden mb-6">
-                        <DetailRow label={t('detail.label_created_at')} value={formatDate(subscription.created_at || '')} isFirst />
+                        <DetailRow label={t('detail.label_created_at')} value={formatDate(subscription.created_at || '')} />
                         <DetailRow label={t('detail.label_updated_at')} value={formatDate(subscription.updated_at || '')} isLast />
                     </View>
 
@@ -279,7 +279,7 @@ export default function DetailScreen() {
     );
 }
 
-function DetailRow({ label, value, isFirst = false, isLast = false }: { label: string; value: string; isFirst?: boolean; isLast?: boolean }) {
+function DetailRow({ label, value, isLast = false }: { label: string; value: string; isLast?: boolean }) {
     return (
         <View
             className={`px-4 py-3 flex-row justify-between items-center ${!isLast ? 'border-b border-neutral-200 dark:border-neutral-800' : ''

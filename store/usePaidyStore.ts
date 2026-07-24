@@ -7,6 +7,7 @@ import { ApiError, gmailApi } from '@/lib/api';
 import { captureAuthSession, isAuthSessionCurrent } from '@/lib/authSession';
 
 const LEGACY_GMAIL_TOKEN_KEY = 'paidy_gmail_access_token';
+const PAIDY_STORAGE_KEY = 'paidy-store';
 const knownGmailTokenKeys = new Set<string>();
 
 function gmailTokenKey(userId: string): string {
@@ -215,13 +216,13 @@ export const usePaidyStore = create<PaidyState>()(
           isLoading: false,
           error: null,
         });
-        await usePaidyStore.persist.clearStorage();
+        await AsyncStorage.removeItem(PAIDY_STORAGE_KEY);
       },
 
       clearError: () => set({ error: null }),
     }),
     {
-      name: 'paidy-store',
+      name: PAIDY_STORAGE_KEY,
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         isSignedIn: state.isSignedIn,

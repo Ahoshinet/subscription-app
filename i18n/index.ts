@@ -9,7 +9,7 @@ const resources = {
     ja: { translation: ja },
 };
 
-i18n
+void i18n
     .use(initReactI18next)
     .init({
         resources,

@@ -69,7 +69,7 @@ export default function RootLayout() {
     useEffect(() => {
         // Ensure the language specified in settings is applied
         if (i18n.language !== language) {
-            i18n.changeLanguage(language);
+            void i18n.changeLanguage(language);
         }
     }, [language, i18n]);
 

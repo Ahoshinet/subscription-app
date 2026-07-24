@@ -1,7 +1,7 @@
 import * as SecureStore from 'expo-secure-store';
 import { Platform, Alert } from 'react-native';
 import Constants from 'expo-constants';
-import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { File as FileSystemFile } from 'expo-file-system';
 import { captureAuthSession, isAuthSessionCurrent } from './authSession';
 import { fetchWithTimeout } from './fetchWithTimeout';
@@ -580,10 +580,16 @@ export const uploadApi = {
         // HEIC/HEIF, so convert those to JPEG before uploading instead of
         // letting the server reject them with 415.
         if (ext === 'heic' || ext === 'heif') {
-            const converted = await manipulateAsync(uri, [], {
-                compress: 0.9,
-                format: SaveFormat.JPEG,
-            });
+            const renderedImage = await ImageManipulator.manipulate(uri).renderAsync();
+            let converted;
+            try {
+                converted = await renderedImage.saveAsync({
+                    compress: 0.9,
+                    format: SaveFormat.JPEG,
+                });
+            } finally {
+                renderedImage.release();
+            }
             uploadUri = converted.uri;
             filename = filename.replace(/\.[^.]+$/, '.jpg');
         }

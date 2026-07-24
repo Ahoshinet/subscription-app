@@ -10,6 +10,7 @@ export type Language = 'en' | 'ja';
 export type ThemePreference = 'system' | 'light' | 'dark';
 
 const mutationQueues = new Map<string, Promise<void>>();
+const SETTINGS_STORAGE_KEY = 'settings-storage';
 
 interface SettingsState {
     language: Language;
@@ -44,23 +45,23 @@ export const useSettingsStore = create<SettingsState>()(
 
             setLanguage: (lang) => {
                 set({ language: lang });
-                get().syncToServer({ language: lang });
+                void get().syncToServer({ language: lang });
             },
             setCurrency: (currency) => {
                 set({ currency });
-                get().syncToServer({ currency });
+                void get().syncToServer({ currency });
             },
             setPushNotifications: (enabled) => {
                 set({ pushNotifications: enabled });
-                get().syncToServer({ push_notifications: enabled });
+                void get().syncToServer({ push_notifications: enabled });
             },
             setTheme: (theme) => {
                 set({ theme });
-                get().syncToServer({ theme });
+                void get().syncToServer({ theme });
             },
             setTimeZone: (timeZone) => {
                 set({ timeZone });
-                get().syncToServer({ time_zone: timeZone });
+                void get().syncToServer({ time_zone: timeZone });
             },
             clearSyncError: () => set({ syncError: false }),
             resetForLogout: async () => {
@@ -73,7 +74,7 @@ export const useSettingsStore = create<SettingsState>()(
                     isSyncing: false,
                     syncError: false,
                 });
-                await useSettingsStore.persist.clearStorage();
+                await AsyncStorage.removeItem(SETTINGS_STORAGE_KEY);
             },
 
             syncFromServer: async () => {
@@ -129,7 +130,7 @@ export const useSettingsStore = create<SettingsState>()(
             },
         }),
         {
-            name: 'settings-storage',
+            name: SETTINGS_STORAGE_KEY,
             storage: createJSONStorage(() => AsyncStorage),
             partialize: (state) => ({
                 language: state.language,

@@ -44,7 +44,6 @@ interface SubscriptionCardProps {
     amount: number;
     currency?: string;
     billingCycle?: string;
-    nextPaymentDate: string;
     daysRemaining: number;
     color?: string;
     iconName?: keyof typeof Ionicons.glyphMap;
@@ -64,7 +63,6 @@ export function SubscriptionCard({
     amount,
     currency = '¥',
     billingCycle = 'monthly',
-    nextPaymentDate,
     daysRemaining,
     color = '#E50914',
     iconName = 'play-circle',

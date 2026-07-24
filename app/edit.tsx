@@ -9,7 +9,7 @@ import { uploadApi, resolveIconUrl } from '../lib/api';
 import type { Subscription } from '../lib/api';
 import * as ImagePicker from 'expo-image-picker';
 import { setCropHandler } from '../lib/imageCropStore';
-import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
 import { usePaymentMethodStore } from '../store/usePaymentMethodStore';
 import { CURRENCIES, CurrencyId, isAmountInputAboveMax, parseAmountInput } from '../lib/currency';
@@ -173,9 +173,9 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
         }
     };
 
-    const onDateChange = (_event: DateTimePickerEvent, selectedDate?: Date) => {
+    const onDateChange = (selectedDate: Date) => {
         if (Platform.OS === 'android') setShowDatePicker(false);
-        if (selectedDate) setNextPaymentDate(selectedDate);
+        setNextPaymentDate(selectedDate);
     };
 
     const billingCycleLabel = t(`billing_cycle.${billingCycle}`);
@@ -365,7 +365,8 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
                                     value={nextPaymentDate}
                                     mode="date"
                                     display={Platform.OS === 'ios' ? 'inline' : 'default'}
-                                    onChange={onDateChange}
+                                    onValueChange={(_, selectedDate) => onDateChange(selectedDate)}
+                                    onDismiss={() => setShowDatePicker(false)}
                                     themeVariant={isDark ? 'dark' : 'light'}
                                     style={{ alignSelf: 'center' }}
                                 />

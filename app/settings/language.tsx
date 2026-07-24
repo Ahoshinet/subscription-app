@@ -20,7 +20,7 @@ export default function LanguageSettingsScreen() {
 
     const handleSelect = (id: string) => {
         setLanguage(id as Language);
-        i18n.changeLanguage(id);
+        void i18n.changeLanguage(id);
         // Add a slight delay before going back to let the user see the checkmark
         setTimeout(() => {
             if (router.canGoBack()) {

@@ -4,6 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PaymentMethod, paymentMethodApi, uploadApi } from '../lib/api';
 import { captureAuthSession, isAuthSessionCurrent } from '../lib/authSession';
 
+const PAYMENT_METHODS_STORAGE_KEY = 'payment-methods-storage';
+
 export interface SavedPaymentMethod {
     id: string;
     type: 'preset' | 'credit_card' | 'custom';
@@ -52,7 +54,7 @@ const fromApiPaymentMethod = (method: PaymentMethod): SavedPaymentMethod => ({
 
 export const usePaymentMethodStore = create<PaymentMethodState>()(
     persist(
-        (set, get) => ({
+        (set) => ({
             methods: [],
             isSyncing: false,
 
@@ -156,11 +158,11 @@ export const usePaymentMethodStore = create<PaymentMethodState>()(
 
             resetForLogout: async () => {
                 set({ methods: [], isSyncing: false });
-                await usePaymentMethodStore.persist.clearStorage();
+                await AsyncStorage.removeItem(PAYMENT_METHODS_STORAGE_KEY);
             },
         }),
         {
-            name: 'payment-methods-storage',
+            name: PAYMENT_METHODS_STORAGE_KEY,
             storage: createJSONStorage(() => AsyncStorage),
         }
     )

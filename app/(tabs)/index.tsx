@@ -39,7 +39,7 @@ export default function HomeScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      fetchSubscriptions();
+      void fetchSubscriptions();
     }, [fetchSubscriptions])
   );
 
@@ -63,7 +63,7 @@ export default function HomeScreen() {
 
   const onRefresh = useCallback(async () => {
     if (process.env.EXPO_OS === 'ios') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
     setRefreshing(true);
     await fetchSubscriptions();
@@ -346,7 +346,6 @@ export default function HomeScreen() {
                   amount={sub.amount}
                   currency={CURRENCY_SYMBOLS[sub.currency] || sub.currency}
                   billingCycle={sub.billing_cycle}
-                  nextPaymentDate={effectiveDate}
                   daysRemaining={daysRemaining}
                   color={sub.id === -1 ? '#1A56DB' : '#3B82F6'}
                   iconName={sub.id === -1 ? 'card' : 'cube'}

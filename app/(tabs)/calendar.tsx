@@ -5,15 +5,15 @@ import {
 } from 'react-native';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
     withTiming,
     withSpring,
-    runOnJS,
 } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
@@ -125,7 +125,7 @@ export default function CalendarScreen() {
     useEffect(() => { currentRef.current = { month, year }; }, [month, year]);
 
     useEffect(() => {
-        if (subscriptions.length === 0) fetchSubscriptions();
+        if (subscriptions.length === 0) void fetchSubscriptions();
     }, [fetchSubscriptions, subscriptions.length]);
 
     const isJa = i18n.language === 'ja';
@@ -216,7 +216,7 @@ export default function CalendarScreen() {
         translateX.value = withTiming(outX, { duration: ANIM_DURATION }, (finished) => {
             'worklet';
             if (finished) {
-                runOnJS(applyMonthChange)(direction);
+                scheduleOnRN(applyMonthChange, direction);
                 translateX.value = inX;
                 translateX.value = withTiming(0, { duration: ANIM_DURATION }, () => {
                     'worklet';
@@ -248,7 +248,7 @@ export default function CalendarScreen() {
                     translateX.value = withTiming(-SCREEN_WIDTH, { duration: ANIM_DURATION }, (finished) => {
                         'worklet';
                         if (finished) {
-                            runOnJS(applyMonthChange)('next');
+                            scheduleOnRN(applyMonthChange, 'next');
                             translateX.value = SCREEN_WIDTH;
                             translateX.value = withTiming(0, { duration: ANIM_DURATION }, () => {
                                 'worklet';
@@ -263,7 +263,7 @@ export default function CalendarScreen() {
                     translateX.value = withTiming(SCREEN_WIDTH, { duration: ANIM_DURATION }, (finished) => {
                         'worklet';
                         if (finished) {
-                            runOnJS(applyMonthChange)('prev');
+                            scheduleOnRN(applyMonthChange, 'prev');
                             translateX.value = -SCREEN_WIDTH;
                             translateX.value = withTiming(0, { duration: ANIM_DURATION }, () => {
                                 'worklet';
@@ -543,14 +543,13 @@ export default function CalendarScreen() {
                     value={pickerDate}
                     mode="date"
                     display="spinner"
-                    onChange={(_: DateTimePickerEvent, date?: Date) => {
+                    onValueChange={(_, date) => {
                         setShowPicker(false);
-                        if (date) {
-                            setYear(date.getFullYear());
-                            setMonth(date.getMonth());
-                            setSelectedDay(null);
-                        }
+                        setYear(date.getFullYear());
+                        setMonth(date.getMonth());
+                        setSelectedDay(null);
                     }}
+                    onDismiss={() => setShowPicker(false)}
                 />
             )}
             {Platform.OS === 'ios' && (
@@ -579,13 +578,11 @@ export default function CalendarScreen() {
                                 mode="date"
                                 display="spinner"
                                 locale={isJa ? 'ja-JP' : 'en-US'}
-                                onChange={(_: DateTimePickerEvent, date?: Date) => {
-                                    if (date) {
-                                        setPickerDate(date);
-                                        setYear(date.getFullYear());
-                                        setMonth(date.getMonth());
-                                        setSelectedDay(null);
-                                    }
+                                onValueChange={(_, date) => {
+                                    setPickerDate(date);
+                                    setYear(date.getFullYear());
+                                    setMonth(date.getMonth());
+                                    setSelectedDay(null);
                                 }}
                                 style={{ backgroundColor: isDark ? '#1c1c1e' : '#ffffff' }}
                             />

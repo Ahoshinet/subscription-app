@@ -10,7 +10,7 @@ import { usePaymentMethodStore } from '../store/usePaymentMethodStore';
 import { uploadApi } from '../lib/api';
 import * as ImagePicker from 'expo-image-picker';
 import { setCropHandler } from '../lib/imageCropStore';
-import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
 import {
     SUBSCRIPTION_ICON_PRESETS,
@@ -113,13 +113,11 @@ export default function AddSubscriptionModal() {
         }
     };
 
-    const onDateChange = (_event: DateTimePickerEvent, selectedDate?: Date) => {
+    const onDateChange = (selectedDate: Date) => {
         if (Platform.OS === 'android') {
             setShowDatePicker(false);
         }
-        if (selectedDate) {
-            setNextPaymentDate(selectedDate);
-        }
+        setNextPaymentDate(selectedDate);
     };
 
     const billingCycleLabel = t(`billing_cycle.${billingCycle}`);
@@ -314,7 +312,8 @@ export default function AddSubscriptionModal() {
                                     value={nextPaymentDate}
                                     mode="date"
                                     display={Platform.OS === 'ios' ? 'inline' : 'default'}
-                                    onChange={onDateChange}
+                                    onValueChange={(_, selectedDate) => onDateChange(selectedDate)}
+                                    onDismiss={() => setShowDatePicker(false)}
                                     themeVariant={isDark ? 'dark' : 'light'}
                                     style={{ alignSelf: 'center' }}
                                 />

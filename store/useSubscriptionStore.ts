@@ -16,7 +16,7 @@ interface SubscriptionState {
     resetForLogout: () => void;
 }
 
-export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
+export const useSubscriptionStore = create<SubscriptionState>((set) => ({
     subscriptions: [],
     isLoading: false,
     error: null,

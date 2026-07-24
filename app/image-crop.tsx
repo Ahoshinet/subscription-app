@@ -3,7 +3,7 @@ import { View, Text, Pressable, Dimensions, StyleSheet, StatusBar } from 'react-
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import Animated, { useSharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { useTranslation } from 'react-i18next';
 import { resolveCrop } from '@/lib/imageCropStore';
 
@@ -93,14 +93,24 @@ export default function ImageCropScreen() {
         const cropW = Math.min(imageW - originX, CROP_SIZE / totalScale);
         const cropH = Math.min(imageH - originY, CROP_SIZE / totalScale);
 
-        const result = await manipulateAsync(
-            uri,
-            [
-                { crop: { originX: Math.round(originX), originY: Math.round(originY), width: Math.round(cropW), height: Math.round(cropH) } },
-                { resize: { width: 512, height: 512 } },
-            ],
-            { compress: 0.9, format: SaveFormat.JPEG }
-        );
+        const renderedImage = await ImageManipulator.manipulate(uri)
+            .crop({
+                originX: Math.round(originX),
+                originY: Math.round(originY),
+                width: Math.round(cropW),
+                height: Math.round(cropH),
+            })
+            .resize({ width: 512, height: 512 })
+            .renderAsync();
+        let result;
+        try {
+            result = await renderedImage.saveAsync({
+                compress: 0.9,
+                format: SaveFormat.JPEG,
+            });
+        } finally {
+            renderedImage.release();
+        }
 
         resolveCrop(result.uri);
         router.back();

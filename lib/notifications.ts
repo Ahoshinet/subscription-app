@@ -12,7 +12,7 @@ let _notifications: NotificationsModule | null = null;
 function getNotifications(): NotificationsModule | null {
     // expo-notifications remote push removed from Expo Go on Android in SDK 53;
     // loading the module triggers push token auto-registration which crashes in that env.
-    if (Platform.OS === 'android' && Constants.appOwnership === 'expo') return null;
+    if (Platform.OS === 'android' && Constants.expoGoConfig != null) return null;
     if (_notifications) return _notifications;
     try {
         _notifications = require('expo-notifications') as NotificationsModule;
@@ -181,7 +181,7 @@ function extractSubscriptionId(
 
 // Wires up notification taps so they open the matching subscription's detail
 // screen. Handles both a running/backgrounded app and a cold start launched
-// from the notification (getLastNotificationResponseAsync). `onOpen` should
+// from the notification (getLastNotificationResponse). `onOpen` should
 // navigate; it is only called once per tap. Returns a cleanup function.
 export function registerNotificationTapHandler(
     onOpen: (subscriptionId: number) => void
@@ -201,7 +201,7 @@ export function registerNotificationTapHandler(
         if (subscriptionId != null) onOpen(subscriptionId);
     };
 
-    N.getLastNotificationResponseAsync().then(handle);
+    handle(N.getLastNotificationResponse());
     const sub = N.addNotificationResponseReceivedListener(handle);
     return () => sub.remove();
 }

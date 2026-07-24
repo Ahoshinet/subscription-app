@@ -273,13 +273,14 @@ export default function GmailSettingsScreen() {
           <Pressable
             onPress={() => {
               const email = t('gmail.about_tester_email');
-              Linking.canOpenURL(`mailto:${email}`).then(supported => {
-                if (supported) {
-                  Linking.openURL(`mailto:${email}`);
-                } else {
+              void Linking.canOpenURL(`mailto:${email}`)
+                .then((supported) => {
+                  if (supported) {
+                    return Linking.openURL(`mailto:${email}`);
+                  }
                   Alert.alert(email);
-                }
-              });
+                })
+                .catch(() => Alert.alert(email));
             }}
             className="flex-row items-center"
           >
