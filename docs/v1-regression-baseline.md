@@ -51,6 +51,8 @@ current automated baseline covers:
   rejection, and external-response validation
 - UI error normalization, typed dashboard rows and routes, validated
   language/currency selections, and runtime-validated icon names
+- Stable update discovery that excludes release-candidate tags from the
+  fallback GitHub tag list
 - Date-only calculations and recurring payment rollover
 - Amount parsing and monthly normalization
 - Time-zone conversion and offset formatting
@@ -66,15 +68,15 @@ Coverage is collected from all TypeScript modules in `lib/` and `store/`,
 including files that no test imports. Test files themselves are excluded.
 
 The initial measurement was recorded from `f0ccbfc` on 2026-07-24. The current
-measurement was recorded from `f2c9959` after UI type hardening and icon-name
-validation on 2026-07-25:
+measurement was recorded from `f39ab50` after release-candidate discovery
+coverage on 2026-07-25:
 
 | Metric | Initial | Current | Enforced minimum |
 |---|---:|---:|---:|
-| Statements | 46.61% | 74.50% | 72% |
-| Branches | 38.44% | 63.35% | 60% |
-| Functions | 46.00% | 71.80% | 69% |
-| Lines | 48.94% | 77.62% | 75% |
+| Statements | 46.61% | 77.94% | 76% |
+| Branches | 38.44% | 66.52% | 64% |
+| Functions | 46.00% | 75.87% | 74% |
+| Lines | 48.94% | 81.40% | 79% |
 
 The minimums intentionally leave a small margin for instrumentation differences
 while preventing unreviewed coverage loss. Raise them as uncovered critical
@@ -268,3 +270,14 @@ For each `v1.0.0-rc.N`, add a dated result section containing:
 - Completed checklist items and known failures
 - Upgrade-test result
 - Performance comparison against this baseline
+
+The native marketing version remains `1.0.0` for release candidates because
+iOS requires a numeric `CFBundleShortVersionString`. The RC identity comes from
+the `v1.0.0-rc.N` Git tag and its monotonically increasing Android
+`versionCode` / iOS `buildNumber`. GitHub Actions marks RC tags as prereleases,
+so normal update discovery continues to return only stable releases.
+
+If the final RC passes without a fix, run `pnpm version:build` to increment only
+the two native build identifiers, commit that metadata-only promotion, and tag
+it `v1.0.0`. If a fix is required, increment the native build identifiers and
+issue the next RC instead.
