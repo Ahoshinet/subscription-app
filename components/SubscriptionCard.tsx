@@ -2,11 +2,6 @@ import React, { useState } from 'react';
 import { View, Text, Pressable, Image, Platform, PlatformColor } from 'react-native';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTranslation } from 'react-i18next';
-import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withSpring,
-} from 'react-native-reanimated';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { MenuView, type MenuAction, type NativeActionEvent } from '@expo/ui/community/menu';
 import { BlurView } from 'expo-blur';
@@ -80,28 +75,10 @@ export function SubscriptionCard({
     onDelete,
     actionsDisabled = false,
 }: SubscriptionCardProps) {
-    'use no memo';
-    const scale = useSharedValue(1);
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
     const router = useRouter();
     const { t } = useTranslation();
-
-    const animatedStyle = useAnimatedStyle(() => {
-        return {
-            transform: [{ scale: scale.value }],
-        };
-    });
-
-    const handlePressIn = () => {
-        // eslint-disable-next-line react-hooks/immutability
-        scale.value = withSpring(0.98, { damping: 15, stiffness: 250 });
-    };
-
-    const handlePressOut = () => {
-        // eslint-disable-next-line react-hooks/immutability
-        scale.value = withSpring(1, { damping: 15, stiffness: 250 });
-    };
 
     const handlePress = () => {
         if (onPress) {
@@ -180,8 +157,6 @@ export function SubscriptionCard({
 
     const card = (
         <Pressable
-            onPressIn={handlePressIn}
-            onPressOut={handlePressOut}
             onPress={handlePress}
             accessibilityRole="button"
             accessibilityHint={
@@ -190,7 +165,7 @@ export function SubscriptionCard({
                     : undefined
             }
         >
-            <Animated.View style={[animatedStyle, isInactive && { opacity: 0.6 }]}>
+            <View style={isInactive && { opacity: 0.6 }}>
                 <View style={{ borderRadius: 24 }} className="border border-neutral-200 dark:border-white/10">
                 <BlurView
                     intensity={100}
@@ -321,7 +296,7 @@ export function SubscriptionCard({
                     )}
                 </BlurView>
                 </View>
-            </Animated.View>
+            </View>
         </Pressable>
     );
 
