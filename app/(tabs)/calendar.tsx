@@ -444,7 +444,7 @@ export default function CalendarScreen() {
                             return (
                                 <TouchableOpacity
                                     key={`${sub.id}-${day}-${idx}`}
-                                    onPress={() => router.push({ pathname: '/detail' as any, params: { id: String(sub.id) } })}
+                                    onPress={() => router.push({ pathname: '/detail', params: { id: String(sub.id) } })}
                                     className="flex-row items-center py-3 border-b border-neutral-100 dark:border-neutral-800/80"
                                     activeOpacity={0.7}
                                 >
@@ -499,7 +499,7 @@ export default function CalendarScreen() {
                         return (
                             <TouchableOpacity
                                 key={sub.id}
-                                onPress={() => router.push({ pathname: '/detail' as any, params: { id: String(sub.id) } })}
+                                onPress={() => router.push({ pathname: '/detail', params: { id: String(sub.id) } })}
                                 style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: isDark ? 'rgba(38,38,38,0.8)' : '#f5f5f5' }}
                                 activeOpacity={0.7}
                             >

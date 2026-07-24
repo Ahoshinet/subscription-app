@@ -83,7 +83,7 @@ export function SubscriptionCard({
         if (onPress) {
             onPress();
         } else {
-            router.push({ pathname: '/detail' as any, params: { id: String(id) } });
+            router.push({ pathname: '/detail', params: { id: String(id) } });
         }
     };
 

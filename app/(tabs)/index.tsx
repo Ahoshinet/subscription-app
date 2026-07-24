@@ -359,10 +359,10 @@ export default function HomeScreen() {
                   iconName={sub.id === -1 ? 'card' : 'cube'}
                   iconUrl={sub.id === -1 ? undefined : sub.icon_url}
                   status={sub.status}
-                  onPress={sub.id === -1 ? () => router.push('/paidy-detail' as any) : undefined}
+                  onPress={sub.id === -1 ? () => router.push('/paidy-detail') : undefined}
                   onEdit={sub.id === -1
                     ? undefined
-                    : () => router.push({ pathname: '/edit' as any, params: { id: String(sub.id) } })}
+                    : () => router.push({ pathname: '/edit', params: { id: String(sub.id) } })}
                   onToggleStatus={sub.id === -1
                     ? undefined
                     : () => void handleToggleStatus(sub.id, sub.status)}

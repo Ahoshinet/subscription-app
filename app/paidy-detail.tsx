@@ -138,7 +138,7 @@ export default function PaidyDetailScreen() {
         </Pressable>
 
         <Pressable
-          onPress={() => router.push('/settings/gmail' as any)}
+          onPress={() => router.push('/settings/gmail')}
           className="items-center py-4 rounded-xl bg-neutral-100 dark:bg-white/10"
         >
           <Text className="text-neutral-700 dark:text-neutral-300 font-semibold text-base">

@@ -141,7 +141,7 @@ export default function AddSubscriptionModal() {
                 setSelectedPresetIcon(null);
             });
             router.push({
-                pathname: '/image-crop' as any,
+                pathname: '/image-crop',
                 params: { uri: asset.uri, width: String(asset.width ?? 1), height: String(asset.height ?? 1) },
             });
         }
@@ -282,7 +282,7 @@ export default function AddSubscriptionModal() {
                             />
                         </View>
                         <Pressable
-                            onPress={() => router.push('/settings/currency-picker' as any)}
+                            onPress={() => router.push('/settings/currency-picker')}
                             className="px-4 flex-row items-center justify-between"
                             style={rowStyle}
                         >
@@ -322,7 +322,7 @@ export default function AddSubscriptionModal() {
                         )}
 
                         <Pressable
-                            onPress={() => router.push('/settings/billing-cycle' as any)}
+                            onPress={() => router.push('/settings/billing-cycle')}
                             className="border-b border-neutral-200 dark:border-neutral-800 p-4 pl-4 flex-row items-center justify-between"
                         >
                             <Text className="text-neutral-900 dark:text-white text-base">{t('subscription_form.billing_cycle_label')}</Text>
@@ -332,7 +332,7 @@ export default function AddSubscriptionModal() {
                             </View>
                         </Pressable>
                         <Pressable
-                            onPress={() => router.push('/settings/payment-method' as any)}
+                            onPress={() => router.push('/settings/payment-method')}
                             className="p-4 pl-4 flex-row items-center justify-between"
                         >
                             <Text className="text-neutral-900 dark:text-white text-base">{t('subscription_form.payment_method_label')}</Text>

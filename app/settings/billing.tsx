@@ -18,7 +18,7 @@ export default function BillingScreen() {
     const router = useRouter();
 
     const handleTapMethod = (id: string) => {
-        router.push({ pathname: '/settings/payment-method-detail' as any, params: { id } });
+        router.push({ pathname: '/settings/payment-method-detail', params: { id } });
     };
 
     return (

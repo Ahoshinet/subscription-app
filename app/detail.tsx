@@ -140,7 +140,10 @@ export default function DetailScreen() {
                             label: t('detail.edit_button'),
                             accessibilityLabel: t('detail.edit_button'),
                             variant: 'plain',
-                            onPress: () => router.push(`/edit?id=${subscription.id}` as any),
+                            onPress: () => router.push({
+                                pathname: '/edit',
+                                params: { id: String(subscription.id) },
+                            }),
                         }]
                         : undefined,
                     headerRight: Platform.OS === 'android'
@@ -148,7 +151,10 @@ export default function DetailScreen() {
                             <Pressable
                                 accessibilityRole="button"
                                 accessibilityLabel={t('detail.edit_button')}
-                                onPress={() => router.push(`/edit?id=${subscription.id}` as any)}
+                                onPress={() => router.push({
+                                    pathname: '/edit',
+                                    params: { id: String(subscription.id) },
+                                })}
                                 style={({ pressed }) => ({
                                     width: 44,
                                     height: 44,

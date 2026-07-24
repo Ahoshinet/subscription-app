@@ -204,7 +204,7 @@ export default function SettingsScreen() {
             icon="globe-outline"
             title={t('settings.time_zone')}
             value={isTimeZoneSupported(timeZone) ? timeZone : `${timeZone} · ${t('time_zone.unsupported_short')}`}
-            onPress={() => router.push('/settings/time-zone' as any)}
+            onPress={() => router.push('/settings/time-zone')}
           />
           <SettingsRow
             isLast
@@ -225,7 +225,7 @@ export default function SettingsScreen() {
             icon="mail-outline"
             title={`${t('gmail.row_title')} β`}
             value={gmailSignedIn ? t('gmail.connected') : t('gmail.not_connected')}
-            onPress={() => router.push('/settings/gmail' as any)}
+            onPress={() => router.push('/settings/gmail')}
           />
         </View>
 
