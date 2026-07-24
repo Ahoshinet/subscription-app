@@ -450,11 +450,8 @@ export default function CalendarScreen() {
                                 >
                                     {/* Day badge */}
                                     <View style={{ width: 30, alignItems: 'center', marginRight: 10 }}>
-                                        <Text style={{ fontSize: 16, fontWeight: '700', color: '#3B82F6', lineHeight: 18 }}>
+                                        <Text style={{ fontSize: 16, fontWeight: '700', color: '#3B82F6' }}>
                                             {day}
-                                        </Text>
-                                        <Text style={{ fontSize: 9, color: isDark ? '#737373' : '#a3a3a3' }}>
-                                            {isJa ? '日' : 'th'}
                                         </Text>
                                     </View>
                                     <View className="w-9 h-9 rounded-xl items-center justify-center mr-3 bg-neutral-100 dark:bg-neutral-800">
