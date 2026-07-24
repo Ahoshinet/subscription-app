@@ -25,6 +25,50 @@ export interface PaidySummary {
   transactions: PaidyTransaction[];
 }
 
+interface GmailMessageReference {
+  id: string;
+}
+
+interface GmailMessagePage {
+  messages: GmailMessageReference[];
+  nextPageToken?: string;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function parseMessagePage(value: unknown): GmailMessagePage {
+  if (!isRecord(value)) {
+    throw new Error('Invalid Gmail message list response');
+  }
+
+  const rawMessages = value.messages;
+  if (rawMessages !== undefined && !Array.isArray(rawMessages)) {
+    throw new Error('Invalid Gmail message list response');
+  }
+
+  const messages = (rawMessages ?? []).map((message: unknown) => {
+    if (!isRecord(message) || typeof message.id !== 'string') {
+      throw new Error('Invalid Gmail message reference');
+    }
+    return { id: message.id };
+  });
+
+  const rawNextPageToken = value.nextPageToken;
+  if (
+    rawNextPageToken !== undefined
+    && typeof rawNextPageToken !== 'string'
+  ) {
+    throw new Error('Invalid Gmail page token');
+  }
+
+  return {
+    messages,
+    nextPageToken: rawNextPageToken,
+  };
+}
+
 function decodeBase64Url(data: string): Uint8Array {
   const base64 = data.replace(/-/g, '+').replace(/_/g, '/');
   const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4);
@@ -56,19 +100,42 @@ function decodeQuotedPrintable(input: string): string {
   return new TextDecoder('utf-8').decode(new Uint8Array(bytes));
 }
 
-function findTextPlainPart(payload: any): string | null {
-  if (payload.mimeType === 'text/plain' && payload.body?.data) {
-    const bytes = decodeBase64Url(payload.body.data);
+function findTextPlainPart(payload: unknown): string | null {
+  if (!isRecord(payload)) return null;
+
+  const body = isRecord(payload.body) ? payload.body : null;
+  if (
+    payload.mimeType === 'text/plain'
+    && body
+    && typeof body.data === 'string'
+  ) {
+    const bytes = decodeBase64Url(body.data);
     const raw = new TextDecoder('latin1').decode(bytes);
     return decodeQuotedPrintable(raw);
   }
-  if (payload.parts) {
+
+  if (Array.isArray(payload.parts)) {
     for (const part of payload.parts) {
       const result = findTextPlainPart(part);
       if (result) return result;
     }
   }
   return null;
+}
+
+function findHeaderValue(payload: unknown, headerName: string): string {
+  if (!isRecord(payload) || !Array.isArray(payload.headers)) return '';
+
+  for (const header of payload.headers) {
+    if (
+      isRecord(header)
+      && typeof header.name === 'string'
+      && header.name.toLowerCase() === headerName.toLowerCase()
+    ) {
+      return typeof header.value === 'string' ? header.value : '';
+    }
+  }
+  return '';
 }
 
 function parseTransactionFromBody(body: string): PaidyTransaction | null {
@@ -144,8 +211,8 @@ async function fetchJpHolidaysForYear(year: number): Promise<Set<string>> {
   try {
     const res = await fetchWithTimeout(`https://holidays-jp.github.io/api/v1/${year}/date.json`);
     if (!res.ok) return new Set();
-    const data: Record<string, string> = await res.json();
-    return new Set(Object.keys(data));
+    const data: unknown = await res.json();
+    return isRecord(data) ? new Set(Object.keys(data)) : new Set();
   } catch {
     return new Set();
   }
@@ -164,7 +231,7 @@ async function nextPaymentDateFromMonth(month: string): Promise<string> {
   return toISODate(d);
 }
 
-async function gmailFetch(path: string, accessToken: string): Promise<any> {
+async function gmailFetch(path: string, accessToken: string): Promise<unknown> {
   const res = await fetchWithTimeout(`${GMAIL_API_BASE}${path}`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
@@ -176,15 +243,17 @@ async function gmailFetch(path: string, accessToken: string): Promise<any> {
 export async function fetchPaidyTransactions(accessToken: string): Promise<PaidySummary | null> {
     // Japanese in the query URL can be misinterpreted; filter by subject in code instead.
   const query = encodeURIComponent('from:noreply@paidy.com newer_than:90d');
-  const messages: any[] = [];
+  const messages: GmailMessageReference[] = [];
   let pageToken: string | undefined;
   do {
     const pageParam = pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : '';
-    const listData = await gmailFetch(
-      `/users/me/messages?q=${query}&maxResults=100${pageParam}`,
-      accessToken
+    const listData = parseMessagePage(
+      await gmailFetch(
+        `/users/me/messages?q=${query}&maxResults=100${pageParam}`,
+        accessToken
+      )
     );
-    messages.push(...(listData.messages ?? []));
+    messages.push(...listData.messages);
     pageToken = listData.nextPageToken;
   } while (pageToken);
 
@@ -197,13 +266,20 @@ export async function fetchPaidyTransactions(accessToken: string): Promise<Paidy
   // keeping synchronization reasonably fast.
   for (let start = 0; start < messages.length; start += 10) {
     const batch = messages.slice(start, start + 10);
-    await Promise.all(batch.map(async (msg: any) => {
+    await Promise.all(batch.map(async (message) => {
       try {
-        const detail = await gmailFetch(`/users/me/messages/${msg.id}?format=full`, accessToken);
-        const headers: any[] = detail.payload?.headers ?? [];
-        const subject = headers.find((h: any) => h.name.toLowerCase() === 'subject')?.value ?? '';
+        const detail = await gmailFetch(
+          `/users/me/messages/${message.id}?format=full`,
+          accessToken
+        );
+        if (!isRecord(detail)) {
+          processingFailed = true;
+          return;
+        }
+        const payload = detail.payload;
+        const subject = findHeaderValue(payload, 'subject');
         if (!subject.includes('ご利用確定のお知らせ')) return;
-        const body = findTextPlainPart(detail.payload);
+        const body = findTextPlainPart(payload);
         if (!body) {
           processingFailed = true;
           return;
@@ -255,6 +331,9 @@ export async function fetchGoogleUserEmail(accessToken: string): Promise<string>
     headers: { Authorization: `Bearer ${accessToken}` },
   });
   if (!res.ok) throw new Error('Failed to fetch Google user info');
-  const data = await res.json();
-  return data.email as string;
+  const data: unknown = await res.json();
+  if (!isRecord(data) || typeof data.email !== 'string' || !data.email) {
+    throw new Error('Google user info response is missing an email address');
+  }
+  return data.email;
 }

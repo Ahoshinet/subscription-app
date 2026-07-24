@@ -262,6 +262,15 @@ describe('fetchPaidyTransactions', () => {
     await expect(fetchPaidyTransactions('expired-token'))
       .rejects.toBeInstanceOf(GmailAuthError);
   });
+
+  test('rejects malformed Gmail message references', async () => {
+    fetchWithTimeoutMock.mockResolvedValue(jsonResponse(200, {
+      messages: [{ threadId: 'missing-id' }],
+    }));
+
+    await expect(fetchPaidyTransactions('gmail-token'))
+      .rejects.toThrow('Invalid Gmail message reference');
+  });
 });
 
 describe('fetchGoogleUserEmail', () => {
@@ -285,5 +294,14 @@ describe('fetchGoogleUserEmail', () => {
 
     await expect(fetchGoogleUserEmail('gmail-token'))
       .rejects.toThrow('Failed to fetch Google user info');
+  });
+
+  test('rejects user info without a valid email', async () => {
+    fetchWithTimeoutMock.mockResolvedValue(jsonResponse(200, {
+      email: null,
+    }));
+
+    await expect(fetchGoogleUserEmail('gmail-token'))
+      .rejects.toThrow('Google user info response is missing an email address');
   });
 });
