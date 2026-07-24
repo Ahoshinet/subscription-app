@@ -327,7 +327,10 @@
         "label_updated_at": "Last Updated",
         "status_active": "Active",
         "status_inactive": "Inactive",
-        "status_cancelled": "Cancelled"
+        "status_cancelled": "Cancelled",
+        "price_period_monthly": "/Monthly",
+        "price_period_yearly": "/Yearly",
+        "price_period_weekly": "/Weekly"
     },
     "calendar": {
         "title": "Calendar",

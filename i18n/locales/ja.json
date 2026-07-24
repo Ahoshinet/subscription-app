@@ -327,7 +327,10 @@
         "label_updated_at": "最終更新",
         "status_active": "アクティブ",
         "status_inactive": "非アクティブ",
-        "status_cancelled": "キャンセル済"
+        "status_cancelled": "キャンセル済",
+        "price_period_monthly": "/月",
+        "price_period_yearly": "/年",
+        "price_period_weekly": "/週"
     },
     "calendar": {
         "title": "カレンダー",
