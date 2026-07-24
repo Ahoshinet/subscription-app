@@ -85,8 +85,8 @@ export default function DetailScreen() {
 
     const handleDelete = () => {
         Alert.alert(
-            t('detail.delete_title'),
-            t('detail.delete_message', { name: subscription.service_name }),
+            t('detail.delete_title', { name: subscription.service_name }),
+            t('detail.delete_message'),
             [
                 { text: t('billing.cancel'), style: 'cancel' },
                 {

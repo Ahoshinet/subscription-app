@@ -87,8 +87,8 @@ export default function HomeScreen() {
 
   const handleDelete = useCallback((id: number, serviceName: string) => {
     Alert.alert(
-      t('detail.delete_title'),
-      t('detail.delete_message', { name: serviceName }),
+      t('detail.delete_title', { name: serviceName }),
+      t('detail.delete_message'),
       [
         { text: t('billing.cancel'), style: 'cancel' },
         {
