@@ -49,7 +49,7 @@ jobs:
       
     - name: Bundle analyzer
       run: |
-        if pnpm run | grep -q " build"; then
+        if node -e "process.exit(Object.hasOwn(require('./package.json').scripts ?? {}, 'build') ? 0 : 1)"; then
           pnpm run build
           pnpm exec @next/bundle-analyzer || true
         else
@@ -133,7 +133,7 @@ jobs:
       
     - name: Build project
       run: |
-        if pnpm run | grep -q " build"; then
+        if node -e "process.exit(Object.hasOwn(require('./package.json').scripts ?? {}, 'build') ? 0 : 1)"; then
           pnpm run build
         else
           echo "No build script found. Skipping build."
