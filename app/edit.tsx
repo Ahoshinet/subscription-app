@@ -12,7 +12,7 @@ import { setCropHandler } from '../lib/imageCropStore';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
 import { usePaymentMethodStore } from '../store/usePaymentMethodStore';
-import { CURRENCIES, CurrencyId, isAmountInputAboveMax, parseAmountInput } from '../lib/currency';
+import { CURRENCIES, isAmountInputAboveMax, isCurrencyId, parseAmountInput } from '../lib/currency';
 import { singleLineTextInputStyle } from '../lib/textInputStyles';
 import {
     isSubscriptionPresetIconValue,
@@ -72,12 +72,22 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
 
     const { billingCycle, paymentMethod, currency, setBillingCycle, setPaymentMethod, setCurrency } = useAddFormStore();
     const { methods: paymentMethods } = usePaymentMethodStore();
+    const subscriptionCurrency = isCurrencyId(subscription.currency)
+        ? subscription.currency
+        : 'JPY';
 
     useEffect(() => {
         setBillingCycle(subscription.billing_cycle);
         setPaymentMethod(subscription.payment_method);
-        setCurrency((subscription.currency as CurrencyId) || 'JPY');
-    }, [subscription, setBillingCycle, setPaymentMethod, setCurrency]);
+        setCurrency(subscriptionCurrency);
+    }, [
+        setBillingCycle,
+        setCurrency,
+        setPaymentMethod,
+        subscription.billing_cycle,
+        subscription.payment_method,
+        subscriptionCurrency,
+    ]);
 
     const navigation = useNavigation();
     const initialNextPaymentDate = useMemo(
@@ -93,7 +103,7 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
         formatDateOnly(nextPaymentDate) !== initialNextPaymentDate ||
         billingCycle !== subscription.billing_cycle ||
         paymentMethod !== subscription.payment_method ||
-        currency !== ((subscription.currency as CurrencyId) || 'JPY');
+        currency !== subscriptionCurrency;
     // Refs so the beforeRemove listener sees current values without
     // re-subscribing on every keystroke.
     const isDirtyRef = useRef(isDirty);

@@ -4,9 +4,13 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { useSettingsStore, Language } from '@/store/useSettingsStore';
+import { useSettingsStore, type Language } from '@/store/useSettingsStore';
 
-const languages = [
+const languages: readonly {
+    id: Language;
+    name: string;
+    localName: string;
+}[] = [
     { id: 'en', name: 'English', localName: 'English' },
     { id: 'ja', name: 'Japanese', localName: '日本語' },
 ];
@@ -18,8 +22,8 @@ export default function LanguageSettingsScreen() {
     const { t, i18n } = useTranslation();
     const { language, setLanguage } = useSettingsStore();
 
-    const handleSelect = (id: string) => {
-        setLanguage(id as Language);
+    const handleSelect = (id: Language) => {
+        setLanguage(id);
         void i18n.changeLanguage(id);
         // Add a slight delay before going back to let the user see the checkmark
         setTimeout(() => {
