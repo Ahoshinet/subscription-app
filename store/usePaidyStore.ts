@@ -5,6 +5,7 @@ import * as SecureStore from 'expo-secure-store';
 import { fetchPaidyTransactions, GmailAuthError, PaidyTransaction } from '@/lib/gmail';
 import { ApiError, gmailApi } from '@/lib/api';
 import { captureAuthSession, isAuthSessionCurrent } from '@/lib/authSession';
+import { getErrorMessage } from '@/lib/errors';
 
 const LEGACY_GMAIL_TOKEN_KEY = 'paidy_gmail_access_token';
 const PAIDY_STORAGE_KEY = 'paidy-store';
@@ -63,8 +64,8 @@ export const usePaidyStore = create<PaidyState>()(
           try {
             await gmailApi.deleteIntegration();
             if (isAuthSessionCurrent(session)) set({ pendingServerDeletion: false });
-          } catch (err: any) {
-            if (err instanceof ApiError && err.status === 404) {
+          } catch (error: unknown) {
+            if (error instanceof ApiError && error.status === 404) {
               // レコードは既に無い = 削除完了扱い
               if (isAuthSessionCurrent(session)) set({ pendingServerDeletion: false });
             }
@@ -152,14 +153,17 @@ export const usePaidyStore = create<PaidyState>()(
               isLoading: false,
             });
           }
-        } catch (err: any) {
+        } catch (error: unknown) {
           if (!isAuthSessionCurrent(session)) return;
-          if (err instanceof GmailAuthError) {
+          if (error instanceof GmailAuthError) {
             // アクセストークン失効（約1時間）— 再連携を促す
             set({ needsReauth: true, error: 'Gmailとの再連携が必要です', isLoading: false });
             return;
           }
-          set({ error: err.message ?? '同期に失敗しました', isLoading: false });
+          set({
+            error: getErrorMessage(error, '同期に失敗しました'),
+            isLoading: false,
+          });
         }
       },
 
@@ -177,9 +181,9 @@ export const usePaidyStore = create<PaidyState>()(
         let pendingServerDeletion = false;
         try {
           await gmailApi.deleteIntegration();
-        } catch (err: any) {
+        } catch (error: unknown) {
           // 404 = レコードが元々無い（削除済み）ので成功扱い
-          if (!(err instanceof ApiError && err.status === 404)) {
+          if (!(error instanceof ApiError && error.status === 404)) {
             pendingServerDeletion = true;
           }
         }

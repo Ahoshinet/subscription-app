@@ -205,6 +205,17 @@ describe('usePaidyStore', () => {
     expect(usePaidyStore.getState().pendingServerDeletion).toBe(false);
   });
 
+  test('keeps a failed pending deletion queued for the next load', async () => {
+    activateAuthSession('user-1');
+    usePaidyStore.setState({ pendingServerDeletion: true });
+    deleteIntegrationMock.mockRejectedValue({ reason: 'offline' });
+
+    await usePaidyStore.getState().loadFromServer();
+
+    expect(getIntegrationMock).not.toHaveBeenCalled();
+    expect(usePaidyStore.getState().pendingServerDeletion).toBe(true);
+  });
+
   test('stores a Gmail token under the current account only', async () => {
     activateAuthSession('user-1');
 
@@ -310,6 +321,19 @@ describe('usePaidyStore', () => {
       needsReauth: true,
       isLoading: false,
       error: 'Gmailとの再連携が必要です',
+    }));
+  });
+
+  test('uses a safe fallback message for an unknown synchronization failure', async () => {
+    activateAuthSession('user-1');
+    fetchPaidyTransactionsMock.mockRejectedValue({ reason: 'offline' });
+
+    await usePaidyStore.getState().syncPaidy();
+
+    expect(usePaidyStore.getState()).toEqual(expect.objectContaining({
+      needsReauth: false,
+      isLoading: false,
+      error: '同期に失敗しました',
     }));
   });
 
