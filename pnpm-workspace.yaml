@@ -19,3 +19,7 @@ overrides:
   'uuid@<11.1.1': 11.1.1
   # GHSA-96hv-2xvq-fx4p (high): transitive via react-native > ws
   'ws@>=7.0.0 <7.5.11': 7.5.11
+  # GHSA-r28c-9q8g-f849 (high): transitive via Tailwind CSS > PostCSS
+  'postcss@<=8.5.17': 8.5.23
+minimumReleaseAgeExclude:
+  - postcss@8.5.23
