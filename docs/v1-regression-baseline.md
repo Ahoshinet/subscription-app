@@ -36,6 +36,8 @@ current automated baseline covers:
   state transitions
 - Authentication error normalization for unknown thrown values
 - Subscription list, create, update, status, and delete API requests
+- Subscription Store renewal fallback, CRUD state transitions, error handling,
+  authentication-session isolation, and logout reset
 - Payment-method CRUD, icon upload cleanup, legacy icon migration, and
   cross-session response isolation, including unsupported type normalization
 - Settings synchronization, update failure handling, cross-session isolation,
@@ -57,15 +59,15 @@ Coverage is collected from all TypeScript modules in `lib/` and `store/`,
 including files that no test imports. Test files themselves are excluded.
 
 The initial measurement was recorded from `f0ccbfc` on 2026-07-24. The current
-measurement was recorded after the Settings and runtime-value type hardening on
-2026-07-25:
+measurement was recorded from `de3d25f` after the Subscription Store regression
+coverage and authentication-session hardening on 2026-07-25:
 
 | Metric | Initial | Current | Enforced minimum |
 |---|---:|---:|---:|
-| Statements | 46.61% | 51.73% | 50% |
-| Branches | 38.44% | 44.47% | 42% |
-| Functions | 46.00% | 52.03% | 50% |
-| Lines | 48.94% | 54.38% | 52% |
+| Statements | 46.61% | 55.75% | 54% |
+| Branches | 38.44% | 46.67% | 45% |
+| Functions | 46.00% | 57.46% | 55% |
+| Lines | 48.94% | 58.30% | 56% |
 
 The minimums intentionally leave a small margin for instrumentation differences
 while preventing unreviewed coverage loss. Raise them as uncovered critical
