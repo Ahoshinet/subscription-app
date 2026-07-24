@@ -161,7 +161,12 @@
         "per_year": "/yr",
         "per_week": "/wk",
         "inactive": "Inactive",
-        "paused_note": "Payments paused"
+        "paused_note": "Payments paused",
+        "action_edit": "Edit",
+        "action_mark_active": "Mark Active",
+        "action_mark_inactive": "Mark Inactive",
+        "action_delete": "Delete",
+        "actions_accessibility_hint": "Long press for subscription actions"
     },
     "home": {
         "title": "My Subscriptions",

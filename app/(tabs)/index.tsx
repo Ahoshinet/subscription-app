@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable, ActivityIndicator, RefreshControl, TextInput, Platform } from 'react-native';
+import { View, Text, ScrollView, Pressable, ActivityIndicator, RefreshControl, TextInput, Platform, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { SubscriptionCard } from '@/components/SubscriptionCard';
@@ -17,6 +17,7 @@ import { CURRENCY_SYMBOLS, getSystemCurrency, toMonthlyAmount } from '@/lib/curr
 import { daysBetweenDateOnly, getEffectiveNextPaymentDate } from '@/lib/dateUtils';
 import { getTodayDateInTimeZone } from '@/lib/timeZone';
 import { singleLineTextInputStyle } from '@/lib/textInputStyles';
+import { subscriptionApi } from '@/lib/api';
 
 type SortKey = 'name' | 'amount' | 'date';
 
@@ -26,13 +27,14 @@ export default function HomeScreen() {
   const router = useRouter();
   const { t } = useTranslation();
 
-  const { subscriptions, isLoading, error, fetchSubscriptions } = useSubscriptionStore();
+  const { subscriptions, isLoading, error, fetchSubscriptions, deleteSubscription } = useSubscriptionStore();
   const { pushNotifications, timeZone } = useSettingsStore();
   const { isSignedIn: gmailSignedIn, paidyAmount, paidyMonth, nextPaymentDate: paidyNextDate } = usePaidyStore();
   const [refreshing, setRefreshing] = useState(false);
   const [spendingExpanded, setSpendingExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('date');
+  const [actionInFlightId, setActionInFlightId] = useState<number | null>(null);
   const todayDate = getTodayDateInTimeZone(timeZone);
 
   useFocusEffect(
@@ -67,6 +69,47 @@ export default function HomeScreen() {
     await fetchSubscriptions();
     setRefreshing(false);
   }, [fetchSubscriptions]);
+
+  const handleToggleStatus = useCallback(async (id: number, currentStatus: string) => {
+    if (actionInFlightId !== null) return;
+
+    setActionInFlightId(id);
+    try {
+      const nextStatus = currentStatus === 'inactive' ? 'active' : 'inactive';
+      await subscriptionApi.updateStatus(id, nextStatus);
+      await fetchSubscriptions();
+    } catch (e: any) {
+      Alert.alert(t('common.error'), e.message || t('detail.error_status_failed'));
+    } finally {
+      setActionInFlightId(null);
+    }
+  }, [actionInFlightId, fetchSubscriptions, t]);
+
+  const handleDelete = useCallback((id: number, serviceName: string) => {
+    Alert.alert(
+      t('detail.delete_title'),
+      t('detail.delete_message', { name: serviceName }),
+      [
+        { text: t('billing.cancel'), style: 'cancel' },
+        {
+          text: t('detail.delete_confirm'),
+          style: 'destructive',
+          onPress: () => {
+            if (actionInFlightId !== null) return;
+
+            setActionInFlightId(id);
+            void deleteSubscription(id)
+              .catch((e: any) => {
+                Alert.alert(t('common.error'), e.message || t('detail.error_delete_failed'));
+              })
+              .finally(() => {
+                setActionInFlightId(null);
+              });
+          },
+        },
+      ]
+    );
+  }, [actionInFlightId, deleteSubscription, t]);
 
   // Memoized: these were rebuilt on every render, giving the downstream
   // filteredAndSorted useMemo a fresh paidyVirtualSub identity each time.
@@ -310,6 +353,16 @@ export default function HomeScreen() {
                   iconUrl={sub.id === -1 ? undefined : sub.icon_url}
                   status={sub.status}
                   onPress={sub.id === -1 ? () => router.push('/paidy-detail' as any) : undefined}
+                  onEdit={sub.id === -1
+                    ? undefined
+                    : () => router.push({ pathname: '/edit' as any, params: { id: String(sub.id) } })}
+                  onToggleStatus={sub.id === -1
+                    ? undefined
+                    : () => void handleToggleStatus(sub.id, sub.status)}
+                  onDelete={sub.id === -1
+                    ? undefined
+                    : () => handleDelete(sub.id, sub.service_name)}
+                  actionsDisabled={actionInFlightId !== null}
                 />
               );
             })}

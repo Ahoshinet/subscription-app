@@ -8,6 +8,7 @@ import Animated, {
     withSpring,
 } from 'react-native-reanimated';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
+import { MenuView, type MenuAction, type NativeActionEvent } from '@expo/ui/community/menu';
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
 import { parseSubscriptionPresetIconValue } from '@/lib/subscriptionIcon';
@@ -54,6 +55,10 @@ interface SubscriptionCardProps {
     iconUrl?: string;
     status?: string;
     onPress?: () => void;
+    onEdit?: () => void;
+    onToggleStatus?: () => void;
+    onDelete?: () => void;
+    actionsDisabled?: boolean;
 }
 
 export function SubscriptionCard({
@@ -70,6 +75,10 @@ export function SubscriptionCard({
     iconUrl,
     status = 'active',
     onPress,
+    onEdit,
+    onToggleStatus,
+    onDelete,
+    actionsDisabled = false,
 }: SubscriptionCardProps) {
     'use no memo';
     const scale = useSharedValue(1);
@@ -131,12 +140,55 @@ export function SubscriptionCard({
     const presetIcon = parseSubscriptionPresetIconValue(iconUrl);
     const [erroredIconUrl, setErroredIconUrl] = useState<string | undefined>(undefined);
     const imageError = iconUrl !== undefined && iconUrl === erroredIconUrl;
+    const hasLongPressActions = Boolean(onEdit && onToggleStatus && onDelete);
+    const menuActions: MenuAction[] = [
+        {
+            id: 'edit',
+            title: t('subscription_card.action_edit'),
+            image: 'pencil',
+            attributes: { disabled: actionsDisabled },
+        },
+        {
+            id: 'toggle-status',
+            title: isInactive
+                ? t('subscription_card.action_mark_active')
+                : t('subscription_card.action_mark_inactive'),
+            image: isInactive ? 'play.circle' : 'pause.circle',
+            attributes: { disabled: actionsDisabled },
+        },
+        {
+            id: 'delete',
+            title: t('subscription_card.action_delete'),
+            image: 'trash',
+            attributes: { destructive: true, disabled: actionsDisabled },
+        },
+    ];
 
-    return (
+    const handleMenuAction = (event: NativeActionEvent) => {
+        switch (event.nativeEvent.event) {
+            case 'edit':
+                onEdit?.();
+                break;
+            case 'toggle-status':
+                onToggleStatus?.();
+                break;
+            case 'delete':
+                onDelete?.();
+                break;
+        }
+    };
+
+    const card = (
         <Pressable
             onPressIn={handlePressIn}
             onPressOut={handlePressOut}
             onPress={handlePress}
+            accessibilityRole="button"
+            accessibilityHint={
+                hasLongPressActions
+                    ? t('subscription_card.actions_accessibility_hint')
+                    : undefined
+            }
             className="mb-5"
         >
             <Animated.View style={[animatedStyle, isInactive && { opacity: 0.6 }]}>
@@ -272,5 +324,20 @@ export function SubscriptionCard({
                 </View>
             </Animated.View>
         </Pressable>
+    );
+
+    if (!hasLongPressActions) {
+        return card;
+    }
+
+    return (
+        <MenuView
+            actions={menuActions}
+            onPressAction={handleMenuAction}
+            shouldOpenOnLongPress
+            testID={`subscription-card-menu-${id}`}
+        >
+            {card}
+        </MenuView>
     );
 }

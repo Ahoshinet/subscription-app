@@ -161,7 +161,12 @@
         "per_year": "/年",
         "per_week": "/週",
         "inactive": "非アクティブ",
-        "paused_note": "支払いは停止中"
+        "paused_note": "支払いは停止中",
+        "action_edit": "編集",
+        "action_mark_active": "アクティブにする",
+        "action_mark_inactive": "非アクティブにする",
+        "action_delete": "削除",
+        "actions_accessibility_hint": "長押しでサブスクリプションの操作を表示"
     },
     "home": {
         "title": "My Subscriptions",
