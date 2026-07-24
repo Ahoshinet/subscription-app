@@ -94,7 +94,7 @@ export default function SettingsScreen() {
   const languageLabel = language === 'en' ? 'English' : '日本語';
 
   return (
-    <View className="flex-1 bg-neutral-50 dark:bg-black pt-16">
+    <View className="flex-1 bg-neutral-50 dark:bg-neutral-950 pt-16">
       {/* Header */}
       <View className="px-6 mb-4">
         <Text className="text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
