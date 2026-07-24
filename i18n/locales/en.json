@@ -150,8 +150,8 @@
         "other": "Other"
     },
     "subscription_card": {
-        "action_required": "Payment Due Soon",
-        "next_payment": "Next Payment",
+        "action_required": "Payment due soon",
+        "next_payment": "Next payment",
         "today": "Today",
         "in_days": "in {{count}} days",
         "per_month": "/mo",

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, Image } from 'react-native';
+import { View, Text, Pressable, Image, Platform, PlatformColor } from 'react-native';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTranslation } from 'react-i18next';
 import Animated, {
@@ -12,6 +12,33 @@ import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
 import { parseSubscriptionPresetIconValue } from '@/lib/subscriptionIcon';
 import { resolveIconUrl } from '@/lib/api';
+
+const iosTimelineColors = Platform.OS === 'ios'
+    ? {
+        label: PlatformColor('secondaryLabelColor'),
+        value: PlatformColor('labelColor'),
+        indicator: PlatformColor('systemBlueColor'),
+        warning: PlatformColor('systemOrangeColor'),
+        track: PlatformColor('systemGray5Color'),
+    }
+    : null;
+
+const materialTimelineColors = {
+    light: {
+        label: '#52525B',
+        value: '#3F3F46',
+        indicator: '#3B82F6',
+        warningIndicator: '#F97316',
+        track: '#E4E4E7',
+    },
+    dark: {
+        label: '#A1A1AA',
+        value: '#E4E4E7',
+        indicator: '#60A5FA',
+        warningIndicator: '#FB923C',
+        track: '#3F3F46',
+    },
+};
 
 interface SubscriptionCardProps {
     id: number;
@@ -80,10 +107,18 @@ export function SubscriptionCard({
 
     const isInactive = status === 'inactive';
 
-    // Accessibility and Colorblind-safe formatting
+    // Keep the timeline palette native on iOS while retaining the app's
+    // Material-oriented blue and neutral surface roles elsewhere.
     const isUrgent = daysRemaining <= 3;
-    const accessibleColor = isUrgent ? '#F97316' : '#3B82F6'; // Tailwind Orange-500 : Blue-500
     const accessibleIcon = isUrgent ? 'warning' : 'hourglass-outline';
+    const materialColors = materialTimelineColors[isDark ? 'dark' : 'light'];
+    const statusLabelColor = iosTimelineColors?.label ?? materialColors.label;
+    const dueTextColor = iosTimelineColors?.value ?? materialColors.value;
+    const progressColor = iosTimelineColors
+        ? (isUrgent ? iosTimelineColors.warning : iosTimelineColors.indicator)
+        : (isUrgent ? materialColors.warningIndicator : materialColors.indicator);
+    const statusIconColor = isUrgent ? progressColor : statusLabelColor;
+    const progressTrackColor = iosTimelineColors?.track ?? materialColors.track;
 
     // Inactive cards are muted and use a neutral gray accent so paused
     // subscriptions are clearly distinguishable from active ones at a glance.
@@ -196,30 +231,38 @@ export function SubscriptionCard({
                     <View className="px-5 pb-5 mt-1">
                         <View className="flex-row justify-between items-center mb-3">
                             <View className="flex-row items-center">
-                                <Ionicons name={accessibleIcon} size={16} color={accessibleColor} style={{ marginRight: 4 }} />
-                                <Text className="text-sm font-bold uppercase tracking-wider" style={{ color: accessibleColor }}>
+                                <Ionicons name={accessibleIcon} size={16} color={statusIconColor} style={{ marginRight: 5 }} />
+                                <Text
+                                    className="text-sm"
+                                    style={{
+                                        color: statusLabelColor,
+                                        fontWeight: Platform.OS === 'ios' ? '600' : '500',
+                                    }}
+                                >
                                     {isUrgent ? t('subscription_card.action_required') : t('subscription_card.next_payment')}
                                 </Text>
                             </View>
 
-                            <Text className="text-base text-neutral-700 dark:text-neutral-300">
-                                {daysRemaining === 0 ? (
-                                    <Text className="font-extrabold" style={{ color: accessibleColor }}>{t('subscription_card.today')}</Text>
-                                ) : (
-                                    <Text className="font-extrabold" style={{ color: accessibleColor }}>{t('subscription_card.in_days', { count: daysRemaining })}</Text>
-                                )}
+                            <Text
+                                className="text-base"
+                                style={{ color: dueTextColor, fontWeight: '700' }}
+                            >
+                                {daysRemaining === 0
+                                    ? t('subscription_card.today')
+                                    : t('subscription_card.in_days', { count: daysRemaining })}
                             </Text>
                         </View>
 
-                        {/* Progress Bar Background */}
-                        <View className="h-2 w-full bg-neutral-200/50 dark:bg-black/40 rounded-full overflow-hidden">
-                            {/* Progress Bar Fill */}
+                        <View
+                            className="w-full rounded-full overflow-hidden"
+                            style={{ height: 4, backgroundColor: progressTrackColor }}
+                            accessible={false}
+                        >
                             <View
                                 className="h-full rounded-full"
                                 style={{
                                     width: `${progressPercent}%`,
-                                    backgroundColor: accessibleColor,
-                                    opacity: 0.9
+                                    backgroundColor: progressColor,
                                 }}
                             />
                         </View>
