@@ -1,0 +1,13 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Subscription App" />
+    <inspection_tool class="Eslint" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="useSeverityFromConfigFile" value="true" />
+    </inspection_tool>
+    <inspection_tool class="ES6UnusedImports" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="TypeScriptValidateTypes" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="VulnerableLibrariesLocal" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="isIgnoringEnabled" value="true" />
+    </inspection_tool>
+  </profile>
+</component>
