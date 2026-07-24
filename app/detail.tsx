@@ -180,9 +180,9 @@ export default function DetailScreen() {
                     >
                         {presetIcon ? (
                             presetIcon.pack === 'fontawesome5' ? (
-                                <FontAwesome5 name={presetIcon.name as any} size={44} color={presetIcon.color} />
+                                <FontAwesome5 name={presetIcon.name} size={44} color={presetIcon.color} />
                             ) : (
-                                <Ionicons name={presetIcon.name as any} size={44} color={presetIcon.color} />
+                                <Ionicons name={presetIcon.name} size={44} color={presetIcon.color} />
                             )
                         ) : iconUrl && !imageError ? (
                             <Image

@@ -14,7 +14,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
 import {
     SUBSCRIPTION_ICON_PRESETS,
-    SubscriptionIconPack,
+    type SubscriptionIconSelection,
     buildSubscriptionPresetIconValue,
 } from '../lib/subscriptionIcon';
 import { CURRENCIES, isAmountInputAboveMax, parseAmountInput } from '../lib/currency';
@@ -44,7 +44,8 @@ export default function AddSubscriptionModal() {
     });
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [iconUri, setIconUri] = useState<string | null>(null);
-    const [selectedPresetIcon, setSelectedPresetIcon] = useState<{ pack: SubscriptionIconPack; name: string; color: string } | null>(null);
+    const [selectedPresetIcon, setSelectedPresetIcon] =
+        useState<SubscriptionIconSelection | null>(null);
     const [showIconPickerModal, setShowIconPickerModal] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [memo, setMemo] = useState('');
@@ -85,11 +86,7 @@ export default function AddSubscriptionModal() {
                 iconUrl = uploadResult.url;
                 pendingIconUrl = uploadResult.url;
             } else if (selectedPresetIcon) {
-                iconUrl = buildSubscriptionPresetIconValue(
-                    selectedPresetIcon.pack,
-                    selectedPresetIcon.name,
-                    selectedPresetIcon.color
-                );
+                iconUrl = buildSubscriptionPresetIconValue(selectedPresetIcon);
             }
             await addSubscription({
                 service_name: serviceName,
@@ -150,9 +147,9 @@ export default function AddSubscriptionModal() {
         }
     };
 
-    const handleSelectPresetIcon = (pack: SubscriptionIconPack, name: string, color: string) => {
+    const handleSelectPresetIcon = (icon: SubscriptionIconSelection) => {
         setIconUri(null);
-        setSelectedPresetIcon({ pack, name, color });
+        setSelectedPresetIcon(icon);
         setShowIconPickerModal(false);
     };
 
@@ -165,13 +162,13 @@ export default function AddSubscriptionModal() {
     };
 
     const renderPresetIcon = (
-        icon: { pack: SubscriptionIconPack; name: string; color: string },
+        icon: SubscriptionIconSelection,
         size: number
     ) => {
         if (icon.pack === 'fontawesome5') {
-            return <FontAwesome5 name={icon.name as any} size={size} color={icon.color} />;
+            return <FontAwesome5 name={icon.name} size={size} color={icon.color} />;
         }
-        return <Ionicons name={icon.name as any} size={size} color={icon.color} />;
+        return <Ionicons name={icon.name} size={size} color={icon.color} />;
     };
 
     // Shared row style for perfect vertical centering
@@ -393,7 +390,7 @@ export default function AddSubscriptionModal() {
                                 {SUBSCRIPTION_ICON_PRESETS.map((icon, index) => (
                                     <Pressable
                                         key={icon.id}
-                                        onPress={() => handleSelectPresetIcon(icon.pack, icon.name, icon.color)}
+                                        onPress={() => handleSelectPresetIcon(icon)}
                                         style={{
                                             width: ICON_PICKER_TILE_SIZE,
                                             height: ICON_PICKER_TILE_SIZE,
@@ -408,9 +405,9 @@ export default function AddSubscriptionModal() {
                                         }}
                                     >
                                         {icon.pack === 'fontawesome5' ? (
-                                            <FontAwesome5 name={icon.name as any} size={24} color={icon.color} />
+                                            <FontAwesome5 name={icon.name} size={24} color={icon.color} />
                                         ) : (
-                                            <Ionicons name={icon.name as any} size={24} color={icon.color} />
+                                            <Ionicons name={icon.name} size={24} color={icon.color} />
                                         )}
                                     </Pressable>
                                 ))}

@@ -1,14 +1,26 @@
-export type SubscriptionIconPack = 'ionicons' | 'fontawesome5';
+import type { ComponentProps } from 'react';
+import type { FontAwesome5, Ionicons } from '@expo/vector-icons';
 
-export interface SubscriptionIconPreset {
+export type SubscriptionIconPack = 'ionicons' | 'fontawesome5';
+export type IoniconsName = ComponentProps<typeof Ionicons>['name'];
+export type FontAwesome5Name = ComponentProps<typeof FontAwesome5>['name'];
+
+interface SubscriptionIconBase {
     id: string;
-    pack: SubscriptionIconPack;
-    name: string;
     color: string;
     label: string;
 }
 
-export const SUBSCRIPTION_ICON_PRESETS: SubscriptionIconPreset[] = [
+export type SubscriptionIconPreset = SubscriptionIconBase & (
+    | { pack: 'ionicons'; name: IoniconsName }
+    | { pack: 'fontawesome5'; name: FontAwesome5Name }
+);
+
+export type SubscriptionIconSelection =
+    | { pack: 'ionicons'; name: IoniconsName; color: string }
+    | { pack: 'fontawesome5'; name: FontAwesome5Name; color: string };
+
+export const SUBSCRIPTION_ICON_PRESETS: readonly SubscriptionIconPreset[] = [
     { id: 'cube', pack: 'ionicons', name: 'cube-outline', color: '#3B82F6', label: 'General' },
     { id: 'play', pack: 'ionicons', name: 'play-circle-outline', color: '#EF4444', label: 'Video' },
     { id: 'tv', pack: 'ionicons', name: 'tv-outline', color: '#6366F1', label: 'TV' },
@@ -43,10 +55,8 @@ export const SUBSCRIPTION_ICON_PRESETS: SubscriptionIconPreset[] = [
 const ICON_PREFIX = 'icon:';
 
 export const buildSubscriptionPresetIconValue = (
-    pack: SubscriptionIconPack,
-    name: string,
-    color: string
-) => `${ICON_PREFIX}${pack}:${name}:${encodeURIComponent(color)}`;
+    icon: SubscriptionIconSelection,
+) => `${ICON_PREFIX}${icon.pack}:${icon.name}:${encodeURIComponent(icon.color)}`;
 
 export const parseSubscriptionPresetIconValue = (value?: string | null) => {
     if (!value || !value.startsWith(ICON_PREFIX)) return null;
@@ -54,16 +64,16 @@ export const parseSubscriptionPresetIconValue = (value?: string | null) => {
     const parts = value.split(':');
     if (parts.length < 4) return null;
 
-    const pack = parts[1] as SubscriptionIconPack;
-    if (pack !== 'ionicons' && pack !== 'fontawesome5') return null;
+    const preset = SUBSCRIPTION_ICON_PRESETS.find(
+        (icon) => icon.pack === parts[1] && icon.name === parts[2],
+    );
+    if (!preset) return null;
 
     const color = decodeURIComponent(parts.slice(3).join(':'));
 
-    return {
-        pack,
-        name: parts[2],
-        color,
-    };
+    return preset.pack === 'ionicons'
+        ? { pack: 'ionicons', name: preset.name, color }
+        : { pack: 'fontawesome5', name: preset.name, color };
 };
 
 export const isSubscriptionPresetIconValue = (value?: string | null) =>

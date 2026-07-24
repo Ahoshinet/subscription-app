@@ -171,9 +171,9 @@ export function SubscriptionCard({
                         >
                             {presetIcon ? (
                                 presetIcon.pack === 'fontawesome5' ? (
-                                    <FontAwesome5 name={presetIcon.name as any} size={30} color={isInactive ? inactiveColor : presetIcon.color} />
+                                    <FontAwesome5 name={presetIcon.name} size={30} color={isInactive ? inactiveColor : presetIcon.color} />
                                 ) : (
-                                    <Ionicons name={presetIcon.name as any} size={32} color={isInactive ? inactiveColor : presetIcon.color} />
+                                    <Ionicons name={presetIcon.name} size={32} color={isInactive ? inactiveColor : presetIcon.color} />
                                 )
                             ) : iconUrl && !imageError ? (
                                 <Image

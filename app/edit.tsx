@@ -18,7 +18,7 @@ import {
     isSubscriptionPresetIconValue,
     parseSubscriptionPresetIconValue,
     SUBSCRIPTION_ICON_PRESETS,
-    SubscriptionIconPack,
+    type SubscriptionIconSelection,
     buildSubscriptionPresetIconValue,
 } from '../lib/subscriptionIcon';
 import { dateOnlyToLocalDate, formatDateOnly } from '../lib/dateUtils';
@@ -219,8 +219,8 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
         }
     };
 
-    const handleSelectPresetIcon = (pack: SubscriptionIconPack, name: string, color: string) => {
-        setIconUri(buildSubscriptionPresetIconValue(pack, name, color));
+    const handleSelectPresetIcon = (icon: SubscriptionIconSelection) => {
+        setIconUri(buildSubscriptionPresetIconValue(icon));
         setIconPreviewError(false);
         setShowIconPickerModal(false);
     };
@@ -291,9 +291,9 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
                             >
                                 {presetIcon ? (
                                     presetIcon.pack === 'fontawesome5' ? (
-                                        <FontAwesome5 name={presetIcon.name as any} size={32} color={presetIcon.color} />
+                                        <FontAwesome5 name={presetIcon.name} size={32} color={presetIcon.color} />
                                     ) : (
-                                        <Ionicons name={presetIcon.name as any} size={32} color={presetIcon.color} />
+                                        <Ionicons name={presetIcon.name} size={32} color={presetIcon.color} />
                                     )
                                 ) : iconUri && !iconPreviewError ? (
                                     <Image
@@ -456,7 +456,7 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
                                 {SUBSCRIPTION_ICON_PRESETS.map((icon, index) => (
                                     <Pressable
                                         key={icon.id}
-                                        onPress={() => handleSelectPresetIcon(icon.pack, icon.name, icon.color)}
+                                        onPress={() => handleSelectPresetIcon(icon)}
                                         style={{
                                             width: ICON_PICKER_TILE_SIZE,
                                             height: ICON_PICKER_TILE_SIZE,
@@ -471,9 +471,9 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
                                         }}
                                     >
                                         {icon.pack === 'fontawesome5' ? (
-                                            <FontAwesome5 name={icon.name as any} size={24} color={icon.color} />
+                                            <FontAwesome5 name={icon.name} size={24} color={icon.color} />
                                         ) : (
-                                            <Ionicons name={icon.name as any} size={24} color={icon.color} />
+                                            <Ionicons name={icon.name} size={24} color={icon.color} />
                                         )}
                                     </Pressable>
                                 ))}

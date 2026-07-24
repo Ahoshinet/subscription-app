@@ -9,9 +9,11 @@ import {
 describe('subscriptionIcon', () => {
     test('round-trips preset icon values', () => {
         const value = buildSubscriptionPresetIconValue(
-            'fontawesome5',
-            'youtube',
-            'color(display-p3 1:0:0)',
+            {
+                pack: 'fontawesome5',
+                name: 'youtube',
+                color: 'color(display-p3 1:0:0)',
+            },
         );
 
         expect(parseSubscriptionPresetIconValue(value)).toEqual({
@@ -27,6 +29,7 @@ describe('subscriptionIcon', () => {
         '',
         'https://example.com/icon.png',
         'icon:unknown:film:%23ffffff',
+        'icon:ionicons:not-a-real-preset:%23ffffff',
         'icon:ionicons',
     ])('rejects a non-preset value: %s', (value) => {
         expect(parseSubscriptionPresetIconValue(value)).toBeNull();

@@ -457,9 +457,9 @@ export default function CalendarScreen() {
                                     <View className="w-9 h-9 rounded-xl items-center justify-center mr-3 bg-neutral-100 dark:bg-neutral-800">
                                         {presetIcon ? (
                                             presetIcon.pack === 'fontawesome5' ? (
-                                                <FontAwesome5 name={presetIcon.name as any} size={18} color={presetIcon.color} />
+                                                <FontAwesome5 name={presetIcon.name} size={18} color={presetIcon.color} />
                                             ) : (
-                                                <Ionicons name={presetIcon.name as any} size={20} color={presetIcon.color} />
+                                                <Ionicons name={presetIcon.name} size={20} color={presetIcon.color} />
                                             )
                                         ) : sub.icon_url ? (
                                             <Image source={{ uri: resolveIconUrl(sub.icon_url!) }} style={{ width: 36, height: 36, borderRadius: 12 }} />
@@ -506,9 +506,9 @@ export default function CalendarScreen() {
                                 <View style={{ width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginRight: 12, backgroundColor: isDark ? '#262626' : '#f5f5f5' }}>
                                     {presetIcon ? (
                                         presetIcon.pack === 'fontawesome5' ? (
-                                            <FontAwesome5 name={presetIcon.name as any} size={20} color={presetIcon.color} />
+                                            <FontAwesome5 name={presetIcon.name} size={20} color={presetIcon.color} />
                                         ) : (
-                                            <Ionicons name={presetIcon.name as any} size={22} color={presetIcon.color} />
+                                            <Ionicons name={presetIcon.name} size={22} color={presetIcon.color} />
                                         )
                                     ) : sub.icon_url ? (
                                         <Image source={{ uri: resolveIconUrl(sub.icon_url!) }} style={{ width: 40, height: 40, borderRadius: 12 }} />
