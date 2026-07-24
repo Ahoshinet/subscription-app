@@ -69,6 +69,7 @@ export default function PaymentMethodDetailScreen() {
                 options={{
                     title: t('billing.title'),
                     headerBackTitle: ' ',
+                    headerBackButtonDisplayMode: 'minimal',
                     headerStyle: { backgroundColor: isDark ? '#0A0A0A' : '#F2F2F7' },
                     headerTintColor: textPrimary,
                     headerShadowVisible: false,
@@ -128,7 +129,6 @@ export default function PaymentMethodDetailScreen() {
                 <Text
                     style={{
                         fontSize: 12, color: textSub, fontWeight: '600',
-                        textTransform: 'uppercase', letterSpacing: 0.6,
                         marginBottom: 8, marginLeft: 4,
                     }}
                 >

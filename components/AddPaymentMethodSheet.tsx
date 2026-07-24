@@ -416,7 +416,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                 <Text
                                     style={{
                                         fontSize: 12, color: textSub, fontWeight: '600',
-                                        textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 10,
+                                        marginBottom: 10,
                                     }}
                                 >
                                     {t('billing.memo')}
@@ -460,7 +460,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                 <Text
                                     style={{
                                         fontSize: 12, color: textSub, fontWeight: '600',
-                                        textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 10,
+                                        marginBottom: 10,
                                     }}
                                 >
                                     {t('billing.card_brand')}
@@ -492,7 +492,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                 <Text
                                     style={{
                                         fontSize: 12, color: textSub, fontWeight: '600',
-                                        textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 10,
+                                        marginBottom: 10,
                                     }}
                                 >
                                     {t('billing.card_last4')}
@@ -523,7 +523,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                 <Text
                                     style={{
                                         fontSize: 12, color: textSub, fontWeight: '600',
-                                        textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 10,
+                                        marginBottom: 10,
                                     }}
                                 >
                                     {t('billing.memo')}
@@ -595,7 +595,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                 <Text
                                     style={{
                                         fontSize: 12, color: textSub, fontWeight: '600',
-                                        textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 10,
+                                        marginBottom: 10,
                                     }}
                                 >
                                     {t('billing.method_name')}
@@ -607,6 +607,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                     }}
                                 >
                                     <TextInput
+                                        key="name-custom"
                                         value={customLabel}
                                         onChangeText={setCustomLabel}
                                         placeholder={t('billing.method_name_placeholder')}
@@ -621,7 +622,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                 <Text
                                     style={{
                                         fontSize: 12, color: textSub, fontWeight: '600',
-                                        textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 10,
+                                        marginBottom: 10,
                                     }}
                                 >
                                     {t('billing.memo')}
