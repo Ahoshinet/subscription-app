@@ -44,6 +44,8 @@ current automated baseline covers:
   and language/currency/theme validation
 - Notification permission, scheduling, de-duplication, cancellation, and tap
   routing
+- Paidy integration loading, account-scoped token storage, reauthentication,
+  synchronization, deletion retry, cross-session isolation, and logout reset
 - Date-only calculations and recurring payment rollover
 - Amount parsing and monthly normalization
 - Time-zone conversion and offset formatting
@@ -59,15 +61,15 @@ Coverage is collected from all TypeScript modules in `lib/` and `store/`,
 including files that no test imports. Test files themselves are excluded.
 
 The initial measurement was recorded from `f0ccbfc` on 2026-07-24. The current
-measurement was recorded from `de3d25f` after the Subscription Store regression
-coverage and authentication-session hardening on 2026-07-25:
+measurement was recorded from `0806aa7` after the Paidy Store regression
+coverage and error-type hardening on 2026-07-25:
 
 | Metric | Initial | Current | Enforced minimum |
 |---|---:|---:|---:|
-| Statements | 46.61% | 55.75% | 54% |
-| Branches | 38.44% | 46.67% | 45% |
-| Functions | 46.00% | 57.46% | 55% |
-| Lines | 48.94% | 58.30% | 56% |
+| Statements | 46.61% | 62.68% | 61% |
+| Branches | 38.44% | 52.27% | 50% |
+| Functions | 46.00% | 61.99% | 60% |
+| Lines | 48.94% | 65.64% | 63% |
 
 The minimums intentionally leave a small margin for instrumentation differences
 while preventing unreviewed coverage loss. Raise them as uncovered critical
