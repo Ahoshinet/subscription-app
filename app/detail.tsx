@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Pressable, Alert, Image, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, Pressable, Alert, Image, ActivityIndicator, Platform } from 'react-native';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
-import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
+import { Ionicons, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import { useSubscriptionStore } from '../store/useSubscriptionStore';
 import { usePaymentMethodStore } from '../store/usePaymentMethodStore';
 import { useTranslation } from 'react-i18next';
@@ -36,7 +36,16 @@ export default function DetailScreen() {
     if (!subscription) {
         return (
             <View className="flex-1 bg-neutral-50 dark:bg-neutral-950 items-center justify-center">
-                <Stack.Screen options={{ title: 'Not Found' }} />
+                <Stack.Screen
+                    options={{
+                        title: 'Not Found',
+                        headerShown: true,
+                        headerBackTitle: ' ',
+                        headerStyle: { backgroundColor: isDark ? '#0A0A0A' : '#ffffff' },
+                        headerTintColor: isDark ? '#ffffff' : '#000000',
+                        headerShadowVisible: true,
+                    }}
+                />
                 <Text className="text-neutral-500 dark:text-neutral-400 text-lg">{t('edit.not_found')}</Text>
             </View>
         );
@@ -103,17 +112,33 @@ export default function DetailScreen() {
     const presetIcon = parseSubscriptionPresetIconValue(iconUrl);
 
     return (
-        <View className="flex-1 bg-[#F2F2F7] dark:bg-black">
+        <View className="flex-1 bg-[#F2F2F7] dark:bg-neutral-950">
             <Stack.Screen
                 options={{
                     title: subscription.service_name,
+                    headerShown: true,
                     headerBackTitle: ' ',
-                    headerStyle: { backgroundColor: isDark ? '#1C1C1E' : '#F2F2F7' },
+                    headerStyle: { backgroundColor: isDark ? '#0A0A0A' : '#ffffff' },
                     headerTintColor: isDark ? '#FFFFFF' : '#000000',
-                    headerShadowVisible: false,
+                    headerShadowVisible: true,
                     headerRight: () => (
-                        <Pressable onPress={() => router.push(`/edit?id=${subscription.id}` as any)} className="px-2">
-                            <Text className="text-blue-500 dark:text-blue-400 text-lg font-semibold">{t('detail.edit_button')}</Text>
+                        <Pressable
+                            accessibilityRole="button"
+                            accessibilityLabel={t('detail.edit_button')}
+                            onPress={() => router.push(`/edit?id=${subscription.id}` as any)}
+                            style={{ minWidth: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
+                        >
+                            {Platform.OS === 'android' ? (
+                                <MaterialIcons
+                                    name="edit"
+                                    size={24}
+                                    color={isDark ? '#60A5FA' : '#3B82F6'}
+                                />
+                            ) : (
+                                <Text className="text-blue-500 dark:text-blue-400 text-lg font-semibold">
+                                    {t('detail.edit_button')}
+                                </Text>
+                            )}
                         </Pressable>
                     ),
                 }}
@@ -188,7 +213,7 @@ export default function DetailScreen() {
 
                 <View className="px-4">
                     {/* Details Group */}
-                    <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6">
+                    <View className="bg-white dark:bg-[#1C1C1C] rounded-xl overflow-hidden mb-6">
                         <DetailRow label={t('detail.label_service_name')} value={subscription.service_name} isFirst />
                         <DetailRow label={t('detail.label_plan_name')} value={subscription.plan_name || '—'} />
                         <DetailRow
@@ -206,7 +231,7 @@ export default function DetailScreen() {
 
                     {/* Memo */}
                     {(subscription as any).memo ? (
-                        <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6">
+                        <View className="bg-white dark:bg-[#1C1C1C] rounded-xl overflow-hidden mb-6">
                             <View className="px-4 py-3.5">
                                 <Text className="text-neutral-500 dark:text-neutral-400 text-sm mb-1">{t('detail.label_memo')}</Text>
                                 <Text className="text-neutral-900 dark:text-white text-base">{(subscription as any).memo}</Text>
@@ -215,7 +240,7 @@ export default function DetailScreen() {
                     ) : null}
 
                     {/* Info Group */}
-                    <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6">
+                    <View className="bg-white dark:bg-[#1C1C1C] rounded-xl overflow-hidden mb-6">
                         <DetailRow label={t('detail.label_created_at')} value={formatDate(subscription.created_at || '')} isFirst />
                         <DetailRow label={t('detail.label_updated_at')} value={formatDate(subscription.updated_at || '')} isLast />
                     </View>
@@ -224,7 +249,8 @@ export default function DetailScreen() {
                     <Pressable
                         onPress={handleDelete}
                         disabled={isDeleting}
-                        className="items-center py-4 rounded-xl bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-900/50"
+                        style={{ opacity: isDeleting ? 0.6 : 1 }}
+                        className="items-center py-4 rounded-xl bg-white dark:bg-[#1C1C1C] border border-neutral-200/50 dark:border-white/10"
                     >
                         {isDeleting ? (
                             <ActivityIndicator size="small" color="#EF4444" />
