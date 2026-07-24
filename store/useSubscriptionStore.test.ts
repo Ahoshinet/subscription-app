@@ -139,6 +139,8 @@ describe('useSubscriptionStore', () => {
     });
 
     test('appends a successfully created subscription', async () => {
+        activateAuthSession('user-1');
+
         await useSubscriptionStore.getState().addSubscription(createPayload);
 
         expect(createMock).toHaveBeenCalledWith(createPayload);
@@ -150,6 +152,7 @@ describe('useSubscriptionStore', () => {
     });
 
     test('merges a successful update into the matching subscription', async () => {
+        activateAuthSession('user-1');
         const renamed = {
             ...serverSubscription,
             service_name: 'Renamed',
@@ -176,6 +179,7 @@ describe('useSubscriptionStore', () => {
     });
 
     test('keeps local state when server-first deletion fails', async () => {
+        activateAuthSession('user-1');
         useSubscriptionStore.setState({
             subscriptions: [serverSubscription],
         });
@@ -192,6 +196,7 @@ describe('useSubscriptionStore', () => {
     });
 
     test('removes a subscription after server deletion succeeds', async () => {
+        activateAuthSession('user-1');
         useSubscriptionStore.setState({
             subscriptions: [
                 serverSubscription,
@@ -204,6 +209,48 @@ describe('useSubscriptionStore', () => {
         expect(deleteMock).toHaveBeenCalledWith(42);
         expect(useSubscriptionStore.getState().subscriptions.map(({ id }) => id))
             .toEqual([43]);
+    });
+
+    test('does not mutate without an active authentication session', async () => {
+        await useSubscriptionStore.getState().addSubscription(createPayload);
+        await useSubscriptionStore.getState().updateSubscription(42, {
+            service_name: 'Renamed',
+        });
+        await useSubscriptionStore.getState().deleteSubscription(42);
+
+        expect(createMock).not.toHaveBeenCalled();
+        expect(updateMock).not.toHaveBeenCalled();
+        expect(deleteMock).not.toHaveBeenCalled();
+    });
+
+    test('does not apply a mutation response after the authenticated user changes', async () => {
+        let resolveRequest: (subscription: Subscription) => void = () => {};
+        createMock.mockReturnValue(new Promise((resolve) => {
+            resolveRequest = resolve;
+        }));
+        activateAuthSession('user-1');
+
+        const createRequest = useSubscriptionStore.getState()
+            .addSubscription(createPayload);
+        activateAuthSession('user-2');
+        resolveRequest(serverSubscription);
+        await createRequest;
+
+        expect(useSubscriptionStore.getState().subscriptions).toEqual([]);
+    });
+
+    test('uses a safe fallback message for an unknown mutation failure', async () => {
+        activateAuthSession('user-1');
+        createMock.mockRejectedValue('offline');
+
+        await expect(useSubscriptionStore.getState().addSubscription(createPayload))
+            .rejects.toBe('offline');
+
+        expect(useSubscriptionStore.getState()).toEqual(expect.objectContaining({
+            subscriptions: [],
+            isLoading: false,
+            error: 'Failed to add subscription',
+        }));
     });
 
     test('clears errors and resets user-scoped state on logout', () => {

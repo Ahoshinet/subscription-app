@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { subscriptionApi, Subscription, CreateSubscriptionPayload, UpdateSubscriptionPayload } from '../lib/api';
 import { captureAuthSession, isAuthSessionCurrent } from '../lib/authSession';
+import { getErrorMessage } from '../lib/errors';
 
 interface SubscriptionState {
     subscriptions: Subscription[];
@@ -37,55 +38,82 @@ export const useSubscriptionStore = create<SubscriptionState>((set) => ({
                 const data = await subscriptionApi.getAll();
                 if (!isAuthSessionCurrent(session)) return;
                 set({ subscriptions: data, isLoading: false });
-            } catch (err: any) {
+            } catch (error: unknown) {
                 if (isAuthSessionCurrent(session)) {
-                    set({ error: err.message || 'Failed to fetch subscriptions', isLoading: false });
+                    set({
+                        error: getErrorMessage(error, 'Failed to fetch subscriptions'),
+                        isLoading: false,
+                    });
                 }
             }
         }
     },
 
     addSubscription: async (data: CreateSubscriptionPayload) => {
+        const session = captureAuthSession();
+        if (!session) return;
         set({ isLoading: true, error: null });
         try {
             const newSub = await subscriptionApi.create(data);
+            if (!isAuthSessionCurrent(session)) return;
             set((state) => ({
                 subscriptions: [...state.subscriptions, newSub],
                 isLoading: false,
             }));
-        } catch (err: any) {
-            set({ error: err.message || 'Failed to add subscription', isLoading: false });
-            throw err; // throw to handle it in UI (e.g., closing modal)
+        } catch (error: unknown) {
+            if (isAuthSessionCurrent(session)) {
+                set({
+                    error: getErrorMessage(error, 'Failed to add subscription'),
+                    isLoading: false,
+                });
+            }
+            throw error; // throw to handle it in UI (e.g., closing modal)
         }
     },
 
     updateSubscription: async (id: number, data: UpdateSubscriptionPayload) => {
+        const session = captureAuthSession();
+        if (!session) return;
         set({ isLoading: true, error: null });
         try {
             const updatedSub = await subscriptionApi.update(id, data);
+            if (!isAuthSessionCurrent(session)) return;
             set((state) => ({
                 subscriptions: state.subscriptions.map((sub) =>
                     sub.id === id ? { ...sub, ...updatedSub } : sub
                 ),
                 isLoading: false,
             }));
-        } catch (err: any) {
-            set({ error: err.message || 'Failed to update subscription', isLoading: false });
-            throw err;
+        } catch (error: unknown) {
+            if (isAuthSessionCurrent(session)) {
+                set({
+                    error: getErrorMessage(error, 'Failed to update subscription'),
+                    isLoading: false,
+                });
+            }
+            throw error;
         }
     },
 
     deleteSubscription: async (id: number) => {
+        const session = captureAuthSession();
+        if (!session) return;
         set({ isLoading: true, error: null });
         try {
             await subscriptionApi.delete(id);
+            if (!isAuthSessionCurrent(session)) return;
             set((state) => ({
                 subscriptions: state.subscriptions.filter((sub) => sub.id !== id),
                 isLoading: false,
             }));
-        } catch (err: any) {
-            set({ error: err.message || 'Failed to delete subscription', isLoading: false });
-            throw err;
+        } catch (error: unknown) {
+            if (isAuthSessionCurrent(session)) {
+                set({
+                    error: getErrorMessage(error, 'Failed to delete subscription'),
+                    isLoading: false,
+                });
+            }
+            throw error;
         }
     },
 
