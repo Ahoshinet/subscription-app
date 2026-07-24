@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Pressable, Alert, Image, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, ScrollView, Pressable, Alert, Image, ActivityIndicator, Platform, Switch } from 'react-native';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
@@ -12,17 +12,13 @@ import { formatDateOnlyForDisplay, getEffectiveNextPaymentDate } from '../lib/da
 import { getTodayDateInTimeZone } from '../lib/timeZone';
 import { useSettingsStore } from '../store/useSettingsStore';
 
-const STATUS_COLORS: Record<string, string> = {
-    active: '#22C55E',
-    inactive: '#9CA3AF', // Tailwind Gray-400 — matches the muted inactive treatment on SubscriptionCard
-};
-
 export default function DetailScreen() {
     const router = useRouter();
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
     const { id } = useLocalSearchParams<{ id: string }>();
     const [isTogglingStatus, setIsTogglingStatus] = useState(false);
+    const [pendingIsActive, setPendingIsActive] = useState<boolean | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
     const [imageError, setImageError] = useState(false);
 
@@ -51,9 +47,10 @@ export default function DetailScreen() {
         );
     }
 
-    const statusColor = STATUS_COLORS[subscription.status] ?? '#808080';
-    const statusLabel = t(`detail.status_${subscription.status}`, { defaultValue: subscription.status });
     const isActive = subscription.status === 'active';
+    const displayedIsActive = pendingIsActive ?? isActive;
+    const displayedStatus = displayedIsActive ? 'active' : 'inactive';
+    const statusLabel = t(`detail.status_${displayedStatus}`, { defaultValue: displayedStatus });
 
     const formatDate = (dateStr: string) => {
         try {
@@ -64,8 +61,9 @@ export default function DetailScreen() {
         }
     };
 
-    const handleToggleStatus = async () => {
-        const newStatus = isActive ? 'inactive' : 'active';
+    const handleToggleStatus = async (nextIsActive: boolean) => {
+        const newStatus = nextIsActive ? 'active' : 'inactive';
+        setPendingIsActive(nextIsActive);
         setIsTogglingStatus(true);
         try {
             await subscriptionApi.updateStatus(subscription.id, newStatus);
@@ -73,6 +71,7 @@ export default function DetailScreen() {
         } catch (e: any) {
             Alert.alert(t('common.error'), e.message || t('detail.error_status_failed'));
         } finally {
+            setPendingIsActive(null);
             setIsTogglingStatus(false);
         }
     };
@@ -188,43 +187,41 @@ export default function DetailScreen() {
                         {t(`billing_cycle.${subscription.billing_cycle}`, { defaultValue: subscription.billing_cycle })}
                     </Text>
 
-                    {/* Status Toggle */}
-                    <Pressable
-                        onPress={handleToggleStatus}
-                        disabled={isTogglingStatus}
-                        className="mt-3 px-4 py-1.5 rounded-full flex-row items-center"
-                        style={{ backgroundColor: statusColor + '20' }}
-                    >
-                        {isTogglingStatus ? (
-                            <ActivityIndicator size="small" color={statusColor} />
-                        ) : (
-                            <>
-                                <View
-                                    style={{
-                                        width: 8,
-                                        height: 8,
-                                        borderRadius: 4,
-                                        backgroundColor: statusColor,
-                                        marginRight: 6,
-                                    }}
-                                />
-                                <Text style={{ color: statusColor, fontWeight: '600', fontSize: 13 }}>
-                                    {statusLabel}
-                                </Text>
-                                <Ionicons
-                                    name="chevron-expand"
-                                    size={14}
-                                    color={statusColor}
-                                    style={{ marginLeft: 4 }}
-                                />
-                            </>
-                        )}
-                    </Pressable>
                 </View>
 
                 <View className="px-4">
                     {/* Details Group */}
                     <View className="bg-white dark:bg-[#1C1C1C] rounded-xl overflow-hidden mb-6">
+                        <View className="px-4 py-3.5 flex-row justify-between items-center border-b border-neutral-200 dark:border-neutral-800">
+                            <Text className="text-neutral-500 dark:text-neutral-400 text-base">
+                                {t('detail.label_status')}
+                            </Text>
+                            <View
+                                className="flex-row items-center"
+                                style={{ opacity: isTogglingStatus ? 0.65 : 1 }}
+                            >
+                                <Text className="text-neutral-900 dark:text-white text-base font-medium mr-3">
+                                    {statusLabel}
+                                </Text>
+                                <Switch
+                                    accessibilityLabel={t('detail.label_status')}
+                                    value={displayedIsActive}
+                                    onValueChange={(value) => void handleToggleStatus(value)}
+                                    disabled={isTogglingStatus}
+                                    trackColor={Platform.OS === 'android'
+                                        ? {
+                                            false: isDark ? '#3F3F46' : '#E4E4E7',
+                                            true: isDark ? '#60A5FA' : '#3B82F6',
+                                        }
+                                        : undefined}
+                                    thumbColor={Platform.OS === 'android'
+                                        ? (displayedIsActive
+                                            ? '#FFFFFF'
+                                            : (isDark ? '#D4D4D8' : '#71717A'))
+                                        : undefined}
+                                />
+                            </View>
+                        </View>
                         <DetailRow label={t('detail.label_service_name')} value={subscription.service_name} isFirst />
                         <DetailRow label={t('detail.label_plan_name')} value={subscription.plan_name || '—'} />
                         <DetailRow

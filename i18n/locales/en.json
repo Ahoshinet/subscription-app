@@ -316,6 +316,7 @@
         "delete_confirm": "Delete",
         "error_delete_failed": "Failed to delete.",
         "error_status_failed": "Failed to update status.",
+        "label_status": "Status",
         "label_service_name": "Service Name",
         "label_plan_name": "Plan Name",
         "label_next_payment": "Next Payment Date",

@@ -316,6 +316,7 @@
         "delete_confirm": "削除",
         "error_delete_failed": "削除に失敗しました",
         "error_status_failed": "ステータスの更新に失敗しました",
+        "label_status": "ステータス",
         "label_service_name": "サービス名",
         "label_plan_name": "プラン名",
         "label_next_payment": "次回支払日",
