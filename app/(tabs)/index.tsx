@@ -15,9 +15,10 @@ import * as Haptics from 'expo-haptics';
 
 import { CURRENCY_SYMBOLS, getSystemCurrency, toMonthlyAmount } from '@/lib/currency';
 import { daysBetweenDateOnly, getEffectiveNextPaymentDate } from '@/lib/dateUtils';
+import { getErrorMessage } from '@/lib/errors';
 import { getTodayDateInTimeZone } from '@/lib/timeZone';
 import { singleLineTextInputStyle } from '@/lib/textInputStyles';
-import { subscriptionApi } from '@/lib/api';
+import { subscriptionApi, type Subscription } from '@/lib/api';
 
 type SortKey = 'name' | 'amount' | 'date';
 
@@ -78,8 +79,11 @@ export default function HomeScreen() {
       const nextStatus = currentStatus === 'inactive' ? 'active' : 'inactive';
       await subscriptionApi.updateStatus(id, nextStatus);
       await fetchSubscriptions();
-    } catch (e: any) {
-      Alert.alert(t('common.error'), e.message || t('detail.error_status_failed'));
+    } catch (error: unknown) {
+      Alert.alert(
+        t('common.error'),
+        getErrorMessage(error, t('detail.error_status_failed')),
+      );
     } finally {
       setActionInFlightId(null);
     }
@@ -99,8 +103,11 @@ export default function HomeScreen() {
 
             setActionInFlightId(id);
             void deleteSubscription(id)
-              .catch((e: any) => {
-                Alert.alert(t('common.error'), e.message || t('detail.error_delete_failed'));
+              .catch((error: unknown) => {
+                Alert.alert(
+                  t('common.error'),
+                  getErrorMessage(error, t('detail.error_delete_failed')),
+                );
               })
               .finally(() => {
                 setActionInFlightId(null);
@@ -113,7 +120,7 @@ export default function HomeScreen() {
 
   // Memoized: these were rebuilt on every render, giving the downstream
   // filteredAndSorted useMemo a fresh paidyVirtualSub identity each time.
-  const paidyVirtualSub = useMemo(() => (
+  const paidyVirtualSub = useMemo<Subscription | null>(() => (
     gmailSignedIn && paidyAmount != null ? {
       id: -1,
       user_id: '',
@@ -123,6 +130,7 @@ export default function HomeScreen() {
       currency: 'JPY',
       next_payment_date: paidyNextDate ?? todayDate,
       billing_cycle: 'monthly',
+      payment_method: 'paidy',
       status: 'active',
     } : null
   ), [gmailSignedIn, paidyAmount, paidyMonth, paidyNextDate, todayDate]);
@@ -152,19 +160,19 @@ export default function HomeScreen() {
   }, [subscriptions, gmailSignedIn, paidyAmount]);
 
   const filteredAndSorted = useMemo(() => {
-    let result: any[] = paidyVirtualSub
+    let result: Subscription[] = paidyVirtualSub
       ? [...subscriptions, paidyVirtualSub]
       : [...subscriptions];
 
     if (searchQuery.trim()) {
       const q = searchQuery.trim().toLowerCase();
-      result = result.filter((sub: any) =>
+      result = result.filter((sub) =>
         sub.service_name.toLowerCase().includes(q) ||
         (sub.plan_name && sub.plan_name.toLowerCase().includes(q))
       );
     }
 
-    result.sort((a: any, b: any) => {
+    result.sort((a, b) => {
       switch (sortKey) {
         case 'name':
           return a.service_name.localeCompare(b.service_name);
@@ -326,7 +334,7 @@ export default function HomeScreen() {
               </View>
             )}
 
-            {filteredAndSorted.map((sub: any) => {
+            {filteredAndSorted.map((sub) => {
               const effectiveDate = sub.id === -1
                 ? sub.next_payment_date
                 : getEffectiveNextPaymentDate(
