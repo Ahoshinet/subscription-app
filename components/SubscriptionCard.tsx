@@ -3,11 +3,12 @@ import { View, Text, Pressable, Image, Platform, PlatformColor } from 'react-nat
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useTranslation } from 'react-i18next';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
-import { MenuView, type MenuAction, type NativeActionEvent } from '@expo/ui/community/menu';
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
 import { parseSubscriptionPresetIconValue } from '@/lib/subscriptionIcon';
 import { resolveIconUrl } from '@/lib/api';
+import { SubscriptionCardMenu } from '@/components/SubscriptionCardMenu';
+import type { SubscriptionCardMenuAction } from '@/components/SubscriptionCardMenu.types';
 
 const iosTimelineColors = Platform.OS === 'ios'
     ? {
@@ -118,7 +119,7 @@ export function SubscriptionCard({
     const [erroredIconUrl, setErroredIconUrl] = useState<string | undefined>(undefined);
     const imageError = iconUrl !== undefined && iconUrl === erroredIconUrl;
     const hasLongPressActions = Boolean(onEdit && onToggleStatus && onDelete);
-    const menuActions: MenuAction[] = [
+    const menuActions: SubscriptionCardMenuAction[] = [
         {
             id: 'edit',
             title: t('subscription_card.action_edit'),
@@ -141,8 +142,8 @@ export function SubscriptionCard({
         },
     ];
 
-    const handleMenuAction = (event: NativeActionEvent) => {
-        switch (event.nativeEvent.event) {
+    const handleMenuAction = (actionId: string) => {
+        switch (actionId) {
             case 'edit':
                 onEdit?.();
                 break;
@@ -156,16 +157,7 @@ export function SubscriptionCard({
     };
 
     const card = (
-        <Pressable
-            onPress={handlePress}
-            accessibilityRole="button"
-            accessibilityHint={
-                hasLongPressActions
-                    ? t('subscription_card.actions_accessibility_hint')
-                    : undefined
-            }
-        >
-            <View style={isInactive && { opacity: 0.6 }}>
+        <View style={isInactive && { opacity: 0.6 }}>
                 <View style={{ borderRadius: 24 }} className="border border-neutral-200 dark:border-white/10">
                 <BlurView
                     intensity={100}
@@ -296,22 +288,26 @@ export function SubscriptionCard({
                     )}
                 </BlurView>
                 </View>
-            </View>
-        </Pressable>
+        </View>
     );
 
     return (
         <View style={{ marginBottom: 20 }}>
             {hasLongPressActions ? (
-                <MenuView
+                <SubscriptionCardMenu
                     actions={menuActions}
-                    onPressAction={handleMenuAction}
-                    shouldOpenOnLongPress
+                    onSelectAction={handleMenuAction}
+                    onPress={handlePress}
+                    accessibilityHint={t('subscription_card.actions_accessibility_hint')}
                     testID={`subscription-card-menu-${id}`}
                 >
                     {card}
-                </MenuView>
-            ) : card}
+                </SubscriptionCardMenu>
+            ) : (
+                <Pressable onPress={handlePress} accessibilityRole="button">
+                    {card}
+                </Pressable>
+            )}
         </View>
     );
 }
