@@ -4,27 +4,41 @@ const appConfig = require('../app.json');
 const packageConfig = require('../package.json');
 
 function verifyReleaseTag(tag) {
-  const appVersion = appConfig.expo?.version;
+  const nativeVersion = appConfig.expo?.version;
+  const releaseVersion = appConfig.expo?.extra?.releaseVersion;
   const packageVersion = packageConfig.version;
-  if (typeof appVersion !== 'string' || !/^\d+\.\d+\.\d+$/.test(appVersion)) {
-    throw new Error(`app.json has an invalid native version: ${appVersion}`);
+  if (
+    typeof nativeVersion !== 'string'
+    || !/^\d+\.\d+\.\d+$/.test(nativeVersion)
+  ) {
+    throw new Error(`app.json has an invalid native version: ${nativeVersion}`);
   }
-  if (packageVersion !== appVersion) {
+  if (
+    typeof releaseVersion !== 'string'
+    || !/^\d+\.\d+\.\d+(?:-rc\.[1-9]\d*)?$/.test(releaseVersion)
+  ) {
     throw new Error(
-      `package.json (${packageVersion}) and app.json (${appVersion}) differ`,
+      `app.json has an invalid release version: ${releaseVersion}`,
+    );
+  }
+  if (packageVersion !== releaseVersion) {
+    throw new Error(
+      `package.json (${packageVersion}) and app.json release version (${releaseVersion}) differ`,
+    );
+  }
+  const releaseNativeVersion = releaseVersion.replace(/-rc\.[1-9]\d*$/, '');
+  if (releaseNativeVersion !== nativeVersion) {
+    throw new Error(
+      `release version ${releaseVersion} does not map to native version ${nativeVersion}`,
     );
   }
 
-  const stableTag = `v${appVersion}`;
-  const isStable = tag === stableTag;
-  const isReleaseCandidate = new RegExp(
-    `^${stableTag.replace(/\./g, '\\.')}-rc\\.[1-9]\\d*$`,
-  ).test(tag);
-  if (!isStable && !isReleaseCandidate) {
-    throw new Error(
-      `tag ${tag} does not match ${stableTag} or ${stableTag}-rc.N`,
-    );
+  const expectedTag = `v${releaseVersion}`;
+  if (tag !== expectedTag) {
+    throw new Error(`tag ${tag} does not match ${expectedTag}`);
   }
+  const isReleaseCandidate = /-rc\.[1-9]\d*$/.test(releaseVersion);
+  const isStable = !isReleaseCandidate;
 
   const versionCode = appConfig.expo?.android?.versionCode;
   const buildNumber = appConfig.expo?.ios?.buildNumber;
@@ -40,7 +54,8 @@ function verifyReleaseTag(tag) {
   }
 
   return {
-    appVersion,
+    nativeVersion,
+    releaseVersion,
     buildNumber,
     isReleaseCandidate,
     isStable,

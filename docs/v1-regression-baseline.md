@@ -271,13 +271,15 @@ For each `v1.0.0-rc.N`, add a dated result section containing:
 - Upgrade-test result
 - Performance comparison against this baseline
 
-The native marketing version remains `1.0.0` for release candidates because
-iOS requires a numeric `CFBundleShortVersionString`. The RC identity comes from
-the `v1.0.0-rc.N` Git tag and its monotonically increasing Android
-`versionCode` / iOS `buildNumber`. GitHub Actions marks RC tags as prereleases,
-so normal update discovery continues to return only stable releases.
+The project release version, package metadata, About screen, and Git tag use
+`1.0.0-rc.N`. The native marketing version remains `1.0.0` only because iOS
+requires a numeric `CFBundleShortVersionString`; `expo.extra.releaseVersion`
+preserves the complete RC identity in the app configuration. Each RC also gets
+monotonically increasing Android `versionCode` / iOS `buildNumber` values.
+GitHub Actions marks RC tags as prereleases, so normal update discovery
+continues to return only stable releases.
 
 If the final RC passes without a fix, run `pnpm version:build` to increment only
-the two native build identifiers, commit that metadata-only promotion, and tag
-it `v1.0.0`. If a fix is required, increment the native build identifiers and
-issue the next RC instead.
+the two native build identifiers, remove the RC suffix from project metadata,
+commit that metadata-only promotion, and tag it `v1.0.0`. If a fix is required,
+increment the native build identifiers and issue the next RC instead.

@@ -28,7 +28,12 @@ type LatestRepositoryVersion = {
     url: string;
 };
 
-export const getCurrentAppVersion = () => Constants.expoConfig?.version ?? '0.0.0';
+export const getCurrentAppVersion = () => {
+    const releaseVersion = Constants.expoConfig?.extra?.releaseVersion;
+    return typeof releaseVersion === 'string'
+        ? releaseVersion
+        : Constants.expoConfig?.version ?? '0.0.0';
+};
 
 function normalizeVersion(version: string): string {
     return version.trim().replace(/^v/i, '');

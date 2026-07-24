@@ -7,6 +7,7 @@ import Constants from 'expo-constants';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { isUsingPublicApi, versionApi } from '@/lib/api';
+import { getCurrentAppVersion } from '@/lib/versionCheck';
 
 const APP_ICON = require('../../assets/images/icon.png');
 
@@ -90,7 +91,7 @@ export default function AboutScreen() {
             .catch(() => {});
     }, []);
 
-    const version = Constants.expoConfig?.version ?? '1.0.0';
+    const version = getCurrentAppVersion();
     const rawScheme = Constants.expoConfig?.scheme;
     const scheme = Array.isArray(rawScheme)
         ? rawScheme.join(', ')

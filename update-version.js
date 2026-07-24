@@ -2,12 +2,27 @@ const fs = require('fs');
 const path = require('path');
 
 function calculateNextRelease(appJson, packageJson, increment = 'patch') {
-  const currentVersion = appJson.expo?.version;
-  const versionMatch = typeof currentVersion === 'string'
-    ? currentVersion.match(/^(\d+)\.(\d+)\.(\d+)$/)
+  const currentNativeVersion = appJson.expo?.version;
+  const versionMatch = typeof currentNativeVersion === 'string'
+    ? currentNativeVersion.match(/^(\d+)\.(\d+)\.(\d+)$/)
     : null;
   if (!versionMatch) {
-    throw new Error(`Invalid app version: ${currentVersion}`);
+    throw new Error(`Invalid app version: ${currentNativeVersion}`);
+  }
+
+  const currentReleaseVersion = appJson.expo?.extra?.releaseVersion
+    ?? packageJson.version;
+  const validReleaseVersions = new RegExp(
+    `^${currentNativeVersion.replace(/\./g, '\\.')}(?:-rc\\.[1-9]\\d*)?$`,
+  );
+  if (
+    typeof currentReleaseVersion !== 'string'
+    || !validReleaseVersions.test(currentReleaseVersion)
+    || packageJson.version !== currentReleaseVersion
+  ) {
+    throw new Error(
+      `Invalid release version: ${currentReleaseVersion}`,
+    );
   }
 
   const currentVersionCode = appJson.expo.android?.versionCode ?? 1;
@@ -50,6 +65,8 @@ function calculateNextRelease(appJson, packageJson, increment = 'patch') {
   const nextPackageJson = structuredClone(packageJson);
 
   nextAppJson.expo.version = newVersion;
+  nextAppJson.expo.extra ??= {};
+  nextAppJson.expo.extra.releaseVersion = newVersion;
   nextAppJson.expo.android.versionCode = newVersionCode;
   nextAppJson.expo.ios.buildNumber = newBuildNumber;
   nextPackageJson.version = newVersion;
@@ -59,7 +76,7 @@ function calculateNextRelease(appJson, packageJson, increment = 'patch') {
     buildNumber: newBuildNumber,
     packageJson: nextPackageJson,
     previousBuildNumber: String(currentBuildNumber),
-    previousVersion: currentVersion,
+    previousVersion: currentReleaseVersion,
     previousVersionCode: currentVersionCode,
     version: newVersion,
     versionCode: newVersionCode,
