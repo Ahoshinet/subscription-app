@@ -192,19 +192,19 @@ export default function DetailScreen() {
                 <View className="px-4">
                     {/* Details Group */}
                     <View className="bg-white dark:bg-[#1C1C1C] rounded-xl overflow-hidden mb-6">
-                        <View className="px-4 py-3.5 flex-row justify-between items-center border-b border-neutral-200 dark:border-neutral-800">
+                        <View
+                            className="px-4 flex-row justify-between items-center border-b border-neutral-200 dark:border-neutral-800"
+                            style={{ minHeight: 56 }}
+                        >
                             <Text className="text-neutral-500 dark:text-neutral-400 text-base">
                                 {t('detail.label_status')}
                             </Text>
                             <View
-                                className="flex-row items-center"
                                 style={{ opacity: isTogglingStatus ? 0.65 : 1 }}
                             >
-                                <Text className="text-neutral-900 dark:text-white text-base font-medium mr-3">
-                                    {statusLabel}
-                                </Text>
                                 <Switch
                                     accessibilityLabel={t('detail.label_status')}
+                                    accessibilityValue={{ text: statusLabel }}
                                     value={displayedIsActive}
                                     onValueChange={(value) => void handleToggleStatus(value)}
                                     disabled={isTogglingStatus}
@@ -275,8 +275,9 @@ export default function DetailScreen() {
 function DetailRow({ label, value, isFirst = false, isLast = false }: { label: string; value: string; isFirst?: boolean; isLast?: boolean }) {
     return (
         <View
-            className={`px-4 py-3.5 flex-row justify-between items-center ${!isLast ? 'border-b border-neutral-200 dark:border-neutral-800' : ''
+            className={`px-4 py-3 flex-row justify-between items-center ${!isLast ? 'border-b border-neutral-200 dark:border-neutral-800' : ''
                 }`}
+            style={{ minHeight: 56 }}
         >
             <Text className="text-neutral-500 dark:text-neutral-400 text-base">{label}</Text>
             <Text className="text-neutral-900 dark:text-white text-base font-medium" style={{ maxWidth: '60%', textAlign: 'right' }}>{value}</Text>
