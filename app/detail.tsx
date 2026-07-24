@@ -51,6 +51,13 @@ export default function DetailScreen() {
     const displayedIsActive = pendingIsActive ?? isActive;
     const displayedStatus = displayedIsActive ? 'active' : 'inactive';
     const statusLabel = t(`detail.status_${displayedStatus}`, { defaultValue: displayedStatus });
+    const billingCycleSuffix = t(
+        subscription.billing_cycle === 'yearly'
+            ? 'subscription_card.per_year'
+            : subscription.billing_cycle === 'weekly'
+                ? 'subscription_card.per_week'
+                : 'subscription_card.per_month'
+    );
 
     const formatDate = (dateStr: string) => {
         try {
@@ -182,9 +189,9 @@ export default function DetailScreen() {
                     </View>
                     <Text className="text-3xl font-extrabold text-neutral-900 dark:text-white">
                         {subscription.currency === 'JPY' ? '¥' : subscription.currency}{subscription.amount.toLocaleString()}
-                    </Text>
-                    <Text className="text-neutral-500 dark:text-neutral-400 text-base mt-1">
-                        {t(`billing_cycle.${subscription.billing_cycle}`, { defaultValue: subscription.billing_cycle })}
+                        <Text className="text-base font-medium text-neutral-500 dark:text-neutral-400">
+                            {billingCycleSuffix}
+                        </Text>
                     </Text>
 
                 </View>
