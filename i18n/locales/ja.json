@@ -317,7 +317,7 @@
         "edit_button": "編集",
         "delete_button": "このサブスクを削除",
         "delete_title": "削除確認",
-        "delete_message": "「{{name}}」を削除してもよろしいですか？",
+        "delete_message": "“{{name}}”を削除してもよろしいですか？",
         "delete_confirm": "削除",
         "error_delete_failed": "削除に失敗しました",
         "error_status_failed": "ステータスの更新に失敗しました",
