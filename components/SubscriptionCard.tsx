@@ -189,7 +189,6 @@ export function SubscriptionCard({
                     ? t('subscription_card.actions_accessibility_hint')
                     : undefined
             }
-            className="mb-5"
         >
             <Animated.View style={[animatedStyle, isInactive && { opacity: 0.6 }]}>
                 <View style={{ borderRadius: 24 }} className="border border-neutral-200 dark:border-white/10">
@@ -326,18 +325,18 @@ export function SubscriptionCard({
         </Pressable>
     );
 
-    if (!hasLongPressActions) {
-        return card;
-    }
-
     return (
-        <MenuView
-            actions={menuActions}
-            onPressAction={handleMenuAction}
-            shouldOpenOnLongPress
-            testID={`subscription-card-menu-${id}`}
-        >
-            {card}
-        </MenuView>
+        <View style={{ marginBottom: 20 }}>
+            {hasLongPressActions ? (
+                <MenuView
+                    actions={menuActions}
+                    onPressAction={handleMenuAction}
+                    shouldOpenOnLongPress
+                    testID={`subscription-card-menu-${id}`}
+                >
+                    {card}
+                </MenuView>
+            ) : card}
+        </View>
     );
 }
