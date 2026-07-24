@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { usePaymentMethodStore } from '@/store/usePaymentMethodStore';
 import { AddPaymentMethodSheet } from '@/components/AddPaymentMethodSheet';
 import { resolveIconUrl } from '@/lib/api';
+import { getIoniconsName } from '@/lib/iconName';
 
 export default function BillingScreen() {
     const colorScheme = useColorScheme();
@@ -69,7 +70,7 @@ export default function BillingScreen() {
                                                     />
                                                 ) : (
                                                     <Ionicons
-                                                        name={(method.iconName ?? 'card-outline') as any}
+                                                        name={getIoniconsName(method.iconName)}
                                                         size={20}
                                                         color={method.color}
                                                     />

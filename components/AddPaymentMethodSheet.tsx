@@ -10,6 +10,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { usePaymentMethodStore } from '@/store/usePaymentMethodStore';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { singleLineTextInputStyle } from '@/lib/textInputStyles';
+import type { IoniconsName } from '@/lib/iconName';
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 const SHEET_HORIZONTAL_PADDING = 20;
@@ -29,7 +30,12 @@ export const PRESET_BRANDS = [
     { id: 'google-play',  label: 'Google Play決済', iconName: 'logo-google',  color: '#01875F' },
     { id: 'paidy',        label: 'Paidy',           iconName: 'card-outline', color: '#6C47FF' },
     { id: 'amazon-pay',   label: 'Amazon Pay',      iconName: 'cart-outline', color: '#FF9900' },
-] as const;
+] as const satisfies readonly {
+    id: string;
+    label: string;
+    iconName: IoniconsName;
+    color: string;
+}[];
 
 const CARD_BRANDS = ['Visa', 'Mastercard', 'JCB', 'Amex', 'その他'];
 
@@ -43,7 +49,11 @@ const CUSTOM_ICON_PRESETS = [
     { id: 'paypal', iconName: 'logo-paypal', color: '#003087' },
     { id: 'apple', iconName: 'logo-apple', color: '#111827' },
     { id: 'google', iconName: 'logo-google', color: '#4285F4' },
-] as const;
+] as const satisfies readonly {
+    id: string;
+    iconName: IoniconsName;
+    color: string;
+}[];
 
 interface Props {
     visible: boolean;
@@ -65,7 +75,8 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
     const [cardLast4, setCardLast4] = useState('');
     const [customLabel, setCustomLabel] = useState('');
     const [customIconUri, setCustomIconUri] = useState<string | null>(null);
-    const [customIconName, setCustomIconName] = useState<string | null>(null);
+    const [customIconName, setCustomIconName] =
+        useState<IoniconsName | null>(null);
     const [customIconColor, setCustomIconColor] = useState('#6B7280');
     const [showIconPresetModal, setShowIconPresetModal] = useState(false);
 
@@ -193,7 +204,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
         }
     };
 
-    const handleSelectPresetIcon = (iconName: string, color: string) => {
+    const handleSelectPresetIcon = (iconName: IoniconsName, color: string) => {
         setCustomIconUri(null);
         setCustomIconName(iconName);
         setCustomIconColor(color);
@@ -359,7 +370,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                                 justifyContent: 'center',
                                             }}
                                         >
-                                            <Ionicons name={brand.iconName as any} size={30} color={brand.color} />
+                                            <Ionicons name={brand.iconName} size={30} color={brand.color} />
                                         </View>
                                         <Text
                                             numberOfLines={1}
@@ -404,7 +415,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                             marginBottom: 10,
                                         }}
                                     >
-                                        <Ionicons name={selectedBrand.iconName as any} size={30} color={selectedBrand.color} />
+                                        <Ionicons name={selectedBrand.iconName} size={30} color={selectedBrand.color} />
                                     </View>
                                     <Text style={{ fontSize: 18, fontWeight: '700', color: textPrimary }}>
                                         {selectedBrand.label}
@@ -583,7 +594,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                         {customIconUri
                                             ? <Image source={{ uri: customIconUri }} style={{ width: 58, height: 58, borderRadius: 14 }} />
                                             : customIconName
-                                                ? <Ionicons name={customIconName as any} size={30} color={customIconColor} />
+                                                ? <Ionicons name={customIconName} size={30} color={customIconColor} />
                                                 : <Ionicons name="camera-outline" size={30} color={textSub} />
                                         }
                                     </Pressable>
@@ -713,7 +724,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                         marginBottom: ICON_PICKER_GAP,
                                     }}
                                 >
-                                    <Ionicons name={icon.iconName as any} size={24} color={icon.color} />
+                                    <Ionicons name={icon.iconName} size={24} color={icon.color} />
                                 </Pressable>
                             ))}
                         </View>

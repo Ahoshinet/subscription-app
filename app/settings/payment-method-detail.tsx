@@ -11,6 +11,7 @@ import { usePaymentMethodStore } from '@/store/usePaymentMethodStore';
 import { resolveIconUrl } from '@/lib/api';
 import { singleLineTextInputStyle } from '@/lib/textInputStyles';
 import { getErrorMessage } from '@/lib/errors';
+import { getIoniconsName } from '@/lib/iconName';
 
 export default function PaymentMethodDetailScreen() {
     const params = useLocalSearchParams<{ id: string }>();
@@ -116,7 +117,7 @@ export default function PaymentMethodDetailScreen() {
                             />
                         ) : (
                             <Ionicons
-                                name={(method.iconName ?? 'card-outline') as any}
+                                name={getIoniconsName(method.iconName)}
                                 size={34}
                                 color={method.color}
                             />

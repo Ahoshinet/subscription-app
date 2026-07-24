@@ -1,8 +1,8 @@
 import type { ComponentProps } from 'react';
-import type { FontAwesome5, Ionicons } from '@expo/vector-icons';
+import type { FontAwesome5 } from '@expo/vector-icons';
+import type { IoniconsName } from './iconName';
 
 export type SubscriptionIconPack = 'ionicons' | 'fontawesome5';
-export type IoniconsName = ComponentProps<typeof Ionicons>['name'];
 export type FontAwesome5Name = ComponentProps<typeof FontAwesome5>['name'];
 
 interface SubscriptionIconBase {

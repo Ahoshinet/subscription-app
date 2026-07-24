@@ -8,6 +8,7 @@ import { useAddFormStore } from '../../store/useAddFormStore';
 import { usePaymentMethodStore } from '../../store/usePaymentMethodStore';
 import { AddPaymentMethodSheet } from '../../components/AddPaymentMethodSheet';
 import { resolveIconUrl } from '@/lib/api';
+import { getIoniconsName } from '@/lib/iconName';
 
 export default function PaymentMethodPickerScreen() {
     const { t } = useTranslation();
@@ -81,7 +82,7 @@ export default function PaymentMethodPickerScreen() {
                                                 />
                                             ) : (
                                                 <Ionicons
-                                                    name={(method.iconName ?? 'card-outline') as any}
+                                                    name={getIoniconsName(method.iconName)}
                                                     size={16}
                                                     color={method.color}
                                                 />
