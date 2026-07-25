@@ -444,9 +444,12 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                         onChangeText={setBrandMemo}
                                         placeholder={t('billing.memo_placeholder')}
                                         placeholderTextColor={textSub}
+                                        autoCapitalize="none"
+                                        autoCorrect={false}
                                         style={{
                                             ...singleLineTextInputStyle,
-                                            height: 48, fontSize: 16, color: textPrimary,
+                                            height: 48, fontSize: 16, fontWeight: '400',
+                                            letterSpacing: 0, textAlign: 'left', color: textPrimary,
                                         }}
                                     />
                                 </View>
@@ -551,9 +554,12 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                         onChangeText={setCardMemo}
                                         placeholder={t('billing.memo_placeholder')}
                                         placeholderTextColor={textSub}
+                                        autoCapitalize="none"
+                                        autoCorrect={false}
                                         style={{
                                             ...singleLineTextInputStyle,
-                                            height: 48, fontSize: 16, color: textPrimary,
+                                            height: 48, fontSize: 16, fontWeight: '400',
+                                            letterSpacing: 0, textAlign: 'left', color: textPrimary,
                                         }}
                                     />
                                 </View>
@@ -623,9 +629,12 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                         onChangeText={setCustomLabel}
                                         placeholder={t('billing.method_name_placeholder')}
                                         placeholderTextColor={textSub}
+                                        autoCapitalize="words"
+                                        autoCorrect={false}
                                         style={{
                                             ...singleLineTextInputStyle,
-                                            height: 48, fontSize: 16, color: textPrimary,
+                                            height: 48, fontSize: 16, fontWeight: '400',
+                                            letterSpacing: 0, textAlign: 'left', color: textPrimary,
                                         }}
                                     />
                                 </View>
@@ -650,9 +659,12 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                                         onChangeText={setCustomMemo}
                                         placeholder={t('billing.memo_placeholder')}
                                         placeholderTextColor={textSub}
+                                        autoCapitalize="none"
+                                        autoCorrect={false}
                                         style={{
                                             ...singleLineTextInputStyle,
-                                            height: 48, fontSize: 16, color: textPrimary,
+                                            height: 48, fontSize: 16, fontWeight: '400',
+                                            letterSpacing: 0, textAlign: 'left', color: textPrimary,
                                         }}
                                     />
                                 </View>

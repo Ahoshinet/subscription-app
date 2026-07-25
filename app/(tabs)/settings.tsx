@@ -263,7 +263,7 @@ export default function SettingsScreen() {
           style={{ opacity: isLoggingOut ? 0.6 : 1 }}
           className="mt-4 mb-8 items-center py-4 rounded-xl bg-white dark:bg-[#1C1C1E] border border-neutral-200/50 dark:border-white/10"
         >
-          <Text className="text-red-600 dark:text-red-400 font-bold text-base">
+          <Text className="text-neutral-900 dark:text-white font-bold text-base">
             {t('settings.log_out')}
           </Text>
         </Pressable>
