@@ -73,11 +73,11 @@ The Operator will not provide, disclose, or sell collected personal information 
 
 ## 第5条（外部サービスの利用）/ Article 5 (Third-Party Services)
 
-本サービスは現在、Google Analytics・Firebase・Sentry等のサードパーティ製データ解析・追跡ツールを使用していません。本サービスはAndroid、iOSおよびWebで提供されます。Web版は認証トークンをブラウザのセッションストレージに保持しますが、追跡目的のCookieやローカルストレージは使用しません。
+本サービスは現在、Google Analytics・Firebase・Sentry等のサードパーティ製データ解析・追跡ツールを使用していません。本サービスはAndroidおよびiOSで提供されます。
 
 Google連携機能を利用した場合は、Gmail APIを通じてGoogleのサーバーと通信します。詳細は第12条をご参照ください。
 
-The Service does not currently use third-party analytics or tracking tools such as Google Analytics, Firebase, or Sentry. The Service is available on Android, iOS, and Web. The Web version stores its authentication token in browser session storage, but does not use tracking cookies or local storage for authentication.
+The Service does not currently use third-party analytics or tracking tools such as Google Analytics, Firebase, or Sentry. The Service is available on Android and iOS.
 
 When the Google integration feature is used, the Service communicates with Google's servers via the Gmail API. See Article 12 for details.
 

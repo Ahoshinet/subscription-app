@@ -8,13 +8,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 pnpm start        # Expo dev server
 pnpm android      # Android emulator
 pnpm ios          # iOS simulator
-pnpm web          # Web browser
 pnpm lint         # ESLint
 ```
 
 ## Architecture
 
-**Routing**: Expo Router (file-based) in `app/`. Tab layout: index (dashboard), add, settings. Stack routes: login, register, edit, detail.
+**Routing**: Expo Router (file-based) in `app/`. Tab layout: index (dashboard), calendar, settings. Stack routes: add, login, register, edit, detail.
 
 **State**: Zustand stores in `store/`:
 - `useAuthStore.ts` — JWT auth (login/register/logout), token persisted via expo-secure-store
@@ -24,9 +23,10 @@ pnpm lint         # ESLint
 - `useAddFormStore.ts` — Form state for subscription creation
 
 **API client**: `lib/api.ts` — injects JWT token on all requests; selects base URL by environment:
-- Dev web: `http://localhost:8084/api/v1`
 - Dev Android emulator: `http://10.0.2.2:8084/api/v1`
 - Production: `https://subscription-manager.daruks.com/api/v1`
+
+**Release platforms**: Android and iOS. Web is not a supported release target.
 
 **Styling**: NativeWind (Tailwind CSS for React Native). Dark/light mode via `useColorScheme`.
 

@@ -6,7 +6,7 @@
 
 Track all your subscriptions at a glance. No more surprise charges.
 
-A mobile/web application to manage all your subscription services in one place. Built with **React Native (Expo)**.
+A mobile application for managing all your subscription services in one place. Built with **React Native (Expo)**.
 
 ## Features
 
@@ -17,7 +17,7 @@ A mobile/web application to manage all your subscription services in one place. 
 - **User Authentication** — Secure registration and login with JWT tokens and Argon2 password hashing
 - **Dark / Light Mode** — Supports system, light, and dark themes
 - **Bilingual Support** — Full English and Japanese localization
-- **Cross-Platform** — Runs on Android, iOS, and Web
+- **Mobile Platforms** — Runs on Android and iOS
 
 ## Tech Stack
 
@@ -34,15 +34,12 @@ A mobile/web application to manage all your subscription services in one place. 
 TypeScript 7 powers command-line type checking and supported editor integrations.
 A TypeScript 6 compatibility package remains installed for ESLint until the TypeScript 7 API is available.
 
-On Web, the authentication token is kept in browser session storage and is
-cleared when the browser session ends; it is not persisted in local storage.
-
 ## Getting Started
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (v18+)
-- [pnpm](https://pnpm.io/)
+- [Node.js](https://nodejs.org/) (v22.23.1+)
+- [pnpm](https://pnpm.io/) (v11.17.0+)
 
 ### 1. Clone the repository
 
@@ -61,7 +58,6 @@ pnpm start
 Then open the app on:
 - **Android Emulator** — Press `a`
 - **iOS Simulator** — Press `i`
-- **Web Browser** — Press `w`
 
 ## Project Structure
 
@@ -88,7 +84,6 @@ subscription-app/
 pnpm start        # Start Expo dev server
 pnpm android      # Start on Android
 pnpm ios          # Start on iOS
-pnpm web          # Start on Web
 pnpm lint         # Run ESLint
 ```
 

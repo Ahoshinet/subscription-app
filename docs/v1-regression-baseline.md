@@ -344,3 +344,21 @@ After final approval:
    [`v1.0.0-release-notes.md`](./v1.0.0-release-notes.md).
 6. Confirm GitHub's latest stable release endpoint returns `v1.0.0`; this is
    what existing stable App builds use for normal-launch update discovery.
+
+## v1.0.0 pre-publication audit — 2026-07-26
+
+The maintainer confirmed that real-device validation has been completed on both
+supported release platforms. Device models and OS versions were not recorded in
+this repository.
+
+The release remains unpublished while the final audited source is prepared:
+
+- Supported release platforms: Android and iOS
+- Real-device validation: completed, as confirmed by the maintainer
+- Upgrade test from `v0.16.0`: not separately recorded
+- Performance comparison: not separately recorded
+- Local quality gates: ESLint, TypeScript, and 132 Jest tests passed
+- Expo dependency validation: Expo Doctor 20/20
+- Production dependency audit: no known vulnerabilities
+- Formal `v1.0.0` tag and GitHub Release: intentionally withheld pending the
+  maintainer's explicit final approval
