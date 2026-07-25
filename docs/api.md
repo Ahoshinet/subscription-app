@@ -1,6 +1,8 @@
 # API Reference
 
-Base URL: `https://subscription-manager.daruks.com/api/v1`
+API base URL: `https://subscription-manager.daruks.com/api/v1`
+
+Service origin: `https://subscription-manager.daruks.com`
 
 All endpoints that require authentication must include the following header:
 
@@ -12,6 +14,7 @@ Authorization: Bearer <token>
 
 ## Table of Contents
 
+- [Health](#health)
 - [Authentication](#authentication)
   - [Register](#post-apiv1authregister)
   - [Login](#post-apiv1authlogin)
@@ -50,6 +53,23 @@ Authorization: Bearer <token>
 
 ---
 
+## Health
+
+### GET /health
+
+Check whether the API service is reachable.
+
+**Auth required:** No
+
+**Response `200 OK`:** plain text
+```text
+OK
+```
+
+This endpoint is relative to the service origin, not the `/api/v1` base URL.
+
+---
+
 ## Authentication
 
 ### POST /api/v1/auth/register
@@ -62,7 +82,7 @@ Register a new user.
 ```json
 {
   "username": "string",        // required, 3-32 chars: letters, digits, ".", "_", "-" (trimmed)
-  "password": "string",        // required, min 8 characters
+  "password": "string",        // required, min 8 UTF-8 bytes
   "time_zone": "Asia/Tokyo"    // required, IANA time-zone identifier
 }
 ```
@@ -85,6 +105,7 @@ Register a new user.
 |---|---|
 | `400 Bad Request` | Username/password validation fails, or `time_zone` is not a valid IANA identifier |
 | `409 Conflict` | Username already exists |
+| `429 Too Many Requests` | Authentication request rate limit reached or service temporarily busy |
 
 ---
 
@@ -119,12 +140,15 @@ Login and receive a JWT token (valid for 30 days).
 | Status | Reason |
 |---|---|
 | `401 Unauthorized` | Invalid username or password |
+| `429 Too Many Requests` | Authentication request rate limit reached or service temporarily busy |
 
 ---
 
 ### POST /api/v1/auth/refresh
 
-Issue a new JWT token without re-entering credentials. The existing (still-valid) token must be sent in the `Authorization` header.
+Issue a new JWT token without re-entering credentials. Send the existing token
+in the `Authorization` header. An otherwise valid token remains refreshable for
+up to 7 days after its normal expiry.
 
 **Auth required:** Yes
 
@@ -140,7 +164,8 @@ Issue a new JWT token without re-entering credentials. The existing (still-valid
 **Errors:**
 | Status | Reason |
 |---|---|
-| `401 Unauthorized` | Token missing, malformed, expired, or issued before the user's last password change |
+| `401 Unauthorized` | Token missing, malformed, expired beyond the 7-day refresh window, associated with a deleted account, or issued before the user's last password change |
+| `500 Internal Server Error` | The account could not be checked or a new token could not be issued |
 
 ---
 
@@ -178,7 +203,7 @@ Change the authenticated user's password.
 ```json
 {
   "current_password": "string",  // required
-  "new_password": "string"       // required, min 8 characters
+  "new_password": "string"       // required, min 8 UTF-8 bytes
 }
 ```
 
@@ -189,8 +214,10 @@ Change the authenticated user's password.
 **Errors:**
 | Status | Reason |
 |---|---|
-| `400 Bad Request` | New password shorter than 8 characters |
+| `400 Bad Request` | New password shorter than 8 UTF-8 bytes |
 | `401 Unauthorized` | Current password is incorrect |
+| `404 Not Found` | User no longer exists |
+| `429 Too Many Requests` | Service temporarily busy |
 
 ---
 
@@ -221,6 +248,7 @@ Update the authenticated user's username.
 | Status | Reason |
 |---|---|
 | `400 Bad Request` | Username fails the format rules above |
+| `401 Unauthorized` | Missing or invalid token |
 | `404 Not Found` | User not found |
 | `409 Conflict` | Username already taken |
 
@@ -243,11 +271,15 @@ Create a new subscription.
   "currency": "USD",               // required, e.g. "USD" | "JPY"
   "billing_cycle": "monthly",      // required, "monthly" | "yearly" | "weekly"
   "payment_method": "string",      // required
-  "payment_details": {},           // optional, any JSON object
+  "payment_details": {},           // optional, any JSON value
   "icon_url": "/uploads/xxx.png",  // optional
+  "memo": "string",                // optional
   "next_payment_date": "2026-04-15"  // required, YYYY-MM-DD, years 2000-2100
 }
 ```
+
+`plan_name`, `payment_details`, `icon_url`, and `memo` may also be `null`.
+`payment_details` is returned as a string containing the submitted JSON value.
 
 **Response `201 Created`:** *(returns the created [Subscription](#subscription) object)*
 
@@ -256,7 +288,7 @@ Create a new subscription.
 |---|---|
 | `400 Bad Request` | Validation failed (empty required field, unknown `billing_cycle`, negative `amount`, or invalid `next_payment_date`) |
 | `401 Unauthorized` | Missing or invalid token |
-| `500 Internal Server Error` | Database error |
+| `500 Internal Server Error` | Unexpected service error |
 
 ---
 
@@ -280,7 +312,8 @@ Get all subscriptions for the authenticated user.
 
 ### GET /api/v1/subscriptions/upcoming
 
-Get active subscriptions with a payment due within the next 3 days.
+Get active subscriptions due from the account's current local date through
+three calendar days later (both endpoints of the range are included).
 
 **Auth required:** Yes
 
@@ -313,6 +346,8 @@ For the nullable fields `plan_name`, `payment_details`, `icon_url`, and `memo`, 
   "next_payment_date": "2026-05-15"
 }
 ```
+
+`payment_details` accepts any JSON value. It may be `null` to clear it.
 
 **Response `200 OK`:** *(returns the updated [Subscription](#subscription) object)*
 
@@ -363,6 +398,7 @@ Toggle the status of a subscription (`active` / `inactive`).
 **Errors:**
 | Status | Reason |
 |---|---|
+| `400 Bad Request` | `status` is not `"active"` or `"inactive"` |
 | `401 Unauthorized` | Missing or invalid token |
 | `404 Not Found` | Subscription not found or not owned by user |
 
@@ -404,7 +440,9 @@ Get all payment methods for the authenticated user.
 
 **Auth required:** Yes
 
-**Response `200 OK`:** *(array of PaymentMethod objects, or `[]`)*
+Results are ordered by creation time, oldest first.
+
+**Response `200 OK`:** *(array of [PaymentMethod](#paymentmethod) objects, or `[]`)*
 
 ---
 
@@ -414,7 +452,7 @@ Create a new payment method.
 
 **Auth required:** Yes
 
-**Request body:**
+**Request body:** (`label` is required; all other fields are optional)
 ```json
 {
   "type": "credit_card",
@@ -428,17 +466,19 @@ Create a new payment method.
 }
 ```
 
-**Response `201 Created`:** *(returns the created PaymentMethod object)*
+If omitted, `type` defaults to `"preset"` and `color` defaults to `"#808080"`.
+
+**Response `201 Created`:** *(returns the created [PaymentMethod](#paymentmethod) object)*
 
 For a custom image, first upload it with `POST /api/v1/upload/icon` and send
 the returned temporary path as `icon_uri`. The created object contains its
 permanent server URL; device-local `file:`, `content:`, and `blob:` URLs must
-not be sent.
+not be sent. `data:` URLs are also rejected.
 
 **Errors:**
 | Status | Reason |
 |---|---|
-| `400 Bad Request` | `label` is empty |
+| `400 Bad Request` | `label` is empty or `icon_uri` is a device-local, invalid, or unavailable managed upload URL |
 | `401 Unauthorized` | Missing or invalid token |
 | `409 Conflict` | A payment method with the same label already exists |
 
@@ -452,11 +492,27 @@ For the nullable fields `icon_name`, `icon_uri`, `last4`, `card_brand`, and `mem
 
 **Auth required:** Yes
 
+**Path parameter:** `id` — payment-method ID (UUID string)
+
+**Request body:** *(all fields optional)*
+```json
+{
+  "label": "My Visa",
+  "icon_name": "card",
+  "icon_uri": "/uploads/pending/xxx.png",
+  "color": "#3B82F6",
+  "last4": "1234",
+  "card_brand": "Visa",
+  "memo": "Personal card"
+}
+```
+
 **Response `200 OK`:** *(empty body)*
 
 **Errors:**
 | Status | Reason |
 |---|---|
+| `400 Bad Request` | A provided `label` is empty or `icon_uri` is a device-local, invalid, or unavailable managed upload URL |
 | `401 Unauthorized` | Missing or invalid token |
 | `404 Not Found` | Payment method not found or not owned by user |
 
@@ -467,6 +523,8 @@ For the nullable fields `icon_name`, `icon_uri`, `last4`, `card_brand`, and `mem
 Delete a payment method. Fails if any subscription still references the method — reassign or delete those subscriptions first.
 
 **Auth required:** Yes
+
+**Path parameter:** `id` — payment-method ID (UUID string)
 
 **Response `200 OK`:** *(empty body)*
 
@@ -583,13 +641,16 @@ Create or update the saved Gmail integration summary for the authenticated user.
 ```
 
 Nullable Paidy fields may be `null` when no matching billing summary is available.
+`gmail_email` and `last_synced_at` are required and must not be empty. Clients
+should send `last_synced_at` as an ISO 8601 timestamp. The endpoint does not
+otherwise validate the formats of the Paidy summary fields.
 
 **Response `200 OK`:** *(returns a [GmailIntegration](#gmailintegration) object)*
 
 **Errors:**
 | Status | Reason |
 |---|---|
-| `400 Bad Request` | Request validation failed |
+| `400 Bad Request` | `gmail_email` or `last_synced_at` is empty |
 | `401 Unauthorized` | Missing or invalid token |
 
 ---
@@ -600,7 +661,7 @@ Delete the saved Gmail integration summary for the authenticated user.
 
 **Auth required:** Yes
 
-**Response `200 OK`:** *(empty body)*
+**Response `204 No Content`:** *(empty body)*
 
 **Errors:**
 | Status | Reason |
@@ -614,7 +675,7 @@ Delete the saved Gmail integration summary for the authenticated user.
 
 ### POST /api/v1/upload/icon
 
-Upload a service icon image.
+Upload an icon image for a subscription or payment method.
 
 **Auth required:** Yes
 
@@ -629,8 +690,8 @@ Upload a service icon image.
 }
 ```
 
-Use the returned temporary `url` as the `icon_url` field when creating or
-updating a subscription. The successful subscription response contains the
+Use the returned temporary `url` as a subscription's `icon_url` or a payment
+method's `icon_uri`. The successful create/update response contains the
 permanent icon URL. Unattached temporary uploads expire after 24 hours.
 
 **Errors:**
@@ -663,11 +724,21 @@ Delete an unattached temporary upload after a cancelled or failed mutation.
 Only a temporary upload owned by the authenticated user can be deleted.
 An already attached temporary upload returns `409 Conflict` and is retained.
 
+**Errors:**
+| Status | Reason |
+|---|---|
+| `400 Bad Request` | `url` is not a valid pending-upload path |
+| `401 Unauthorized` | Missing or invalid token |
+| `404 Not Found` | Pending upload not found or not owned by user |
+| `409 Conflict` | Upload is already attached to a resource |
+
 ---
 
 ### GET /uploads/{filename}
 
-Serve an uploaded file. No authentication required.
+Serve an uploaded file. The same file is also available at
+`GET /api/v1/uploads/{filename}`, which is convenient when resolving paths
+against the API base URL.
 
 **Auth required:** No
 
@@ -681,19 +752,17 @@ Serve an uploaded file. No authentication required.
 
 Get the API server version.
 
-**Auth required:** Yes
+**Auth required:** No
 
 **Response `200 OK`:**
 ```json
 {
-  "version": "0.15.3"
+  "version": "1.4.3"
 }
 ```
 
-**Errors:**
-| Status | Reason |
-|---|---|
-| `401 Unauthorized` | Missing or invalid token |
+The server version is independent of the mobile app version and changes as the
+API service is released.
 
 ---
 
@@ -709,8 +778,6 @@ Get the API server version.
   "updated_at": "string (ISO 8601)"
 }
 ```
-
-> `password_hash` is never included in API responses.
 
 ### AuthResponse
 
@@ -735,6 +802,7 @@ Get the API server version.
   "payment_method": "string",
   "payment_details": "string (JSON) | null",
   "icon_url": "string | null",
+  "memo": "string | null",
   "next_payment_date": "string (YYYY-MM-DD calendar date)",
   "billing_anchor_day": "integer (1-31, read-only schedule anchor)",
   "status": "\"active\" | \"inactive\"",
@@ -744,6 +812,25 @@ Get the API server version.
 ```
 
 `billing_anchor_day` preserves the intended monthly or yearly billing day after a short month. For example, a value of `31` produces February's last valid day and returns to the 31st in March. Clients do not send this field; changing `next_payment_date` resets it automatically.
+
+### PaymentMethod
+
+```json
+{
+  "id": "string (UUID)",
+  "user_id": "string (UUID)",
+  "type": "string",
+  "label": "string",
+  "icon_name": "string | null",
+  "icon_uri": "string | null",
+  "color": "string",
+  "last4": "string | null",
+  "card_brand": "string | null",
+  "memo": "string | null",
+  "created_at": "string (ISO 8601)",
+  "updated_at": "string (ISO 8601)"
+}
+```
 
 ### UserSettings
 
@@ -774,10 +861,12 @@ Get the API server version.
       "merchant": "string"
     }
   ],
-  "last_synced_at": "string (ISO 8601)",
+  "last_synced_at": "string (clients should use ISO 8601)",
   "updated_at": "string (ISO 8601)"
 }
 ```
+
+`paidy_transactions` may be `null`.
 
 ---
 
@@ -791,12 +880,17 @@ Get the API server version.
 | `409 Conflict`              | Duplicate resource (e.g. username taken) |
 | `413 Payload Too Large`     | File or upload quota exceeded             |
 | `415 Unsupported Media Type` | Unsupported or invalid image             |
+| `422 Unprocessable Content` | Required JSON fields are missing or have incompatible types |
 | `429 Too Many Requests`     | Rate limit exceeded                       |
 | `500 Internal Server Error` | Unexpected server-side error             |
 | `507 Insufficient Storage`  | Service-wide upload quota exceeded        |
 
-Every non-success response has a JSON body:
+Errors produced after a request reaches an endpoint handler use a JSON body:
 
 ```json
 { "error": "Human-readable error message" }
 ```
+
+Requests rejected before handler execution—for example malformed JSON, missing
+required JSON fields, an incompatible path-parameter type, or an unsupported
+HTTP method—may return a plain-text body instead.
