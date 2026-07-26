@@ -34,6 +34,17 @@ A mobile application for managing all your subscription services in one place. B
 TypeScript 7 powers command-line type checking and supported editor integrations.
 A TypeScript 6 compatibility package remains installed for ESLint until the TypeScript 7 API is available.
 
+## Platform Requirements
+
+| Platform | Minimum supported | Recommended and tested |
+|---|---|---|
+| Android | Android 7.0 (API level 24) or later | Android 12L (API level 32) or later |
+| iOS | iOS 16.4 or later | iOS 26 or later |
+
+The minimum versions are encoded in the v1.0.0 release artifacts. The
+recommended versions reflect the real-device validation completed for this
+release. Android API level 32 is the Android 12L platform release.
+
 ## Getting Started
 
 ### Prerequisites

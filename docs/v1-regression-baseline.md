@@ -348,13 +348,17 @@ After final approval:
 ## v1.0.0 pre-publication audit — 2026-07-26
 
 The maintainer confirmed that real-device validation has been completed on both
-supported release platforms. Device models and OS versions were not recorded in
-this repository.
+supported release platforms. The validated and recommended OS baselines were
+recorded as Android 12L (API level 32) or later and iOS 26 or later. Device
+models were not recorded in this repository.
 
 At the time of this audit, the release remained unpublished while the final
 audited source was prepared:
 
 - Supported release platforms: Android and iOS
+- Minimum release platforms: Android 7.0 (API level 24) and iOS 16.4
+- Recommended and tested platforms: Android 12L (API level 32) or later and
+  iOS 26 or later
 - Real-device validation: completed, as confirmed by the maintainer
 - Upgrade test from `v0.16.0`: not separately recorded
 - Performance comparison: not separately recorded
