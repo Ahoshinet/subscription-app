@@ -351,7 +351,8 @@ The maintainer confirmed that real-device validation has been completed on both
 supported release platforms. Device models and OS versions were not recorded in
 this repository.
 
-The release remains unpublished while the final audited source is prepared:
+At the time of this audit, the release remained unpublished while the final
+audited source was prepared:
 
 - Supported release platforms: Android and iOS
 - Real-device validation: completed, as confirmed by the maintainer
@@ -360,5 +361,36 @@ The release remains unpublished while the final audited source is prepared:
 - Local quality gates: ESLint, TypeScript, and 132 Jest tests passed
 - Expo dependency validation: Expo Doctor 20/20
 - Production dependency audit: no known vulnerabilities
-- Formal `v1.0.0` tag and GitHub Release: intentionally withheld pending the
-  maintainer's explicit final approval
+- Formal `v1.0.0` tag and GitHub Release: withheld until the maintainer granted
+  explicit final approval
+
+## v1.0.0 final release — 2026-07-26
+
+- Release commit: `5ee431fd92556fc81e31bfb45d9d1122e4703301`
+- Annotated tag: `v1.0.0`
+- GitHub Release:
+  [Subscription Manager v1.0.0](https://github.com/Ahoshinet/subscription-app/releases/tag/v1.0.0)
+- Release state: published, stable, and selected as the latest release
+- Required main checks:
+  [Tests](https://github.com/Ahoshinet/subscription-app/actions/runs/30172019652)
+  and
+  [Code Quality](https://github.com/Ahoshinet/subscription-app/actions/runs/30172019703)
+  passed before tagging
+- Tag checks:
+  [Tests](https://github.com/Ahoshinet/subscription-app/actions/runs/30172064950),
+  [Android](https://github.com/Ahoshinet/subscription-app/actions/runs/30172064920),
+  and
+  [iOS](https://github.com/Ahoshinet/subscription-app/actions/runs/30172064945)
+  passed
+- Android and iOS CDN upload steps returned HTTP `200`
+- Published assets:
+  - `subscription-app-release-arm64-v8a.apk` — 48,735,052 bytes,
+    SHA-256 `8f224d2467b6f88a0d662132ffa45a58f1bfe26cd4b7cb9d9901a6bbe6de29f2`
+  - `subscription-app-release-x86_64.apk` — 50,146,780 bytes,
+    SHA-256 `7fc613d28aadace998815002a14c60120344f78fc92419a6c1e2a36c66df1821`
+  - `subscription-app-unsigned.ipa` — 18,007,707 bytes,
+    SHA-256 `9a31ddf9b337bd13bca6b750376253045191374349845acb3b18f831eb8b3e33`
+- The generated body was replaced with
+  [`v1.0.0-release-notes.md`](./v1.0.0-release-notes.md)
+- GitHub's public latest-release API returned `v1.0.0`, confirming that stable
+  App update discovery resolves to this release
