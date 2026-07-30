@@ -25,3 +25,22 @@ overrides:
   'postcss@<=8.5.17': 8.5.23
 minimumReleaseAgeExclude:
   - postcss@8.5.23
+  - '@expo/cli@57.0.11'
+  - '@expo/inline-modules@0.1.4'
+  - '@expo/local-build-cache-provider@57.0.5'
+  - '@expo/log-box@57.0.2'
+  - '@expo/metro-runtime@57.0.8'
+  - '@expo/prebuild-config@57.0.10'
+  - '@expo/ui@57.0.8'
+  - 'babel-preset-expo@57.0.5'
+  - 'eslint-config-expo@57.0.1'
+  - 'expo-asset@57.0.8'
+  - 'expo-constants@57.0.8'
+  - 'expo-image-manipulator@57.0.7'
+  - 'expo-image-picker@57.0.7'
+  - 'expo-modules-core@57.0.8'
+  - 'expo-notifications@57.0.8'
+  - 'expo-router@57.0.9'
+  - 'expo-system-ui@57.0.2'
+  - 'expo@57.0.9'
+  - 'jest-expo@57.0.3'
