@@ -198,7 +198,7 @@ export function SubscriptionCard({
                             {isInactive ? (
                                 <View className="flex-row items-center self-start rounded-full px-2 py-0.5 bg-neutral-400/15">
                                     <Ionicons name="pause-circle" size={13} color={inactiveColor} style={{ marginRight: 3 }} />
-                                    <Text className="text-xs font-bold uppercase tracking-wider" style={{ color: inactiveColor }}>
+                                    <Text className="text-xs font-bold tracking-wider" style={{ color: inactiveColor }}>
                                         {t('subscription_card.inactive')}
                                     </Text>
                                 </View>
@@ -239,7 +239,7 @@ export function SubscriptionCard({
                     {isInactive ? (
                         <View className="px-5 pb-5 mt-1 flex-row items-center">
                             <Ionicons name="pause" size={16} color={inactiveColor} style={{ marginRight: 4 }} />
-                            <Text className="text-sm font-bold uppercase tracking-wider" style={{ color: inactiveColor }}>
+                            <Text className="text-sm font-bold tracking-wider" style={{ color: inactiveColor }}>
                                 {t('subscription_card.paused_note')}
                             </Text>
                         </View>
