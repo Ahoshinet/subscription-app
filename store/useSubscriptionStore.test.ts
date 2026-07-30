@@ -1,5 +1,13 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 
+import {
+    subscriptionApi,
+    type CreateSubscriptionPayload,
+    type Subscription,
+} from '../lib/api';
+import { activateAuthSession, invalidateAuthSession } from '../lib/authSession';
+import { useSubscriptionStore } from './useSubscriptionStore';
+
 jest.mock('../lib/api', () => ({
     subscriptionApi: {
         getAll: jest.fn(),
@@ -9,14 +17,6 @@ jest.mock('../lib/api', () => ({
         delete: jest.fn(),
     },
 }));
-
-import {
-    subscriptionApi,
-    type CreateSubscriptionPayload,
-    type Subscription,
-} from '../lib/api';
-import { activateAuthSession, invalidateAuthSession } from '../lib/authSession';
-import { useSubscriptionStore } from './useSubscriptionStore';
 
 const getAllMock = jest.mocked(subscriptionApi.getAll);
 const renewMock = jest.mocked(subscriptionApi.renew);

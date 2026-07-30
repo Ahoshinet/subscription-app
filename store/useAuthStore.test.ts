@@ -1,5 +1,21 @@
 import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
 
+import {
+    ApiError,
+    authApi,
+    clearToken,
+    getToken,
+    setOnUnauthorized,
+    setToken,
+} from '../lib/api';
+import {
+    activateAuthSession,
+    captureAuthSession,
+    invalidateAuthSession,
+} from '../lib/authSession';
+import { cancelAllReminders } from '../lib/notifications';
+import { useAuthStore } from './useAuthStore';
+
 jest.mock('../lib/api', () => {
     class ApiError extends Error {
         status: number;
@@ -71,22 +87,6 @@ jest.mock('./useSubscriptionStore', () => {
 jest.mock('../lib/notifications', () => ({
     cancelAllReminders: jest.fn(),
 }));
-
-import {
-    ApiError,
-    authApi,
-    clearToken,
-    getToken,
-    setOnUnauthorized,
-    setToken,
-} from '../lib/api';
-import {
-    activateAuthSession,
-    captureAuthSession,
-    invalidateAuthSession,
-} from '../lib/authSession';
-import { cancelAllReminders } from '../lib/notifications';
-import { useAuthStore } from './useAuthStore';
 
 interface SettingsMock {
     syncFromServer: jest.Mock<() => Promise<void>>;

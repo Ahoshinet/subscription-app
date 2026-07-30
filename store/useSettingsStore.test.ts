@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { settingsApi, type UserSettings } from '../lib/api';
+import { activateAuthSession, invalidateAuthSession } from '../lib/authSession';
+import { useSettingsStore } from './useSettingsStore';
+
 jest.mock('@react-native-async-storage/async-storage', () => ({
     getItem: jest.fn(),
     setItem: jest.fn(),
@@ -13,10 +17,6 @@ jest.mock('../lib/api', () => ({
         update: jest.fn(),
     },
 }));
-
-import { settingsApi, type UserSettings } from '../lib/api';
-import { activateAuthSession, invalidateAuthSession } from '../lib/authSession';
-import { useSettingsStore } from './useSettingsStore';
 
 const getSettingsMock = jest.mocked(settingsApi.get);
 const updateSettingsMock = jest.mocked(settingsApi.update);

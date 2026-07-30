@@ -2,6 +2,15 @@ import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 
+import { ApiError, gmailApi, type GmailIntegration } from '../lib/api';
+import {
+  fetchPaidyTransactions,
+  GmailAuthError,
+  type PaidySummary,
+} from '../lib/gmail';
+import { activateAuthSession, invalidateAuthSession } from '../lib/authSession';
+import { usePaidyStore } from './usePaidyStore';
+
 jest.mock('@react-native-async-storage/async-storage', () => ({
   getItem: jest.fn(),
   setItem: jest.fn(),
@@ -48,15 +57,6 @@ jest.mock('@/lib/api', () => {
     },
   };
 });
-
-import { ApiError, gmailApi, type GmailIntegration } from '../lib/api';
-import {
-  fetchPaidyTransactions,
-  GmailAuthError,
-  type PaidySummary,
-} from '../lib/gmail';
-import { activateAuthSession, invalidateAuthSession } from '../lib/authSession';
-import { usePaidyStore } from './usePaidyStore';
 
 const getItemAsyncMock = jest.mocked(SecureStore.getItemAsync);
 const setItemAsyncMock = jest.mocked(SecureStore.setItemAsync);

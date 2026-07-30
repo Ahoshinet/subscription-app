@@ -1,6 +1,14 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import {
+    paymentMethodApi,
+    type PaymentMethod,
+    uploadApi,
+} from '../lib/api';
+import { activateAuthSession, invalidateAuthSession } from '../lib/authSession';
+import { usePaymentMethodStore } from './usePaymentMethodStore';
+
 jest.mock('@react-native-async-storage/async-storage', () => ({
     getItem: jest.fn(),
     setItem: jest.fn(),
@@ -19,14 +27,6 @@ jest.mock('../lib/api', () => ({
         deletePending: jest.fn(),
     },
 }));
-
-import {
-    paymentMethodApi,
-    type PaymentMethod,
-    uploadApi,
-} from '../lib/api';
-import { activateAuthSession, invalidateAuthSession } from '../lib/authSession';
-import { usePaymentMethodStore } from './usePaymentMethodStore';
 
 const getAllMock = jest.mocked(paymentMethodApi.getAll);
 const createMock = jest.mocked(paymentMethodApi.create);

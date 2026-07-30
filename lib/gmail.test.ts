@@ -1,16 +1,16 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { TextDecoder as NodeTextDecoder } from 'node:util';
 
-jest.mock('./fetchWithTimeout', () => ({
-  fetchWithTimeout: jest.fn(),
-}));
-
 import { fetchWithTimeout } from './fetchWithTimeout';
 import {
   fetchGoogleUserEmail,
   fetchPaidyTransactions,
   GmailAuthError,
 } from './gmail';
+
+jest.mock('./fetchWithTimeout', () => ({
+  fetchWithTimeout: jest.fn(),
+}));
 
 const fetchWithTimeoutMock = jest.mocked(fetchWithTimeout);
 

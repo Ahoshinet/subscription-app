@@ -8,6 +8,14 @@ import {
 } from '@jest/globals';
 import * as Notifications from 'expo-notifications';
 
+import type { Subscription } from './api';
+import {
+    cancelAllReminders,
+    registerNotificationTapHandler,
+    requestNotificationPermissions,
+    schedulePaymentReminders,
+} from './notifications';
+
 jest.mock('../i18n', () => ({
     __esModule: true,
     default: {
@@ -33,14 +41,6 @@ jest.mock('expo-notifications', () => {
         mockSubscription,
     };
 });
-
-import type { Subscription } from './api';
-import {
-    cancelAllReminders,
-    registerNotificationTapHandler,
-    requestNotificationPermissions,
-    schedulePaymentReminders,
-} from './notifications';
 
 const getPermissionsMock = jest.mocked(Notifications.getPermissionsAsync);
 const requestPermissionsMock = jest.mocked(Notifications.requestPermissionsAsync);

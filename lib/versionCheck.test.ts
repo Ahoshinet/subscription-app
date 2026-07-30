@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 
+import { fetchWithTimeout } from './fetchWithTimeout';
+import { checkRepositoryUpdate } from './versionCheck';
+
 jest.mock('./fetchWithTimeout', () => ({
     fetchWithTimeout: jest.fn(),
 }));
-
-import { fetchWithTimeout } from './fetchWithTimeout';
-import { checkRepositoryUpdate } from './versionCheck';
 
 const fetchWithTimeoutMock = jest.mocked(fetchWithTimeout);
 
