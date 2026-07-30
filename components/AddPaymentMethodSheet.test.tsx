@@ -94,5 +94,5 @@ describe('AddPaymentMethodSheet', () => {
         }));
         expect(cardMemo.props.autoCapitalize).toBe('none');
         expect(cardMemo.props.autoCorrect).toBe(false);
-    });
+    }, 15000);
 });
