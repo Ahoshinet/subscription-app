@@ -33,6 +33,11 @@ updates:
         versions: [">=58.0.0"]
       - dependency-name: "expo-*"
         versions: [">=58.0.0"]
+      # jest v30+ is incompatible with jest-expo in Expo SDK 57; stay on v29
+      - dependency-name: "jest"
+        versions: [">=30.0.0"]
+      - dependency-name: "@types/jest"
+        versions: [">=30.0.0"]
       # --- expo SDK managed packages ---
       # These are pinned by expo SDK and must be updated via `expo install --fix`
       # when upgrading expo, not independently via Dependabot.
