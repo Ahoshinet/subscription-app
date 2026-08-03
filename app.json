@@ -2,7 +2,7 @@
   "expo": {
     "name": "Subscription Manager",
     "slug": "subscription-app",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "subscriptionapp",
@@ -10,7 +10,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.darui3018823.subscriptionapp",
-      "buildNumber": "4",
+      "buildNumber": "5",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSAppTransportSecurity": {
@@ -34,7 +34,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.darui3018823.subscriptionapp",
-      "versionCode": 4
+      "versionCode": 5
     },
     "web": {
       "output": "static",
@@ -72,7 +72,7 @@
       "reactCompiler": true
     },
     "extra": {
-      "releaseVersion": "1.0.1",
+      "releaseVersion": "1.0.2",
       "router": {},
       "eas": {
         "projectId": "1dda9ef5-a425-4a8e-8012-aaae4c0e02ff"
