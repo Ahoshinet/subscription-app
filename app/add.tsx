@@ -174,7 +174,12 @@ export default function AddSubscriptionModal() {
     // Shared row style for perfect vertical centering
     const rowStyle = { height: 48 };
     const labelStyle = { fontSize: 15, width: 90 };
-    const inputStyle = { ...singleLineTextInputStyle, fontSize: 15, height: 48 };
+    const inputStyle = {
+        ...singleLineTextInputStyle,
+        fontSize: 15,
+        height: 48,
+        paddingBottom: 0,
+    };
 
     return (
         <KeyboardAvoidingView
