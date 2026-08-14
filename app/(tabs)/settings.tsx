@@ -88,7 +88,6 @@ const SettingsRow = ({
 
 export default function SettingsScreen() {
   const colorScheme = useColorScheme();
-  const isIOS = Platform.OS === 'ios';
   const router = useRouter();
   const { logout, user } = useAuthStore();
   const { t } = useTranslation();
@@ -106,12 +105,6 @@ export default function SettingsScreen() {
 
   // If theme is system, fallback to colorScheme, else use theme preference
   const isDark = colorScheme === 'dark';
-  const screenBackgroundColor = isDark
-    ? (isIOS ? '#000000' : '#0A0A0A')
-    : '#FAFAFA';
-  const settingsGroupClassName = isIOS
-    ? 'rounded-2xl overflow-hidden bg-white dark:bg-[#1C1C1E]'
-    : 'rounded-2xl overflow-hidden shadow-sm shadow-neutral-200/50 dark:shadow-none border border-neutral-200/50 dark:border-white/10';
 
   const languageLabel = language === 'en' ? 'English' : '日本語';
 
@@ -153,7 +146,7 @@ export default function SettingsScreen() {
   };
 
   return (
-    <View className="flex-1 pt-16" style={{ backgroundColor: screenBackgroundColor }}>
+    <View className="flex-1 bg-neutral-50 dark:bg-neutral-950 pt-16">
       {/* Header */}
       <View className="px-6 mb-4">
         <Text className="text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
@@ -169,7 +162,7 @@ export default function SettingsScreen() {
 
         {/* Account Section */}
         <SectionHeader title={t('settings.account')} />
-        <View className={settingsGroupClassName}>
+        <View className="rounded-2xl overflow-hidden shadow-sm shadow-neutral-200/50 dark:shadow-none border border-neutral-200/50 dark:border-white/10">
           <SettingsRow
             isFirst
             icon="person-outline"
@@ -192,7 +185,7 @@ export default function SettingsScreen() {
 
         {/* Preferences Section */}
         <SectionHeader title={t('settings.preferences')} />
-        <View className={settingsGroupClassName}>
+        <View className="rounded-2xl overflow-hidden shadow-sm shadow-neutral-200/50 dark:shadow-none border border-neutral-200/50 dark:border-white/10">
           <SettingsRow
             isFirst
             type="toggle"
@@ -225,7 +218,7 @@ export default function SettingsScreen() {
 
         {/* Integrations Section */}
         <SectionHeader title={t('gmail.section_title')} />
-        <View className={settingsGroupClassName}>
+        <View className="rounded-2xl overflow-hidden shadow-sm shadow-neutral-200/50 dark:shadow-none border border-neutral-200/50 dark:border-white/10">
           <SettingsRow
             isFirst
             isLast
@@ -238,7 +231,7 @@ export default function SettingsScreen() {
 
         {/* App Section */}
         <SectionHeader title={t('settings.app_info')} />
-        <View className={`${settingsGroupClassName} mb-6`}>
+        <View className="rounded-2xl overflow-hidden shadow-sm shadow-neutral-200/50 dark:shadow-none border border-neutral-200/50 dark:border-white/10 mb-6">
           <SettingsRow
             isFirst
             icon="help-circle-outline"
