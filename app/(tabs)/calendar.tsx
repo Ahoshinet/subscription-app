@@ -292,7 +292,10 @@ export default function CalendarScreen() {
         : null;
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: isDark ? '#0a0a0a' : '#fafafa' }}>
+        <SafeAreaView
+            edges={Platform.OS === 'ios' ? ['top', 'left', 'right'] : undefined}
+            style={{ flex: 1, backgroundColor: isDark ? '#0a0a0a' : '#fafafa' }}
+        >
             {/* Header */}
             <View className="flex-row items-center justify-between px-4 pt-5 pb-3">
                 <TouchableOpacity
