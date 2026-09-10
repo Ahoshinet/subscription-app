@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Switch, Pressable, ScrollView, Alert, Platform, Modal } from 'react-native';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useScrollToTop } from 'expo-router';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useTranslation } from 'react-i18next';
 import { useSettingsStore } from '@/store/useSettingsStore';
@@ -89,6 +89,9 @@ const SettingsRow = ({
 export default function SettingsScreen() {
   const colorScheme = useColorScheme();
   const router = useRouter();
+  const scrollRef = useRef<ScrollView>(null);
+  // The fixed header prevents native tabs from discovering this ScrollView.
+  useScrollToTop(scrollRef);
   const { logout, user } = useAuthStore();
   const { t } = useTranslation();
   const { setTheme, pushNotifications, setPushNotifications, language, timeZone, syncError, clearSyncError } = useSettingsStore();
@@ -155,6 +158,7 @@ export default function SettingsScreen() {
       </View>
 
       <ScrollView
+        ref={scrollRef}
         className="flex-1 px-4"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 }} // padding for bottom tab bar

@@ -16,7 +16,7 @@ import Animated, {
 import { scheduleOnRN } from 'react-native-worklets';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from 'expo-router';
+import { useRouter, useScrollToTop } from 'expo-router';
 import { useSubscriptionStore } from '../../store/useSubscriptionStore';
 import { getEffectiveNextPaymentDate, parseDateOnly } from '../../lib/dateUtils';
 import { getTodayDateInTimeZone } from '../../lib/timeZone';
@@ -105,6 +105,9 @@ export default function CalendarScreen() {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
     const router = useRouter();
+    const scrollRef = useRef<ScrollView>(null);
+    // The fixed calendar prevents native tabs from discovering the payment list.
+    useScrollToTop(scrollRef);
     const { subscriptions, fetchSubscriptions } = useSubscriptionStore();
     const { timeZone } = useSettingsStore();
 
@@ -429,6 +432,7 @@ export default function CalendarScreen() {
             {/* Subscription list */}
             <View style={{ flex: 1 }}>
             <ScrollView
+                ref={scrollRef}
                 contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 100 }}
             >
                 <View key={selectedDay == null ? 'month' : `day-${selectedDay}`}>
