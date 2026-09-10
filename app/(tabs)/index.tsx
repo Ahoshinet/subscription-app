@@ -1,5 +1,6 @@
 import { View, Text, ScrollView, Pressable, ActivityIndicator, RefreshControl, TextInput, Platform, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AddSubscriptionButton from '@/components/ui/add-subscription-button';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { SubscriptionCard } from '@/components/SubscriptionCard';
 import { StatusBar } from 'expo-status-bar';
@@ -263,16 +264,14 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          <Pressable
-            onPress={() => router.push('/add')}
-            className={
-              Platform.OS === 'ios'
-                ? 'w-16 h-11 bg-blue-500 rounded-full items-center justify-center'
-                : 'w-16 h-11 bg-blue-500 rounded-full items-center justify-center shadow-lg shadow-blue-500/30'
-            }
-          >
-            <Ionicons name="add" size={28} color="#ffffff" />
-          </Pressable>
+          {Platform.OS !== 'ios' && (
+            <Pressable
+              onPress={() => router.push('/add')}
+              className="w-16 h-11 bg-blue-500 rounded-full items-center justify-center shadow-lg shadow-blue-500/30"
+            >
+              <Ionicons name="add" size={28} color="#ffffff" />
+            </Pressable>
+          )}
         </View>
 
         {/* Search & Sort */}
@@ -385,6 +384,10 @@ export default function HomeScreen() {
           </Text>
         </View>
       </ScrollView>
+      <AddSubscriptionButton
+        label={t('add.title')}
+        onPress={() => router.push('/add')}
+      />
     </SafeAreaView>
   );
 }
