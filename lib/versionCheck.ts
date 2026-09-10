@@ -1,5 +1,6 @@
 import Constants from 'expo-constants';
 import { fetchWithTimeout } from './fetchWithTimeout';
+import packageConfig from '../package.json';
 
 const REPOSITORY = 'Ahoshinet/subscription-app';
 const GITHUB_API_BASE_URL = `https://api.github.com/repos/${REPOSITORY}`;
@@ -28,16 +29,28 @@ type LatestRepositoryVersion = {
     url: string;
 };
 
-export const getCurrentAppVersion = () => {
-    const releaseVersion = Constants.expoConfig?.extra?.releaseVersion;
-    return typeof releaseVersion === 'string'
-        ? releaseVersion
-        : Constants.expoConfig?.version ?? '0.0.0';
-};
-
 function normalizeVersion(version: string): string {
     return version.trim().replace(/^v/i, '');
 }
+
+export function resolveAppVersion(
+    releaseVersion: unknown,
+    bundledVersion: unknown,
+    nativeVersion: unknown,
+): string {
+    for (const candidate of [releaseVersion, bundledVersion, nativeVersion]) {
+        if (typeof candidate !== 'string') continue;
+        const normalized = normalizeVersion(candidate);
+        if (normalized) return normalized;
+    }
+    return '0.0.0';
+}
+
+export const getCurrentAppVersion = () => resolveAppVersion(
+    Constants.expoConfig?.extra?.releaseVersion,
+    packageConfig.version,
+    Constants.expoConfig?.version,
+);
 
 function parseVersion(version: string): VersionParts | null {
     const match = normalizeVersion(version).match(/^(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$/);

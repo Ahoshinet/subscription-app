@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 import { fetchWithTimeout } from './fetchWithTimeout';
-import { checkRepositoryUpdate } from './versionCheck';
+import { checkRepositoryUpdate, resolveAppVersion } from './versionCheck';
 
 jest.mock('./fetchWithTimeout', () => ({
     fetchWithTimeout: jest.fn(),
@@ -14,6 +14,20 @@ const response = (status: number, data: unknown): Response => ({
     status,
     json: jest.fn(async () => data),
 } as unknown as Response);
+
+describe('resolveAppVersion', () => {
+    test('preserves a beta suffix from release metadata', () => {
+        expect(resolveAppVersion('2.0.0-beta', '2.0.0', '2.0.0')).toBe('2.0.0-beta');
+    });
+
+    test('uses the bundled package version when release metadata is unavailable', () => {
+        expect(resolveAppVersion(undefined, '2.0.0-beta', '2.0.0')).toBe('2.0.0-beta');
+    });
+
+    test('normalizes a leading tag prefix', () => {
+        expect(resolveAppVersion('v2.0.0-beta', undefined, '2.0.0')).toBe('2.0.0-beta');
+    });
+});
 
 describe('checkRepositoryUpdate', () => {
     beforeEach(() => {
