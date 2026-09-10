@@ -1,5 +1,3 @@
-import { Redirect } from 'expo-router';
-
-export default function AddSubscriptionTabRedirect() {
-  return <Redirect href="/add" />;
+export default function AddSubscriptionActionRoute() {
+  return null;
 }
