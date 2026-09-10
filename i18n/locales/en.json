@@ -1,4 +1,9 @@
 {
+    "tabs": {
+        "home": "Home",
+        "calendar": "Calendar",
+        "settings": "Settings"
+    },
     "settings": {
         "title": "Settings",
         "account": "Account",
