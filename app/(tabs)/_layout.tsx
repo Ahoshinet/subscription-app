@@ -22,6 +22,7 @@ export default function TabLayout() {
         <Tabs.Screen name="index" />
         <Tabs.Screen name="calendar" />
         <Tabs.Screen name="settings" />
+        <Tabs.Screen name="add" options={{ href: null }} />
       </Tabs>
     </GestureHandlerRootView>
   );

@@ -1,6 +1,5 @@
 import { View, Text, ScrollView, Pressable, ActivityIndicator, RefreshControl, TextInput, Platform, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AddSubscriptionButton from '@/components/ui/add-subscription-button';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { SubscriptionCard } from '@/components/SubscriptionCard';
 import { StatusBar } from 'expo-status-bar';
@@ -384,10 +383,6 @@ export default function HomeScreen() {
           </Text>
         </View>
       </ScrollView>
-      <AddSubscriptionButton
-        label={t('add.title')}
-        onPress={() => router.push('/add')}
-      />
     </SafeAreaView>
   );
 }

@@ -1,10 +1,12 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'expo-router';
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function TabLayout() {
   const { t } = useTranslation();
+  const router = useRouter();
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -20,6 +22,17 @@ export default function TabLayout() {
         <NativeTabs.Trigger name="settings">
           <NativeTabs.Trigger.Icon sf={{ default: 'gearshape', selected: 'gearshape.fill' }} />
           <NativeTabs.Trigger.Label>{t('tabs.settings')}</NativeTabs.Trigger.Label>
+        </NativeTabs.Trigger>
+        <NativeTabs.Trigger
+          name="add"
+          role="search"
+          disabled
+          accessibilityLabel={t('add.title')}
+          listeners={{
+            tabPress: () => router.push('/add'),
+          }}
+        >
+          <NativeTabs.Trigger.Icon sf={{ default: 'plus', selected: 'plus' }} />
         </NativeTabs.Trigger>
       </NativeTabs>
     </GestureHandlerRootView>
