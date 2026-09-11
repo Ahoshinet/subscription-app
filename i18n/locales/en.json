@@ -37,6 +37,9 @@
     "profile": {
         "title": "Profile",
         "name": "Name",
+        "name_title": "Name",
+        "name_required": "Enter a name.",
+        "save_failed": "Failed to save your name.",
         "email": "Email Address",
         "save": "Save Changes"
     },

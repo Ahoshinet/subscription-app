@@ -37,6 +37,9 @@
     "profile": {
         "title": "プロフィール",
         "name": "氏名",
+        "name_title": "名前",
+        "name_required": "名前を入力してください。",
+        "save_failed": "名前を保存できませんでした。",
         "email": "メールアドレス",
         "save": "変更を保存"
     },
