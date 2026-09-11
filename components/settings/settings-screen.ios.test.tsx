@@ -1,0 +1,70 @@
+import { describe, expect, jest, test } from '@jest/globals';
+import { fireEvent, render } from '@testing-library/react-native';
+import React from 'react';
+
+import SettingsScreen from './settings-screen.ios';
+
+const mockPush = jest.fn();
+const mockSetTheme = jest.fn();
+
+jest.mock('expo-router', () => ({
+  useRouter: () => ({ push: mockPush, replace: jest.fn() }),
+  useScrollToTop: jest.fn(),
+}));
+
+jest.mock('@expo/vector-icons', () => ({
+  Ionicons: () => null,
+}));
+
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({ t: (key: string) => key }),
+}));
+
+jest.mock('@/hooks/use-color-scheme', () => ({
+  useColorScheme: () => 'dark',
+}));
+
+jest.mock('@/store/useAuthStore', () => ({
+  useAuthStore: () => ({ logout: jest.fn(), user: { username: 'Test User' } }),
+}));
+
+jest.mock('@/store/usePaidyStore', () => ({
+  usePaidyStore: () => ({ isSignedIn: false }),
+}));
+
+jest.mock('@/store/useSettingsStore', () => ({
+  useSettingsStore: () => ({
+    clearSyncError: jest.fn(),
+    language: 'en',
+    pushNotifications: true,
+    setPushNotifications: jest.fn(),
+    setTheme: mockSetTheme,
+    syncError: null,
+    timeZone: 'Asia/Tokyo',
+  }),
+}));
+
+describe('iOS settings screen', () => {
+  test('uses the iOS dark grouped background and keeps navigation functional', async () => {
+    const screen = await render(<SettingsScreen />);
+
+    expect(screen.getByTestId('ios-settings-screen')).toHaveStyle({
+      backgroundColor: '#000000',
+    });
+
+    fireEvent.press(screen.getByRole('button', { name: 'settings.profile' }));
+    expect(mockPush).toHaveBeenCalledWith('/settings/profile');
+  });
+
+  test('changes the theme through the native switch', async () => {
+    const screen = await render(<SettingsScreen />);
+
+    fireEvent(
+      screen.getByRole('switch', { name: 'settings.dark_mode' }),
+      'valueChange',
+      false,
+    );
+
+    expect(mockSetTheme).toHaveBeenCalledWith('light');
+  });
+});
