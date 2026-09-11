@@ -24,33 +24,27 @@ const IOS_COLORS = {
   light: {
     background: '#F2F2F7',
     card: '#FFFFFF',
-    cardBorder: '#D1D1D6',
     separator: '#C6C6C8',
     primary: '#000000',
     secondary: '#8E8E93',
     iconBackground: '#E5E5EA',
-    iconBorder: '#D1D1D6',
     icon: '#636366',
     chevron: '#8E8E93',
     accent: '#007AFF',
     switchOff: '#E9E9EA',
-    pressed: '#E5E5EA',
     destructive: '#FF3B30',
   },
   dark: {
     background: '#000000',
     card: '#1C1C1E',
-    cardBorder: '#38383A',
     separator: '#38383A',
     primary: '#FFFFFF',
     secondary: '#8E8E93',
     iconBackground: '#2C2C2E',
-    iconBorder: '#3A3A3C',
     icon: '#98989D',
     chevron: '#8E8E93',
     accent: '#0A84FF',
     switchOff: '#39393D',
-    pressed: '#2C2C2E',
     destructive: '#FF453A',
   },
 } as const;
@@ -96,20 +90,11 @@ function SettingsRow({
       accessible={type === 'link'}
       disabled={type !== 'link'}
       onPress={type === 'link' ? onPress : undefined}
-      style={({ pressed }) => [
-        styles.row,
-        { backgroundColor: pressed ? colors.pressed : colors.card },
-      ]}
+      style={[styles.row, { backgroundColor: colors.card }]}
     >
       <View style={styles.rowLeading}>
         <View
-          style={[
-            styles.iconContainer,
-            {
-              backgroundColor: colors.iconBackground,
-              borderColor: colors.iconBorder,
-            },
-          ]}
+          style={[styles.iconContainer, { backgroundColor: colors.iconBackground }]}
         >
           <Ionicons name={icon} size={21} color={colors.icon} />
         </View>
@@ -166,10 +151,7 @@ function SettingsCard({ children, colors, bottomSpacing = false }: SettingsCardP
       style={[
         styles.card,
         bottomSpacing && styles.cardBottomSpacing,
-        {
-          backgroundColor: colors.card,
-          borderColor: colors.cardBorder,
-        },
+        { backgroundColor: colors.card },
       ]}
     >
       {children}
@@ -363,11 +345,10 @@ export default function SettingsScreen() {
           accessibilityRole="button"
           disabled={isLoggingOut}
           onPress={confirmLogout}
-          style={({ pressed }) => [
+          style={[
             styles.logoutButton,
             {
-              backgroundColor: pressed ? colors.pressed : colors.card,
-              borderColor: colors.cardBorder,
+              backgroundColor: colors.card,
               opacity: isLoggingOut ? 0.5 : 1,
             },
           ]}
@@ -410,7 +391,6 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: 18,
-    borderWidth: StyleSheet.hairlineWidth,
     overflow: 'hidden',
   },
   cardBottomSpacing: {
@@ -432,7 +412,6 @@ const styles = StyleSheet.create({
   iconContainer: {
     alignItems: 'center',
     borderRadius: 9,
-    borderWidth: StyleSheet.hairlineWidth,
     height: 36,
     justifyContent: 'center',
     marginRight: 13,
@@ -467,7 +446,6 @@ const styles = StyleSheet.create({
   logoutButton: {
     alignItems: 'center',
     borderRadius: 18,
-    borderWidth: StyleSheet.hairlineWidth,
     justifyContent: 'center',
     marginBottom: 24,
     marginTop: 24,

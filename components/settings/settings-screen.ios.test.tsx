@@ -52,7 +52,15 @@ describe('iOS settings screen', () => {
       backgroundColor: '#000000',
     });
 
-    fireEvent.press(screen.getByRole('button', { name: 'settings.profile' }));
+    const profileRow = screen.getByRole('button', { name: 'settings.profile' });
+    expect(profileRow).toHaveStyle({
+      alignItems: 'center',
+      flexDirection: 'row',
+      minHeight: 68,
+      paddingHorizontal: 16,
+    });
+
+    fireEvent.press(profileRow);
     expect(mockPush).toHaveBeenCalledWith('/settings/profile');
   });
 
