@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: 16,
-    marginTop: 16,
+    marginTop: 32,
     overflow: 'hidden',
   },
   cardBottomSpacing: {
