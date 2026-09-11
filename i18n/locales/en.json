@@ -38,6 +38,7 @@
         "title": "Profile",
         "name": "Name",
         "name_title": "Name",
+        "clear_name": "Clear name",
         "name_required": "Enter a name.",
         "save_failed": "Failed to save your name.",
         "email": "Email Address",

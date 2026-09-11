@@ -31,6 +31,10 @@ jest.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
+jest.mock('expo-symbols', () => ({
+  SymbolView: () => null,
+}));
+
 jest.mock('@/hooks/use-color-scheme', () => ({
   useColorScheme: () => 'dark',
 }));
@@ -53,7 +57,10 @@ describe('iOS profile name editor', () => {
     const input = screen.getByDisplayValue('old.name');
 
     expect(input.props.autoFocus).toBe(true);
-    expect(input.props.clearButtonMode).toBe('while-editing');
+    expect(screen.getByRole('button', { name: 'profile.clear_name' })).toHaveStyle({
+      right: 12,
+      width: 36,
+    });
     expect(screen.queryByText('profile.save')).toBeNull();
     await screen.unmount();
   });

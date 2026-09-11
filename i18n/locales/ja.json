@@ -38,6 +38,7 @@
         "title": "プロフィール",
         "name": "氏名",
         "name_title": "名前",
+        "clear_name": "名前を消去",
         "name_required": "名前を入力してください。",
         "save_failed": "名前を保存できませんでした。",
         "email": "メールアドレス",

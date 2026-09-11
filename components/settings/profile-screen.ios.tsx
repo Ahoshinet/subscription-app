@@ -1,7 +1,8 @@
 import { Stack, useNavigation } from 'expo-router';
+import { SymbolView } from 'expo-symbols';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, StyleSheet, TextInput, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { SETTINGS_DARK_BACKGROUND } from '@/constants/settings-theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -17,6 +18,7 @@ export default function ProfileScreen() {
   const { t } = useTranslation();
   const { user } = useAuthStore();
   const initialName = user?.username ?? '';
+  const inputRef = useRef<TextInput>(null);
 
   const [name, setName] = useState(initialName);
   const [isSaving, setIsSaving] = useState(false);
@@ -101,26 +103,43 @@ export default function ProfileScreen() {
       />
 
       <View style={styles.content}>
-        <TextInput
-          autoCapitalize="none"
-          autoCorrect={false}
-          autoFocus
-          clearButtonMode="while-editing"
-          editable={!isSaving}
-          keyboardAppearance={isDark ? 'dark' : 'light'}
-          maxLength={32}
-          onChangeText={updateName}
-          placeholder={t('profile.name')}
-          placeholderTextColor={isDark ? '#636366' : '#AEAEB2'}
-          returnKeyType="done"
-          selectionColor={isDark ? '#0A84FF' : '#007AFF'}
-          style={[
-            singleLineTextInputStyle,
-            styles.input,
-            { backgroundColor: inputBackgroundColor, color: textColor },
-          ]}
-          value={name}
-        />
+        <View style={[styles.inputContainer, { backgroundColor: inputBackgroundColor }]}>
+          <TextInput
+            ref={inputRef}
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoFocus
+            editable={!isSaving}
+            keyboardAppearance={isDark ? 'dark' : 'light'}
+            maxLength={32}
+            onChangeText={updateName}
+            placeholder={t('profile.name')}
+            placeholderTextColor={isDark ? '#636366' : '#AEAEB2'}
+            returnKeyType="done"
+            selectionColor={isDark ? '#0A84FF' : '#007AFF'}
+            style={[singleLineTextInputStyle, styles.input, { color: textColor }]}
+            value={name}
+          />
+          {name ? (
+            <Pressable
+              accessibilityLabel={t('profile.clear_name')}
+              accessibilityRole="button"
+              hitSlop={8}
+              onPress={() => {
+                updateName('');
+                inputRef.current?.focus();
+              }}
+              style={styles.clearButton}
+            >
+              <SymbolView
+                name="xmark.circle.fill"
+                resizeMode="scaleAspectFit"
+                style={styles.clearIcon}
+                tintColor={isDark ? '#636366' : '#AEAEB2'}
+              />
+            </Pressable>
+          ) : null}
+        </View>
       </View>
     </View>
   );
@@ -134,11 +153,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 28,
   },
-  input: {
+  inputContainer: {
+    alignItems: 'center',
     borderRadius: 26,
+    flexDirection: 'row',
+    height: 52,
+  },
+  input: {
+    flex: 1,
     fontSize: 17,
     height: 52,
     lineHeight: 22,
-    paddingHorizontal: 20,
+    paddingLeft: 20,
+    paddingRight: 56,
+  },
+  clearButton: {
+    alignItems: 'center',
+    height: 36,
+    justifyContent: 'center',
+    position: 'absolute',
+    right: 12,
+    width: 36,
+  },
+  clearIcon: {
+    height: 18,
+    width: 18,
   },
 });
