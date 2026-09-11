@@ -1,5 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useScrollToTop } from 'expo-router';
+import { SymbolView, type SymbolViewProps } from 'expo-symbols';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -51,18 +51,9 @@ const IOS_COLORS = {
 
 type IOSSettingsColors = (typeof IOS_COLORS)[keyof typeof IOS_COLORS];
 
-interface SectionHeaderProps {
-  title: string;
-  color: string;
-}
-
-function SectionHeader({ title, color }: SectionHeaderProps) {
-  return <Text style={[styles.sectionHeader, { color }]}>{title}</Text>;
-}
-
 interface SettingsRowProps {
   colors: IOSSettingsColors;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: SymbolViewProps['name'];
   title: string;
   value?: string;
   type?: 'link' | 'toggle';
@@ -96,7 +87,13 @@ function SettingsRow({
         <View
           style={[styles.iconContainer, { backgroundColor: colors.iconBackground }]}
         >
-          <Ionicons name={icon} size={18} color={colors.icon} />
+          <SymbolView
+            name={icon}
+            resizeMode="scaleAspectFit"
+            style={styles.rowIcon}
+            tintColor={colors.icon}
+            weight="regular"
+          />
         </View>
         <Text
           numberOfLines={1}
@@ -117,7 +114,13 @@ function SettingsRow({
         ) : null}
 
         {type === 'link' ? (
-          <Ionicons name="chevron-forward" size={22} color={colors.chevron} />
+          <SymbolView
+            name="chevron.right"
+            resizeMode="scaleAspectFit"
+            style={styles.chevron}
+            tintColor={colors.chevron}
+            weight="semibold"
+          />
         ) : (
           <Switch
             accessibilityLabel={title}
@@ -238,35 +241,33 @@ export default function SettingsScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <SectionHeader title={t('settings.account')} color={colors.secondary} />
         <SettingsCard colors={colors}>
           <SettingsRow
             colors={colors}
-            icon="person-outline"
+            icon="person"
             title={t('settings.profile')}
             value={user?.username ?? ''}
             onPress={() => router.push('/settings/profile')}
           />
           <SettingsRow
             colors={colors}
-            icon="card-outline"
+            icon="creditcard"
             title={t('settings.billing_methods')}
             onPress={() => router.push('/settings/billing')}
           />
           <SettingsRow
             colors={colors}
-            icon="lock-closed-outline"
+            icon="lock"
             isLast
             title={t('settings.change_password')}
             onPress={() => router.push('/settings/password')}
           />
         </SettingsCard>
 
-        <SectionHeader title={t('settings.preferences')} color={colors.secondary} />
         <SettingsCard colors={colors}>
           <SettingsRow
             colors={colors}
-            icon="moon-outline"
+            icon="moon"
             title={t('settings.dark_mode')}
             toggleValue={isDark}
             type="toggle"
@@ -274,14 +275,14 @@ export default function SettingsScreen() {
           />
           <SettingsRow
             colors={colors}
-            icon="language-outline"
+            icon="character.book.closed"
             title={t('settings.language')}
             value={languageLabel}
             onPress={() => router.push('/settings/language')}
           />
           <SettingsRow
             colors={colors}
-            icon="globe-outline"
+            icon="globe"
             title={t('settings.time_zone')}
             value={
               isTimeZoneSupported(timeZone)
@@ -292,7 +293,7 @@ export default function SettingsScreen() {
           />
           <SettingsRow
             colors={colors}
-            icon="notifications-outline"
+            icon="bell"
             isLast
             title={t('settings.push_notifications')}
             toggleValue={pushNotifications}
@@ -301,11 +302,10 @@ export default function SettingsScreen() {
           />
         </SettingsCard>
 
-        <SectionHeader title={t('gmail.section_title')} color={colors.secondary} />
         <SettingsCard colors={colors}>
           <SettingsRow
             colors={colors}
-            icon="mail-outline"
+            icon="envelope"
             isLast
             title={`${t('gmail.row_title')} β`}
             value={gmailSignedIn ? t('gmail.connected') : t('gmail.not_connected')}
@@ -313,29 +313,28 @@ export default function SettingsScreen() {
           />
         </SettingsCard>
 
-        <SectionHeader title={t('settings.app_info')} color={colors.secondary} />
         <SettingsCard colors={colors} bottomSpacing>
           <SettingsRow
             colors={colors}
-            icon="help-circle-outline"
+            icon="questionmark.circle"
             title={t('settings.help_support')}
             onPress={() => router.push('/settings/support')}
           />
           <SettingsRow
             colors={colors}
-            icon="document-text-outline"
+            icon="doc.text"
             title={t('settings.terms_of_service')}
             onPress={() => router.push('/settings/tos')}
           />
           <SettingsRow
             colors={colors}
-            icon="shield-checkmark-outline"
+            icon="hand.raised"
             title={t('settings.privacy_policy')}
             onPress={() => router.push('/settings/privacy')}
           />
           <SettingsRow
             colors={colors}
-            icon="information-circle-outline"
+            icon="info.circle"
             isLast
             title={t('settings.version')}
             onPress={() => router.push('/settings/about')}
@@ -382,16 +381,9 @@ const styles = StyleSheet.create({
     paddingBottom: 112,
     paddingHorizontal: 16,
   },
-  sectionHeader: {
-    fontSize: 15,
-    fontWeight: '600',
-    lineHeight: 20,
-    marginBottom: 8,
-    marginLeft: 12,
-    marginTop: 24,
-  },
   card: {
     borderRadius: 16,
+    marginTop: 24,
     overflow: 'hidden',
   },
   cardBottomSpacing: {
@@ -418,6 +410,10 @@ const styles = StyleSheet.create({
     marginRight: 12,
     width: 30,
   },
+  rowIcon: {
+    height: 18,
+    width: 18,
+  },
   rowTitle: {
     flexShrink: 1,
     fontSize: 16,
@@ -436,6 +432,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 21,
     marginRight: 8,
+  },
+  chevron: {
+    height: 18,
+    width: 10,
   },
   separator: {
     bottom: 0,

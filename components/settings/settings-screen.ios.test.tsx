@@ -16,6 +16,10 @@ jest.mock('@expo/vector-icons', () => ({
   Ionicons: () => null,
 }));
 
+jest.mock('expo-symbols', () => ({
+  SymbolView: () => null,
+}));
+
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
