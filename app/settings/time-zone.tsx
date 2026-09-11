@@ -12,6 +12,7 @@ import {
     isTimeZoneSupported,
 } from '@/lib/timeZone';
 import { singleLineTextInputStyle } from '@/lib/textInputStyles';
+import { SETTINGS_DARK_BACKGROUND } from '@/constants/settings-theme';
 
 export default function TimeZoneSettingsScreen() {
     const colorScheme = useColorScheme();
@@ -35,12 +36,15 @@ export default function TimeZoneSettingsScreen() {
     };
 
     return (
-        <View className="flex-1 bg-neutral-50 dark:bg-neutral-950">
+        <View
+            className="flex-1 bg-neutral-50 dark:bg-neutral-950"
+            style={{ backgroundColor: isDark ? SETTINGS_DARK_BACKGROUND : '#FAFAFA' }}
+        >
             <Stack.Screen
                 options={{
                     title: t('time_zone.title'),
                     headerBackTitle: ' ',
-                    headerStyle: { backgroundColor: isDark ? '#0A0A0A' : '#ffffff' },
+                    headerStyle: { backgroundColor: isDark ? SETTINGS_DARK_BACKGROUND : '#ffffff' },
                     headerTintColor: isDark ? '#ffffff' : '#000000',
                 }}
             />

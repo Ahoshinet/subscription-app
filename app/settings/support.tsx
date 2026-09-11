@@ -4,6 +4,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
+import { SETTINGS_DARK_BACKGROUND } from '@/constants/settings-theme';
 
 export default function SupportScreen() {
     const colorScheme = useColorScheme();
@@ -24,11 +25,14 @@ export default function SupportScreen() {
                 options={{
                     title: t('support.title'),
                     headerBackTitle: ' ',
-                    headerStyle: { backgroundColor: isDark ? '#0A0A0A' : '#ffffff' },
+                    headerStyle: { backgroundColor: isDark ? SETTINGS_DARK_BACKGROUND : '#ffffff' },
                     headerTintColor: isDark ? '#ffffff' : '#000000',
                 }}
             />
-            <View className="flex-1 bg-neutral-50 dark:bg-neutral-950 pt-6">
+            <View
+                className="flex-1 bg-neutral-50 dark:bg-neutral-950 pt-6"
+                style={{ backgroundColor: isDark ? SETTINGS_DARK_BACKGROUND : '#FAFAFA' }}
+            >
                 <ScrollView className="flex-1 px-4">
                     <View className="bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden shadow-sm shadow-neutral-200/50 dark:shadow-none border border-neutral-200/50 dark:border-white/10 mb-6">
 

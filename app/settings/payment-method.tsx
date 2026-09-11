@@ -9,6 +9,7 @@ import { usePaymentMethodStore } from '../../store/usePaymentMethodStore';
 import { AddPaymentMethodSheet } from '../../components/AddPaymentMethodSheet';
 import { resolveIconUrl } from '@/lib/api';
 import { getIoniconsName } from '@/lib/iconName';
+import { SETTINGS_DARK_BACKGROUND } from '@/constants/settings-theme';
 
 export default function PaymentMethodPickerScreen() {
     const { t } = useTranslation();
@@ -26,12 +27,15 @@ export default function PaymentMethodPickerScreen() {
 
     return (
         <>
-            <View className="flex-1 bg-[#F2F2F7] dark:bg-neutral-950 pt-6">
+            <View
+                className="flex-1 bg-[#F2F2F7] dark:bg-neutral-950 pt-6"
+                style={{ backgroundColor: isDark ? SETTINGS_DARK_BACKGROUND : '#F2F2F7' }}
+            >
                 <Stack.Screen
                     options={{
                         title: t('payment_method.title'),
                         headerBackTitle: ' ',
-                        headerStyle: { backgroundColor: isDark ? '#0A0A0A' : '#F2F2F7' },
+                        headerStyle: { backgroundColor: isDark ? SETTINGS_DARK_BACKGROUND : '#F2F2F7' },
                         headerTintColor: isDark ? '#FFFFFF' : '#000000',
                         headerShadowVisible: false,
                         headerRight: () => (

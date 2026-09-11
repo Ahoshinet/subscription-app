@@ -3,6 +3,7 @@ import { View, Text, ScrollView, Linking, Pressable } from 'react-native';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { SETTINGS_DARK_BACKGROUND } from '@/constants/settings-theme';
 
 const SECTIONS = [
     { title: 'privacy.s1_title', body: 'privacy.s1_body' },
@@ -32,11 +33,14 @@ export default function PrivacyScreen() {
                 options={{
                     title: t('privacy.title'),
                     headerBackTitle: ' ',
-                    headerStyle: { backgroundColor: isDark ? '#0A0A0A' : '#ffffff' },
+                    headerStyle: { backgroundColor: isDark ? SETTINGS_DARK_BACKGROUND : '#ffffff' },
                     headerTintColor: isDark ? '#ffffff' : '#000000',
                 }}
             />
-            <View className="flex-1 bg-neutral-50 dark:bg-neutral-950 pt-6">
+            <View
+                className="flex-1 bg-neutral-50 dark:bg-neutral-950 pt-6"
+                style={{ backgroundColor: isDark ? SETTINGS_DARK_BACKGROUND : '#FAFAFA' }}
+            >
                 <ScrollView className="flex-1 px-6">
                     <Text className="text-2xl font-bold text-neutral-900 dark:text-white mb-1">
                         {t('privacy.title')}

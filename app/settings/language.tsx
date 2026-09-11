@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useSettingsStore, type Language } from '@/store/useSettingsStore';
+import { SETTINGS_DARK_BACKGROUND } from '@/constants/settings-theme';
 
 const languages: readonly {
     id: Language;
@@ -42,12 +43,15 @@ export default function LanguageSettingsScreen() {
                     title: t('settings.language'),
                     headerBackTitle: ' ',
                     // Use standard iOS header colors
-                    headerStyle: { backgroundColor: isDark ? '#0A0A0A' : '#ffffff' },
+                    headerStyle: { backgroundColor: isDark ? SETTINGS_DARK_BACKGROUND : '#ffffff' },
                     headerTintColor: isDark ? '#ffffff' : '#000000',
                 }}
             />
 
-            <View className="flex-1 bg-neutral-50 dark:bg-neutral-950 pt-6">
+            <View
+                className="flex-1 bg-neutral-50 dark:bg-neutral-950 pt-6"
+                style={{ backgroundColor: isDark ? SETTINGS_DARK_BACKGROUND : '#FAFAFA' }}
+            >
                 <ScrollView className="flex-1 px-4">
 
                     <Text className="text-xs font-bold text-neutral-500 dark:text-neutral-400 tracking-wider ml-4 mb-2">

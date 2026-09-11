@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from 'react';
 import { usePaidyStore } from '@/store/usePaidyStore';
 import { fetchGoogleUserEmail } from '@/lib/gmail';
 import { GOOGLE_IOS_CLIENT_ID, GOOGLE_ANDROID_CLIENT_ID, GOOGLE_WEB_CLIENT_ID, GOOGLE_DEV_REDIRECT_URI, GOOGLE_IOS_REDIRECT_URI } from '@/constants/googleConfig';
+import { SETTINGS_DARK_BACKGROUND } from '@/constants/settings-theme';
 
 const DOCS_URL = 'https://github.com/Ahoshinet/subscription-app/blob/main/docs/gmail-integration.md';
 const RAINBOW_STOPS = [0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1];
@@ -107,13 +108,16 @@ export default function GmailSettingsScreen() {
   };
 
   return (
-    <View className="flex-1 bg-neutral-50 dark:bg-neutral-950">
+    <View
+      className="flex-1 bg-neutral-50 dark:bg-neutral-950"
+      style={{ backgroundColor: isDark ? SETTINGS_DARK_BACKGROUND : '#FAFAFA' }}
+    >
       <Stack.Screen
         options={{
           title: `${t('gmail.settings_title')} β`,
           headerShown: true,
           headerBackTitle: ' ',
-          headerStyle: { backgroundColor: isDark ? '#0A0A0A' : '#ffffff' },
+          headerStyle: { backgroundColor: isDark ? SETTINGS_DARK_BACKGROUND : '#ffffff' },
           headerTintColor: isDark ? '#ffffff' : '#000000',
           headerShadowVisible: true,
         }}

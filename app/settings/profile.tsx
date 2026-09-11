@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { authApi } from '@/lib/api';
 import { singleLineTextInputStyle } from '@/lib/textInputStyles';
 import { getErrorMessage } from '@/lib/errors';
+import { SETTINGS_DARK_BACKGROUND } from '@/constants/settings-theme';
 
 export default function ProfileScreen() {
     const colorScheme = useColorScheme();
@@ -27,12 +28,13 @@ export default function ProfileScreen() {
                 options={{
                     title: t('profile.title'),
                     headerBackTitle: ' ',
-                    headerStyle: { backgroundColor: isDark ? '#0A0A0A' : '#ffffff' },
+                    headerStyle: { backgroundColor: isDark ? SETTINGS_DARK_BACKGROUND : '#ffffff' },
                     headerTintColor: isDark ? '#ffffff' : '#000000',
                 }}
             />
             <ScrollView
                 className="flex-1 bg-neutral-50 dark:bg-neutral-950 pt-6"
+                style={{ backgroundColor: isDark ? SETTINGS_DARK_BACKGROUND : '#FAFAFA' }}
                 keyboardDismissMode="on-drag"
                 keyboardShouldPersistTaps="handled"
             >

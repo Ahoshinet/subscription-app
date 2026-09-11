@@ -8,6 +8,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { isUsingPublicApi, versionApi } from '@/lib/api';
 import { getCurrentAppVersion } from '@/lib/versionCheck';
+import { SETTINGS_DARK_BACKGROUND } from '@/constants/settings-theme';
 
 const APP_ICON = require('../../assets/images/icon.png');
 
@@ -117,7 +118,7 @@ export default function AboutScreen() {
                 options={{
                     title: t('settings.version'),
                     headerBackTitle: ' ',
-                    headerStyle: { backgroundColor: isDark ? '#0A0A0A' : '#ffffff' },
+                    headerStyle: { backgroundColor: isDark ? SETTINGS_DARK_BACKGROUND : '#ffffff' },
                     headerTintColor: textPrimary,
                     headerShadowVisible: false,
                 }}
@@ -126,6 +127,7 @@ export default function AboutScreen() {
                 className="flex-1 bg-neutral-50 dark:bg-neutral-950"
                 contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 28, paddingBottom: 48 }}
                 showsVerticalScrollIndicator={false}
+                style={{ backgroundColor: isDark ? SETTINGS_DARK_BACKGROUND : '#FAFAFA' }}
             >
                 <View
                     className="rounded-[28px] border border-neutral-200/60 dark:border-white/10 bg-white dark:bg-[#1C1C1E]"

@@ -8,6 +8,7 @@ import { usePaymentMethodStore } from '@/store/usePaymentMethodStore';
 import { AddPaymentMethodSheet } from '@/components/AddPaymentMethodSheet';
 import { resolveIconUrl } from '@/lib/api';
 import { getIoniconsName } from '@/lib/iconName';
+import { SETTINGS_DARK_BACKGROUND } from '@/constants/settings-theme';
 
 export default function BillingScreen() {
     const colorScheme = useColorScheme();
@@ -27,7 +28,7 @@ export default function BillingScreen() {
                 options={{
                     title: t('billing.title'),
                     headerBackTitle: ' ',
-                    headerStyle: { backgroundColor: isDark ? '#0A0A0A' : '#ffffff' },
+                    headerStyle: { backgroundColor: isDark ? SETTINGS_DARK_BACKGROUND : '#ffffff' },
                     headerTintColor: isDark ? '#ffffff' : '#000000',
                     headerRight: () => (
                         <Pressable
@@ -39,7 +40,10 @@ export default function BillingScreen() {
                     ),
                 }}
             />
-            <View className="flex-1 bg-neutral-50 dark:bg-neutral-950 pt-6">
+            <View
+                className="flex-1 bg-neutral-50 dark:bg-neutral-950 pt-6"
+                style={{ backgroundColor: isDark ? SETTINGS_DARK_BACKGROUND : '#FAFAFA' }}
+            >
                 <ScrollView className="flex-1 px-4">
                     {methods.length === 0 ? (
                         <View key="billing-empty" className="py-20 items-center px-8">
