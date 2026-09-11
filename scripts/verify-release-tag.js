@@ -3,8 +3,8 @@
 const appConfig = require('../app.json');
 const packageConfig = require('../package.json');
 
-const PRERELEASE_SUFFIX_PATTERN = /-(?:beta|rc\.[1-9]\d*)$/;
-const RELEASE_VERSION_PATTERN = /^\d+\.\d+\.\d+(?:-beta|-rc\.[1-9]\d*)?$/;
+const PRERELEASE_SUFFIX_PATTERN = /-(?:beta\d*|rc\.[1-9]\d*)$/;
+const RELEASE_VERSION_PATTERN = /^\d+\.\d+\.\d+(?:-beta\d*|-rc\.[1-9]\d*)?$/;
 
 function verifyReleaseTag(tag) {
   const nativeVersion = appConfig.expo?.version;

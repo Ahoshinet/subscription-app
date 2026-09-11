@@ -13,7 +13,7 @@ function calculateNextRelease(appJson, packageJson, increment = 'patch') {
   const currentReleaseVersion = appJson.expo?.extra?.releaseVersion
     ?? packageJson.version;
   const validReleaseVersions = new RegExp(
-    `^${currentNativeVersion.replace(/\./g, '\\.')}(?:-beta|-rc\\.[1-9]\\d*)?$`,
+    `^${currentNativeVersion.replace(/\./g, '\\.')}(?:-beta\\d*|-rc\\.[1-9]\\d*)?$`,
   );
   if (
     typeof currentReleaseVersion !== 'string'
