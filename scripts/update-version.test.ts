@@ -40,11 +40,11 @@ describe('calculateNextRelease', () => {
     test('accepts and promotes a numbered beta release', () => {
         const betaAppConfig = appConfig();
         betaAppConfig.expo.version = '2.0.0';
-        betaAppConfig.expo.extra = { releaseVersion: '2.0.0-beta4' };
+        betaAppConfig.expo.extra = { releaseVersion: '2.0.0-beta5' };
 
         const result = calculateNextRelease(
             betaAppConfig,
-            { version: '2.0.0-beta4' },
+            { version: '2.0.0-beta5' },
             'build',
         );
 
