@@ -17,15 +17,15 @@ const response = (status: number, data: unknown): Response => ({
 
 describe('resolveAppVersion', () => {
     test('preserves a beta suffix from release metadata', () => {
-        expect(resolveAppVersion('2.0.0-beta2', '2.0.0', '2.0.0')).toBe('2.0.0-beta2');
+        expect(resolveAppVersion('2.0.0-beta3', '2.0.0', '2.0.0')).toBe('2.0.0-beta3');
     });
 
     test('uses the bundled package version when release metadata is unavailable', () => {
-        expect(resolveAppVersion(undefined, '2.0.0-beta2', '2.0.0')).toBe('2.0.0-beta2');
+        expect(resolveAppVersion(undefined, '2.0.0-beta3', '2.0.0')).toBe('2.0.0-beta3');
     });
 
     test('normalizes a leading tag prefix', () => {
-        expect(resolveAppVersion('v2.0.0-beta2', undefined, '2.0.0')).toBe('2.0.0-beta2');
+        expect(resolveAppVersion('v2.0.0-beta3', undefined, '2.0.0')).toBe('2.0.0-beta3');
     });
 });
 
