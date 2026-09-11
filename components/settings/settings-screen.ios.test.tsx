@@ -56,7 +56,7 @@ describe('iOS settings screen', () => {
     expect(profileRow).toHaveStyle({
       alignItems: 'center',
       flexDirection: 'row',
-      minHeight: 68,
+      minHeight: 56,
       paddingHorizontal: 16,
     });
 

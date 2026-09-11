@@ -96,7 +96,7 @@ function SettingsRow({
         <View
           style={[styles.iconContainer, { backgroundColor: colors.iconBackground }]}
         >
-          <Ionicons name={icon} size={21} color={colors.icon} />
+          <Ionicons name={icon} size={18} color={colors.icon} />
         </View>
         <Text
           numberOfLines={1}
@@ -123,6 +123,7 @@ function SettingsRow({
             accessibilityLabel={title}
             ios_backgroundColor={colors.switchOff}
             onValueChange={onToggle}
+            style={styles.switch}
             trackColor={{ false: colors.switchOff, true: colors.accent }}
             value={toggleValue}
           />
@@ -367,15 +368,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingBottom: 6,
+    paddingBottom: 4,
     paddingHorizontal: 22,
-    paddingTop: 18,
+    paddingTop: 8,
   },
   title: {
-    fontSize: 34,
+    fontSize: 32,
     fontWeight: '700',
     letterSpacing: 0.25,
-    lineHeight: 41,
+    lineHeight: 38,
   },
   scrollContent: {
     paddingBottom: 112,
@@ -385,12 +386,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     lineHeight: 20,
-    marginBottom: 10,
+    marginBottom: 8,
     marginLeft: 12,
-    marginTop: 28,
+    marginTop: 24,
   },
   card: {
-    borderRadius: 18,
+    borderRadius: 16,
     overflow: 'hidden',
   },
   cardBottomSpacing: {
@@ -400,7 +401,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    minHeight: 68,
+    minHeight: 56,
     paddingHorizontal: 16,
   },
   rowLeading: {
@@ -411,15 +412,15 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     alignItems: 'center',
-    borderRadius: 9,
-    height: 36,
+    borderRadius: 8,
+    height: 30,
     justifyContent: 'center',
-    marginRight: 13,
-    width: 36,
+    marginRight: 12,
+    width: 30,
   },
   rowTitle: {
     flexShrink: 1,
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '500',
     letterSpacing: -0.2,
     lineHeight: 22,
@@ -432,14 +433,14 @@ const styles = StyleSheet.create({
   },
   rowValue: {
     flexShrink: 1,
-    fontSize: 17,
-    lineHeight: 22,
+    fontSize: 16,
+    lineHeight: 21,
     marginRight: 8,
   },
   separator: {
     bottom: 0,
     height: StyleSheet.hairlineWidth,
-    left: 65,
+    left: 58,
     position: 'absolute',
     right: 0,
   },
@@ -455,5 +456,8 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '600',
     lineHeight: 22,
+  },
+  switch: {
+    transform: [{ scaleX: 0.85 }, { scaleY: 0.85 }],
   },
 });
