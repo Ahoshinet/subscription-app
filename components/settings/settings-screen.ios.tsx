@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: 16,
-    marginTop: 24,
+    marginTop: 16,
     overflow: 'hidden',
   },
   cardBottomSpacing: {
@@ -393,7 +393,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    minHeight: 56,
+    minHeight: 50,
     paddingHorizontal: 16,
   },
   rowLeading: {
