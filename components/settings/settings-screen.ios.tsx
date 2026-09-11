@@ -24,12 +24,12 @@ const IOS_COLORS = {
   light: {
     background: '#F2F2F7',
     card: '#FFFFFF',
-    separator: '#C6C6C8',
+    separator: 'rgba(60, 60, 67, 0.29)',
     primary: '#000000',
     secondary: '#8E8E93',
     iconBackground: '#E5E5EA',
     icon: '#636366',
-    chevron: '#8E8E93',
+    chevron: 'rgba(60, 60, 67, 0.30)',
     accent: '#007AFF',
     switchOff: '#E9E9EA',
     destructive: '#FF3B30',
@@ -37,12 +37,12 @@ const IOS_COLORS = {
   dark: {
     background: '#000000',
     card: '#1C1C1E',
-    separator: '#38383A',
+    separator: 'rgba(84, 84, 88, 0.65)',
     primary: '#FFFFFF',
     secondary: '#8E8E93',
     iconBackground: '#2C2C2E',
     icon: '#98989D',
-    chevron: '#8E8E93',
+    chevron: 'rgba(235, 235, 245, 0.30)',
     accent: '#0A84FF',
     switchOff: '#39393D',
     destructive: '#FF453A',
@@ -275,7 +275,7 @@ export default function SettingsScreen() {
           />
           <SettingsRow
             colors={colors}
-            icon="character.book.closed"
+            icon="character"
             title={t('settings.language')}
             value={languageLabel}
             onPress={() => router.push('/settings/language')}
@@ -442,7 +442,7 @@ const styles = StyleSheet.create({
     height: StyleSheet.hairlineWidth,
     left: 58,
     position: 'absolute',
-    right: 0,
+    right: 16,
   },
   logoutButton: {
     alignItems: 'center',

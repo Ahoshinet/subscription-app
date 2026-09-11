@@ -55,6 +55,10 @@ describe('iOS settings screen', () => {
     expect(screen.getByTestId('ios-settings-screen')).toHaveStyle({
       backgroundColor: '#000000',
     });
+    expect(screen.queryByText('settings.account')).toBeNull();
+    expect(screen.queryByText('settings.preferences')).toBeNull();
+    expect(screen.queryByText('gmail.section_title')).toBeNull();
+    expect(screen.queryByText('settings.app_info')).toBeNull();
 
     const profileRow = screen.getByRole('button', { name: 'settings.profile' });
     expect(profileRow).toHaveStyle({
