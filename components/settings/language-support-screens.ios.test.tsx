@@ -29,10 +29,6 @@ jest.mock('react-i18next', () => ({
   }),
 }));
 
-jest.mock('@expo/vector-icons', () => ({
-  Ionicons: () => null,
-}));
-
 jest.mock('expo-symbols', () => ({
   SymbolView: (props: unknown) => mockSymbolView(props),
 }));
@@ -52,6 +48,11 @@ describe('iOS language and support screens', () => {
 
     expect(className).not.toContain(' border ');
     expect(mockHeaderOptions?.headerShadowVisible).toBe(false);
+    expect(mockSymbolView).toHaveBeenCalledWith(expect.objectContaining({
+      name: 'checkmark',
+      tintColor: '#3B82F6',
+      weight: 'semibold',
+    }));
     await screen.unmount();
   });
 

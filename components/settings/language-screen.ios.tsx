@@ -1,8 +1,8 @@
-import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
+import { SymbolView } from 'expo-symbols';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { SETTINGS_DARK_BACKGROUND } from '@/constants/settings-theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -71,7 +71,13 @@ export default function LanguageSettingsScreen() {
                     {item.localName}
                   </Text>
                   {isSelected ? (
-                    <Ionicons name="checkmark" size={24} color="#3B82F6" />
+                    <SymbolView
+                      name="checkmark"
+                      resizeMode="scaleAspectFit"
+                      style={styles.checkmark}
+                      tintColor="#3B82F6"
+                      weight="semibold"
+                    />
                   ) : null}
                 </Pressable>
               );
@@ -82,3 +88,10 @@ export default function LanguageSettingsScreen() {
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  checkmark: {
+    height: 24,
+    width: 24,
+  },
+});
