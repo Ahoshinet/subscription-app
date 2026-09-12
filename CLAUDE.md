@@ -32,10 +32,18 @@ pnpm lint         # ESLint
 
 ### Dark mode surfaces
 
-- Use `#0A0A0A` for standard screen backgrounds and matching navigation headers. Do not use pure black (`#000000`) for ordinary app screens.
+- Use `#0A0A0A` for standard screen backgrounds and matching navigation headers. Do not use pure black (`#000000`) for ordinary app screens. The iOS Settings surface is an intentional exception documented in [`docs/ios-settings-design.md`](./docs/ios-settings-design.md).
 - Use `#1C1C1C` for elevated or grouped surfaces such as cards, settings rows, and input containers so the surface hierarchy remains visible.
 - Keep a pushed settings screen's root background and header consistent with its parent settings screen to avoid a pure-black flash or visual break during navigation.
 - Reserve pure black for an intentionally full-black experience, such as image cropping or media presentation.
+
+### iOS Settings
+
+Follow [`docs/ios-settings-design.md`](./docs/ios-settings-design.md) when changing
+the Settings tab or any iOS Settings child screen. It defines the platform-file
+split, iOS-only colors, borders, separators, SF Symbols, row density, native
+search, legal-document layout, About layout, and regression checks. Preserve the
+default Android implementation for its later Material Design work.
 
 **i18n**: English and Japanese via react-i18next. Translation files in `i18n/`. Add new keys to both `en.json` and `ja.json`.
 
