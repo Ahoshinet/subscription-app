@@ -1,6 +1,7 @@
 import { describe, expect, jest, test } from '@jest/globals';
 import { render } from '@testing-library/react-native';
 import React from 'react';
+import { StyleSheet } from 'react-native';
 
 import LanguageScreen from './language-screen.ios';
 import SupportScreen from './support-screen.ios';
@@ -45,8 +46,13 @@ describe('iOS language and support screens', () => {
   test('removes the language list and header outer separators', async () => {
     const screen = await render(<LanguageScreen />);
     const className = screen.getByTestId('ios-language-list').props.className;
+    const separatorStyle = StyleSheet.flatten(
+      screen.getByTestId('ios-language-separator').props.style,
+    );
 
     expect(className).not.toContain(' border ');
+    expect(screen.queryByText('Select Language')).toBeNull();
+    expect(separatorStyle).toMatchObject({ left: 16, right: 16 });
     expect(mockHeaderOptions?.headerShadowVisible).toBe(false);
     expect(mockSymbolView).toHaveBeenCalledWith(expect.objectContaining({
       name: 'checkmark',

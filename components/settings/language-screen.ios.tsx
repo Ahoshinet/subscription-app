@@ -47,10 +47,6 @@ export default function LanguageSettingsScreen() {
 
       <View className="flex-1 pt-6" style={{ backgroundColor }}>
         <ScrollView className="flex-1 px-4">
-          <Text className="text-xs font-bold text-neutral-500 dark:text-neutral-400 tracking-wider ml-4 mb-2">
-            Select Language
-          </Text>
-
           <View
             className="rounded-2xl overflow-hidden"
             testID="ios-language-list"
@@ -63,9 +59,7 @@ export default function LanguageSettingsScreen() {
                   key={item.id}
                   onPress={() => handleSelect(item.id)}
                   style={{ minHeight: 56 }}
-                  className={`bg-white dark:bg-[#1C1C1E] flex-row items-center justify-between px-4 py-3 ${
-                    !isLast ? 'border-b border-neutral-100 dark:border-white/5' : ''
-                  }`}
+                  className="bg-white dark:bg-[#1C1C1E] flex-row items-center justify-between px-4 py-3"
                 >
                   <Text className="flex-1 text-base font-medium text-neutral-900 dark:text-white">
                     {item.localName}
@@ -77,6 +71,20 @@ export default function LanguageSettingsScreen() {
                       style={styles.checkmark}
                       tintColor="#3B82F6"
                       weight="semibold"
+                    />
+                  ) : null}
+                  {!isLast ? (
+                    <View
+                      pointerEvents="none"
+                      style={[
+                        styles.separator,
+                        {
+                          backgroundColor: isDark
+                            ? 'rgba(84, 84, 88, 0.65)'
+                            : 'rgba(60, 60, 67, 0.29)',
+                        },
+                      ]}
+                      testID="ios-language-separator"
                     />
                   ) : null}
                 </Pressable>
@@ -93,5 +101,12 @@ const styles = StyleSheet.create({
   checkmark: {
     height: 24,
     width: 24,
+  },
+  separator: {
+    bottom: 0,
+    height: StyleSheet.hairlineWidth,
+    left: 16,
+    position: 'absolute',
+    right: 16,
   },
 });
