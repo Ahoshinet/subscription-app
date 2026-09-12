@@ -42,7 +42,10 @@ function InfoRow({
         </Text>
       </View>
       <Text
+        adjustsFontSizeToFit
         className="text-right text-neutral-500 dark:text-neutral-400 max-w-[48%]"
+        minimumFontScale={0.85}
+        numberOfLines={1}
         style={styles.rowValue}
       >
         {value}

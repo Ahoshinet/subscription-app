@@ -75,6 +75,11 @@ describe('iOS about screen', () => {
     expect(screen.queryByText('about.section_app')).toBeNull();
     expect(screen.queryByText('about.section_device')).toBeNull();
     expect(screen.queryByText('about.section_credits')).toBeNull();
+    expect(screen.getByText('darui3018823 / Ahoshinet').props).toMatchObject({
+      adjustsFontSizeToFit: true,
+      minimumFontScale: 0.85,
+      numberOfLines: 1,
+    });
     expect(heroStyle).toMatchObject({ alignItems: 'flex-start' });
     expect(separatorStyle).toMatchObject({ left: 16, right: 16 });
     expect(mockHeaderOptions?.headerShadowVisible).toBe(false);
