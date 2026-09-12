@@ -72,7 +72,7 @@
       "reactCompiler": true
     },
     "extra": {
-      "releaseVersion": "2.0.0-beta5",
+      "releaseVersion": "2.0.0-beta6",
       "router": {},
       "eas": {
         "projectId": "1dda9ef5-a425-4a8e-8012-aaae4c0e02ff"
