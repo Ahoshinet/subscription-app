@@ -76,26 +76,11 @@ describe('iOS about screen', () => {
     expect(screen.queryByText('about.section_device')).toBeNull();
     expect(screen.queryByText('about.section_credits')).toBeNull();
     expect(heroStyle).toMatchObject({ alignItems: 'flex-start' });
-    expect(separatorStyle).toMatchObject({ left: 60, right: 16 });
+    expect(separatorStyle).toMatchObject({ left: 16, right: 16 });
     expect(mockHeaderOptions?.headerShadowVisible).toBe(false);
     expect(mockSymbolView.mock.calls.map(([props]) => (
       props as { name: string }
-    ).name)).toEqual(expect.arrayContaining([
-      'sparkles',
-      'tag',
-      'link',
-      'iphone',
-      'cloud',
-      'cpu',
-      'rectangle.dashed',
-      'character',
-      'moon',
-      'person.2',
-      'doc.text',
-      'chevron.left.forwardslash.chevron.right',
-      'ladybug',
-      'arrow.up.right.square',
-    ]));
+    ).name)).toEqual(['chevron.right', 'chevron.right']);
     await screen.unmount();
   });
 });

@@ -1,6 +1,6 @@
 import Constants from 'expo-constants';
 import { Stack } from 'expo-router';
-import { SymbolView, type SymbolViewProps } from 'expo-symbols';
+import { SymbolView } from 'expo-symbols';
 import React, { useEffect, useState } from 'react';
 import { Dimensions, Image, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -14,7 +14,6 @@ import { useSettingsStore } from '@/store/useSettingsStore';
 const APP_ICON = require('../../assets/images/icon.png');
 
 interface InfoRowProps {
-  icon: SymbolViewProps['name'];
   isLast?: boolean;
   label: string;
   separatorColor: string;
@@ -23,7 +22,6 @@ interface InfoRowProps {
 }
 
 function InfoRow({
-  icon,
   isLast = false,
   label,
   separatorColor,
@@ -33,14 +31,6 @@ function InfoRow({
   return (
     <View className="flex-row items-center justify-between px-4 py-4">
       <View className="flex-row items-center flex-1 mr-4">
-        <View className="w-8 h-8 rounded-lg bg-neutral-100 dark:bg-white/10 items-center justify-center mr-3">
-          <SymbolView
-            name={icon}
-            resizeMode="scaleAspectFit"
-            style={styles.rowIcon}
-            tintColor="#808080"
-          />
-        </View>
         <Text className="text-base font-medium text-neutral-900 dark:text-white">
           {label}
         </Text>
@@ -60,37 +50,29 @@ function InfoRow({
 }
 
 interface LinkRowProps {
-  icon: SymbolViewProps['name'];
+  chevronColor: string;
   isLast?: boolean;
   label: string;
   separatorColor: string;
   url: string;
 }
 
-function LinkRow({ icon, isLast = false, label, separatorColor, url }: LinkRowProps) {
+function LinkRow({ chevronColor, isLast = false, label, separatorColor, url }: LinkRowProps) {
   return (
     <Pressable
       className="flex-row items-center justify-between px-4 py-4"
       onPress={() => Linking.openURL(url)}
     >
       <View className="flex-row items-center flex-1">
-        <View className="w-8 h-8 rounded-lg bg-neutral-100 dark:bg-white/10 items-center justify-center mr-3">
-          <SymbolView
-            name={icon}
-            resizeMode="scaleAspectFit"
-            style={styles.rowIcon}
-            tintColor="#808080"
-          />
-        </View>
         <Text className="text-base font-medium text-neutral-900 dark:text-white">
           {label}
         </Text>
       </View>
       <SymbolView
-        name="arrow.up.right.square"
+        name="chevron.right"
         resizeMode="scaleAspectFit"
         style={styles.trailingIcon}
-        tintColor="#9CA3AF"
+        tintColor={chevronColor}
         weight="semibold"
       />
       {!isLast ? (
@@ -141,6 +123,9 @@ export default function AboutScreen() {
   const separatorColor = isDark
     ? 'rgba(84, 84, 88, 0.65)'
     : 'rgba(60, 60, 67, 0.29)';
+  const chevronColor = isDark
+    ? 'rgba(235, 235, 245, 0.30)'
+    : 'rgba(60, 60, 67, 0.30)';
 
   return (
     <>
@@ -176,11 +161,11 @@ export default function AboutScreen() {
           style={styles.group}
           testID="ios-about-app-card"
         >
-          <InfoRow icon="sparkles" label={t('about.app_name')} value="Subscription Manager" separatorColor={separatorColor} separatorTestID="ios-about-separator-app-name" />
-          <InfoRow icon="tag" label={t('about.version')} value={`v${version}`} separatorColor={separatorColor} />
-          <InfoRow icon="link" label={t('about.scheme')} value={scheme} separatorColor={separatorColor} />
-          <InfoRow icon="iphone" label={t('about.orientation')} value={orientation} separatorColor={separatorColor} />
-          <InfoRow icon="cloud" isLast label={t('about.api_server')} value={apiServerLabel} separatorColor={separatorColor} />
+          <InfoRow label={t('about.app_name')} value="Subscription Manager" separatorColor={separatorColor} separatorTestID="ios-about-separator-app-name" />
+          <InfoRow label={t('about.version')} value={`v${version}`} separatorColor={separatorColor} />
+          <InfoRow label={t('about.scheme')} value={scheme} separatorColor={separatorColor} />
+          <InfoRow label={t('about.orientation')} value={orientation} separatorColor={separatorColor} />
+          <InfoRow isLast label={t('about.api_server')} value={apiServerLabel} separatorColor={separatorColor} />
         </View>
 
         <View
@@ -188,11 +173,11 @@ export default function AboutScreen() {
           style={styles.group}
           testID="ios-about-environment-card"
         >
-          <InfoRow icon="cpu" label={t('about.platform')} value={platformLabel} separatorColor={separatorColor} />
-          <InfoRow icon="iphone" label={t('about.os_version')} value={osVersion} separatorColor={separatorColor} />
-          <InfoRow icon="rectangle.dashed" label={t('about.screen_size')} value={`${Math.round(width)} x ${Math.round(height)}`} separatorColor={separatorColor} />
-          <InfoRow icon="character" label={t('about.language')} value={languageLabel} separatorColor={separatorColor} />
-          <InfoRow icon="moon" isLast label={t('about.theme')} value={themeLabel} separatorColor={separatorColor} />
+          <InfoRow label={t('about.platform')} value={platformLabel} separatorColor={separatorColor} />
+          <InfoRow label={t('about.os_version')} value={osVersion} separatorColor={separatorColor} />
+          <InfoRow label={t('about.screen_size')} value={`${Math.round(width)} x ${Math.round(height)}`} separatorColor={separatorColor} />
+          <InfoRow label={t('about.language')} value={languageLabel} separatorColor={separatorColor} />
+          <InfoRow isLast label={t('about.theme')} value={themeLabel} separatorColor={separatorColor} />
         </View>
 
         <View
@@ -228,10 +213,10 @@ export default function AboutScreen() {
           style={styles.creditsCard}
           testID="ios-about-credits-card"
         >
-          <InfoRow icon="person.2" label={t('about.developer')} value="darui3018823 / Ahoshinet" separatorColor={separatorColor} />
-          <InfoRow icon="doc.text" label={t('about.license')} value="BSD 2-Clause" separatorColor={separatorColor} />
-          <LinkRow icon="chevron.left.forwardslash.chevron.right" label="GitHub Repository" url="https://github.com/Ahoshinet/subscription-app" separatorColor={separatorColor} />
-          <LinkRow icon="ladybug" isLast label={t('about.report_issue')} url="https://github.com/Ahoshinet/subscription-app/issues" separatorColor={separatorColor} />
+          <InfoRow label={t('about.developer')} value="darui3018823 / Ahoshinet" separatorColor={separatorColor} />
+          <InfoRow label={t('about.license')} value="BSD 2-Clause" separatorColor={separatorColor} />
+          <LinkRow chevronColor={chevronColor} label="GitHub Repository" url="https://github.com/Ahoshinet/subscription-app" separatorColor={separatorColor} />
+          <LinkRow chevronColor={chevronColor} isLast label={t('about.report_issue')} url="https://github.com/Ahoshinet/subscription-app/issues" separatorColor={separatorColor} />
         </View>
       </ScrollView>
     </>
@@ -298,10 +283,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     width: 56,
   },
-  rowIcon: {
-    height: 18,
-    width: 18,
-  },
   scrollContent: {
     paddingBottom: 48,
     paddingHorizontal: 16,
@@ -310,12 +291,12 @@ const styles = StyleSheet.create({
   separator: {
     bottom: 0,
     height: StyleSheet.hairlineWidth,
-    left: 60,
+    left: 16,
     position: 'absolute',
     right: 16,
   },
   trailingIcon: {
     height: 18,
-    width: 18,
+    width: 10,
   },
 });
