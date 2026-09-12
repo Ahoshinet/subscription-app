@@ -59,6 +59,8 @@ describe('iOS time zone screen', () => {
     );
 
     expect(screen.queryByText('time_zone.section')).toBeNull();
+    expect(screen.getByTestId('ios-time-zone-list').props.contentInsetAdjustmentBehavior)
+      .toBe('automatic');
     expect(rowClassName).not.toContain('border');
     expect(separatorStyle).toMatchObject({ left: 16, right: 16 });
     expect(mockHeaderOptions?.headerShadowVisible).toBe(false);

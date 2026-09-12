@@ -61,6 +61,7 @@ export default function TimeZoneSettingsScreen() {
       </Stack.Toolbar>
 
       <FlatList
+        contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={styles.listContent}
         data={filteredTimeZones}
         initialNumToRender={20}
