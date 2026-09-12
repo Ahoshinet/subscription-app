@@ -29,13 +29,22 @@ function InfoRow({
   value,
 }: InfoRowProps) {
   return (
-    <View className="flex-row items-center justify-between px-4 py-4">
+    <View
+      className="flex-row items-center justify-between px-4 py-4"
+      style={styles.infoRow}
+    >
       <View className="flex-row items-center flex-1 mr-4">
-        <Text className="text-base font-medium text-neutral-900 dark:text-white">
+        <Text
+          className="font-medium text-neutral-900 dark:text-white"
+          style={styles.rowLabel}
+        >
           {label}
         </Text>
       </View>
-      <Text className="text-sm text-right text-neutral-500 dark:text-neutral-400 max-w-[48%]">
+      <Text
+        className="text-right text-neutral-500 dark:text-neutral-400 max-w-[48%]"
+        style={styles.rowValue}
+      >
         {value}
       </Text>
       {!isLast ? (
@@ -62,9 +71,13 @@ function LinkRow({ chevronColor, isLast = false, label, separatorColor, url }: L
     <Pressable
       className="flex-row items-center justify-between px-4 py-4"
       onPress={() => Linking.openURL(url)}
+      style={styles.infoRow}
     >
       <View className="flex-row items-center flex-1">
-        <Text className="text-base font-medium text-neutral-900 dark:text-white">
+        <Text
+          className="font-medium text-neutral-900 dark:text-white"
+          style={styles.rowLabel}
+        >
           {label}
         </Text>
       </View>
@@ -271,6 +284,9 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     marginBottom: 6,
   },
+  infoRow: {
+    minHeight: 58,
+  },
   orgAvatar: {
     borderRadius: 16,
     height: 56,
@@ -282,6 +298,14 @@ const styles = StyleSheet.create({
     height: 56,
     marginBottom: 10,
     width: 56,
+  },
+  rowLabel: {
+    fontSize: 17,
+    lineHeight: 22,
+  },
+  rowValue: {
+    fontSize: 16,
+    lineHeight: 21,
   },
   scrollContent: {
     paddingBottom: 48,
@@ -296,7 +320,7 @@ const styles = StyleSheet.create({
     right: 16,
   },
   trailingIcon: {
-    height: 18,
-    width: 10,
+    height: 20,
+    width: 12,
   },
 });
