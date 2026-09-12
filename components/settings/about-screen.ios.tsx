@@ -30,7 +30,7 @@ function InfoRow({
 }: InfoRowProps) {
   return (
     <View
-      className="flex-row items-center justify-between px-4 py-4"
+      className="flex-row items-center justify-between px-4"
       style={styles.infoRow}
     >
       <View className="flex-row items-center flex-1 mr-4">
@@ -69,7 +69,7 @@ interface LinkRowProps {
 function LinkRow({ chevronColor, isLast = false, label, separatorColor, url }: LinkRowProps) {
   return (
     <Pressable
-      className="flex-row items-center justify-between px-4 py-4"
+      className="flex-row items-center justify-between px-4"
       onPress={() => Linking.openURL(url)}
       style={styles.infoRow}
     >
@@ -238,10 +238,10 @@ export default function AboutScreen() {
 
 const styles = StyleSheet.create({
   appIcon: {
-    borderRadius: 22,
-    height: 82,
-    marginBottom: 16,
-    width: 82,
+    borderRadius: 17,
+    height: 64,
+    marginBottom: 14,
+    width: 64,
   },
   creator: {
     alignItems: 'center',
@@ -273,19 +273,21 @@ const styles = StyleSheet.create({
   heroCard: {
     alignItems: 'flex-start',
     paddingHorizontal: 24,
-    paddingVertical: 28,
+    paddingVertical: 24,
   },
   heroSubtitle: {
     fontSize: 14,
     lineHeight: 20,
   },
   heroTitle: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '800',
+    lineHeight: 27,
     marginBottom: 6,
   },
   infoRow: {
-    minHeight: 58,
+    minHeight: 50,
+    paddingVertical: 14,
   },
   orgAvatar: {
     borderRadius: 16,
@@ -320,7 +322,7 @@ const styles = StyleSheet.create({
     right: 16,
   },
   trailingIcon: {
-    height: 20,
-    width: 12,
+    height: 18,
+    width: 10,
   },
 });
