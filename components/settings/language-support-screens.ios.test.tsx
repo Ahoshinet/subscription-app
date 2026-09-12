@@ -65,8 +65,12 @@ describe('iOS language and support screens', () => {
   test('removes support outer separators and uses SF Symbols', async () => {
     const screen = await render(<SupportScreen />);
     const className = screen.getByTestId('ios-support-list').props.className;
+    const separatorStyle = StyleSheet.flatten(
+      screen.getByTestId('ios-support-separator-faq').props.style,
+    );
 
     expect(className).not.toContain(' border ');
+    expect(separatorStyle).toMatchObject({ left: 60, right: 16 });
     expect(mockHeaderOptions?.headerShadowVisible).toBe(false);
     expect(mockSymbolView.mock.calls.map(([props]) => (
       props as { name: string }

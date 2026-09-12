@@ -12,6 +12,9 @@ export default function SupportScreen() {
   const isDark = colorScheme === 'dark';
   const { t } = useTranslation();
   const backgroundColor = isDark ? SETTINGS_DARK_BACKGROUND : '#FAFAFA';
+  const separatorColor = isDark
+    ? 'rgba(84, 84, 88, 0.65)'
+    : 'rgba(60, 60, 67, 0.29)';
 
   const openUrl = (url: string) => {
     void Linking.openURL(url).catch(error => console.error("Couldn't load page", error));
@@ -40,7 +43,7 @@ export default function SupportScreen() {
                 t('support.coming_soon_title'),
                 t('support.coming_soon_message'),
               )}
-              className="flex-row items-center justify-between p-4 border-b border-neutral-100 dark:border-white/5"
+              className="flex-row items-center justify-between p-4"
             >
               <View className="flex-row items-center">
                 <View className="w-8 h-8 rounded-lg bg-neutral-100 dark:bg-white/10 items-center justify-center mr-3">
@@ -62,11 +65,16 @@ export default function SupportScreen() {
                 tintColor="#9CA3AF"
                 weight="semibold"
               />
+              <View
+                pointerEvents="none"
+                style={[styles.separator, { backgroundColor: separatorColor }]}
+                testID="ios-support-separator-faq"
+              />
             </Pressable>
 
             <Pressable
               onPress={() => openUrl('mailto:subscription-manager@corp.daruks.com')}
-              className="flex-row items-center justify-between p-4 border-b border-neutral-100 dark:border-white/5"
+              className="flex-row items-center justify-between p-4"
             >
               <View className="flex-row items-center">
                 <View className="w-8 h-8 rounded-lg bg-neutral-100 dark:bg-white/10 items-center justify-center mr-3">
@@ -87,6 +95,11 @@ export default function SupportScreen() {
                 style={styles.chevron}
                 tintColor="#9CA3AF"
                 weight="semibold"
+              />
+              <View
+                pointerEvents="none"
+                style={[styles.separator, { backgroundColor: separatorColor }]}
+                testID="ios-support-separator-contact"
               />
             </Pressable>
 
@@ -130,5 +143,12 @@ const styles = StyleSheet.create({
   chevron: {
     height: 18,
     width: 10,
+  },
+  separator: {
+    bottom: 0,
+    height: StyleSheet.hairlineWidth,
+    left: 60,
+    position: 'absolute',
+    right: 16,
   },
 });
