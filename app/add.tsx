@@ -22,6 +22,7 @@ import { singleLineTextInputStyle } from '../lib/textInputStyles';
 import { dateOnlyToLocalDate, formatDateOnly } from '../lib/dateUtils';
 import { getTodayDateInTimeZone } from '../lib/timeZone';
 import { getErrorMessage } from '../lib/errors';
+import { ADD_DARK_HEADER_BACKGROUND } from '../constants/add-theme';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -190,27 +191,41 @@ export default function AddSubscriptionModal() {
                 options={{
                     title: t('add.title'),
                     headerBackVisible: false,
-                    headerLeft: () => (
+                    unstable_headerLeftItems: Platform.OS === 'ios'
+                        ? () => [{
+                            type: 'button',
+                            label: t('billing.cancel'),
+                            accessibilityLabel: t('billing.cancel'),
+                            variant: 'plain',
+                            disabled: isSubmitting,
+                            onPress: () => router.back(),
+                        }]
+                        : undefined,
+                    unstable_headerRightItems: Platform.OS === 'ios'
+                        ? () => [{
+                            type: 'button',
+                            label: t('add.submit'),
+                            accessibilityLabel: t('add.submit'),
+                            variant: 'done',
+                            disabled: isSubmitting,
+                            onPress: () => { void handleSave(); },
+                        }]
+                        : undefined,
+                    headerLeft: Platform.OS !== 'ios' ? () => (
                         <Pressable onPress={() => router.back()} className="px-2" disabled={isSubmitting}>
-                            {Platform.OS === 'ios' ? (
-                                <Ionicons name="close" size={28} color={isDark ? "#60A5FA" : "#3B82F6"} />
-                            ) : (
-                                <Text className="text-blue-500 dark:text-blue-400 text-lg font-normal">{t('billing.cancel')}</Text>
-                            )}
+                            <Text className="text-blue-500 dark:text-blue-400 text-lg font-normal">{t('billing.cancel')}</Text>
                         </Pressable>
-                    ),
-                    headerRight: () => (
+                    ) : undefined,
+                    headerRight: Platform.OS !== 'ios' ? () => (
                         <Pressable onPress={handleSave} className="px-2" disabled={isSubmitting}>
                             {isSubmitting ? (
                                 <ActivityIndicator size="small" color={isDark ? '#60A5FA' : '#3B82F6'} />
-                            ) : Platform.OS === 'ios' ? (
-                                <Ionicons name="checkmark" size={28} color={isDark ? "#60A5FA" : "#3B82F6"} />
                             ) : (
                                 <Text className="text-blue-500 dark:text-blue-400 text-lg font-semibold">{t('add.submit')}</Text>
                             )}
                         </Pressable>
-                    ),
-                    headerStyle: { backgroundColor: isDark ? '#1C1C1E' : '#F2F2F7' },
+                    ) : undefined,
+                    headerStyle: { backgroundColor: isDark ? ADD_DARK_HEADER_BACKGROUND : '#F2F2F7' },
                     headerTintColor: isDark ? '#FFFFFF' : '#000000',
                     headerTitleAlign: 'center',
                     headerShadowVisible: false,
