@@ -19,6 +19,7 @@ import { getErrorMessage } from '@/lib/errors';
 import { getTodayDateInTimeZone } from '@/lib/timeZone';
 import { singleLineTextInputStyle } from '@/lib/textInputStyles';
 import { subscriptionApi, type Subscription } from '@/lib/api';
+import { HOME_DARK_BACKGROUND } from '@/constants/home-theme';
 
 type SortKey = 'name' | 'amount' | 'date';
 
@@ -206,6 +207,7 @@ export default function HomeScreen() {
     <SafeAreaView
       edges={Platform.OS === 'ios' ? ['top', 'left', 'right'] : undefined}
       className="flex-1 bg-neutral-50 dark:bg-neutral-950"
+      style={{ backgroundColor: isDark ? HOME_DARK_BACKGROUND : '#fafafa' }}
     >
       <StatusBar style="auto" />
       <ScrollView
