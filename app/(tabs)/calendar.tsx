@@ -24,6 +24,7 @@ import { useSettingsStore } from '../../store/useSettingsStore';
 import { CURRENCY_SYMBOLS } from '../../lib/currency';
 import { parseSubscriptionPresetIconValue } from '../../lib/subscriptionIcon';
 import { Subscription, resolveIconUrl } from '../../lib/api';
+import { CALENDAR_DARK_BACKGROUND } from '../../constants/calendar-theme';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const CELL_WIDTH = Math.floor(SCREEN_WIDTH / 7);
@@ -297,7 +298,7 @@ export default function CalendarScreen() {
     return (
         <SafeAreaView
             edges={Platform.OS === 'ios' ? ['top', 'left', 'right'] : undefined}
-            style={{ flex: 1, backgroundColor: isDark ? '#0a0a0a' : '#fafafa' }}
+            style={{ flex: 1, backgroundColor: isDark ? CALENDAR_DARK_BACKGROUND : '#fafafa' }}
         >
             {/* Header */}
             <View className="flex-row items-center justify-between px-4 pt-5 pb-3">
