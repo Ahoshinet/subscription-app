@@ -15,6 +15,9 @@ const TAB_ICONS = {
 export default function CustomTabBar({ state, navigation }: CustomTabBarProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const focusedRouteKey = state.routes[state.index]?.key;
+  // Search is an iOS-only primary destination until the Android Material pass.
+  const visibleRoutes = state.routes.filter((route) => route.name !== 'search');
 
   return (
     <View style={styles.shadowContainer}>
@@ -31,8 +34,8 @@ export default function CustomTabBar({ state, navigation }: CustomTabBarProps) {
             },
           ]}
         >
-          {state.routes.map((route, index) => {
-            const isFocused = state.index === index;
+          {visibleRoutes.map((route) => {
+            const isFocused = focusedRouteKey === route.key;
             const tabIcon = TAB_ICONS[route.name as keyof typeof TAB_ICONS] ?? TAB_ICONS.index;
 
             const onPress = () => {

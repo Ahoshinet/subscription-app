@@ -277,23 +277,25 @@ export default function HomeScreen() {
         {/* Search & Sort */}
         {subscriptions.length > 0 && (
           <View className="mb-4">
-            <View className="bg-white dark:bg-[#1C1C1E] rounded-xl flex-row items-center px-3 mb-3" style={{ height: 44 }}>
-              <Ionicons name="search" size={18} color={isDark ? '#6B7280' : '#9CA3AF'} />
-              <TextInput
-                placeholder={t('home.search_placeholder')}
-                placeholderTextColor={isDark ? '#52525B' : '#A1A1AA'}
-                className="flex-1 text-base text-neutral-900 dark:text-white ml-2"
-                style={[{ height: 44 }, singleLineTextInputStyle]}
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-                autoCorrect={false}
-              />
-              {searchQuery.length > 0 && (
-                <Pressable onPress={() => setSearchQuery('')}>
-                  <Ionicons name="close-circle" size={18} color={isDark ? '#6B7280' : '#9CA3AF'} />
-                </Pressable>
-              )}
-            </View>
+            {Platform.OS !== 'ios' ? (
+              <View className="bg-white dark:bg-[#1C1C1E] rounded-xl flex-row items-center px-3 mb-3" style={{ height: 44 }}>
+                <Ionicons name="search" size={18} color={isDark ? '#6B7280' : '#9CA3AF'} />
+                <TextInput
+                  placeholder={t('home.search_placeholder')}
+                  placeholderTextColor={isDark ? '#52525B' : '#A1A1AA'}
+                  className="flex-1 text-base text-neutral-900 dark:text-white ml-2"
+                  style={[{ height: 44 }, singleLineTextInputStyle]}
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  autoCorrect={false}
+                />
+                {searchQuery.length > 0 && (
+                  <Pressable onPress={() => setSearchQuery('')}>
+                    <Ionicons name="close-circle" size={18} color={isDark ? '#6B7280' : '#9CA3AF'} />
+                  </Pressable>
+                )}
+              </View>
+            ) : null}
             <Pressable
               onPress={() => setSortKey(nextSortKey())}
               className="flex-row items-center self-end"
