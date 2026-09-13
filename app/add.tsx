@@ -22,7 +22,12 @@ import { singleLineTextInputStyle } from '../lib/textInputStyles';
 import { dateOnlyToLocalDate, formatDateOnly } from '../lib/dateUtils';
 import { getTodayDateInTimeZone } from '../lib/timeZone';
 import { getErrorMessage } from '../lib/errors';
-import { ADD_DARK_HEADER_BACKGROUND } from '../constants/add-theme';
+import {
+    ADD_DARK_BACKGROUND,
+    ADD_DARK_CARD_BACKGROUND,
+    ADD_DARK_HEADER_BACKGROUND,
+    ADD_DARK_SEPARATOR,
+} from '../constants/add-theme';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -35,6 +40,9 @@ export default function AddSubscriptionModal() {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
     const { t } = useTranslation();
+    const screenBackgroundColor = isDark ? ADD_DARK_BACKGROUND : '#F2F2F7';
+    const cardBackgroundColor = isDark ? ADD_DARK_CARD_BACKGROUND : '#FFFFFF';
+    const separatorStyle = isDark ? { borderBottomColor: ADD_DARK_SEPARATOR } : undefined;
 
     const [serviceName, setServiceName] = useState('');
     const [planName, setPlanName] = useState('');
@@ -238,6 +246,7 @@ export default function AddSubscriptionModal() {
                 contentContainerStyle={{ paddingTop: 24, paddingBottom: 40 }}
                 keyboardDismissMode="on-drag"
                 keyboardShouldPersistTaps="handled"
+                style={{ backgroundColor: screenBackgroundColor }}
             >
                 <View className="px-4">
                     {/* Icon Picker */}
@@ -265,8 +274,11 @@ export default function AddSubscriptionModal() {
                     </View>
 
                     {/* Main Form Group */}
-                    <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6">
-                        <View className="border-b border-neutral-200 dark:border-neutral-800 px-4 flex-row items-center" style={rowStyle}>
+                    <View
+                        className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6"
+                        style={{ backgroundColor: cardBackgroundColor }}
+                    >
+                        <View className="border-b border-neutral-200 dark:border-neutral-800 px-4 flex-row items-center" style={[rowStyle, separatorStyle]}>
                             <Text className="text-neutral-900 dark:text-white" style={labelStyle}>{t('subscription_form.service_name')}:</Text>
                             <TextInput
                                 placeholder={t('subscription_form.service_name_placeholder')}
@@ -278,7 +290,7 @@ export default function AddSubscriptionModal() {
                                 autoFocus
                             />
                         </View>
-                        <View className="border-b border-neutral-200 dark:border-neutral-800 px-4 flex-row items-center" style={rowStyle}>
+                        <View className="border-b border-neutral-200 dark:border-neutral-800 px-4 flex-row items-center" style={[rowStyle, separatorStyle]}>
                             <Text className="text-neutral-900 dark:text-white" style={labelStyle}>{t('subscription_form.plan_name')}:</Text>
                             <TextInput
                                 placeholder={t('subscription_form.plan_name_placeholder')}
@@ -289,7 +301,7 @@ export default function AddSubscriptionModal() {
                                 onChangeText={setPlanName}
                             />
                         </View>
-                        <View className="border-b border-neutral-200 dark:border-neutral-800 px-4 flex-row items-center" style={rowStyle}>
+                        <View className="border-b border-neutral-200 dark:border-neutral-800 px-4 flex-row items-center" style={[rowStyle, separatorStyle]}>
                             <Text className="text-neutral-900 dark:text-white" style={labelStyle}>{t('subscription_form.amount')}:</Text>
                             <TextInput
                                 placeholder={`${CURRENCIES.find(c => c.id === currency)?.symbol ?? currency} 0`}
@@ -315,10 +327,14 @@ export default function AddSubscriptionModal() {
                     </View>
 
                     {/* Payment Details Group */}
-                    <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6">
+                    <View
+                        className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6"
+                        style={{ backgroundColor: cardBackgroundColor }}
+                    >
                         <Pressable
                             onPress={() => setShowDatePicker(!showDatePicker)}
                             className="border-b border-neutral-200 dark:border-neutral-800 p-4 pl-4 flex-row items-center justify-between"
+                            style={separatorStyle}
                         >
                             <Text className="text-neutral-900 dark:text-white text-base">{t('subscription_form.next_payment_date')}</Text>
                             <View className="flex-row items-center">
@@ -328,7 +344,7 @@ export default function AddSubscriptionModal() {
                         </Pressable>
 
                         {showDatePicker && (
-                            <View className="border-b border-neutral-200 dark:border-neutral-800">
+                            <View className="border-b border-neutral-200 dark:border-neutral-800" style={separatorStyle}>
                                 <DateTimePicker
                                     value={nextPaymentDate}
                                     mode="date"
@@ -344,6 +360,7 @@ export default function AddSubscriptionModal() {
                         <Pressable
                             onPress={() => router.push('/settings/billing-cycle')}
                             className="border-b border-neutral-200 dark:border-neutral-800 p-4 pl-4 flex-row items-center justify-between"
+                            style={separatorStyle}
                         >
                             <Text className="text-neutral-900 dark:text-white text-base">{t('subscription_form.billing_cycle_label')}</Text>
                             <View className="flex-row items-center">
@@ -364,7 +381,10 @@ export default function AddSubscriptionModal() {
                     </View>
 
                     {/* Memo / Notes Group */}
-                    <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6">
+                    <View
+                        className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6"
+                        style={{ backgroundColor: cardBackgroundColor }}
+                    >
                         <TextInput
                             placeholder={t('subscription_form.memo_placeholder')}
                             placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}

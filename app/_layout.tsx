@@ -110,7 +110,7 @@ export default function RootLayout() {
                 <Stack.Screen name="(tabs)" options={{ headerShown: false, title: '' }} />
                 <Stack.Screen name="login" options={{ headerShown: false, contentStyle: { backgroundColor: screenBg } }} />
                 <Stack.Screen name="register" options={{ headerShown: false, contentStyle: { backgroundColor: screenBg } }} />
-                <Stack.Screen name="add" options={{ presentation: 'modal' }} />
+                <Stack.Screen name="add" options={{ gestureEnabled: true, presentation: 'modal' }} />
                 <Stack.Screen name="detail" />
                 <Stack.Screen name="edit" options={{ presentation: 'modal' }} />
                 <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
