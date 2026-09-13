@@ -20,6 +20,7 @@ import { getTodayDateInTimeZone } from '@/lib/timeZone';
 import { singleLineTextInputStyle } from '@/lib/textInputStyles';
 import { subscriptionApi, type Subscription } from '@/lib/api';
 import { HOME_DARK_BACKGROUND } from '@/constants/home-theme';
+import { filterSubscriptionsByQuery } from '@/lib/subscriptionSearch';
 
 type SortKey = 'name' | 'amount' | 'date';
 
@@ -165,13 +166,7 @@ export default function HomeScreen() {
       ? [...subscriptions, paidyVirtualSub]
       : [...subscriptions];
 
-    if (searchQuery.trim()) {
-      const q = searchQuery.trim().toLowerCase();
-      result = result.filter((sub) =>
-        sub.service_name.toLowerCase().includes(q) ||
-        (sub.plan_name && sub.plan_name.toLowerCase().includes(q))
-      );
-    }
+    result = filterSubscriptionsByQuery(result, searchQuery);
 
     result.sort((a, b) => {
       switch (sortKey) {
