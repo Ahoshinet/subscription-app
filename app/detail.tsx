@@ -44,7 +44,7 @@ export default function DetailScreen() {
                         headerBackTitle: ' ',
                         headerStyle: { backgroundColor: isDark ? DETAIL_DARK_BACKGROUND : '#ffffff' },
                         headerTintColor: isDark ? '#ffffff' : '#000000',
-                        headerShadowVisible: true,
+                        headerShadowVisible: Platform.OS === 'ios' ? false : true,
                     }}
                 />
                 <Text className="text-neutral-500 dark:text-neutral-400 text-lg">{t('edit.not_found')}</Text>
@@ -140,13 +140,14 @@ export default function DetailScreen() {
                     headerBackTitle: ' ',
                     headerStyle: { backgroundColor: isDark ? DETAIL_DARK_BACKGROUND : '#ffffff' },
                     headerTintColor: isDark ? '#FFFFFF' : '#000000',
-                    headerShadowVisible: true,
+                    headerShadowVisible: Platform.OS === 'ios' ? false : true,
                     unstable_headerRightItems: Platform.OS === 'ios'
                         ? () => [{
                             type: 'button',
                             label: t('detail.edit_button'),
                             accessibilityLabel: t('detail.edit_button'),
                             variant: 'plain',
+                            hidesSharedBackground: true,
                             onPress: () => router.push({
                                 pathname: '/edit',
                                 params: { id: String(subscription.id) },
@@ -282,7 +283,10 @@ export default function DetailScreen() {
                     <Pressable
                         onPress={handleDelete}
                         disabled={isDeleting}
-                        style={{ opacity: isDeleting ? 0.6 : 1 }}
+                        style={{
+                            opacity: isDeleting ? 0.6 : 1,
+                            borderWidth: Platform.OS === 'ios' ? 0 : 1,
+                        }}
                         className="items-center py-4 rounded-xl bg-white dark:bg-[#1C1C1C] border border-neutral-200/50 dark:border-white/10"
                     >
                         {isDeleting ? (
