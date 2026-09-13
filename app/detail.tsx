@@ -12,6 +12,7 @@ import { formatDateOnlyForDisplay, getEffectiveNextPaymentDate } from '../lib/da
 import { getErrorMessage } from '../lib/errors';
 import { getTodayDateInTimeZone } from '../lib/timeZone';
 import { useSettingsStore } from '../store/useSettingsStore';
+import { DETAIL_DARK_BACKGROUND } from '../constants/detail-theme';
 
 export default function DetailScreen() {
     const router = useRouter();
@@ -32,13 +33,16 @@ export default function DetailScreen() {
 
     if (!subscription) {
         return (
-            <View className="flex-1 bg-neutral-50 dark:bg-neutral-950 items-center justify-center">
+            <View
+                className="flex-1 bg-neutral-50 dark:bg-neutral-950 items-center justify-center"
+                style={{ backgroundColor: isDark ? DETAIL_DARK_BACKGROUND : '#fafafa' }}
+            >
                 <Stack.Screen
                     options={{
                         title: 'Not Found',
                         headerShown: true,
                         headerBackTitle: ' ',
-                        headerStyle: { backgroundColor: isDark ? '#0A0A0A' : '#ffffff' },
+                        headerStyle: { backgroundColor: isDark ? DETAIL_DARK_BACKGROUND : '#ffffff' },
                         headerTintColor: isDark ? '#ffffff' : '#000000',
                         headerShadowVisible: true,
                     }}
@@ -125,13 +129,16 @@ export default function DetailScreen() {
     const presetIcon = parseSubscriptionPresetIconValue(iconUrl);
 
     return (
-        <View className="flex-1 bg-[#F2F2F7] dark:bg-neutral-950">
+        <View
+            className="flex-1 bg-[#F2F2F7] dark:bg-neutral-950"
+            style={{ backgroundColor: isDark ? DETAIL_DARK_BACKGROUND : '#F2F2F7' }}
+        >
             <Stack.Screen
                 options={{
                     title: subscription.service_name,
                     headerShown: true,
                     headerBackTitle: ' ',
-                    headerStyle: { backgroundColor: isDark ? '#0A0A0A' : '#ffffff' },
+                    headerStyle: { backgroundColor: isDark ? DETAIL_DARK_BACKGROUND : '#ffffff' },
                     headerTintColor: isDark ? '#FFFFFF' : '#000000',
                     headerShadowVisible: true,
                     unstable_headerRightItems: Platform.OS === 'ios'
