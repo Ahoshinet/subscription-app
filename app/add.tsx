@@ -401,26 +401,41 @@ export default function AddSubscriptionModal() {
             </ScrollView>
 
             <Modal
-                transparent
-                animationType="fade"
+                allowSwipeDismissal={Platform.OS === 'ios'}
+                animationType={Platform.OS === 'ios' ? 'slide' : 'fade'}
+                presentationStyle={Platform.OS === 'ios' ? 'pageSheet' : 'overFullScreen'}
+                transparent={Platform.OS !== 'ios'}
                 visible={showIconPickerModal}
                 onRequestClose={() => setShowIconPickerModal(false)}
             >
-                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.45)' }}>
-                    <Pressable
-                        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-                        onPress={() => setShowIconPickerModal(false)}
-                    />
+                <View
+                    style={{
+                        flex: 1,
+                        justifyContent: Platform.OS === 'ios' ? 'flex-start' : 'center',
+                        alignItems: 'center',
+                        backgroundColor: Platform.OS === 'ios'
+                            ? screenBackgroundColor
+                            : 'rgba(0,0,0,0.45)',
+                    }}
+                >
+                    {Platform.OS !== 'ios' ? (
+                        <Pressable
+                            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+                            onPress={() => setShowIconPickerModal(false)}
+                        />
+                    ) : null}
 
                     <View
                         style={{
                             width: ICON_PICKER_WIDTH,
-                            borderRadius: 16,
-                            backgroundColor: isDark ? '#1C1C1E' : '#FFFFFF',
+                            borderRadius: Platform.OS === 'ios' ? 0 : 16,
+                            backgroundColor: Platform.OS === 'ios'
+                                ? screenBackgroundColor
+                                : (isDark ? '#1C1C1E' : '#FFFFFF'),
                             paddingHorizontal: 14,
-                            paddingTop: 14,
-                            paddingBottom: 12,
-                            maxHeight: '72%',
+                            paddingTop: Platform.OS === 'ios' ? 24 : 14,
+                            paddingBottom: Platform.OS === 'ios' ? 24 : 12,
+                            maxHeight: Platform.OS === 'ios' ? '92%' : '72%',
                         }}
                     >
                         <Text style={{ fontSize: 16, fontWeight: '700', color: isDark ? '#FFFFFF' : '#111827', marginBottom: 12 }}>
