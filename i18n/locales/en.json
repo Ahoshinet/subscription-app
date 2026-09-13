@@ -186,6 +186,7 @@
         "empty": "No subscriptions found. Tap the + to add one.",
         "standard_plan": "Standard Plan",
         "search_placeholder": "Search subscriptions...",
+        "search_hint": "Enter a search term to find subscriptions.",
         "sort_name": "Sort by Name",
         "sort_amount": "Sort by Amount",
         "sort_date": "Sort by Date",

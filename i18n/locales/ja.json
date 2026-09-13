@@ -186,6 +186,7 @@
         "empty": "サブスクリプションが見つかりません。+ をタップして追加してください。",
         "standard_plan": "スタンダードプラン",
         "search_placeholder": "サブスクを検索...",
+        "search_hint": "検索ワードを入力すると、サブスクリプションを検索できます。",
         "sort_name": "名前順",
         "sort_amount": "金額順",
         "sort_date": "日付順",

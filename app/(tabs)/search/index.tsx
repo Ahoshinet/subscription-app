@@ -53,6 +53,8 @@ export default function SubscriptionSearchScreen() {
   ), [gmailSignedIn, paidyAmount, paidyMonth, paidyNextDate, todayDate]);
 
   const results = useMemo(() => {
+    if (!query.trim()) return [];
+
     const searchableSubscriptions = paidyVirtualSubscription
       ? [...subscriptions, paidyVirtualSubscription]
       : [...subscriptions];
@@ -61,6 +63,7 @@ export default function SubscriptionSearchScreen() {
       .sort((left, right) => left.next_payment_date.localeCompare(right.next_payment_date));
   }, [paidyVirtualSubscription, query, subscriptions]);
   const hasSearchableSubscriptions = subscriptions.length > 0 || paidyVirtualSubscription !== null;
+  const hasQuery = query.trim().length > 0;
 
   return (
     <>
@@ -104,7 +107,15 @@ export default function SubscriptionSearchScreen() {
           </View>
         ) : null}
 
-        {!isLoading && !hasSearchableSubscriptions && !error ? (
+        {!isLoading && !hasQuery && !error ? (
+          <View className="py-12 px-6 items-center">
+            <Text className="text-neutral-500 dark:text-neutral-400 text-base text-center">
+              {t('home.search_hint')}
+            </Text>
+          </View>
+        ) : null}
+
+        {!isLoading && hasQuery && !hasSearchableSubscriptions && !error ? (
           <View className="py-10 items-center">
             <Text className="text-neutral-500 dark:text-neutral-400 font-medium">
               {t('home.empty')}
@@ -112,7 +123,7 @@ export default function SubscriptionSearchScreen() {
           </View>
         ) : null}
 
-        {hasSearchableSubscriptions && query.trim() && results.length === 0 ? (
+        {hasSearchableSubscriptions && hasQuery && results.length === 0 ? (
           <View className="py-10 items-center">
             <Text className="text-neutral-500 dark:text-neutral-400 font-medium">
               {t('home.no_results')}
@@ -120,7 +131,7 @@ export default function SubscriptionSearchScreen() {
           </View>
         ) : null}
 
-        {results.map((subscription) => {
+        {hasQuery ? results.map((subscription) => {
           const effectiveDate = subscription.id === -1
             ? subscription.next_payment_date
             : getEffectiveNextPaymentDate(
@@ -148,7 +159,7 @@ export default function SubscriptionSearchScreen() {
               status={subscription.status}
             />
           );
-        })}
+        }) : null}
       </ScrollView>
     </>
   );
