@@ -147,7 +147,6 @@ export default function DetailScreen() {
                             label: t('detail.edit_button'),
                             accessibilityLabel: t('detail.edit_button'),
                             variant: 'plain',
-                            hidesSharedBackground: true,
                             onPress: () => router.push({
                                 pathname: '/edit',
                                 params: { id: String(subscription.id) },
