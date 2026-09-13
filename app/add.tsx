@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Pressable, KeyboardAvoidingView, ScrollView, Platform, Alert, ActivityIndicator, Image, Modal, Dimensions } from 'react-native';
+import { View, Text, TextInput, Pressable, KeyboardAvoidingView, ScrollView, Platform, Alert, ActivityIndicator, Image } from 'react-native';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
@@ -13,10 +13,10 @@ import { setCropHandler } from '../lib/imageCropStore';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
 import {
-    SUBSCRIPTION_ICON_PRESETS,
     type SubscriptionIconSelection,
     buildSubscriptionPresetIconValue,
 } from '../lib/subscriptionIcon';
+import SubscriptionIconPickerSheet from '../components/SubscriptionIconPickerSheet';
 import { CURRENCIES, isAmountInputAboveMax, parseAmountInput } from '../lib/currency';
 import { singleLineTextInputStyle } from '../lib/textInputStyles';
 import { dateOnlyToLocalDate, formatDateOnly } from '../lib/dateUtils';
@@ -28,12 +28,6 @@ import {
     ADD_DARK_HEADER_BACKGROUND,
     ADD_DARK_SEPARATOR,
 } from '../constants/add-theme';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
-const ICON_PICKER_WIDTH = Math.min(SCREEN_WIDTH - 32, 360);
-const ICON_PICKER_GAP = 10;
-const ICON_PICKER_TILE_SIZE = Math.floor((ICON_PICKER_WIDTH - 28 - ICON_PICKER_GAP * 2) / 3);
 
 export default function AddSubscriptionModal() {
     const router = useRouter();
@@ -400,88 +394,14 @@ export default function AddSubscriptionModal() {
                 </View>
             </ScrollView>
 
-            <Modal
-                allowSwipeDismissal={Platform.OS === 'ios'}
-                animationType={Platform.OS === 'ios' ? 'slide' : 'fade'}
-                presentationStyle={Platform.OS === 'ios' ? 'pageSheet' : 'overFullScreen'}
-                transparent={Platform.OS !== 'ios'}
+            <SubscriptionIconPickerSheet
                 visible={showIconPickerModal}
-                onRequestClose={() => setShowIconPickerModal(false)}
-            >
-                <View
-                    style={{
-                        flex: 1,
-                        justifyContent: Platform.OS === 'ios' ? 'flex-start' : 'center',
-                        alignItems: 'center',
-                        backgroundColor: Platform.OS === 'ios'
-                            ? screenBackgroundColor
-                            : 'rgba(0,0,0,0.45)',
-                    }}
-                >
-                    {Platform.OS !== 'ios' ? (
-                        <Pressable
-                            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-                            onPress={() => setShowIconPickerModal(false)}
-                        />
-                    ) : null}
-
-                    <View
-                        style={{
-                            width: ICON_PICKER_WIDTH,
-                            borderRadius: Platform.OS === 'ios' ? 0 : 16,
-                            backgroundColor: Platform.OS === 'ios'
-                                ? screenBackgroundColor
-                                : (isDark ? '#1C1C1E' : '#FFFFFF'),
-                            paddingHorizontal: 14,
-                            paddingTop: Platform.OS === 'ios' ? 24 : 14,
-                            paddingBottom: Platform.OS === 'ios' ? 24 : 12,
-                            maxHeight: Platform.OS === 'ios' ? '92%' : '72%',
-                        }}
-                    >
-                        <Text style={{ fontSize: 16, fontWeight: '700', color: isDark ? '#FFFFFF' : '#111827', marginBottom: 12 }}>
-                            {t('billing.pick_icon_title')}
-                        </Text>
-
-                        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 4 }}>
-                            <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-                                {SUBSCRIPTION_ICON_PRESETS.map((icon, index) => (
-                                    <Pressable
-                                        key={icon.id}
-                                        onPress={() => handleSelectPresetIcon(icon)}
-                                        style={{
-                                            width: ICON_PICKER_TILE_SIZE,
-                                            height: ICON_PICKER_TILE_SIZE,
-                                            borderRadius: 12,
-                                            backgroundColor: isDark ? '#2C2C2E' : '#F3F4F6',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            borderWidth: 1,
-                                            borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
-                                            marginRight: index % 3 === 2 ? 0 : ICON_PICKER_GAP,
-                                            marginBottom: ICON_PICKER_GAP,
-                                        }}
-                                    >
-                                        {icon.pack === 'fontawesome5' ? (
-                                            <FontAwesome5 name={icon.name} size={24} color={icon.color} />
-                                        ) : (
-                                            <Ionicons name={icon.name} size={24} color={icon.color} />
-                                        )}
-                                    </Pressable>
-                                ))}
-                            </View>
-                        </ScrollView>
-
-                        <Pressable
-                            onPress={() => setShowIconPickerModal(false)}
-                            style={{ marginTop: 10, alignItems: 'center', paddingVertical: 8 }}
-                        >
-                            <Text style={{ color: '#3B82F6', fontSize: 14, fontWeight: '600' }}>
-                                {t('billing.cancel')}
-                            </Text>
-                        </Pressable>
-                    </View>
-                </View>
-            </Modal>
+                isDark={isDark}
+                title={t('billing.pick_icon_title')}
+                cancelLabel={t('billing.cancel')}
+                onClose={() => setShowIconPickerModal(false)}
+                onSelect={handleSelectPresetIcon}
+            />
         </KeyboardAvoidingView>
     );
 }
