@@ -74,6 +74,36 @@ describe('checkRepositoryUpdate', () => {
         });
     });
 
+    test('tells a beta install about the stable release of the same version', async () => {
+        fetchWithTimeoutMock.mockResolvedValue(response(200, {
+            tag_name: 'v2.0.0',
+            html_url: 'https://github.com/Ahoshinet/subscription-app/releases/tag/v2.0.0',
+        }));
+
+        await expect(checkRepositoryUpdate('2.0.0-beta32')).resolves.toEqual({
+            currentVersion: '2.0.0-beta32',
+            latestVersion: '2.0.0',
+            releaseUrl: 'https://github.com/Ahoshinet/subscription-app/releases/tag/v2.0.0',
+        });
+    });
+
+    test('does not offer a beta release that is not flagged as a prerelease', async () => {
+        fetchWithTimeoutMock
+            .mockResolvedValueOnce(response(200, { tag_name: 'v2.0.0-beta32' }))
+            .mockResolvedValueOnce(response(200, [
+                { name: 'v2.0.0-beta32' },
+                { name: 'v1.3.0' },
+            ]));
+
+        await expect(checkRepositoryUpdate('1.3.0')).resolves.toBeNull();
+    });
+
+    test('does not treat an older stable release as newer than a later beta', async () => {
+        fetchWithTimeoutMock.mockResolvedValue(response(200, { tag_name: 'v1.3.0' }));
+
+        await expect(checkRepositoryUpdate('2.0.0-beta32')).resolves.toBeNull();
+    });
+
     test('returns null when the installed version is current', async () => {
         fetchWithTimeoutMock.mockResolvedValue(response(200, {
             tag_name: 'v1.0.0',
