@@ -52,6 +52,10 @@ updates:
       - dependency-name: "@react-native-async-storage/async-storage"
       - dependency-name: "@react-native-community/datetimepicker"
       - dependency-name: "typescript"
+      # @react-native/jest-preset must stay on the same minor as react-native;
+      # only patch updates are safe via Dependabot.
+      - dependency-name: "@react-native/jest-preset"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
     
   # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
