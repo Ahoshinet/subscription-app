@@ -93,7 +93,7 @@ export default function SubscriptionIconPickerSheet({
                 onDismiss={onClose}
             >
                 <Group modifiers={[
-                    presentationDetents(['medium', 'large'], { selection: 'large' }),
+                    presentationDetents(['large']),
                     presentationDragIndicator('visible'),
                 ]}>
                     <VStack
