@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import {
     Modal, View, Text, Pressable, Animated,
     ScrollView, TextInput, Image,
-    Platform, Dimensions, KeyboardAvoidingView, Alert,
+    Platform, Dimensions, KeyboardAvoidingView, Alert, StyleSheet,
 } from 'react-native';
+import SegmentedControl from '@expo/ui/community/segmented-control';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
@@ -88,6 +89,12 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
 
     useEffect(() => {
         if (visible) {
+            if (Platform.OS === 'ios') {
+                translateY.setValue(0);
+                backdropOpacity.setValue(1);
+                return;
+            }
+
             translateY.setValue(SCREEN_HEIGHT);
             backdropOpacity.setValue(0);
             Animated.parallel([
@@ -107,6 +114,26 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
     }, [backdropOpacity, translateY, visible]);
 
     const close = () => {
+        const reset = () => {
+            setSection('brand');
+            setCardLast4('');
+            setCustomLabel('');
+            setCustomIconUri(null);
+            setCustomIconName(null);
+            setCustomIconColor('#6B7280');
+            setShowIconPresetModal(false);
+            setSelectedBrand(null);
+            setBrandMemo('');
+            setCardMemo('');
+            setCustomMemo('');
+        };
+
+        if (Platform.OS === 'ios') {
+            reset();
+            onClose();
+            return;
+        }
+
         Animated.parallel([
             Animated.timing(translateY, {
                 toValue: SCREEN_HEIGHT,
@@ -119,17 +146,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                 useNativeDriver: true,
             }),
         ]).start(() => {
-            setSection('brand');
-            setCardLast4('');
-            setCustomLabel('');
-            setCustomIconUri(null);
-            setCustomIconName(null);
-            setCustomIconColor('#6B7280');
-            setShowIconPresetModal(false);
-            setSelectedBrand(null);
-            setBrandMemo('');
-            setCardMemo('');
-            setCustomMemo('');
+            reset();
             onClose();
         });
     };
@@ -236,50 +253,71 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
         { key: 'card',   label: t('billing.tab_card') },
         { key: 'custom', label: t('billing.tab_custom') },
     ];
+    const selectedTabIndex = tabs.findIndex((tab) => tab.key === section);
+    const selectSection = (nextSection: 'brand' | 'card' | 'custom') => {
+        setSection(nextSection);
+        setSelectedBrand(null);
+        setBrandMemo('');
+    };
 
     return (
         <Modal
-            transparent
-            animationType="none"
+            testID="add-payment-method-sheet"
+            transparent={Platform.OS !== 'ios'}
+            animationType={Platform.OS === 'ios' ? 'slide' : 'none'}
+            presentationStyle={Platform.OS === 'ios' ? 'pageSheet' : 'overFullScreen'}
+            allowSwipeDismissal={Platform.OS === 'ios'}
             visible
-            statusBarTranslucent
+            statusBarTranslucent={Platform.OS !== 'ios'}
             onRequestClose={close}
         >
             <KeyboardAvoidingView
-                style={{ flex: 1, justifyContent: 'flex-end' }}
+                style={{
+                    flex: 1,
+                    justifyContent: Platform.OS === 'ios' ? 'flex-start' : 'flex-end',
+                    backgroundColor: Platform.OS === 'ios' ? bg : 'transparent',
+                }}
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             >
                 {/* Backdrop */}
-                <Animated.View
-                    style={{
-                        position: 'absolute',
-                        top: 0, left: 0, right: 0, bottom: 0,
-                        backgroundColor: 'rgba(0,0,0,0.5)',
-                        opacity: backdropOpacity,
-                    }}
-                >
-                    <Pressable style={{ flex: 1 }} onPress={close} />
-                </Animated.View>
+                {Platform.OS !== 'ios' && (
+                    <Animated.View
+                        style={{
+                            position: 'absolute',
+                            top: 0, left: 0, right: 0, bottom: 0,
+                            backgroundColor: 'rgba(0,0,0,0.5)',
+                            opacity: backdropOpacity,
+                        }}
+                    >
+                        <Pressable style={{ flex: 1 }} onPress={close} />
+                    </Animated.View>
+                )}
 
                 {/* Sheet */}
                 <Animated.View
                     style={{
                         backgroundColor: bg,
-                        borderTopLeftRadius: 22,
-                        borderTopRightRadius: 22,
-                        maxHeight: SCREEN_HEIGHT * 0.82,
-                        transform: [{ translateY }],
+                        ...(Platform.OS === 'ios'
+                            ? { flex: 1 }
+                            : {
+                                borderTopLeftRadius: 22,
+                                borderTopRightRadius: 22,
+                                maxHeight: SCREEN_HEIGHT * 0.82,
+                                transform: [{ translateY }],
+                            }),
                     }}
                 >
                     {/* Handle */}
-                    <View style={{ alignItems: 'center', paddingTop: 10 }}>
-                        <View
-                            style={{
-                                width: 38, height: 4, borderRadius: 2,
-                                backgroundColor: textSub, opacity: 0.35,
-                            }}
-                        />
-                    </View>
+                    {Platform.OS !== 'ios' && (
+                        <View style={{ alignItems: 'center', paddingTop: 10 }}>
+                            <View
+                                style={{
+                                    width: 38, height: 4, borderRadius: 2,
+                                    backgroundColor: textSub, opacity: 0.35,
+                                }}
+                            />
+                        </View>
+                    )}
 
                     {/* Title row */}
                     <View
@@ -298,34 +336,48 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                     </View>
 
                     {/* Segmented control */}
-                    <View
-                        style={{
-                            flexDirection: 'row', marginHorizontal: 20,
-                            backgroundColor: segBg, borderRadius: 10,
-                            padding: 3, marginBottom: 18,
-                        }}
-                    >
-                        {tabs.map(({ key, label }) => (
-                            <Pressable
-                                key={key}
-                                onPress={() => { setSection(key); setSelectedBrand(null); setBrandMemo(''); }}
-                                style={{
-                                    flex: 1, paddingVertical: 7, borderRadius: 8, alignItems: 'center',
-                                    backgroundColor: section === key ? bg : 'transparent',
-                                }}
-                            >
-                                <Text
+                    {Platform.OS === 'ios' ? (
+                        <SegmentedControl
+                            values={tabs.map((tab) => tab.label)}
+                            selectedIndex={selectedTabIndex}
+                            appearance={isDark ? 'dark' : 'light'}
+                            onChange={(event) => {
+                                const nextSection = tabs[event.nativeEvent.selectedSegmentIndex]?.key;
+                                if (nextSection) selectSection(nextSection);
+                            }}
+                            style={{ marginHorizontal: 20, marginBottom: 18 }}
+                            testID="payment-method-section-picker"
+                        />
+                    ) : (
+                        <View
+                            style={{
+                                flexDirection: 'row', marginHorizontal: 20,
+                                backgroundColor: segBg, borderRadius: 10,
+                                padding: 3, marginBottom: 18,
+                            }}
+                        >
+                            {tabs.map(({ key, label }) => (
+                                <Pressable
+                                    key={key}
+                                    onPress={() => selectSection(key)}
                                     style={{
-                                        fontSize: 13,
-                                        fontWeight: section === key ? '600' : '400',
-                                        color: section === key ? textPrimary : textSub,
+                                        flex: 1, paddingVertical: 7, borderRadius: 8, alignItems: 'center',
+                                        backgroundColor: section === key ? bg : 'transparent',
                                     }}
                                 >
-                                    {label}
-                                </Text>
-                            </Pressable>
-                        ))}
-                    </View>
+                                    <Text
+                                        style={{
+                                            fontSize: 13,
+                                            fontWeight: section === key ? '600' : '400',
+                                            color: section === key ? textPrimary : textSub,
+                                        }}
+                                    >
+                                        {label}
+                                    </Text>
+                                </Pressable>
+                            ))}
+                        </View>
+                    )}
 
                     <ScrollView
                         style={{ paddingHorizontal: 20 }}
@@ -336,61 +388,112 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                     >
                         {/* ── Brand ── */}
                         {section === 'brand' && !selectedBrand && (
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    flexWrap: 'wrap',
-                                    justifyContent: 'space-between',
-                                    rowGap: BRAND_GRID_GAP,
-                                }}
-                            >
-                                {PRESET_BRANDS.map((brand) => (
-                                    <Pressable
-                                        key={brand.id}
-                                        onPress={() => handleSelectBrand(brand)}
-                                        style={{
-                                            width: BRAND_TILE_SIZE,
-                                            height: BRAND_TILE_SIZE,
-                                            borderRadius: 16,
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            backgroundColor: `${brand.color}15`,
-                                            borderWidth: 1.5,
-                                            borderColor: borderCol,
-                                            paddingHorizontal: 8,
-                                            paddingTop: 12,
-                                            paddingBottom: 12,
-                                        }}
-                                    >
-                                        <View
+                            Platform.OS === 'ios' ? (
+                                <View style={{ backgroundColor: segBg, borderRadius: 14, overflow: 'hidden' }}>
+                                    {PRESET_BRANDS.map((brand, index) => (
+                                        <Pressable
+                                            key={brand.id}
+                                            testID={`payment-brand-row-${brand.id}`}
+                                            accessibilityRole="button"
+                                            onPress={() => handleSelectBrand(brand)}
                                             style={{
-                                                flex: 1,
-                                                width: '100%',
+                                                minHeight: 58,
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                                paddingLeft: 12,
+                                            }}
+                                        >
+                                            <View
+                                                style={{
+                                                    width: 36,
+                                                    height: 36,
+                                                    borderRadius: 9,
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    backgroundColor: `${brand.color}18`,
+                                                }}
+                                            >
+                                                <Ionicons name={brand.iconName} size={20} color={brand.color} />
+                                            </View>
+                                            <View
+                                                style={{
+                                                    flex: 1,
+                                                    minHeight: 58,
+                                                    marginLeft: 12,
+                                                    paddingRight: 10,
+                                                    flexDirection: 'row',
+                                                    alignItems: 'center',
+                                                    borderBottomWidth: index < PRESET_BRANDS.length - 1
+                                                        ? StyleSheet.hairlineWidth
+                                                        : 0,
+                                                    borderBottomColor: borderCol,
+                                                }}
+                                            >
+                                                <Text style={{ flex: 1, fontSize: 16, color: textPrimary }}>
+                                                    {brand.label}
+                                                </Text>
+                                                <Ionicons name="chevron-forward" size={20} color={textSub} />
+                                            </View>
+                                        </Pressable>
+                                    ))}
+                                </View>
+                            ) : (
+                                <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        flexWrap: 'wrap',
+                                        justifyContent: 'space-between',
+                                        rowGap: BRAND_GRID_GAP,
+                                    }}
+                                >
+                                    {PRESET_BRANDS.map((brand) => (
+                                        <Pressable
+                                            key={brand.id}
+                                            onPress={() => handleSelectBrand(brand)}
+                                            style={{
+                                                width: BRAND_TILE_SIZE,
+                                                height: BRAND_TILE_SIZE,
+                                                borderRadius: 16,
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
+                                                backgroundColor: `${brand.color}15`,
+                                                borderWidth: 1.5,
+                                                borderColor: borderCol,
+                                                paddingHorizontal: 8,
+                                                paddingTop: 12,
+                                                paddingBottom: 12,
                                             }}
                                         >
-                                            <Ionicons name={brand.iconName} size={30} color={brand.color} />
-                                        </View>
-                                        <Text
-                                            numberOfLines={1}
-                                            adjustsFontSizeToFit
-                                            minimumFontScale={0.78}
-                                            style={{
-                                                fontSize: 10,
-                                                lineHeight: 13,
-                                                color: textSub,
-                                                fontWeight: '500',
-                                                textAlign: 'center',
-                                                width: '100%',
-                                                marginTop: 8,
-                                            }}
-                                        >
-                                            {brand.label}
-                                        </Text>
-                                    </Pressable>
-                                ))}
-                            </View>
+                                            <View
+                                                style={{
+                                                    flex: 1,
+                                                    width: '100%',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                }}
+                                            >
+                                                <Ionicons name={brand.iconName} size={30} color={brand.color} />
+                                            </View>
+                                            <Text
+                                                numberOfLines={1}
+                                                adjustsFontSizeToFit
+                                                minimumFontScale={0.78}
+                                                style={{
+                                                    fontSize: 10,
+                                                    lineHeight: 13,
+                                                    color: textSub,
+                                                    fontWeight: '500',
+                                                    textAlign: 'center',
+                                                    width: '100%',
+                                                    marginTop: 8,
+                                                }}
+                                            >
+                                                {brand.label}
+                                            </Text>
+                                        </Pressable>
+                                    ))}
+                                </View>
+                            )
                         )}
 
                         {/* ── Brand Label Step ── */}
