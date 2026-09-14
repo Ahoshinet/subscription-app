@@ -35,9 +35,11 @@ jest.mock('@/hooks/use-color-scheme', () => ({
     useColorScheme: () => 'light',
 }));
 
+const mockAddMethod = jest.fn<() => Promise<void>>();
+
 jest.mock('@/store/usePaymentMethodStore', () => ({
     usePaymentMethodStore: () => ({
-        addMethod: jest.fn(),
+        addMethod: mockAddMethod,
     }),
 }));
 
@@ -94,5 +96,25 @@ describe('AddPaymentMethodSheet', () => {
         }));
         expect(cardMemo.props.autoCapitalize).toBe('none');
         expect(cardMemo.props.autoCorrect).toBe(false);
+    }, 15000);
+
+    test('submits a brand only once when Add is tapped repeatedly during the close animation', async () => {
+        mockAddMethod.mockReset();
+        mockAddMethod.mockResolvedValue(undefined);
+        const screen = await render(
+            <AddPaymentMethodSheet visible onClose={jest.fn()} />
+        );
+
+        await fireEvent.press(screen.getByText('PayPal'));
+        const addButton = screen.getByText('Add');
+        await fireEvent.press(addButton);
+        await fireEvent.press(addButton);
+        await fireEvent.press(addButton);
+
+        expect(mockAddMethod).toHaveBeenCalledTimes(1);
+        expect(mockAddMethod).toHaveBeenCalledWith(expect.objectContaining({
+            type: 'preset',
+            label: 'PayPal',
+        }));
     }, 15000);
 });

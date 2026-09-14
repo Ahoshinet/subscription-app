@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
     View, Text, Pressable, ScrollView, TextInput, Image,
     Dimensions, KeyboardAvoidingView, Alert, StyleSheet, Modal,
@@ -46,8 +46,19 @@ export default function AddPaymentMethodScreen() {
     const [cardMemo, setCardMemo] = useState('');
     const [customMemo, setCustomMemo] = useState('');
 
+    // router.back() dismisses asynchronously, so a second tap during the
+    // dismiss animation would submit again (server: 409 label already exists).
+    const submittedRef = useRef(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const beginSubmit = () => {
+        if (submittedRef.current) return false;
+        submittedRef.current = true;
+        setIsSubmitting(true);
+        return true;
+    };
+
     const handleAddCard = async () => {
-        if (cardLast4.length !== 4) return;
+        if (cardLast4.length !== 4 || !beginSubmit()) return;
         router.back();
         try {
             await addMethod({
@@ -65,7 +76,7 @@ export default function AddPaymentMethodScreen() {
     };
 
     const handleAddCustom = async () => {
-        if (!customLabel.trim()) return;
+        if (!customLabel.trim() || !beginSubmit()) return;
         router.back();
         try {
             await addMethod({
@@ -296,7 +307,7 @@ export default function AddPaymentMethodScreen() {
 
                         <Pressable
                             onPress={handleAddCard}
-                            disabled={cardLast4.length !== 4}
+                            disabled={cardLast4.length !== 4 || isSubmitting}
                             style={{
                                 backgroundColor: cardLast4.length === 4 ? '#3B82F6' : segBg,
                                 borderRadius: 14, paddingVertical: 16, alignItems: 'center',
@@ -376,7 +387,7 @@ export default function AddPaymentMethodScreen() {
 
                         <Pressable
                             onPress={handleAddCustom}
-                            disabled={!customLabel.trim()}
+                            disabled={!customLabel.trim() || isSubmitting}
                             style={{
                                 backgroundColor: customLabel.trim() ? '#3B82F6' : segBg,
                                 borderRadius: 14, paddingVertical: 16, alignItems: 'center',

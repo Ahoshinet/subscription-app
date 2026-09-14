@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     Modal, View, Text, Pressable, Animated,
     ScrollView, TextInput, Image,
@@ -59,6 +59,18 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
     const [cardMemo, setCardMemo] = useState('');
     const [customMemo, setCustomMemo] = useState('');
 
+    // close() animates before unmounting, so a second tap during the animation
+    // would submit again (server: 409 label already exists). The sheet stays
+    // mounted between uses, so the guard is reset once the close completes.
+    const submittedRef = useRef(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const beginSubmit = () => {
+        if (submittedRef.current) return false;
+        submittedRef.current = true;
+        setIsSubmitting(true);
+        return true;
+    };
+
     useEffect(() => {
         if (visible) {
             translateY.setValue(SCREEN_HEIGHT);
@@ -103,6 +115,8 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
             setBrandMemo('');
             setCardMemo('');
             setCustomMemo('');
+            submittedRef.current = false;
+            setIsSubmitting(false);
             onClose();
         });
     };
@@ -113,7 +127,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
     };
 
     const handleConfirmBrand = async () => {
-        if (!selectedBrand) return;
+        if (!selectedBrand || !beginSubmit()) return;
         close();
         try {
             await addMethod({
@@ -129,7 +143,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
     };
 
     const handleAddCard = async () => {
-        if (cardLast4.length !== 4) return;
+        if (cardLast4.length !== 4 || !beginSubmit()) return;
         close();
         try {
             await addMethod({
@@ -147,7 +161,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
     };
 
     const handleAddCustom = async () => {
-        if (!customLabel.trim()) return;
+        if (!customLabel.trim() || !beginSubmit()) return;
         close();
         try {
             await addMethod({
@@ -425,6 +439,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
 
                                 <Pressable
                                     onPress={handleConfirmBrand}
+                                    disabled={isSubmitting}
                                     style={{
                                         backgroundColor: '#3B82F6',
                                         borderRadius: 14, paddingVertical: 16, alignItems: 'center',
@@ -535,7 +550,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
 
                                 <Pressable
                                     onPress={handleAddCard}
-                                    disabled={cardLast4.length !== 4}
+                                    disabled={cardLast4.length !== 4 || isSubmitting}
                                     style={{
                                         backgroundColor: cardLast4.length === 4 ? '#3B82F6' : segBg,
                                         borderRadius: 14, paddingVertical: 16, alignItems: 'center',
@@ -640,7 +655,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
 
                                 <Pressable
                                     onPress={handleAddCustom}
-                                    disabled={!customLabel.trim()}
+                                    disabled={!customLabel.trim() || isSubmitting}
                                     style={{
                                         backgroundColor: customLabel.trim() ? '#3B82F6' : segBg,
                                         borderRadius: 14, paddingVertical: 16, alignItems: 'center',

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { View, Text, Pressable, TextInput, KeyboardAvoidingView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -22,6 +22,10 @@ export default function AddPaymentMethodBrandScreen() {
     const { addMethod } = usePaymentMethodStore();
 
     const [memo, setMemo] = useState('');
+    // goBack() dismisses asynchronously; guard against a second tap during
+    // the animation submitting the same method twice.
+    const submittedRef = useRef(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const brand = PRESET_BRANDS.find((b) => b.id === params.brandId);
 
@@ -35,6 +39,9 @@ export default function AddPaymentMethodBrandScreen() {
     if (!brand) return null;
 
     const handleConfirm = async () => {
+        if (submittedRef.current) return;
+        submittedRef.current = true;
+        setIsSubmitting(true);
         // Close the whole modal sheet (this nested Stack) in one go, back to
         // whatever screen launched the flow. A plain back() would only pop
         // this screen inside the sheet.
@@ -105,6 +112,7 @@ export default function AddPaymentMethodBrandScreen() {
 
                 <Pressable
                     onPress={() => { void handleConfirm(); }}
+                    disabled={isSubmitting}
                     style={{
                         backgroundColor: '#3B82F6',
                         borderRadius: 14, paddingVertical: 16, alignItems: 'center',
