@@ -19,24 +19,28 @@ export default function SubscriptionIconPickerSheet({
     onClose,
     onSelect,
 }: SubscriptionIconPickerSheetProps) {
-    const backgroundColor = isDark ? '#1C1C1E' : '#F2F2F7';
-
     return (
         <Modal
-            allowSwipeDismissal
-            animationType="slide"
-            presentationStyle="pageSheet"
+            transparent
+            animationType="fade"
             visible={visible}
             onRequestClose={onClose}
         >
-            <View style={{ flex: 1, alignItems: 'center', backgroundColor }}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.45)' }}>
+                <Pressable
+                    style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+                    onPress={onClose}
+                />
+
                 <View
                     style={{
                         width: ICON_PICKER_WIDTH,
+                        borderRadius: 16,
+                        backgroundColor: isDark ? '#1C1C1E' : '#FFFFFF',
                         paddingHorizontal: 14,
-                        paddingTop: 24,
-                        paddingBottom: 24,
-                        maxHeight: '92%',
+                        paddingTop: 14,
+                        paddingBottom: 12,
+                        maxHeight: '72%',
                     }}
                 >
                     <Text style={{ fontSize: 16, fontWeight: '700', color: isDark ? '#FFFFFF' : '#111827' }}>
