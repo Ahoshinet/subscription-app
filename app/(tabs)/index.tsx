@@ -4,6 +4,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { SubscriptionCard } from '@/components/SubscriptionCard';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
+import MenuView from '@expo/ui/community/menu';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -184,12 +185,6 @@ export default function HomeScreen() {
   }, [subscriptions, paidyVirtualSub, searchQuery, sortKey]);
 
 
-  const nextSortKey = (): SortKey => {
-    if (sortKey === 'date') return 'name';
-    if (sortKey === 'name') return 'amount';
-    return 'date';
-  };
-
   const sortLabel = () => {
     switch (sortKey) {
       case 'name': return t('home.sort_name');
@@ -296,15 +291,22 @@ export default function HomeScreen() {
                 )}
               </View>
             ) : null}
-            <Pressable
-              onPress={() => setSortKey(nextSortKey())}
-              className="flex-row items-center self-end"
+            <MenuView
+              onPressAction={({ nativeEvent: { event } }) => setSortKey(event as SortKey)}
+              actions={[
+                { id: 'date', title: t('home.sort_date'), image: 'calendar', state: sortKey === 'date' ? 'on' : 'off' },
+                { id: 'name', title: t('home.sort_name'), image: 'textformat', state: sortKey === 'name' ? 'on' : 'off' },
+                { id: 'amount', title: t('home.sort_amount'), image: 'banknote', state: sortKey === 'amount' ? 'on' : 'off' },
+              ]}
+              style={{ alignSelf: 'flex-end' }}
             >
-              <Ionicons name="swap-vertical" size={16} color={isDark ? '#6B7280' : '#9CA3AF'} />
-              <Text className="text-sm text-neutral-500 dark:text-neutral-400 ml-1">
-                {sortLabel()}
-              </Text>
-            </Pressable>
+              <View className="flex-row items-center">
+                <Ionicons name="swap-vertical" size={16} color={isDark ? '#6B7280' : '#9CA3AF'} />
+                <Text className="text-sm text-neutral-500 dark:text-neutral-400 ml-1">
+                  {sortLabel()}
+                </Text>
+              </View>
+            </MenuView>
           </View>
         )}
 
