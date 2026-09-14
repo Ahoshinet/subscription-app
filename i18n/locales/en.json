@@ -220,7 +220,16 @@
         "license": "License",
         "report_issue": "Report Issue",
         "role_developer": "Developer",
-        "role_org": "Organization"
+        "role_org": "Organization",
+        "acknowledgements": "Acknowledgements"
+    },
+    "acknowledgements": {
+        "title": "Acknowledgements",
+        "intro_body": "Subscription Manager is built on the work of many open-source projects and their communities. Our sincere thanks go to every developer and contributor who builds and maintains them.",
+        "section_libraries": "Open-source libraries",
+        "libraries_note": "Libraries used directly by this app. Tap an item to open its repository.",
+        "full_licenses": "View full license texts",
+        "full_licenses_note": "The full license text for every library is published on GitHub."
     },
     "common": {
         "cancel": "Cancel",

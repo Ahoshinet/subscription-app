@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, ScrollView, Platform, Dimensions, Pressable, Linking } from 'react-native';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
@@ -79,10 +79,40 @@ function LinkRow({
     );
 }
 
+function NavRow({
+    icon,
+    label,
+    onPress,
+    isLast = false,
+}: {
+    icon: keyof typeof Ionicons.glyphMap;
+    label: string;
+    onPress: () => void;
+    isLast?: boolean;
+}) {
+    return (
+        <Pressable
+            onPress={onPress}
+            className={`flex-row items-center justify-between px-4 py-4 ${!isLast ? 'border-b border-neutral-100 dark:border-white/5' : ''}`}
+        >
+            <View className="flex-row items-center flex-1">
+                <View className="w-8 h-8 rounded-lg bg-neutral-100 dark:bg-white/10 items-center justify-center mr-3">
+                    <Ionicons name={icon} size={18} color="#808080" />
+                </View>
+                <Text className="text-base font-medium text-neutral-900 dark:text-white">
+                    {label}
+                </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
+        </Pressable>
+    );
+}
+
 export default function AboutScreen() {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
     const { t } = useTranslation();
+    const router = useRouter();
     const { language, theme } = useSettingsStore();
     const [serverVersion, setServerVersion] = useState<string | null>(null);
 
@@ -208,6 +238,11 @@ export default function AboutScreen() {
                 <View className="rounded-2xl overflow-hidden shadow-sm shadow-neutral-200/50 dark:shadow-none border border-neutral-200/50 dark:border-white/10 bg-white dark:bg-[#1C1C1E]">
                     <InfoRow icon="person-outline" label={t('about.developer')} value="darui3018823 / Ahoshinet" />
                     <InfoRow icon="document-text-outline" label={t('about.license')} value="BSD 2-Clause" />
+                    <NavRow
+                        icon="heart-outline"
+                        label={t('about.acknowledgements')}
+                        onPress={() => router.push('/settings/acknowledgements')}
+                    />
                     <LinkRow
                         icon="logo-github"
                         label="GitHub Repository"

@@ -19,6 +19,7 @@ jest.mock('expo-constants', () => ({
 }));
 
 jest.mock('expo-router', () => ({
+  useRouter: () => ({ push: jest.fn() }),
   Stack: {
     Screen: ({ options }: { options: { headerShadowVisible?: boolean } }) => {
       mockHeaderOptions = options;
@@ -85,7 +86,7 @@ describe('iOS about screen', () => {
     expect(mockHeaderOptions?.headerShadowVisible).toBe(false);
     expect(mockSymbolView.mock.calls.map(([props]) => (
       props as { name: string }
-    ).name)).toEqual(['chevron.right', 'chevron.right']);
+    ).name)).toEqual(['chevron.right', 'chevron.right', 'chevron.right']);
     await screen.unmount();
   });
 });

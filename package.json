@@ -20,6 +20,7 @@
     "typecheck": "tsc --noEmit",
     "typecheck:legacy": "tsc6 --noEmit",
     "perf:android": "node ./scripts/measure-android-performance.js",
+    "licenses:generate": "node ./scripts/generate-licenses.js",
     "version:patch": "node update-version.js patch",
     "version:minor": "node update-version.js minor",
     "version:major": "node update-version.js major",

@@ -1,5 +1,5 @@
 import Constants from 'expo-constants';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 import React, { useEffect, useState } from 'react';
 import { Dimensions, Image, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -65,15 +65,15 @@ interface LinkRowProps {
   chevronColor: string;
   isLast?: boolean;
   label: string;
+  onPress: () => void;
   separatorColor: string;
-  url: string;
 }
 
-function LinkRow({ chevronColor, isLast = false, label, separatorColor, url }: LinkRowProps) {
+function LinkRow({ chevronColor, isLast = false, label, onPress, separatorColor }: LinkRowProps) {
   return (
     <Pressable
       className="flex-row items-center justify-between px-4"
-      onPress={() => Linking.openURL(url)}
+      onPress={onPress}
       style={styles.infoRow}
     >
       <View className="flex-row items-center flex-1">
@@ -105,6 +105,7 @@ export default function AboutScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const { t } = useTranslation();
+  const router = useRouter();
   const { language, theme } = useSettingsStore();
   const [serverVersion, setServerVersion] = useState<string | null>(null);
 
@@ -231,8 +232,9 @@ export default function AboutScreen() {
         >
           <InfoRow label={t('about.developer')} value="darui3018823 / Ahoshinet" separatorColor={separatorColor} />
           <InfoRow label={t('about.license')} value="BSD 2-Clause" separatorColor={separatorColor} />
-          <LinkRow chevronColor={chevronColor} label="GitHub Repository" url="https://github.com/Ahoshinet/subscription-app" separatorColor={separatorColor} />
-          <LinkRow chevronColor={chevronColor} isLast label={t('about.report_issue')} url="https://github.com/Ahoshinet/subscription-app/issues" separatorColor={separatorColor} />
+          <LinkRow chevronColor={chevronColor} label={t('about.acknowledgements')} onPress={() => router.push('/settings/acknowledgements')} separatorColor={separatorColor} />
+          <LinkRow chevronColor={chevronColor} label="GitHub Repository" onPress={() => Linking.openURL('https://github.com/Ahoshinet/subscription-app')} separatorColor={separatorColor} />
+          <LinkRow chevronColor={chevronColor} isLast label={t('about.report_issue')} onPress={() => Linking.openURL('https://github.com/Ahoshinet/subscription-app/issues')} separatorColor={separatorColor} />
         </View>
       </ScrollView>
     </>

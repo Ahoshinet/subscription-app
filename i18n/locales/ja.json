@@ -220,7 +220,16 @@
         "license": "ライセンス",
         "report_issue": "バグを報告",
         "role_developer": "開発者",
-        "role_org": "Organization"
+        "role_org": "Organization",
+        "acknowledgements": "謝辞"
+    },
+    "acknowledgements": {
+        "title": "謝辞",
+        "intro_body": "Subscription Manager は、多くのオープンソースソフトウェアとそのコミュニティの成果の上に成り立っています。日々の開発・保守に携わるすべての開発者・貢献者の皆さまに心より感謝いたします。",
+        "section_libraries": "オープンソースライブラリ",
+        "libraries_note": "本アプリが直接利用しているライブラリの一覧です。各項目をタップするとリポジトリを開きます。",
+        "full_licenses": "ライセンス全文を見る",
+        "full_licenses_note": "各ライブラリのライセンス本文は GitHub 上で公開しています。"
     },
     "common": {
         "cancel": "キャンセル",
