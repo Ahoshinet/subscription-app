@@ -3,7 +3,7 @@ import {
     View, Text, Pressable, ScrollView, TextInput, Image,
     Dimensions, KeyboardAvoidingView, Alert, StyleSheet, Modal,
 } from 'react-native';
-import SegmentedControl from '@expo/ui/community/segmented-control';
+import Segments from '@expo/ui/community/segmented-control';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { InvalidIconImageError, pickIconImage, type IconSource } from '@/lib/iconPicker';
@@ -145,7 +145,7 @@ export default function AddPaymentMethodScreen() {
                 }}
             />
 
-            <SegmentedControl
+            <Segments
                 values={tabs.map((tab) => tab.label)}
                 selectedIndex={selectedTabIndex}
                 appearance={isDark ? 'dark' : 'light'}

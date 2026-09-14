@@ -4,7 +4,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { SubscriptionCard } from '@/components/SubscriptionCard';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import MenuView from '@expo/ui/community/menu';
+import Menu from '@expo/ui/community/menu';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -307,7 +307,7 @@ export default function HomeScreen() {
                 )}
               </View>
             ) : null}
-            <MenuView
+            <Menu
               onPressAction={({ nativeEvent: { event } }) => {
                 if (event === 'toggle-inactive') {
                   setShowInactive(v => !v);
@@ -341,7 +341,7 @@ export default function HomeScreen() {
                   {sortLabel()}
                 </Text>
               </View>
-            </MenuView>
+            </Menu>
           </View>
         )}
 
