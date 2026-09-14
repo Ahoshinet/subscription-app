@@ -52,6 +52,20 @@ export default function SubscriptionSearchScreen() {
     } : null
   ), [gmailSignedIn, paidyAmount, paidyMonth, paidyNextDate, todayDate]);
 
+  // Same resolution as the Home tab: the stored next_payment_date is an
+  // anchor that can go stale, so sorting on the raw field would rank an old
+  // anchor as the earliest upcoming payment.
+  const effectiveDateFor = useCallback((subscription: Subscription): string => (
+    subscription.id === -1
+      ? subscription.next_payment_date
+      : getEffectiveNextPaymentDate(
+        subscription.next_payment_date,
+        subscription.billing_cycle,
+        todayDate,
+        subscription.billing_anchor_day,
+      )
+  ), [todayDate]);
+
   const results = useMemo(() => {
     if (!query.trim()) return [];
 
@@ -60,8 +74,8 @@ export default function SubscriptionSearchScreen() {
       : [...subscriptions];
 
     return filterSubscriptionsByQuery(searchableSubscriptions, query)
-      .sort((left, right) => left.next_payment_date.localeCompare(right.next_payment_date));
-  }, [paidyVirtualSubscription, query, subscriptions]);
+      .sort((left, right) => effectiveDateFor(left).localeCompare(effectiveDateFor(right)));
+  }, [effectiveDateFor, paidyVirtualSubscription, query, subscriptions]);
   const hasSearchableSubscriptions = subscriptions.length > 0 || paidyVirtualSubscription !== null;
   const hasQuery = query.trim().length > 0;
 
@@ -132,15 +146,10 @@ export default function SubscriptionSearchScreen() {
         ) : null}
 
         {hasQuery ? results.map((subscription) => {
-          const effectiveDate = subscription.id === -1
-            ? subscription.next_payment_date
-            : getEffectiveNextPaymentDate(
-              subscription.next_payment_date,
-              subscription.billing_cycle,
-              todayDate,
-              subscription.billing_anchor_day,
-            );
-          const daysRemaining = Math.max(0, daysBetweenDateOnly(todayDate, effectiveDate));
+          const daysRemaining = Math.max(
+            0,
+            daysBetweenDateOnly(todayDate, effectiveDateFor(subscription)),
+          );
 
           return (
             <SubscriptionCard
