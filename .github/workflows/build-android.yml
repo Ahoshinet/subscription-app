@@ -45,6 +45,9 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
+        with:
+          # The legacy "tools" package was removed from the SDK repository; the action default ("tools platform-tools") now fails.
+          packages: platform-tools
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
