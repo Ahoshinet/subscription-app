@@ -5,15 +5,7 @@ export interface SubscriptionIconPickerSheetProps {
     isDark: boolean;
     title: string;
     cancelLabel: string;
-    doneLabel: string;
-    colorLabel: string;
-    categoryLabels: {
-        all: string;
-        service: string;
-        content: string;
-        other: string;
-    };
-    initialIcon?: SubscriptionIconSelection | null;
+    comingSoonMessage: string;
     onClose: () => void;
     onSelect: (icon: SubscriptionIconSelection) => void;
 }

@@ -1,22 +1,12 @@
 import { describe, expect, test } from '@jest/globals';
 
 import {
-    SUBSCRIPTION_ICON_PRESETS,
     buildSubscriptionPresetIconValue,
     isSubscriptionPresetIconValue,
     parseSubscriptionPresetIconValue,
 } from './subscriptionIcon';
 
 describe('subscriptionIcon', () => {
-    test('assigns every preset to a picker category without changing persistence data', () => {
-        const categories = new Set(SUBSCRIPTION_ICON_PRESETS.map((preset) => preset.category));
-
-        expect(categories).toEqual(new Set(['service', 'content', 'other']));
-        expect(SUBSCRIPTION_ICON_PRESETS.every((preset) => (
-            preset.category === 'service' || preset.category === 'content' || preset.category === 'other'
-        ))).toBe(true);
-    });
-
     test('round-trips preset icon values', () => {
         const value = buildSubscriptionPresetIconValue(
             {

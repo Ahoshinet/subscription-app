@@ -9,10 +9,7 @@ interface SubscriptionIconBase {
     id: string;
     color: string;
     label: string;
-    category: SubscriptionIconCategory;
 }
-
-export type SubscriptionIconCategory = 'service' | 'content' | 'other';
 
 export type SubscriptionIconPreset = SubscriptionIconBase & (
     | { pack: 'ionicons'; name: IoniconsName }
@@ -24,35 +21,35 @@ export type SubscriptionIconSelection =
     | { pack: 'fontawesome5'; name: FontAwesome5Name; color: string };
 
 export const SUBSCRIPTION_ICON_PRESETS: readonly SubscriptionIconPreset[] = [
-    { id: 'cube', pack: 'ionicons', name: 'cube-outline', color: '#3B82F6', label: 'General', category: 'other' },
-    { id: 'play', pack: 'ionicons', name: 'play-circle-outline', color: '#EF4444', label: 'Video', category: 'content' },
-    { id: 'tv', pack: 'ionicons', name: 'tv-outline', color: '#6366F1', label: 'TV', category: 'content' },
-    { id: 'music', pack: 'ionicons', name: 'musical-notes-outline', color: '#EC4899', label: 'Music', category: 'content' },
-    { id: 'game', pack: 'ionicons', name: 'game-controller-outline', color: '#8B5CF6', label: 'Gaming', category: 'content' },
-    { id: 'book', pack: 'ionicons', name: 'book-outline', color: '#0EA5E9', label: 'Books', category: 'content' },
-    { id: 'school', pack: 'ionicons', name: 'school-outline', color: '#14B8A6', label: 'Learning', category: 'content' },
-    { id: 'cloud', pack: 'ionicons', name: 'cloud-outline', color: '#06B6D4', label: 'Cloud', category: 'other' },
-    { id: 'chat', pack: 'ionicons', name: 'chatbubble-ellipses-outline', color: '#22C55E', label: 'Chat', category: 'other' },
-    { id: 'server', pack: 'ionicons', name: 'server-outline', color: '#0F172A', label: 'Server', category: 'other' },
-    { id: 'wallet', pack: 'ionicons', name: 'wallet-outline', color: '#6B7280', label: 'Wallet', category: 'other' },
-    { id: 'card', pack: 'ionicons', name: 'card-outline', color: '#6B7280', label: 'Card', category: 'other' },
-    { id: 'cart', pack: 'ionicons', name: 'cart-outline', color: '#F59E0B', label: 'Shopping', category: 'other' },
-    { id: 'cafe', pack: 'ionicons', name: 'cafe-outline', color: '#A16207', label: 'Food', category: 'other' },
-    { id: 'fitness', pack: 'ionicons', name: 'fitness-outline', color: '#10B981', label: 'Health', category: 'content' },
-    { id: 'netflix', pack: 'fontawesome5', name: 'film', color: '#E50914', label: 'Netflix', category: 'service' },
-    { id: 'youtube', pack: 'fontawesome5', name: 'youtube', color: '#FF0000', label: 'YouTube', category: 'service' },
-    { id: 'spotify', pack: 'fontawesome5', name: 'spotify', color: '#1DB954', label: 'Spotify', category: 'service' },
-    { id: 'discord', pack: 'fontawesome5', name: 'discord', color: '#5865F2', label: 'Discord', category: 'service' },
-    { id: 'twitch', pack: 'fontawesome5', name: 'twitch', color: '#9146FF', label: 'Twitch', category: 'service' },
-    { id: 'github', pack: 'fontawesome5', name: 'github', color: '#111827', label: 'GitHub', category: 'service' },
-    { id: 'paypal', pack: 'fontawesome5', name: 'paypal', color: '#003087', label: 'PayPal', category: 'service' },
-    { id: 'apple', pack: 'fontawesome5', name: 'apple', color: '#111827', label: 'Apple', category: 'service' },
-    { id: 'google', pack: 'fontawesome5', name: 'google', color: '#4285F4', label: 'Google', category: 'service' },
-    { id: 'microsoft', pack: 'fontawesome5', name: 'microsoft', color: '#5E5E5E', label: 'Microsoft', category: 'service' },
-    { id: 'amazon', pack: 'fontawesome5', name: 'amazon', color: '#FF9900', label: 'Amazon', category: 'service' },
-    { id: 'steam', pack: 'fontawesome5', name: 'steam', color: '#0B1A2B', label: 'Steam', category: 'service' },
-    { id: 'visa', pack: 'fontawesome5', name: 'cc-visa', color: '#1A1F71', label: 'Visa', category: 'service' },
-    { id: 'mastercard', pack: 'fontawesome5', name: 'cc-mastercard', color: '#EB001B', label: 'Mastercard', category: 'service' },
+    { id: 'cube', pack: 'ionicons', name: 'cube-outline', color: '#3B82F6', label: 'General' },
+    { id: 'play', pack: 'ionicons', name: 'play-circle-outline', color: '#EF4444', label: 'Video' },
+    { id: 'tv', pack: 'ionicons', name: 'tv-outline', color: '#6366F1', label: 'TV' },
+    { id: 'music', pack: 'ionicons', name: 'musical-notes-outline', color: '#EC4899', label: 'Music' },
+    { id: 'game', pack: 'ionicons', name: 'game-controller-outline', color: '#8B5CF6', label: 'Gaming' },
+    { id: 'book', pack: 'ionicons', name: 'book-outline', color: '#0EA5E9', label: 'Books' },
+    { id: 'school', pack: 'ionicons', name: 'school-outline', color: '#14B8A6', label: 'Learning' },
+    { id: 'cloud', pack: 'ionicons', name: 'cloud-outline', color: '#06B6D4', label: 'Cloud' },
+    { id: 'chat', pack: 'ionicons', name: 'chatbubble-ellipses-outline', color: '#22C55E', label: 'Chat' },
+    { id: 'server', pack: 'ionicons', name: 'server-outline', color: '#0F172A', label: 'Server' },
+    { id: 'wallet', pack: 'ionicons', name: 'wallet-outline', color: '#6B7280', label: 'Wallet' },
+    { id: 'card', pack: 'ionicons', name: 'card-outline', color: '#6B7280', label: 'Card' },
+    { id: 'cart', pack: 'ionicons', name: 'cart-outline', color: '#F59E0B', label: 'Shopping' },
+    { id: 'cafe', pack: 'ionicons', name: 'cafe-outline', color: '#A16207', label: 'Food' },
+    { id: 'fitness', pack: 'ionicons', name: 'fitness-outline', color: '#10B981', label: 'Health' },
+    { id: 'netflix', pack: 'fontawesome5', name: 'film', color: '#E50914', label: 'Netflix' },
+    { id: 'youtube', pack: 'fontawesome5', name: 'youtube', color: '#FF0000', label: 'YouTube' },
+    { id: 'spotify', pack: 'fontawesome5', name: 'spotify', color: '#1DB954', label: 'Spotify' },
+    { id: 'discord', pack: 'fontawesome5', name: 'discord', color: '#5865F2', label: 'Discord' },
+    { id: 'twitch', pack: 'fontawesome5', name: 'twitch', color: '#9146FF', label: 'Twitch' },
+    { id: 'github', pack: 'fontawesome5', name: 'github', color: '#111827', label: 'GitHub' },
+    { id: 'paypal', pack: 'fontawesome5', name: 'paypal', color: '#003087', label: 'PayPal' },
+    { id: 'apple', pack: 'fontawesome5', name: 'apple', color: '#111827', label: 'Apple' },
+    { id: 'google', pack: 'fontawesome5', name: 'google', color: '#4285F4', label: 'Google' },
+    { id: 'microsoft', pack: 'fontawesome5', name: 'microsoft', color: '#5E5E5E', label: 'Microsoft' },
+    { id: 'amazon', pack: 'fontawesome5', name: 'amazon', color: '#FF9900', label: 'Amazon' },
+    { id: 'steam', pack: 'fontawesome5', name: 'steam', color: '#0B1A2B', label: 'Steam' },
+    { id: 'visa', pack: 'fontawesome5', name: 'cc-visa', color: '#1A1F71', label: 'Visa' },
+    { id: 'mastercard', pack: 'fontawesome5', name: 'cc-mastercard', color: '#EB001B', label: 'Mastercard' },
 ] as const;
 
 const ICON_PREFIX = 'icon:';
