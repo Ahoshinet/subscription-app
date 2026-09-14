@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, Pressable, Dimensions, StyleSheet, StatusBar } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { View, Text, Pressable, Dimensions, Platform, StyleSheet, StatusBar } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import Animated, { useSharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -12,6 +12,9 @@ const { width: SCREEN_W } = Dimensions.get('window');
 const CROP_SIZE = SCREEN_W - 48;
 const CORNER = 22;
 const BORDER = 3;
+// Always dark: the crop surface is a media presentation regardless of theme,
+// but it follows the standard dark screen tone rather than pure black.
+const CROP_BACKGROUND = '#0A0A0A';
 
 export default function ImageCropScreen() {
     const router = useRouter();
@@ -83,7 +86,15 @@ export default function ImageCropScreen() {
         ],
     }));
 
+    // renderAsync is slow enough that a second tap on Use would crop again
+    // and pop one screen too many, so only the first tap goes through.
+    const renderingRef = useRef(false);
+    const [isRendering, setIsRendering] = useState(false);
+
     const handleUse = async () => {
+        if (renderingRef.current) return;
+        renderingRef.current = true;
+        setIsRendering(true);
         const s = scale.value;
         const tx = translateX.value;
         const ty = translateY.value;
@@ -110,6 +121,10 @@ export default function ImageCropScreen() {
                     ? { compress: 0.9, format: SaveFormat.JPEG }
                     : { format: SaveFormat.PNG },
             );
+        } catch (error) {
+            renderingRef.current = false;
+            setIsRendering(false);
+            throw error;
         } finally {
             renderedImage.release();
         }
@@ -121,17 +136,50 @@ export default function ImageCropScreen() {
     return (
         <View style={styles.root}>
             <StatusBar barStyle="light-content" />
-            <Stack.Screen options={{ headerShown: false }} />
-
-            <View style={styles.header}>
-                <Pressable onPress={() => router.back()} style={styles.headerBtn}>
-                    <Text style={styles.cancel}>{t('image_crop.cancel')}</Text>
-                </Pressable>
-                <Text style={styles.title}>{t('image_crop.title')}</Text>
-                <Pressable onPress={handleUse} style={styles.headerBtn}>
-                    <Text style={styles.use}>{t('image_crop.use')}</Text>
-                </Pressable>
-            </View>
+            <Stack.Screen
+                options={{
+                    title: t('image_crop.title'),
+                    headerShown: true,
+                    headerBackVisible: false,
+                    // Same native xmark / checkmark chrome as the add and edit sheets.
+                    unstable_headerLeftItems: Platform.OS === 'ios'
+                        ? () => [{
+                            type: 'button',
+                            label: t('image_crop.cancel'),
+                            accessibilityLabel: t('image_crop.cancel'),
+                            icon: { type: 'sfSymbol', name: 'xmark' },
+                            variant: 'plain',
+                            disabled: isRendering,
+                            onPress: () => router.back(),
+                        }]
+                        : undefined,
+                    unstable_headerRightItems: Platform.OS === 'ios'
+                        ? () => [{
+                            type: 'button',
+                            label: t('image_crop.use'),
+                            accessibilityLabel: t('image_crop.use'),
+                            icon: { type: 'sfSymbol', name: 'checkmark' },
+                            variant: 'done',
+                            disabled: isRendering,
+                            onPress: () => { void handleUse(); },
+                        }]
+                        : undefined,
+                    headerLeft: Platform.OS !== 'ios' ? () => (
+                        <Pressable onPress={() => router.back()} disabled={isRendering} style={styles.headerBtn}>
+                            <Text style={styles.cancel}>{t('image_crop.cancel')}</Text>
+                        </Pressable>
+                    ) : undefined,
+                    headerRight: Platform.OS !== 'ios' ? () => (
+                        <Pressable onPress={() => { void handleUse(); }} disabled={isRendering} style={styles.headerBtn}>
+                            <Text style={styles.use}>{t('image_crop.use')}</Text>
+                        </Pressable>
+                    ) : undefined,
+                    headerStyle: { backgroundColor: CROP_BACKGROUND },
+                    headerTintColor: '#FFFFFF',
+                    headerTitleAlign: 'center',
+                    headerShadowVisible: false,
+                }}
+            />
 
             <View style={styles.center}>
                 <GestureDetector gesture={composed}>
@@ -177,19 +225,10 @@ export default function ImageCropScreen() {
 }
 
 const styles = StyleSheet.create({
-    root: { flex: 1, backgroundColor: '#000' },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 16,
-        paddingTop: 60,
-        paddingBottom: 16,
-    },
-    headerBtn: { minWidth: 90 },
-    title: { color: '#fff', fontSize: 16, fontWeight: '600' },
+    root: { flex: 1, backgroundColor: CROP_BACKGROUND },
+    headerBtn: { paddingHorizontal: 8 },
     cancel: { color: 'rgba(255,255,255,0.6)', fontSize: 16 },
-    use: { color: '#3B82F6', fontSize: 16, fontWeight: '700', textAlign: 'right' },
+    use: { color: '#3B82F6', fontSize: 16, fontWeight: '700' },
     center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
     cropBox: { overflow: 'hidden', borderRadius: 8 },
     gridV: { position: 'absolute', top: 0, bottom: 0, width: 1, backgroundColor: 'rgba(255,255,255,0.25)' },
