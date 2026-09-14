@@ -24,10 +24,6 @@ jest.mock('@/hooks/use-color-scheme', () => ({
   useColorScheme: () => 'dark',
 }));
 
-jest.mock('@/components/AddPaymentMethodSheet', () => ({
-  AddPaymentMethodSheet: () => null,
-}));
-
 jest.mock('@/lib/api', () => ({
   resolveIconUrl: (uri: string) => uri,
 }));

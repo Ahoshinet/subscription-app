@@ -35,6 +35,14 @@ export default function PaymentMethodPickerScreen() {
         router.back();
     };
 
+    const openAddPaymentMethod = () => {
+        if (Platform.OS === 'ios') {
+            router.push('/add-payment-method');
+            return;
+        }
+        setShowSheet(true);
+    };
+
     return (
         <>
             <View
@@ -50,7 +58,7 @@ export default function PaymentMethodPickerScreen() {
                         headerShadowVisible: false,
                         headerRight: () => (
                             <Pressable
-                                onPress={() => setShowSheet(true)}
+                                onPress={openAddPaymentMethod}
                                 style={{ marginRight: 4, padding: 4 }}
                             >
                                 <Ionicons name="add" size={26} color={isDark ? '#FFFFFF' : '#000000'} />
@@ -66,7 +74,7 @@ export default function PaymentMethodPickerScreen() {
                                 {t('billing.empty')}
                             </Text>
                             <Pressable
-                                onPress={() => setShowSheet(true)}
+                                onPress={openAddPaymentMethod}
                                 className="mt-5 bg-white dark:bg-[#1C1C1E] border border-neutral-200 dark:border-neutral-700 px-4 py-2 rounded-full"
                             >
                                 <Text className="text-neutral-900 dark:text-white text-sm font-semibold">

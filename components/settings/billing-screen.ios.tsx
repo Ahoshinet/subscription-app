@@ -1,10 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { AddPaymentMethodSheet } from '@/components/AddPaymentMethodSheet';
 import { SETTINGS_DARK_BACKGROUND } from '@/constants/settings-theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { resolveIconUrl } from '@/lib/api';
@@ -16,7 +15,6 @@ export default function BillingScreen() {
   const isDark = colorScheme === 'dark';
   const { t } = useTranslation();
   const { methods } = usePaymentMethodStore();
-  const [showSheet, setShowSheet] = useState(false);
   const router = useRouter();
 
   const backgroundColor = isDark ? SETTINGS_DARK_BACKGROUND : '#F2F2F7';
@@ -35,7 +33,7 @@ export default function BillingScreen() {
             <Pressable
               accessibilityLabel={t('billing.add_method_title')}
               accessibilityRole="button"
-              onPress={() => setShowSheet(true)}
+              onPress={() => router.push('/add-payment-method')}
               style={styles.addButton}
             >
               <Ionicons name="add" size={26} color={isDark ? '#FFFFFF' : '#000000'} />
@@ -135,8 +133,6 @@ export default function BillingScreen() {
           )}
         </ScrollView>
       </View>
-
-      <AddPaymentMethodSheet visible={showSheet} onClose={() => setShowSheet(false)} />
     </>
   );
 }
