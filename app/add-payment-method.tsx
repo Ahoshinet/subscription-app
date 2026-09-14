@@ -12,7 +12,7 @@ import { usePaymentMethodStore } from '@/store/usePaymentMethodStore';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { singleLineTextInputStyle } from '@/lib/textInputStyles';
 import type { IoniconsName } from '@/lib/iconName';
-import { CARD_BRANDS, CUSTOM_ICON_PRESETS, PRESET_BRANDS, type PresetBrand } from '@/lib/paymentMethodPresets';
+import { CARD_BRANDS, CUSTOM_ICON_PRESETS, PRESET_BRANDS } from '@/lib/paymentMethodPresets';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const ICON_PICKER_WIDTH = Math.min(SCREEN_WIDTH - 32, 340);
@@ -39,31 +39,8 @@ export default function AddPaymentMethodScreen() {
     const [customIconColor, setCustomIconColor] = useState('#6B7280');
     const [showIconPresetModal, setShowIconPresetModal] = useState(false);
 
-    const [selectedBrand, setSelectedBrand] = useState<PresetBrand | null>(null);
-    const [brandMemo, setBrandMemo] = useState('');
     const [cardMemo, setCardMemo] = useState('');
     const [customMemo, setCustomMemo] = useState('');
-
-    const handleSelectBrand = (brand: PresetBrand) => {
-        setSelectedBrand(brand);
-        setBrandMemo('');
-    };
-
-    const handleConfirmBrand = async () => {
-        if (!selectedBrand) return;
-        router.back();
-        try {
-            await addMethod({
-                type: 'preset',
-                label: selectedBrand.label,
-                memo: brandMemo.trim() || undefined,
-                iconName: selectedBrand.iconName,
-                color: selectedBrand.color,
-            });
-        } catch {
-            Alert.alert(t('common.error'), t('billing.add_failed'));
-        }
-    };
 
     const handleAddCard = async () => {
         if (cardLast4.length !== 4) return;
@@ -149,11 +126,6 @@ export default function AddPaymentMethodScreen() {
         { key: 'custom', label: t('billing.tab_custom') },
     ];
     const selectedTabIndex = tabs.findIndex((tab) => tab.key === section);
-    const selectSection = (nextSection: 'brand' | 'card' | 'custom') => {
-        setSection(nextSection);
-        setSelectedBrand(null);
-        setBrandMemo('');
-    };
 
     return (
         <KeyboardAvoidingView style={{ flex: 1, backgroundColor: bg }} behavior="padding">
@@ -183,7 +155,7 @@ export default function AddPaymentMethodScreen() {
                 appearance={isDark ? 'dark' : 'light'}
                 onChange={(event) => {
                     const nextSection = tabs[event.nativeEvent.selectedSegmentIndex]?.key;
-                    if (nextSection) selectSection(nextSection);
+                    if (nextSection) setSection(nextSection);
                 }}
                 style={{ marginHorizontal: 20, marginTop: 16, marginBottom: 18 }}
                 testID="payment-method-section-picker"
@@ -197,14 +169,17 @@ export default function AddPaymentMethodScreen() {
                 showsVerticalScrollIndicator={false}
             >
                 {/* ── Brand ── */}
-                {section === 'brand' && !selectedBrand && (
+                {section === 'brand' && (
                     <View style={{ backgroundColor: segBg, borderRadius: 14, overflow: 'hidden' }}>
                         {PRESET_BRANDS.map((brand, index) => (
                             <Pressable
                                 key={brand.id}
                                 testID={`payment-brand-row-${brand.id}`}
                                 accessibilityRole="button"
-                                onPress={() => handleSelectBrand(brand)}
+                                onPress={() => router.push({
+                                    pathname: '/add-payment-method/[brandId]',
+                                    params: { brandId: brand.id },
+                                })}
                                 style={{
                                     minHeight: 58,
                                     flexDirection: 'row',
@@ -254,71 +229,6 @@ export default function AddPaymentMethodScreen() {
                                 )}
                             </Pressable>
                         ))}
-                    </View>
-                )}
-
-                {/* ── Brand Label Step ── */}
-                {section === 'brand' && selectedBrand && (
-                    <View>
-                        <Pressable
-                            onPress={() => { setSelectedBrand(null); setBrandMemo(''); }}
-                            style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}
-                        >
-                            <Ionicons name="chevron-back" size={18} color={textSub} />
-                            <Text style={{ fontSize: 14, color: textSub, marginLeft: 4 }}>
-                                {t('billing.back_to_brands')}
-                            </Text>
-                        </Pressable>
-
-                        <View style={{ alignItems: 'center', marginBottom: 8 }}>
-                            <View
-                                style={{
-                                    width: 60, height: 60, borderRadius: 16,
-                                    backgroundColor: brandIconBg,
-                                    alignItems: 'center', justifyContent: 'center',
-                                    marginBottom: 10,
-                                }}
-                            >
-                                <Ionicons name={selectedBrand.iconName} size={30} color={brandIconTint} />
-                            </View>
-                            <Text style={{ fontSize: 18, fontWeight: '700', color: textPrimary }}>
-                                {selectedBrand.label}
-                            </Text>
-                        </View>
-
-                        <View style={{ height: 1, backgroundColor: borderCol, marginBottom: 24 }} />
-
-                        <Text style={{ fontSize: 12, color: textSub, fontWeight: '600', marginBottom: 10 }}>
-                            {t('billing.memo')}
-                        </Text>
-                        <View style={{ backgroundColor: segBg, borderRadius: 12, paddingHorizontal: 16, marginBottom: 24 }}>
-                            <TextInput
-                                key={`memo-brand-${selectedBrand?.id}`}
-                                value={brandMemo}
-                                onChangeText={setBrandMemo}
-                                placeholder={t('billing.memo_placeholder')}
-                                placeholderTextColor={textSub}
-                                autoCapitalize="none"
-                                autoCorrect={false}
-                                style={{
-                                    ...singleLineTextInputStyle,
-                                    height: 48, fontSize: 16, fontWeight: '400',
-                                    letterSpacing: 0, textAlign: 'left', color: textPrimary,
-                                }}
-                            />
-                        </View>
-
-                        <Pressable
-                            onPress={handleConfirmBrand}
-                            style={{
-                                backgroundColor: '#3B82F6',
-                                borderRadius: 14, paddingVertical: 16, alignItems: 'center',
-                            }}
-                        >
-                            <Text style={{ fontSize: 16, fontWeight: '700', color: '#fff' }}>
-                                {t('billing.add_button')}
-                            </Text>
-                        </Pressable>
                     </View>
                 )}
 
