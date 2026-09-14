@@ -119,7 +119,7 @@ describe('iOS edit subscription sheet', () => {
     const cardStyle = StyleSheet.flatten(card.props.style);
     expect(cardStyle).toEqual(expect.objectContaining({
       backgroundColor: '#2C2C2E',
-      borderRadius: 16,
+      borderRadius: 12,
     }));
     expect(cardStyle.borderWidth).toBeUndefined();
 

@@ -104,29 +104,29 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
         label: string,
         value: string,
         onPress: () => void,
-        options: { last?: boolean; expanded?: boolean; testID?: string } = {},
+        options: { last?: boolean; expanded?: boolean; compact?: boolean; testID?: string } = {},
     ) => (
         <Pressable
             accessibilityRole="button"
             accessibilityLabel={label}
             onPress={onPress}
-            style={styles.row}
+            style={options.compact ? styles.fieldRow : styles.navRow}
             testID={options.testID}
         >
-            <Text style={[styles.rowLabel, { color: colors.text }]}>{label}</Text>
+            <Text style={options.compact ? [styles.fieldLabel, { color: colors.text }] : [styles.rowLabel, { color: colors.text }]}>{label}</Text>
             <View style={styles.rowTrailing}>
                 <Text
                     adjustsFontSizeToFit
                     minimumFontScale={0.85}
                     numberOfLines={1}
-                    style={[styles.rowValue, { color: colors.secondary }]}
+                    style={[options.compact ? styles.compactValue : styles.rowValue, { color: colors.secondary }]}
                 >
                     {value}
                 </Text>
                 <SymbolView
                     name={options.expanded ? 'chevron.down' : 'chevron.right'}
                     resizeMode="scaleAspectFit"
-                    style={styles.chevron}
+                    style={options.compact ? styles.compactChevron : styles.chevron}
                     tintColor={colors.chevron}
                     weight="semibold"
                 />
@@ -212,8 +212,8 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
 
                 {/* Basics */}
                 <View style={[styles.card, { backgroundColor: colors.card }]} testID="ios-edit-basics-card">
-                    <View style={styles.row}>
-                        <Text style={[styles.fieldLabel, { color: colors.text }]}>{t('subscription_form.service_name')}</Text>
+                    <View style={styles.fieldRow}>
+                        <Text style={[styles.fieldLabel, { color: colors.text }]}>{t('subscription_form.service_name')}:</Text>
                         <TextInput
                             keyboardAppearance={isDark ? 'dark' : 'light'}
                             onChangeText={form.setServiceName}
@@ -225,8 +225,8 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
                         />
                         <Separator color={colors.separator} />
                     </View>
-                    <View style={styles.row}>
-                        <Text style={[styles.fieldLabel, { color: colors.text }]}>{t('subscription_form.plan_name')}</Text>
+                    <View style={styles.fieldRow}>
+                        <Text style={[styles.fieldLabel, { color: colors.text }]}>{t('subscription_form.plan_name')}:</Text>
                         <TextInput
                             keyboardAppearance={isDark ? 'dark' : 'light'}
                             onChangeText={form.setPlanName}
@@ -238,8 +238,8 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
                         />
                         <Separator color={colors.separator} />
                     </View>
-                    <View style={styles.row}>
-                        <Text style={[styles.fieldLabel, { color: colors.text }]}>{t('subscription_form.amount')}</Text>
+                    <View style={styles.fieldRow}>
+                        <Text style={[styles.fieldLabel, { color: colors.text }]}>{t('subscription_form.amount')}:</Text>
                         <TextInput
                             keyboardAppearance={isDark ? 'dark' : 'light'}
                             keyboardType="numeric"
@@ -253,10 +253,10 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
                         <Separator color={colors.separator} />
                     </View>
                     {renderNavRow(
-                        t('subscription_form.currency'),
+                        `${t('subscription_form.currency')}:`,
                         form.currency,
                         () => router.push('/settings/currency-picker'),
-                        { last: true, testID: 'ios-edit-currency-row' },
+                        { last: true, compact: true, testID: 'ios-edit-currency-row' },
                     )}
                 </View>
 
@@ -372,42 +372,57 @@ const styles = StyleSheet.create({
         width: 36,
     },
     heroLabel: {
-        fontSize: 15,
+        fontSize: 14,
         fontWeight: '500',
     },
     card: {
-        borderRadius: 16,
-        marginBottom: 32,
+        borderRadius: 12,
+        marginBottom: 24,
         overflow: 'hidden',
     },
-    row: {
+    // Input rows and the currency row share the add sheet's 48pt group.
+    fieldRow: {
         alignItems: 'center',
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        minHeight: 50,
+        height: 48,
         paddingHorizontal: 16,
     },
     fieldLabel: {
-        fontSize: 17,
-        fontWeight: '500',
-        width: 104,
+        fontSize: 15,
+        width: 90,
     },
     input: {
         flex: 1,
-        fontSize: 17,
-        height: 50,
+        fontSize: 15,
+        height: 48,
         paddingBottom: 0,
         paddingTop: 0,
     },
+    compactValue: {
+        flexShrink: 1,
+        fontSize: 14,
+        marginRight: 8,
+    },
+    compactChevron: {
+        height: 14,
+        width: 8,
+    },
+    // Payment rows follow the add sheet's padded 16pt rows.
+    navRow: {
+        alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        padding: 16,
+    },
     rowLabel: {
         flexShrink: 0,
-        fontSize: 17,
-        fontWeight: '500',
+        fontSize: 16,
     },
     rowTrailing: {
         alignItems: 'center',
+        flex: 1,
         flexDirection: 'row',
-        flexShrink: 1,
+        justifyContent: 'flex-end',
         marginLeft: 12,
     },
     rowValue: {
@@ -427,10 +442,9 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
     },
     memoInput: {
-        fontSize: 17,
+        fontSize: 16,
         minHeight: 120,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
+        padding: 16,
     },
     separator: {
         bottom: 0,
