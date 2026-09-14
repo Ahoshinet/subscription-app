@@ -93,7 +93,7 @@ export default function SubscriptionIconPickerSheet({
                 onDismiss={onClose}
             >
                 <Group modifiers={[
-                    presentationDetents(['large']),
+                    presentationDetents(['medium', 'large'], { selection: 'large' }),
                     presentationDragIndicator('visible'),
                 ]}>
                     <VStack
@@ -109,7 +109,11 @@ export default function SubscriptionIconPickerSheet({
                             showsIndicators={false}
                             modifiers={[frame({ height: GRID_SCROLL_HEIGHT })]}
                         >
-                            <Grid horizontalSpacing={10} verticalSpacing={10}>
+                            <Grid
+                                horizontalSpacing={10}
+                                verticalSpacing={10}
+                                modifiers={[frame({ maxWidth: 10_000, alignment: 'center' })]}
+                            >
                                 {iconRows.map((row, rowIndex) => (
                                     <Grid.Row key={`icon-row-${rowIndex}`}>
                                         {row.map((icon) => (
