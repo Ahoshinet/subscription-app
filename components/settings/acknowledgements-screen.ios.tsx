@@ -53,7 +53,7 @@ function LibraryRow({
       </View>
       {repository ? (
         <SymbolView
-          name="arrow.up.right"
+          name="chevron.right"
           resizeMode="scaleAspectFit"
           style={styles.trailingIcon}
           tintColor={chevronColor}
@@ -113,9 +113,9 @@ export default function AcknowledgementsScreen() {
 
           <Text
             className="text-neutral-500 dark:text-neutral-400"
-            style={styles.sectionHeader}
+            style={styles.groupCaption}
           >
-            {t('acknowledgements.section_libraries').toUpperCase()}
+            {t('acknowledgements.libraries_note')}
           </Text>
           <View
             className="rounded-2xl overflow-hidden bg-white dark:bg-[#1C1C1E]"
@@ -135,12 +135,6 @@ export default function AcknowledgementsScreen() {
               />
             ))}
           </View>
-          <Text
-            className="text-neutral-500 dark:text-neutral-400"
-            style={styles.footnote}
-          >
-            {t('acknowledgements.libraries_note')}
-          </Text>
 
           <View
             className="rounded-2xl overflow-hidden bg-white dark:bg-[#1C1C1E]"
@@ -159,7 +153,7 @@ export default function AcknowledgementsScreen() {
                 {t('acknowledgements.full_licenses')}
               </Text>
               <SymbolView
-                name="arrow.up.right"
+                name="chevron.right"
                 resizeMode="scaleAspectFit"
                 style={styles.trailingIcon}
                 tintColor={chevronColor}
@@ -211,9 +205,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 28,
   },
-  sectionHeader: {
+  groupCaption: {
     fontSize: 13,
-    letterSpacing: 0.2,
+    lineHeight: 18,
     marginBottom: 8,
     marginTop: 32,
     paddingHorizontal: 16,
@@ -226,7 +220,7 @@ const styles = StyleSheet.create({
     right: 16,
   },
   trailingIcon: {
-    height: 14,
-    width: 14,
+    height: 18,
+    width: 10,
   },
 });

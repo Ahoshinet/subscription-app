@@ -56,10 +56,11 @@ describe('iOS acknowledgements screen', () => {
       StyleSheet.flatten(screen.getByTestId('ios-acknowledgements-separator-first').props.style),
     ).toMatchObject({ left: 16, right: 16 });
     expect(mockHeaderOptions?.headerShadowVisible).toBe(false);
+    expect(screen.queryByText('acknowledgements.section_libraries')).toBeNull();
 
     // One trailing icon per linkable library, plus the full-license link.
     expect(mockSymbolView.mock.calls.map(([props]) => (props as { name: string }).name))
-      .toEqual(['arrow.up.right', 'arrow.up.right']);
+      .toEqual(['chevron.right', 'chevron.right']);
 
     await fireEvent.press(screen.getByText('expo'));
     expect(openURL).toHaveBeenCalledWith('https://github.com/expo/expo');
