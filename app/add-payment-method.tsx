@@ -138,6 +138,10 @@ export default function AddPaymentMethodScreen() {
     const textPrimary = isDark ? '#FFFFFF' : '#000000';
     const textSub = isDark ? '#8E8E93' : '#6B7280';
     const borderCol = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)';
+    // Matches the Settings row icon treatment (see docs/ios-settings-design.md)
+    // instead of each brand's own color, so the list reads as one scannable set.
+    const brandIconBg = isDark ? '#2C2C2E' : '#E5E5EA';
+    const brandIconTint = isDark ? '#98989D' : '#636366';
 
     const tabs: { key: 'brand' | 'card' | 'custom'; label: string }[] = [
         { key: 'brand',  label: t('billing.tab_brand') },
@@ -216,10 +220,10 @@ export default function AddPaymentMethodScreen() {
                                         borderRadius: 9,
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        backgroundColor: `${brand.color}18`,
+                                        backgroundColor: brandIconBg,
                                     }}
                                 >
-                                    <Ionicons name={brand.iconName} size={20} color={brand.color} />
+                                    <Ionicons name={brand.iconName} size={20} color={brandIconTint} />
                                 </View>
                                 <View
                                     style={{
@@ -270,12 +274,12 @@ export default function AddPaymentMethodScreen() {
                             <View
                                 style={{
                                     width: 60, height: 60, borderRadius: 16,
-                                    backgroundColor: `${selectedBrand.color}15`,
+                                    backgroundColor: brandIconBg,
                                     alignItems: 'center', justifyContent: 'center',
                                     marginBottom: 10,
                                 }}
                             >
-                                <Ionicons name={selectedBrand.iconName} size={30} color={selectedBrand.color} />
+                                <Ionicons name={selectedBrand.iconName} size={30} color={brandIconTint} />
                             </View>
                             <Text style={{ fontSize: 18, fontWeight: '700', color: textPrimary }}>
                                 {selectedBrand.label}
