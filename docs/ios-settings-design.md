@@ -227,6 +227,14 @@ so the last row is not hidden by the search toolbar.
 - Iconless separators are inset 16 points on both sides.
 - Time Zone uses the native bottom search and automatic content inset.
 
+### Billing Methods
+
+- The header "+" is a native `unstable_headerRightItems` button with the SF
+  Symbol `plus`, not a JS `headerRight` Pressable.
+- Rows keep a 40-point icon container for uploaded icon images, so separators
+  start at `left: 68` and end 16 points before the card edge.
+- Navigation rows use the standard `chevron.right` treatment.
+
 ### Help & Support
 
 - Standard glyphs and chevrons use SF Symbols.

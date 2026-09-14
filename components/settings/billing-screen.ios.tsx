@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
+import { SymbolView } from 'expo-symbols';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -19,6 +20,12 @@ export default function BillingScreen() {
 
   const backgroundColor = isDark ? SETTINGS_DARK_BACKGROUND : '#F2F2F7';
   const cardColor = isDark ? '#1C1C1E' : '#FFFFFF';
+  const separatorColor = isDark
+    ? 'rgba(84, 84, 88, 0.65)'
+    : 'rgba(60, 60, 67, 0.29)';
+  const chevronColor = isDark
+    ? 'rgba(235, 235, 245, 0.30)'
+    : 'rgba(60, 60, 67, 0.30)';
 
   return (
     <>
@@ -29,16 +36,16 @@ export default function BillingScreen() {
           headerShadowVisible: false,
           headerStyle: { backgroundColor },
           headerTintColor: isDark ? '#FFFFFF' : '#000000',
-          headerRight: () => (
-            <Pressable
-              accessibilityLabel={t('billing.add_method_title')}
-              accessibilityRole="button"
-              onPress={() => router.push('/add-payment-method')}
-              style={styles.addButton}
-            >
-              <Ionicons name="add" size={26} color={isDark ? '#FFFFFF' : '#000000'} />
-            </Pressable>
-          ),
+          // Native header item so the "+" gets the same glass chrome and press
+          // behaviour as the add/edit/detail screens instead of a JS Pressable.
+          unstable_headerRightItems: () => [{
+            type: 'button',
+            label: t('billing.add_method_title'),
+            accessibilityLabel: t('billing.add_method_title'),
+            icon: { type: 'sfSymbol', name: 'plus' },
+            variant: 'plain',
+            onPress: () => router.push('/add-payment-method'),
+          }],
         }}
       />
 
@@ -111,19 +118,19 @@ export default function BillingScreen() {
                       </View>
                     </View>
 
-                    <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+                    <SymbolView
+                      name="chevron.right"
+                      resizeMode="scaleAspectFit"
+                      style={styles.chevron}
+                      tintColor={chevronColor}
+                      weight="semibold"
+                    />
 
                     {!isLast ? (
                       <View
                         pointerEvents="none"
-                        style={[
-                          styles.separator,
-                          {
-                            backgroundColor: isDark
-                              ? 'rgba(84, 84, 88, 0.65)'
-                              : 'rgba(60, 60, 67, 0.29)',
-                          },
-                        ]}
+                        style={[styles.separator, { backgroundColor: separatorColor }]}
+                        testID={`ios-billing-separator-${method.id}`}
                       />
                     ) : null}
                   </Pressable>
@@ -145,10 +152,6 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     paddingHorizontal: 16,
     paddingTop: 28,
-  },
-  addButton: {
-    marginRight: 4,
-    padding: 4,
   },
   list: {
     borderRadius: 16,
@@ -196,10 +199,15 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     marginTop: 2,
   },
+  chevron: {
+    height: 18,
+    width: 10,
+  },
+  // Starts at the text label: 16 padding + 40 icon container + 12 gap.
   separator: {
     bottom: 0,
     height: StyleSheet.hairlineWidth,
-    left: 16,
+    left: 68,
     position: 'absolute',
     right: 16,
   },
