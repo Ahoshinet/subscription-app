@@ -111,8 +111,7 @@ export default function RootLayout() {
                 <Stack.Screen name="login" options={{ headerShown: false, contentStyle: { backgroundColor: screenBg } }} />
                 <Stack.Screen name="register" options={{ headerShown: false, contentStyle: { backgroundColor: screenBg } }} />
                 <Stack.Screen name="add" options={{ gestureEnabled: true, presentation: 'modal' }} />
-                <Stack.Screen name="add-payment-method" options={{ gestureEnabled: true, presentation: 'modal' }} />
-                <Stack.Screen name="payment-method-brand/[brandId]" options={{ presentation: 'card' }} />
+                <Stack.Screen name="add-payment-method" options={{ gestureEnabled: true, presentation: 'modal', headerShown: false }} />
                 <Stack.Screen name="detail" />
                 <Stack.Screen name="edit" options={{ presentation: 'modal' }} />
                 <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />

@@ -19,10 +19,11 @@ const ICON_PICKER_WIDTH = Math.min(SCREEN_WIDTH - 32, 340);
 const ICON_PICKER_GAP = 10;
 const ICON_PICKER_TILE_SIZE = Math.floor((ICON_PICKER_WIDTH - 28 - ICON_PICKER_GAP * 2) / 3);
 
-// iOS-only: presented via the native `presentation: 'modal'` Stack route
-// (registered in app/_layout.tsx) so the header can use the same
-// unstable_headerLeftItems glass-button chrome as app/add.tsx. Android keeps
-// its own animated bottom sheet in components/AddPaymentMethodSheet.tsx.
+// iOS-only: first screen of the nested Stack in app/add-payment-method/_layout.tsx,
+// which the root Stack presents as a native `presentation: 'modal'` sheet. The
+// header uses the same unstable_headerLeftItems glass-button chrome as
+// app/add.tsx. Android keeps its own animated bottom sheet in
+// components/AddPaymentMethodSheet.tsx.
 export default function AddPaymentMethodScreen() {
     const router = useRouter();
     const colorScheme = useColorScheme();
@@ -177,7 +178,7 @@ export default function AddPaymentMethodScreen() {
                                 testID={`payment-brand-row-${brand.id}`}
                                 accessibilityRole="button"
                                 onPress={() => router.push({
-                                    pathname: '/payment-method-brand/[brandId]',
+                                    pathname: '/add-payment-method/[brandId]',
                                     params: { brandId: brand.id },
                                 })}
                                 style={{

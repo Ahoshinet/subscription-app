@@ -2,18 +2,19 @@ import React, { useState } from 'react';
 import { View, Text, Pressable, TextInput, KeyboardAvoidingView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useNavigation } from 'expo-router';
 import { usePaymentMethodStore } from '@/store/usePaymentMethodStore';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { singleLineTextInputStyle } from '@/lib/textInputStyles';
 import { PRESET_BRANDS } from '@/lib/paymentMethodPresets';
 
-// Pushed on top of app/add-payment-method.tsx's modal (plain push, not a
-// further modal) so iOS renders it as a native child sheet sliding in from
-// the right, the same way Reminders pushes its "List" picker.
+// Pushed onto the nested Stack in app/add-payment-method/_layout.tsx, i.e.
+// *inside* the modal sheet, so iOS slides it in from the right within the
+// sheet the same way Reminders pushes its "List" picker. It must stay inside
+// this group: registering it on the root Stack would push it behind the sheet.
 export default function AddPaymentMethodBrandScreen() {
     const params = useLocalSearchParams<{ brandId: string }>();
-    const router = useRouter();
+    const navigation = useNavigation();
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
     const { t } = useTranslation();
@@ -34,9 +35,10 @@ export default function AddPaymentMethodBrandScreen() {
     if (!brand) return null;
 
     const handleConfirm = async () => {
-        // Pop this screen and the add-payment-method modal beneath it in one
-        // go, back to whatever screen launched the flow.
-        router.dismiss(2);
+        // Close the whole modal sheet (this nested Stack) in one go, back to
+        // whatever screen launched the flow. A plain back() would only pop
+        // this screen inside the sheet.
+        navigation.getParent()?.goBack();
         try {
             await addMethod({
                 type: 'preset',
@@ -55,8 +57,8 @@ export default function AddPaymentMethodBrandScreen() {
             <Stack.Screen
                 options={{
                     title: brand.label,
-                    presentation: 'card',
-                    animation: 'slide_from_right',
+                    headerBackTitle: ' ',
+                    headerBackButtonDisplayMode: 'minimal',
                     headerStyle: { backgroundColor: bg },
                     headerTintColor: textPrimary,
                     headerTitleAlign: 'center',
