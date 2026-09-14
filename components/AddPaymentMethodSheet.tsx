@@ -320,20 +320,48 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                     )}
 
                     {/* Title row */}
-                    <View
-                        style={{
-                            flexDirection: 'row', alignItems: 'center',
-                            justifyContent: 'space-between',
-                            paddingHorizontal: 20, paddingTop: 12, paddingBottom: 14,
-                        }}
-                    >
-                        <Text style={{ fontSize: 18, fontWeight: '700', color: textPrimary }}>
-                            {t('billing.add_method_title')}
-                        </Text>
-                        <Pressable onPress={close} hitSlop={10}>
-                            <Ionicons name="close-circle" size={26} color={textSub} />
-                        </Pressable>
-                    </View>
+                    {Platform.OS === 'ios' ? (
+                        <View
+                            style={{
+                                flexDirection: 'row', alignItems: 'center',
+                                justifyContent: 'center',
+                                paddingHorizontal: 16, paddingTop: 24, paddingBottom: 20,
+                            }}
+                        >
+                            <Pressable
+                                onPress={close}
+                                hitSlop={10}
+                                accessibilityRole="button"
+                                accessibilityLabel={t('billing.cancel')}
+                                style={{
+                                    position: 'absolute', left: 16,
+                                    width: 44, height: 44, borderRadius: 22,
+                                    alignItems: 'center', justifyContent: 'center',
+                                    backgroundColor: segBg,
+                                }}
+                            >
+                                <Ionicons name="close" size={20} color={textPrimary} />
+                            </Pressable>
+                            <Text style={{ fontSize: 20, fontWeight: '700', color: textPrimary }}>
+                                {t('billing.add_method_title')}
+                            </Text>
+                        </View>
+                    ) : (
+                        <View
+                            style={{
+                                flexDirection: 'row', alignItems: 'center',
+                                justifyContent: 'space-between',
+                                paddingHorizontal: 20, paddingTop: 12, paddingBottom: 14,
+                            }}
+                        >
+                            <Text style={{ fontSize: 18, fontWeight: '700', color: textPrimary }}>
+                                {t('billing.add_method_title')}
+                            </Text>
+                            <Pressable onPress={close} hitSlop={10}>
+                                <Ionicons name="close-circle" size={26} color={textSub} />
+                            </Pressable>
+                        </View>
+                    )}
 
                     {/* Segmented control */}
                     {Platform.OS === 'ios' ? (
