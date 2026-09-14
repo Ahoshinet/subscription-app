@@ -28,7 +28,6 @@ export default function AddPaymentMethodBrandScreen() {
     const segBg = isDark ? '#2C2C2E' : '#F2F2F7';
     const textPrimary = isDark ? '#FFFFFF' : '#000000';
     const textSub = isDark ? '#8E8E93' : '#6B7280';
-    const borderCol = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)';
     const brandIconBg = isDark ? '#2C2C2E' : '#E5E5EA';
     const brandIconTint = isDark ? '#98989D' : '#636366';
 
@@ -68,7 +67,7 @@ export default function AddPaymentMethodBrandScreen() {
             />
 
             <View style={{ paddingHorizontal: 20, paddingTop: 24, flex: 1 }}>
-                <View style={{ alignItems: 'center', marginBottom: 8 }}>
+                <View style={{ alignItems: 'center', marginBottom: 33 }}>
                     <View
                         style={{
                             width: 60, height: 60, borderRadius: 16,
@@ -83,8 +82,6 @@ export default function AddPaymentMethodBrandScreen() {
                         {brand.label}
                     </Text>
                 </View>
-
-                <View style={{ height: 1, backgroundColor: borderCol, marginBottom: 24 }} />
 
                 <Text style={{ fontSize: 12, color: textSub, fontWeight: '600', marginBottom: 10 }}>
                     {t('billing.memo')}
