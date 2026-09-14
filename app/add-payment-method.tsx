@@ -177,7 +177,7 @@ export default function AddPaymentMethodScreen() {
                                 testID={`payment-brand-row-${brand.id}`}
                                 accessibilityRole="button"
                                 onPress={() => router.push({
-                                    pathname: '/add-payment-method/[brandId]',
+                                    pathname: '/payment-method-brand/[brandId]',
                                     params: { brandId: brand.id },
                                 })}
                                 style={{
