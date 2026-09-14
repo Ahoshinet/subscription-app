@@ -333,7 +333,7 @@
         "error_failed": "Failed to add subscription."
     },
     "edit": {
-        "title": "Edit",
+        "title": "Edit Subscription",
         "submit": "Save",
         "error_failed": "Failed to update.",
         "not_found": "Subscription not found.",
