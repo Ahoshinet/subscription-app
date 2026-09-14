@@ -399,6 +399,15 @@ export default function AddSubscriptionModal() {
                 isDark={isDark}
                 title={t('billing.pick_icon_title')}
                 cancelLabel={t('billing.cancel')}
+                doneLabel={t('billing.pick_icon_done')}
+                colorLabel={t('billing.icon_color')}
+                categoryLabels={{
+                    all: t('billing.icon_category_all'),
+                    service: t('billing.icon_category_service'),
+                    content: t('billing.icon_category_content'),
+                    other: t('billing.icon_category_other'),
+                }}
+                initialIcon={selectedPresetIcon}
                 onClose={() => setShowIconPickerModal(false)}
                 onSelect={handleSelectPresetIcon}
             />

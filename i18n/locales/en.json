@@ -82,6 +82,12 @@
         "icon_source_upload": "Upload",
         "icon_source_library": "Choose from built-in icons",
         "pick_icon_title": "Pick an Icon",
+        "pick_icon_done": "Done",
+        "icon_color": "Accent Color",
+        "icon_category_all": "All",
+        "icon_category_service": "Services",
+        "icon_category_content": "Content",
+        "icon_category_other": "Other",
         "add_failed": "Failed to add payment method. Please try again.",
         "update_failed": "Failed to update payment method. Please try again.",
         "delete_failed": "Failed to remove payment method."
