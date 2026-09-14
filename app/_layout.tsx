@@ -106,7 +106,7 @@ export default function RootLayout() {
 
     return (
         <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
-            <Stack screenOptions={{ headerBackTitle: ' ' }}>
+            <Stack screenOptions={{ headerBackTitle: ' ', headerBackButtonDisplayMode: 'minimal' }}>
                 <Stack.Screen name="(tabs)" options={{ headerShown: false, title: '' }} />
                 <Stack.Screen name="login" options={{ headerShown: false, contentStyle: { backgroundColor: screenBg } }} />
                 <Stack.Screen name="register" options={{ headerShown: false, contentStyle: { backgroundColor: screenBg } }} />
