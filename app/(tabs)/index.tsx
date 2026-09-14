@@ -163,6 +163,17 @@ export default function HomeScreen() {
     };
   }, [subscriptions, gmailSignedIn, paidyAmount]);
 
+  // The stored next_payment_date is an anchor that isn't rolled forward on
+  // its own, so a subscription can go stale (e.g. still 2024-10-01) while
+  // its actual upcoming charge is months away. Sorting/day-count math must
+  // use this resolved date, not the raw field, or a stale anchor sorts as
+  // if it were the earliest upcoming payment.
+  const effectiveDateFor = useCallback((sub: Subscription): string => (
+    sub.id === -1
+      ? sub.next_payment_date
+      : getEffectiveNextPaymentDate(sub.next_payment_date, sub.billing_cycle, todayDate, sub.billing_anchor_day)
+  ), [todayDate]);
+
   const filteredAndSorted = useMemo(() => {
     let result: Subscription[] = paidyVirtualSub
       ? [...subscriptions, paidyVirtualSub]
@@ -182,12 +193,12 @@ export default function HomeScreen() {
           return b.amount - a.amount;
         case 'date':
         default:
-          return a.next_payment_date.localeCompare(b.next_payment_date);
+          return effectiveDateFor(a).localeCompare(effectiveDateFor(b));
       }
     });
 
     return result;
-  }, [subscriptions, paidyVirtualSub, searchQuery, sortKey, showInactive]);
+  }, [subscriptions, paidyVirtualSub, searchQuery, sortKey, showInactive, effectiveDateFor]);
 
 
   const sortLabel = () => {
@@ -365,15 +376,7 @@ export default function HomeScreen() {
             )}
 
             {filteredAndSorted.map((sub) => {
-              const effectiveDate = sub.id === -1
-                ? sub.next_payment_date
-                : getEffectiveNextPaymentDate(
-                  sub.next_payment_date,
-                  sub.billing_cycle,
-                  todayDate,
-                  sub.billing_anchor_day,
-                );
-              const daysRemaining = Math.max(0, daysBetweenDateOnly(todayDate, effectiveDate));
+              const daysRemaining = Math.max(0, daysBetweenDateOnly(todayDate, effectiveDateFor(sub)));
 
               return (
                 <SubscriptionCard
