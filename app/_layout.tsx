@@ -2,6 +2,7 @@ import { DarkTheme, DefaultTheme, ThemeProvider, Stack, useRouter, useSegments }
 import { StatusBar } from 'expo-status-bar';
 import * as WebBrowser from 'expo-web-browser';
 import 'react-native-reanimated';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import '../global.css';
 import { Alert, Linking, useColorScheme as useRNColorScheme } from 'react-native';
 import { useColorScheme as useNativeWindColorScheme } from 'nativewind';
@@ -105,20 +106,22 @@ export default function RootLayout() {
     }
 
     return (
-        <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
-            <Stack screenOptions={{ headerBackTitle: ' ', headerBackButtonDisplayMode: 'minimal' }}>
-                <Stack.Screen name="(tabs)" options={{ headerShown: false, title: '' }} />
-                <Stack.Screen name="login" options={{ headerShown: false, contentStyle: { backgroundColor: screenBg } }} />
-                <Stack.Screen name="register" options={{ headerShown: false, contentStyle: { backgroundColor: screenBg } }} />
-                <Stack.Screen name="add" options={{ gestureEnabled: true, presentation: 'modal' }} />
-                <Stack.Screen name="add-payment-method" options={{ gestureEnabled: true, presentation: 'modal', headerShown: false }} />
-                <Stack.Screen name="detail" />
-                <Stack.Screen name="edit" options={{ presentation: 'modal' }} />
-                <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-                <Stack.Screen name="paidy-detail" options={{ presentation: 'modal', headerShown: false }} />
-                <Stack.Screen name="image-crop" options={{ headerShown: false, animation: 'slide_from_bottom' }} />
-            </Stack>
-            <StatusBar style="auto" />
-        </ThemeProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+            <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
+                <Stack screenOptions={{ headerBackTitle: ' ', headerBackButtonDisplayMode: 'minimal' }}>
+                    <Stack.Screen name="(tabs)" options={{ headerShown: false, title: '' }} />
+                    <Stack.Screen name="login" options={{ headerShown: false, contentStyle: { backgroundColor: screenBg } }} />
+                    <Stack.Screen name="register" options={{ headerShown: false, contentStyle: { backgroundColor: screenBg } }} />
+                    <Stack.Screen name="add" options={{ gestureEnabled: true, presentation: 'modal' }} />
+                    <Stack.Screen name="add-payment-method" options={{ gestureEnabled: true, presentation: 'modal', headerShown: false }} />
+                    <Stack.Screen name="detail" />
+                    <Stack.Screen name="edit" options={{ presentation: 'modal' }} />
+                    <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+                    <Stack.Screen name="paidy-detail" options={{ presentation: 'modal', headerShown: false }} />
+                    <Stack.Screen name="image-crop" options={{ headerShown: false, animation: 'slide_from_bottom' }} />
+                </Stack>
+                <StatusBar style="auto" />
+            </ThemeProvider>
+        </GestureHandlerRootView>
     );
 }
