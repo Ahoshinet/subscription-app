@@ -5,6 +5,7 @@ import Animated, { useSharedValue, useAnimatedStyle } from 'react-native-reanima
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { useTranslation } from 'react-i18next';
+import { isOpaqueSource } from '@/lib/iconPicker';
 import { resolveCrop } from '@/lib/imageCropStore';
 
 const { width: SCREEN_W } = Dimensions.get('window');
@@ -102,15 +103,10 @@ export default function ImageCropScreen() {
             })
             .resize({ width: 512, height: 512 })
             .renderAsync();
-        // JPEG has no alpha channel, so a transparent PNG/WebP icon would get
-        // flattened onto a white background. Only use JPEG when the source is
-        // known to be opaque; anything else (png, webp, gif, unknown) stays PNG.
-        const sourceExt = (uri.split('?')[0].split('.').pop() ?? '').toLowerCase();
-        const isOpaqueSource = ['jpg', 'jpeg', 'heic', 'heif'].includes(sourceExt);
         let result;
         try {
             result = await renderedImage.saveAsync(
-                isOpaqueSource
+                isOpaqueSource(uri)
                     ? { compress: 0.9, format: SaveFormat.JPEG }
                     : { format: SaveFormat.PNG },
             );
