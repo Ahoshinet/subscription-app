@@ -6,7 +6,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import * as ImagePicker from 'expo-image-picker';
+import { InvalidIconImageError, pickIconImage, type IconSource } from '@/lib/iconPicker';
+import IconSourceSheet from '@/components/IconSourceSheet';
 import { usePaymentMethodStore } from '@/store/usePaymentMethodStore';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { singleLineTextInputStyle } from '@/lib/textInputStyles';
@@ -50,6 +51,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
         useState<IoniconsName | null>(null);
     const [customIconColor, setCustomIconColor] = useState('#6B7280');
     const [showIconPresetModal, setShowIconPresetModal] = useState(false);
+    const [showIconSourceSheet, setShowIconSourceSheet] = useState(false);
 
     // Brand label step
     const [selectedBrand, setSelectedBrand] = useState<PresetBrand | null>(null);
@@ -161,17 +163,19 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
         }
     };
 
-    const pickIcon = async () => {
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 0.8,
-        });
-        if (!result.canceled && result.assets[0]) {
-            setCustomIconUri(result.assets[0].uri);
+    const pickIcon = async (source: IconSource) => {
+        try {
+            const asset = await pickIconImage(source, { allowsEditing: true });
+            if (!asset) return;
+            setCustomIconUri(asset.uri);
             setCustomIconName(null);
             setCustomIconColor('#6B7280');
+        } catch (error) {
+            if (error instanceof InvalidIconImageError) {
+                Alert.alert(t('common.error'), t('billing.icon_file_invalid'));
+                return;
+            }
+            throw error;
         }
     };
 
@@ -182,17 +186,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
         setShowIconPresetModal(false);
     };
 
-    const openIconSourcePicker = () => {
-        Alert.alert(
-            t('billing.icon_source_title'),
-            t('billing.icon_source_message'),
-            [
-                { text: t('billing.cancel'), style: 'cancel' },
-                { text: t('billing.icon_source_upload'), onPress: () => { void pickIcon(); } },
-                { text: t('billing.icon_source_library'), onPress: () => setShowIconPresetModal(true) },
-            ]
-        );
-    };
+    const openIconSourcePicker = () => setShowIconSourceSheet(true);
 
     if (!visible) return null;
 
@@ -667,6 +661,15 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                 </Animated.View>
             </KeyboardAvoidingView>
 
+            <IconSourceSheet
+                visible={showIconSourceSheet}
+                isDark={isDark}
+                onClose={() => setShowIconSourceSheet(false)}
+                onSelect={(option) => {
+                    if (option === 'library') setShowIconPresetModal(true);
+                    else void pickIcon(option);
+                }}
+            />
             <Modal
                 transparent
                 animationType="fade"

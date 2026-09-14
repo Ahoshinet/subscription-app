@@ -8,7 +8,7 @@ import { useAddFormStore } from '../store/useAddFormStore';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { usePaymentMethodStore } from '../store/usePaymentMethodStore';
 import { uploadApi } from '../lib/api';
-import * as ImagePicker from 'expo-image-picker';
+import { InvalidIconImageError, pickIconImage, type IconSource } from '../lib/iconPicker';
 import { setCropHandler } from '../lib/imageCropStore';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
@@ -17,6 +17,7 @@ import {
     buildSubscriptionPresetIconValue,
 } from '../lib/subscriptionIcon';
 import SubscriptionIconPickerSheet from '../components/SubscriptionIconPickerSheet';
+import IconSourceSheet from '../components/IconSourceSheet';
 import { CURRENCIES, isAmountInputAboveMax, parseAmountInput } from '../lib/currency';
 import { singleLineTextInputStyle } from '../lib/textInputStyles';
 import { dateOnlyToLocalDate, formatDateOnly } from '../lib/dateUtils';
@@ -50,6 +51,7 @@ export default function AddSubscriptionModal() {
     const [selectedPresetIcon, setSelectedPresetIcon] =
         useState<SubscriptionIconSelection | null>(null);
     const [showIconPickerModal, setShowIconPickerModal] = useState(false);
+    const [showIconSourceSheet, setShowIconSourceSheet] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [memo, setMemo] = useState('');
 
@@ -132,21 +134,24 @@ export default function AddSubscriptionModal() {
         return `${date.getFullYear()}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
     };
 
-    const pickIcon = async () => {
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
-            quality: 1,
-        });
-        if (!result.canceled && result.assets[0]) {
-            const asset = result.assets[0];
+    const pickIcon = async (source: IconSource) => {
+        try {
+            const asset = await pickIconImage(source);
+            if (!asset) return;
             setCropHandler((croppedUri) => {
                 setIconUri(croppedUri);
                 setSelectedPresetIcon(null);
             });
             router.push({
                 pathname: '/image-crop',
-                params: { uri: asset.uri, width: String(asset.width ?? 1), height: String(asset.height ?? 1) },
+                params: { uri: asset.uri, width: String(asset.width), height: String(asset.height) },
             });
+        } catch (error) {
+            if (error instanceof InvalidIconImageError) {
+                Alert.alert(t('common.error'), t('billing.icon_file_invalid'));
+                return;
+            }
+            throw error;
         }
     };
 
@@ -156,13 +161,7 @@ export default function AddSubscriptionModal() {
         setShowIconPickerModal(false);
     };
 
-    const openIconSourcePicker = () => {
-        Alert.alert(t('billing.icon_source_title'), t('billing.icon_source_message'), [
-            { text: t('billing.cancel'), style: 'cancel' },
-            { text: t('billing.icon_source_upload'), onPress: () => { void pickIcon(); } },
-            { text: t('billing.icon_source_library'), onPress: () => setShowIconPickerModal(true) },
-        ]);
-    };
+    const openIconSourcePicker = () => setShowIconSourceSheet(true);
 
     const renderPresetIcon = (
         icon: SubscriptionIconSelection,
@@ -394,6 +393,15 @@ export default function AddSubscriptionModal() {
                 </View>
             </ScrollView>
 
+            <IconSourceSheet
+                visible={showIconSourceSheet}
+                isDark={isDark}
+                onClose={() => setShowIconSourceSheet(false)}
+                onSelect={(option) => {
+                    if (option === 'library') setShowIconPickerModal(true);
+                    else void pickIcon(option);
+                }}
+            />
             <SubscriptionIconPickerSheet
                 visible={showIconPickerModal}
                 isDark={isDark}

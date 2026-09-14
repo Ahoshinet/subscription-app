@@ -7,7 +7,7 @@ import { useSubscriptionStore } from '../store/useSubscriptionStore';
 import { useAddFormStore } from '../store/useAddFormStore';
 import { uploadApi, resolveIconUrl } from '../lib/api';
 import type { Subscription } from '../lib/api';
-import * as ImagePicker from 'expo-image-picker';
+import { InvalidIconImageError, pickIconImage, type IconSource } from '../lib/iconPicker';
 import { setCropHandler } from '../lib/imageCropStore';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +23,7 @@ import {
 } from '../lib/subscriptionIcon';
 import { dateOnlyToLocalDate, formatDateOnly } from '../lib/dateUtils';
 import { getErrorMessage } from '../lib/errors';
+import IconSourceSheet from '../components/IconSourceSheet';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -67,6 +68,7 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
     const [iconUri, setIconUri] = useState<string | null>(subscription.icon_url ?? null);
     const [iconPreviewError, setIconPreviewError] = useState(false);
     const [showIconPickerModal, setShowIconPickerModal] = useState(false);
+    const [showIconSourceSheet, setShowIconSourceSheet] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [memo, setMemo] = useState(subscription.memo || '');
 
@@ -201,21 +203,24 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
         return `${date.getFullYear()}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
     };
 
-    const pickIcon = async () => {
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
-            quality: 1,
-        });
-        if (!result.canceled && result.assets[0]) {
-            const asset = result.assets[0];
+    const pickIcon = async (source: IconSource) => {
+        try {
+            const asset = await pickIconImage(source);
+            if (!asset) return;
             setCropHandler((croppedUri) => {
                 setIconUri(croppedUri);
                 setIconPreviewError(false);
             });
             router.push({
                 pathname: '/image-crop',
-                params: { uri: asset.uri, width: String(asset.width ?? 1), height: String(asset.height ?? 1) },
+                params: { uri: asset.uri, width: String(asset.width), height: String(asset.height) },
             });
+        } catch (error) {
+            if (error instanceof InvalidIconImageError) {
+                Alert.alert(t('common.error'), t('billing.icon_file_invalid'));
+                return;
+            }
+            throw error;
         }
     };
 
@@ -225,13 +230,7 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
         setShowIconPickerModal(false);
     };
 
-    const openIconSourcePicker = () => {
-        Alert.alert(t('billing.icon_source_title'), t('billing.icon_source_message'), [
-            { text: t('billing.cancel'), style: 'cancel' },
-            { text: t('billing.icon_source_upload'), onPress: () => { void pickIcon(); } },
-            { text: t('billing.icon_source_library'), onPress: () => setShowIconPickerModal(true) },
-        ]);
-    };
+    const openIconSourcePicker = () => setShowIconSourceSheet(true);
 
     const rowStyle = { height: 48 };
     const labelStyle = { fontSize: 15, width: 90 };
@@ -429,6 +428,15 @@ function EditSubscriptionForm({ subscription }: { subscription: Subscription }) 
                 </View>
             </ScrollView>
 
+            <IconSourceSheet
+                visible={showIconSourceSheet}
+                isDark={isDark}
+                onClose={() => setShowIconSourceSheet(false)}
+                onSelect={(option) => {
+                    if (option === 'library') setShowIconPickerModal(true);
+                    else void pickIcon(option);
+                }}
+            />
             <Modal
                 transparent
                 animationType="fade"
