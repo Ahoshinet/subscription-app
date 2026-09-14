@@ -7,6 +7,7 @@ import { usePaymentMethodStore } from '@/store/usePaymentMethodStore';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { singleLineTextInputStyle } from '@/lib/textInputStyles';
 import { PRESET_BRANDS } from '@/lib/paymentMethodPresets';
+import { paymentMethodAddErrorKey } from '@/lib/paymentMethodErrors';
 
 // Pushed onto the nested Stack in app/add-payment-method/_layout.tsx, i.e.
 // *inside* the modal sheet, so iOS slides it in from the right within the
@@ -46,8 +47,8 @@ export default function AddPaymentMethodBrandScreen() {
                 iconName: brand.iconName,
                 color: brand.color,
             });
-        } catch {
-            Alert.alert(t('common.error'), t('billing.add_failed'));
+        } catch (error) {
+            Alert.alert(t('common.error'), t(paymentMethodAddErrorKey(error)));
         }
     };
 

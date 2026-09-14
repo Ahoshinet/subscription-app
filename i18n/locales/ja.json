@@ -83,6 +83,7 @@
         "icon_source_library": "用意済みアイコンから選ぶ",
         "pick_icon_title": "アイコンを選択",
         "icon_customization_coming_soon": "絞り込みとカラー変更は今後のアップデートで対応予定です。",
+        "add_duplicate": "同じ名前の支払方法が既に存在します。別の名前を指定してください。",
         "add_failed": "支払方法の追加に失敗しました。もう一度お試しください。",
         "update_failed": "支払方法の更新に失敗しました。もう一度お試しください。",
         "delete_failed": "支払方法の削除に失敗しました。"

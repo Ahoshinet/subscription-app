@@ -12,6 +12,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { singleLineTextInputStyle } from '@/lib/textInputStyles';
 import type { IoniconsName } from '@/lib/iconName';
 import { CARD_BRANDS, CUSTOM_ICON_PRESETS, PRESET_BRANDS, type PresetBrand } from '@/lib/paymentMethodPresets';
+import { paymentMethodAddErrorKey } from '@/lib/paymentMethodErrors';
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 const SHEET_HORIZONTAL_PADDING = 20;
@@ -120,8 +121,8 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                 iconName: selectedBrand.iconName,
                 color: selectedBrand.color,
             });
-        } catch {
-            Alert.alert(t('common.error'), t('billing.add_failed'));
+        } catch (error) {
+            Alert.alert(t('common.error'), t(paymentMethodAddErrorKey(error)));
         }
     };
 
@@ -138,8 +139,8 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                 last4: cardLast4,
                 cardBrand,
             });
-        } catch {
-            Alert.alert(t('common.error'), t('billing.add_failed'));
+        } catch (error) {
+            Alert.alert(t('common.error'), t(paymentMethodAddErrorKey(error)));
         }
     };
 
@@ -155,8 +156,8 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                 iconName: customIconUri ? undefined : (customIconName ?? 'wallet-outline'),
                 color: customIconColor,
             });
-        } catch {
-            Alert.alert(t('common.error'), t('billing.add_failed'));
+        } catch (error) {
+            Alert.alert(t('common.error'), t(paymentMethodAddErrorKey(error)));
         }
     };
 
