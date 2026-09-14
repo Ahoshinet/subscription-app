@@ -42,6 +42,8 @@
         "clear_name": "Clear name",
         "name_required": "Enter a name.",
         "save_failed": "Failed to save your name.",
+        "discard_keep": "Keep Editing",
+        "discard_confirm": "Discard Changes",
         "email": "Email Address",
         "save": "Save Changes"
     },

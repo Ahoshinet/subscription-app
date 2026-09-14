@@ -11,6 +11,8 @@ import { getErrorMessage } from '@/lib/errors';
 import { singleLineTextInputStyle } from '@/lib/textInputStyles';
 import { useAuthStore } from '@/store/useAuthStore';
 
+type SaveResult = { ok: true } | { ok: false; message: string };
+
 export default function ProfileScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -24,7 +26,7 @@ export default function ProfileScreen() {
   const [isSaving, setIsSaving] = useState(false);
   const nameRef = useRef(initialName);
   const savedNameRef = useRef(initialName.trim());
-  const saveInFlightRef = useRef<Promise<boolean> | null>(null);
+  const saveInFlightRef = useRef<Promise<SaveResult> | null>(null);
   const removalPendingRef = useRef(false);
   const allowRemovalRef = useRef(false);
 
@@ -33,31 +35,28 @@ export default function ProfileScreen() {
     setName(value);
   };
 
-  const saveName = useCallback((): Promise<boolean> => {
+  // Resolves to a message instead of alerting so the caller decides how to
+  // recover: the back-navigation guard below needs to offer a discard route.
+  const saveName = useCallback((): Promise<SaveResult> => {
     const trimmedName = nameRef.current.trim();
-    if (trimmedName === savedNameRef.current) return Promise.resolve(true);
+    if (trimmedName === savedNameRef.current) return Promise.resolve({ ok: true });
 
     if (!trimmedName) {
-      Alert.alert(t('common.error'), t('profile.name_required'));
-      return Promise.resolve(false);
+      return Promise.resolve({ ok: false, message: t('profile.name_required') });
     }
 
     if (saveInFlightRef.current) return saveInFlightRef.current;
 
-    const request = (async () => {
+    const request = (async (): Promise<SaveResult> => {
       setIsSaving(true);
       try {
         const updated = await authApi.updateProfile({ username: trimmedName });
         useAuthStore.setState({ user: updated });
         savedNameRef.current = updated.username;
         nameRef.current = updated.username;
-        return true;
+        return { ok: true };
       } catch (error: unknown) {
-        Alert.alert(
-          t('common.error'),
-          getErrorMessage(error, t('profile.save_failed')),
-        );
-        return false;
+        return { ok: false, message: getErrorMessage(error, t('profile.save_failed')) };
       } finally {
         saveInFlightRef.current = null;
         setIsSaving(false);
@@ -77,14 +76,34 @@ export default function ProfileScreen() {
       if (removalPendingRef.current) return;
       removalPendingRef.current = true;
 
-      void saveName().then(saved => {
-        removalPendingRef.current = false;
-        if (!saved) return;
+      const leave = () => {
         allowRemovalRef.current = true;
         navigation.dispatch(event.data.action);
+      };
+
+      void saveName().then(result => {
+        if (result.ok) {
+          removalPendingRef.current = false;
+          leave();
+          return;
+        }
+        // Never trap the user: when saving is impossible (offline, empty
+        // name), let them either keep editing or drop the change and leave.
+        Alert.alert(t('common.error'), result.message, [
+          {
+            text: t('profile.discard_keep'),
+            style: 'cancel',
+            onPress: () => { removalPendingRef.current = false; },
+          },
+          {
+            text: t('profile.discard_confirm'),
+            style: 'destructive',
+            onPress: leave,
+          },
+        ]);
       });
     });
-  }, [navigation, saveName]);
+  }, [navigation, saveName, t]);
 
   const backgroundColor = isDark ? SETTINGS_DARK_BACKGROUND : '#F2F2F7';
   const inputBackgroundColor = isDark ? '#1C1C1E' : '#FFFFFF';

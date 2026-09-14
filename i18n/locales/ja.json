@@ -42,6 +42,8 @@
         "clear_name": "名前を消去",
         "name_required": "名前を入力してください。",
         "save_failed": "名前を保存できませんでした。",
+        "discard_keep": "編集を続ける",
+        "discard_confirm": "変更を破棄",
         "email": "メールアドレス",
         "save": "変更を保存"
     },

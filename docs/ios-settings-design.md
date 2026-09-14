@@ -169,7 +169,9 @@ The iOS Profile name editor establishes the lightweight form pattern:
 - place the clear control inside the field with a normal trailing inset;
 - save on back navigation when the screen explicitly uses automatic saving;
 - do not also show a redundant Save button;
-- keep the user on the screen and show an error when saving fails.
+- when saving fails (offline, empty name), show the error with a `Keep
+  Editing` / `Discard Changes` choice so the user is never trapped on the
+  screen; discarding leaves without saving.
 
 Password and other explicit-submit forms may retain their action button. Their
 input groups and action surfaces remain borderless, while meaningful separators
