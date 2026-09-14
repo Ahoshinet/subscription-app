@@ -192,6 +192,7 @@
         "sort_name": "Sort by Name",
         "sort_amount": "Sort by Amount",
         "sort_date": "Sort by Date",
+        "show_inactive": "Show Inactive",
         "no_results": "No matching subscriptions found.",
         "end_of_list": "End of list"
     },

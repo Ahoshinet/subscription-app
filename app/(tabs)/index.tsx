@@ -38,6 +38,7 @@ export default function HomeScreen() {
   const [spendingExpanded, setSpendingExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('date');
+  const [showInactive, setShowInactive] = useState(true);
   const [actionInFlightId, setActionInFlightId] = useState<number | null>(null);
   const todayDate = getTodayDateInTimeZone(timeZone);
 
@@ -169,6 +170,10 @@ export default function HomeScreen() {
 
     result = filterSubscriptionsByQuery(result, searchQuery);
 
+    if (!showInactive) {
+      result = result.filter(sub => sub.status !== 'inactive');
+    }
+
     result.sort((a, b) => {
       switch (sortKey) {
         case 'name':
@@ -182,7 +187,7 @@ export default function HomeScreen() {
     });
 
     return result;
-  }, [subscriptions, paidyVirtualSub, searchQuery, sortKey]);
+  }, [subscriptions, paidyVirtualSub, searchQuery, sortKey, showInactive]);
 
 
   const sortLabel = () => {
@@ -292,11 +297,30 @@ export default function HomeScreen() {
               </View>
             ) : null}
             <MenuView
-              onPressAction={({ nativeEvent: { event } }) => setSortKey(event as SortKey)}
+              onPressAction={({ nativeEvent: { event } }) => {
+                if (event === 'toggle-inactive') {
+                  setShowInactive(v => !v);
+                  return;
+                }
+                setSortKey(event as SortKey);
+              }}
               actions={[
                 { id: 'date', title: t('home.sort_date'), image: 'calendar', state: sortKey === 'date' ? 'on' : 'off' },
                 { id: 'name', title: t('home.sort_name'), image: 'textformat', state: sortKey === 'name' ? 'on' : 'off' },
                 { id: 'amount', title: t('home.sort_amount'), image: 'banknote', state: sortKey === 'amount' ? 'on' : 'off' },
+                {
+                  id: 'filters',
+                  title: '',
+                  displayInline: true,
+                  subactions: [
+                    {
+                      id: 'toggle-inactive',
+                      title: t('home.show_inactive'),
+                      image: 'eye',
+                      state: showInactive ? 'on' : 'off',
+                    },
+                  ],
+                },
               ]}
               style={{ alignSelf: 'flex-end' }}
             >

@@ -192,6 +192,7 @@
         "sort_name": "名前順",
         "sort_amount": "金額順",
         "sort_date": "日付順",
+        "show_inactive": "非アクティブを表示",
         "no_results": "一致するサブスクリプションが見つかりません。",
         "end_of_list": "リストの末尾"
     },
