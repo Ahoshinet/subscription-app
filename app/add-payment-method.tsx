@@ -206,6 +206,7 @@ export default function AddPaymentMethodScreen() {
                                     flexDirection: 'row',
                                     alignItems: 'center',
                                     paddingLeft: 12,
+                                    paddingRight: 16,
                                 }}
                             >
                                 <View
@@ -225,13 +226,8 @@ export default function AddPaymentMethodScreen() {
                                         flex: 1,
                                         minHeight: 58,
                                         marginLeft: 12,
-                                        paddingRight: 10,
                                         flexDirection: 'row',
                                         alignItems: 'center',
-                                        borderBottomWidth: index < PRESET_BRANDS.length - 1
-                                            ? StyleSheet.hairlineWidth
-                                            : 0,
-                                        borderBottomColor: borderCol,
                                     }}
                                 >
                                     <Text style={{ flex: 1, fontSize: 16, color: textPrimary }}>
@@ -239,6 +235,19 @@ export default function AddPaymentMethodScreen() {
                                     </Text>
                                     <Ionicons name="chevron-forward" size={20} color={textSub} />
                                 </View>
+                                {index < PRESET_BRANDS.length - 1 && (
+                                    <View
+                                        pointerEvents="none"
+                                        style={{
+                                            position: 'absolute',
+                                            left: 60,
+                                            right: 16,
+                                            bottom: 0,
+                                            height: StyleSheet.hairlineWidth,
+                                            backgroundColor: borderCol,
+                                        }}
+                                    />
+                                )}
                             </Pressable>
                         ))}
                     </View>
