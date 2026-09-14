@@ -55,6 +55,8 @@ export default function AddPaymentMethodBrandScreen() {
             <Stack.Screen
                 options={{
                     title: brand.label,
+                    presentation: 'card',
+                    animation: 'slide_from_right',
                     headerStyle: { backgroundColor: bg },
                     headerTintColor: textPrimary,
                     headerTitleAlign: 'center',
