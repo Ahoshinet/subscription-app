@@ -23,6 +23,10 @@ jest.mock('expo-router', () => ({
   useRouter: () => ({ replace: mockReplace, back: jest.fn() }),
 }));
 
+jest.mock('expo-router/react-navigation', () => ({
+  useHeaderHeight: () => 88,
+}));
+
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));

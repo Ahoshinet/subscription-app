@@ -10,6 +10,7 @@ import {
     View,
 } from 'react-native';
 import { useRouter, Stack } from 'expo-router';
+import { useHeaderHeight } from 'expo-router/react-navigation';
 import { useTranslation } from 'react-i18next';
 
 import { AUTH_DARK_BACKGROUND } from '@/constants/auth-theme';
@@ -27,6 +28,10 @@ export default function RegisterScreen() {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
     const { t } = useTranslation();
+    // The centered content sits in the space below the native header, so it
+    // reads lower than Login's full-screen centering. Pull it back up by half
+    // the header height to match.
+    const headerHeight = useHeaderHeight();
 
     const backgroundColor = isDark ? AUTH_DARK_BACKGROUND : '#F2F2F7';
     const accent = isDark ? '#0A84FF' : '#007AFF';
@@ -93,7 +98,7 @@ export default function RegisterScreen() {
             />
             <ScrollView
                 style={{ backgroundColor }}
-                contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: 24 }}
+                contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: 24, marginTop: -headerHeight / 2 }}
                 keyboardShouldPersistTaps="handled"
             >
                 <View className="mb-10 items-center">
