@@ -10,6 +10,7 @@
 const fs = require('fs');
 const path = require('path');
 
+/* global __dirname */
 const ROOT = path.resolve(__dirname, '..');
 const rootPkg = require(path.join(ROOT, 'package.json'));
 const LICENSE_FILE_RE = /^(licen[cs]e|copying)(\.(md|txt|markdown))?$/i;
