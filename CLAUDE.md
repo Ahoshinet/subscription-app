@@ -15,7 +15,7 @@ pnpm lint         # ESLint
 
 **Routing**: Expo Router (file-based) in `app/`. Tab layout: index (dashboard), calendar, settings. Stack routes: add, login, register, edit, detail.
 
-**Platform-split screens**: Routes that have a dedicated iOS design stay thin and re-export a component that Metro resolves per platform (`foo-screen.tsx` = Android/default, `foo-screen.ios.tsx` = iOS). Currently: every `app/settings/*` route → `components/settings/`, and `app/edit.tsx` → `components/subscription/edit-screen` (shared state/handlers live in `use-edit-subscription-form.ts`). Never import a `.ios` file explicitly from a route; see `docs/ios-settings-design.md` for the conventions.
+**Platform-split screens**: Routes that have a dedicated iOS design stay thin and re-export a component that Metro resolves per platform (`foo-screen.tsx` = Android/default, `foo-screen.ios.tsx` = iOS). Currently: every `app/settings/*` route → `components/settings/`, `app/edit.tsx` → `components/subscription/edit-screen` (shared state/handlers live in `use-edit-subscription-form.ts`), and `app/login.tsx` / `app/register.tsx` → `components/auth/`. Never import a `.ios` file explicitly from a route; see `docs/ios-settings-design.md` for the conventions (the Settings-specific rules there, such as the pure-black surface, extend to `components/auth/` too since it follows the same full-black iOS surface as the rest of the app).
 
 **State**: Zustand stores in `store/`:
 - `useAuthStore.ts` — JWT auth (login/register/logout), token persisted via expo-secure-store
