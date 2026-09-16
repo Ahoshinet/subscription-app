@@ -23,6 +23,16 @@ overrides:
   'ws@>=7.0.0 <7.5.11': 7.5.11
   # GHSA-r28c-9q8g-f849 (high): transitive via Tailwind CSS > PostCSS
   'postcss@<=8.5.17': 8.5.23
+  # GHSA-5p4m-2wfm-xmqj, GHSA-2883-xcg3-v3hh (high): transitive via Expo CLI > jest-preset / xcpretty > js-yaml
+  'js-yaml@>=3.0.0 <3.15.2': 3.15.2
+  'js-yaml@>=4.0.0 <4.3.2': 4.3.2
+  # GHSA-93r5-fhx6-vmg9 and others (high): transitive via Expo CLI > @expo/plist > @xmldom/xmldom
+  '@xmldom/xmldom@>=0.8.0 <0.8.15': 0.8.15
+  '@xmldom/xmldom@>=0.9.0 <0.9.12': 0.9.12
+  # GHSA-2v37-7h3g-55p8 (high): transitive via Expo CLI > metro-config > postcss > nanoid
+  'nanoid@<3.3.18': 3.3.18
+  # GHSA-vcc3-ghjq-m6fr (moderate): transitive via expo-router > query-string > decode-uri-component
+  'decode-uri-component@<=0.4.2': 0.5.0
 minimumReleaseAgeExclude:
   - postcss@8.5.23
   - '@expo/cli@57.0.11'
