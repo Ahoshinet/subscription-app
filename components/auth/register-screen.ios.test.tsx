@@ -5,7 +5,7 @@ import { Alert } from 'react-native';
 
 import RegisterScreen from './register-screen.ios';
 
-let mockHeaderOptions: { headerShadowVisible?: boolean; headerBackTitle?: string } | undefined;
+let mockHeaderOptions: { headerShown?: boolean; headerShadowVisible?: boolean; headerBackTitle?: string } | undefined;
 
 const mockReplace = jest.fn();
 const mockRegister = jest.fn<
@@ -15,7 +15,7 @@ const mockClearError = jest.fn();
 
 jest.mock('expo-router', () => ({
   Stack: {
-    Screen: ({ options }: { options: { headerShadowVisible?: boolean; headerBackTitle?: string } }) => {
+    Screen: ({ options }: { options: { headerShown?: boolean; headerShadowVisible?: boolean; headerBackTitle?: string } }) => {
       mockHeaderOptions = options;
       return null;
     },
@@ -56,6 +56,7 @@ describe('iOS register screen', () => {
     const fieldsClassName = screen.getByTestId('ios-register-fields').props.className;
 
     expect(fieldsClassName).not.toContain(' border ');
+    expect(mockHeaderOptions?.headerShown).toBe(true);
     expect(mockHeaderOptions?.headerShadowVisible).toBe(false);
     expect(mockHeaderOptions?.headerBackTitle).toBe(' ');
     await screen.unmount();

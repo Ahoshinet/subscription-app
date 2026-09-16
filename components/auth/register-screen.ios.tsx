@@ -83,6 +83,7 @@ export default function RegisterScreen() {
         <KeyboardAvoidingView style={{ flex: 1, backgroundColor }} behavior="padding">
             <Stack.Screen
                 options={{
+                    headerShown: true,
                     title: '',
                     headerBackTitle: ' ',
                     headerShadowVisible: false,
