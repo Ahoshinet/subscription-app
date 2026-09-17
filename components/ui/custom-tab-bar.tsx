@@ -1,6 +1,7 @@
 import { BlurView } from 'expo-blur';
 import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -12,9 +13,16 @@ const TAB_ICONS = {
   settings: { active: 'gearshape.fill', inactive: 'gearshape' },
 } as const;
 
+const TAB_LABEL_KEYS = {
+  index: 'tabs.home',
+  calendar: 'tabs.calendar',
+  settings: 'tabs.settings',
+} as const;
+
 export default function CustomTabBar({ state, navigation }: CustomTabBarProps) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const { t } = useTranslation();
   const focusedRouteKey = state.routes[state.index]?.key;
   // Search is an iOS-only primary destination until the Android Material pass.
   const visibleRoutes = state.routes.filter((route) => route.name !== 'search');
@@ -37,6 +45,7 @@ export default function CustomTabBar({ state, navigation }: CustomTabBarProps) {
           {visibleRoutes.map((route) => {
             const isFocused = focusedRouteKey === route.key;
             const tabIcon = TAB_ICONS[route.name as keyof typeof TAB_ICONS] ?? TAB_ICONS.index;
+            const labelKey = TAB_LABEL_KEYS[route.name as keyof typeof TAB_LABEL_KEYS] ?? TAB_LABEL_KEYS.index;
 
             const onPress = () => {
               const event = navigation.emit({
@@ -54,6 +63,7 @@ export default function CustomTabBar({ state, navigation }: CustomTabBarProps) {
               <Pressable
                 key={route.key}
                 accessibilityRole="tab"
+                accessibilityLabel={t(labelKey)}
                 accessibilityState={{ selected: isFocused }}
                 onPress={onPress}
                 style={styles.tabItem}

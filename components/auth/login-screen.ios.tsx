@@ -73,7 +73,7 @@ export default function LoginScreen() {
                 >
                     <View className="mb-10 items-center">
                         <Text className="text-[34px] font-bold text-black dark:text-white mb-2 tracking-tight">
-                            Welcome Back
+                            {t('login.title')}
                         </Text>
                         <Text style={{ color: secondaryText }} className="text-base text-center">
                             {t('login.subtitle')}

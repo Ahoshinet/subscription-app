@@ -52,7 +52,12 @@
         "current": "Current Password",
         "new": "New Password",
         "confirm": "Confirm New Password",
-        "update": "Update Password"
+        "update": "Update Password",
+        "mismatch": "New passwords do not match",
+        "too_short": "Password must be at least 8 characters",
+        "success_title": "Success",
+        "success_message": "Password updated successfully",
+        "update_failed": "Failed to update password"
     },
     "billing": {
         "title": "Billing Methods",
@@ -243,6 +248,7 @@
         "input_error": "Input Error"
     },
     "login": {
+        "title": "Welcome Back",
         "subtitle": "Welcome to the world of subscriptions",
         "username": "Username",
         "username_placeholder": "Enter your username",

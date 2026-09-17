@@ -32,11 +32,11 @@ export default function PasswordScreen() {
 
   const updatePassword = async () => {
     if (newPassword !== confirmPassword) {
-      Alert.alert('Error', 'New passwords do not match');
+      Alert.alert(t('common.error'), t('password.mismatch'));
       return;
     }
     if (newPassword.length < 8) {
-      Alert.alert('Error', 'Password must be at least 8 characters');
+      Alert.alert(t('common.error'), t('password.too_short'));
       return;
     }
 
@@ -46,12 +46,12 @@ export default function PasswordScreen() {
         current_password: currentPassword,
         new_password: newPassword,
       });
-      Alert.alert('Success', 'Password updated successfully');
+      Alert.alert(t('password.success_title'), t('password.success_message'));
       router.back();
     } catch (error: unknown) {
       Alert.alert(
-        'Error',
-        getErrorMessage(error, 'Failed to update password'),
+        t('common.error'),
+        getErrorMessage(error, t('password.update_failed')),
       );
     } finally {
       setIsSaving(false);

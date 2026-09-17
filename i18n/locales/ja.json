@@ -52,7 +52,12 @@
         "current": "現在のパスワード",
         "new": "新しいパスワード",
         "confirm": "新しいパスワード(確認)",
-        "update": "パスワードを更新"
+        "update": "パスワードを更新",
+        "mismatch": "パスワードが一致しません",
+        "too_short": "パスワードは8文字以上で入力してください",
+        "success_title": "完了",
+        "success_message": "パスワードを更新しました",
+        "update_failed": "パスワードの更新に失敗しました"
     },
     "billing": {
         "title": "支払方法",
@@ -243,6 +248,7 @@
         "input_error": "入力エラー"
     },
     "login": {
+        "title": "おかえりなさい",
         "subtitle": "サブスクの世界へようこそ",
         "username": "ユーザー名",
         "username_placeholder": "ユーザー名を入力",
