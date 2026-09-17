@@ -140,6 +140,18 @@ export function SubscriptionCard({
         },
     ];
 
+    // `SubscriptionCardMenu` hosts its content inside a native SwiftUI/Compose
+    // `Host` that measures its RN children with `matchContents`, i.e. it asks
+    // Yoga for their *intrinsic* size with no width constraint. Without an
+    // explicit pixel width, `flex: 1` / percentage children resolve to their
+    // shrink-to-fit minimum instead of stretching, which only surfaces in a
+    // real native build (a JS-only Expo Go/dev session never renders the
+    // native Host, so the bug is invisible there). Measure this plain RN
+    // wrapper — which sits outside the Host and is sized normally — and feed
+    // that width back in explicitly so the hosted content has something
+    // concrete to stretch to.
+    const [cardWidth, setCardWidth] = useState<number | undefined>(undefined);
+
     const handleMenuAction = (actionId: string) => {
         switch (actionId) {
             case 'edit':
@@ -155,7 +167,7 @@ export function SubscriptionCard({
     };
 
     const card = (
-        <View style={isInactive && { opacity: 0.6 }}>
+        <View style={[isInactive && { opacity: 0.6 }, cardWidth ? { width: cardWidth } : null]}>
                 <View style={{ borderRadius: 24 }} className="border border-neutral-200 dark:border-white/10">
                 <BlurView
                     intensity={100}
@@ -303,7 +315,15 @@ export function SubscriptionCard({
     );
 
     return (
-        <View style={{ marginBottom: 20 }}>
+        <View
+            style={{ marginBottom: 20 }}
+            onLayout={(e) => {
+                const width = e.nativeEvent.layout.width;
+                if (width > 0 && width !== cardWidth) {
+                    setCardWidth(width);
+                }
+            }}
+        >
             {hasLongPressActions ? (
                 <SubscriptionCardMenu
                     actions={menuActions}
