@@ -163,11 +163,17 @@ export function SubscriptionCard({
                     style={{ backgroundColor: blurBackgroundColor, borderRadius: 23, overflow: 'hidden' }}
                 >
                     {/* Main Content Area */}
-                    <View className="p-5 flex-row items-center">
+                    <View className="p-5" style={{ flexDirection: 'row', alignItems: 'center' }}>
                         {/* Icon Badge */}
                         <View
-                            className="w-14 h-14 rounded-2xl items-center justify-center mr-4"
-                            style={{ backgroundColor: `${iconBadgeColor}20` }}
+                            className="rounded-2xl mr-4"
+                            style={{
+                                width: 56,
+                                height: 56,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                backgroundColor: `${iconBadgeColor}20`,
+                            }}
                         >
                             {presetIcon ? (
                                 presetIcon.pack === 'fontawesome5' ? (
@@ -187,7 +193,7 @@ export function SubscriptionCard({
                         </View>
 
                         {/* Service Info */}
-                        <View className="flex-1">
+                        <View style={{ flex: 1 }}>
                             <Text
                                 className="text-xl font-bold text-neutral-900 dark:text-neutral-100 mb-1"
                                 numberOfLines={1}
@@ -196,7 +202,10 @@ export function SubscriptionCard({
                                 {serviceName}
                             </Text>
                             {isInactive ? (
-                                <View className="flex-row items-center self-start rounded-full px-2 py-0.5 bg-neutral-400/15">
+                                <View
+                                    className="rounded-full px-2 py-0.5 bg-neutral-400/15"
+                                    style={{ flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start' }}
+                                >
                                     <Ionicons name="pause-circle" size={13} color={inactiveColor} style={{ marginRight: 3 }} />
                                     <Text className="text-xs font-bold tracking-wider" style={{ color: inactiveColor }}>
                                         {t('subscription_card.inactive')}
@@ -214,7 +223,7 @@ export function SubscriptionCard({
                         </View>
 
                         {/* Pricing Info */}
-                        <View className="items-end" style={{ maxWidth: '50%', flexShrink: 1 }}>
+                        <View style={{ alignItems: 'flex-end', maxWidth: '50%', flexShrink: 1 }}>
                             <Text
                                 className="text-xl font-bold text-neutral-900 dark:text-neutral-100"
                                 numberOfLines={1}
@@ -237,7 +246,7 @@ export function SubscriptionCard({
 
                     {/* Bottom Status / Timeline Area */}
                     {isInactive ? (
-                        <View className="px-5 pb-5 mt-1 flex-row items-center">
+                        <View className="px-5 pb-5 mt-1" style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Ionicons name="pause" size={16} color={inactiveColor} style={{ marginRight: 4 }} />
                             <Text className="text-sm font-bold tracking-wider" style={{ color: inactiveColor }}>
                                 {t('subscription_card.paused_note')}
@@ -245,8 +254,11 @@ export function SubscriptionCard({
                         </View>
                     ) : (
                     <View className="px-5 pb-5 mt-1">
-                        <View className="flex-row justify-between items-center mb-3">
-                            <View className="flex-row items-center">
+                        <View
+                            className="mb-3"
+                            style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
+                        >
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                 <Ionicons name={accessibleIcon} size={16} color={statusIconColor} style={{ marginRight: 5 }} />
                                 <Text
                                     className="text-sm"
@@ -270,14 +282,15 @@ export function SubscriptionCard({
                         </View>
 
                         <View
-                            className="w-full rounded-full overflow-hidden"
-                            style={{ height: 4, backgroundColor: progressTrackColor }}
+                            className="rounded-full overflow-hidden"
+                            style={{ width: '100%', height: 4, backgroundColor: progressTrackColor }}
                             accessible={false}
                         >
                             <View
-                                className="h-full rounded-full"
+                                className="rounded-full"
                                 style={{
                                     width: `${progressPercent}%`,
+                                    height: '100%',
                                     backgroundColor: progressColor,
                                 }}
                             />
