@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Pressable, KeyboardAvoidingView, ScrollView, Platform, Alert, ActivityIndicator, Image, Modal, Dimensions } from 'react-native';
+import { View, Text, TextInput, Pressable, KeyboardAvoidingView, ScrollView, Platform, Alert, ActivityIndicator, Image } from 'react-native';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Stack, useRouter } from 'expo-router';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
@@ -8,32 +8,36 @@ import { useAddFormStore } from '../store/useAddFormStore';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { usePaymentMethodStore } from '../store/usePaymentMethodStore';
 import { uploadApi } from '../lib/api';
-import * as ImagePicker from 'expo-image-picker';
+import { InvalidIconImageError, pickIconImage, type IconSource } from '../lib/iconPicker';
 import { setCropHandler } from '../lib/imageCropStore';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
 import {
-    SUBSCRIPTION_ICON_PRESETS,
     type SubscriptionIconSelection,
     buildSubscriptionPresetIconValue,
 } from '../lib/subscriptionIcon';
+import SubscriptionIconPickerSheet from '../components/SubscriptionIconPickerSheet';
+import IconSourceSheet from '../components/IconSourceSheet';
 import { CURRENCIES, isAmountInputAboveMax, parseAmountInput } from '../lib/currency';
 import { singleLineTextInputStyle } from '../lib/textInputStyles';
 import { dateOnlyToLocalDate, formatDateOnly } from '../lib/dateUtils';
 import { getTodayDateInTimeZone } from '../lib/timeZone';
 import { getErrorMessage } from '../lib/errors';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
-const ICON_PICKER_WIDTH = Math.min(SCREEN_WIDTH - 32, 360);
-const ICON_PICKER_GAP = 10;
-const ICON_PICKER_TILE_SIZE = Math.floor((ICON_PICKER_WIDTH - 28 - ICON_PICKER_GAP * 2) / 3);
+import {
+    ADD_DARK_BACKGROUND,
+    ADD_DARK_CARD_BACKGROUND,
+    ADD_DARK_HEADER_BACKGROUND,
+    ADD_DARK_SEPARATOR,
+} from '../constants/add-theme';
 
 export default function AddSubscriptionModal() {
     const router = useRouter();
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
     const { t } = useTranslation();
+    const screenBackgroundColor = isDark ? ADD_DARK_BACKGROUND : '#F2F2F7';
+    const cardBackgroundColor = isDark ? ADD_DARK_CARD_BACKGROUND : '#FFFFFF';
+    const separatorStyle = isDark ? { borderBottomColor: ADD_DARK_SEPARATOR } : undefined;
 
     const [serviceName, setServiceName] = useState('');
     const [planName, setPlanName] = useState('');
@@ -47,6 +51,7 @@ export default function AddSubscriptionModal() {
     const [selectedPresetIcon, setSelectedPresetIcon] =
         useState<SubscriptionIconSelection | null>(null);
     const [showIconPickerModal, setShowIconPickerModal] = useState(false);
+    const [showIconSourceSheet, setShowIconSourceSheet] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [memo, setMemo] = useState('');
 
@@ -129,21 +134,24 @@ export default function AddSubscriptionModal() {
         return `${date.getFullYear()}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
     };
 
-    const pickIcon = async () => {
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
-            quality: 1,
-        });
-        if (!result.canceled && result.assets[0]) {
-            const asset = result.assets[0];
+    const pickIcon = async (source: IconSource) => {
+        try {
+            const asset = await pickIconImage(source);
+            if (!asset) return;
             setCropHandler((croppedUri) => {
                 setIconUri(croppedUri);
                 setSelectedPresetIcon(null);
             });
             router.push({
                 pathname: '/image-crop',
-                params: { uri: asset.uri, width: String(asset.width ?? 1), height: String(asset.height ?? 1) },
+                params: { uri: asset.uri, width: String(asset.width), height: String(asset.height) },
             });
+        } catch (error) {
+            if (error instanceof InvalidIconImageError) {
+                Alert.alert(t('common.error'), t('billing.icon_file_invalid'));
+                return;
+            }
+            throw error;
         }
     };
 
@@ -153,13 +161,7 @@ export default function AddSubscriptionModal() {
         setShowIconPickerModal(false);
     };
 
-    const openIconSourcePicker = () => {
-        Alert.alert(t('billing.icon_source_title'), t('billing.icon_source_message'), [
-            { text: t('billing.cancel'), style: 'cancel' },
-            { text: t('billing.icon_source_upload'), onPress: () => { void pickIcon(); } },
-            { text: t('billing.icon_source_library'), onPress: () => setShowIconPickerModal(true) },
-        ]);
-    };
+    const openIconSourcePicker = () => setShowIconSourceSheet(true);
 
     const renderPresetIcon = (
         icon: SubscriptionIconSelection,
@@ -190,27 +192,43 @@ export default function AddSubscriptionModal() {
                 options={{
                     title: t('add.title'),
                     headerBackVisible: false,
-                    headerLeft: () => (
+                    unstable_headerLeftItems: Platform.OS === 'ios'
+                        ? () => [{
+                            type: 'button',
+                            label: t('billing.cancel'),
+                            accessibilityLabel: t('billing.cancel'),
+                            icon: { type: 'sfSymbol', name: 'xmark' },
+                            variant: 'plain',
+                            disabled: isSubmitting,
+                            onPress: () => router.back(),
+                        }]
+                        : undefined,
+                    unstable_headerRightItems: Platform.OS === 'ios'
+                        ? () => [{
+                            type: 'button',
+                            label: t('add.submit'),
+                            accessibilityLabel: t('add.submit'),
+                            icon: { type: 'sfSymbol', name: 'checkmark' },
+                            variant: 'done',
+                            disabled: isSubmitting,
+                            onPress: () => { void handleSave(); },
+                        }]
+                        : undefined,
+                    headerLeft: Platform.OS !== 'ios' ? () => (
                         <Pressable onPress={() => router.back()} className="px-2" disabled={isSubmitting}>
-                            {Platform.OS === 'ios' ? (
-                                <Ionicons name="close" size={28} color={isDark ? "#60A5FA" : "#3B82F6"} />
-                            ) : (
-                                <Text className="text-blue-500 dark:text-blue-400 text-lg font-normal">{t('billing.cancel')}</Text>
-                            )}
+                            <Text className="text-blue-500 dark:text-blue-400 text-lg font-normal">{t('billing.cancel')}</Text>
                         </Pressable>
-                    ),
-                    headerRight: () => (
+                    ) : undefined,
+                    headerRight: Platform.OS !== 'ios' ? () => (
                         <Pressable onPress={handleSave} className="px-2" disabled={isSubmitting}>
                             {isSubmitting ? (
                                 <ActivityIndicator size="small" color={isDark ? '#60A5FA' : '#3B82F6'} />
-                            ) : Platform.OS === 'ios' ? (
-                                <Ionicons name="checkmark" size={28} color={isDark ? "#60A5FA" : "#3B82F6"} />
                             ) : (
                                 <Text className="text-blue-500 dark:text-blue-400 text-lg font-semibold">{t('add.submit')}</Text>
                             )}
                         </Pressable>
-                    ),
-                    headerStyle: { backgroundColor: isDark ? '#1C1C1E' : '#F2F2F7' },
+                    ) : undefined,
+                    headerStyle: { backgroundColor: isDark ? ADD_DARK_HEADER_BACKGROUND : '#F2F2F7' },
                     headerTintColor: isDark ? '#FFFFFF' : '#000000',
                     headerTitleAlign: 'center',
                     headerShadowVisible: false,
@@ -223,6 +241,7 @@ export default function AddSubscriptionModal() {
                 contentContainerStyle={{ paddingTop: 24, paddingBottom: 40 }}
                 keyboardDismissMode="on-drag"
                 keyboardShouldPersistTaps="handled"
+                style={{ backgroundColor: screenBackgroundColor }}
             >
                 <View className="px-4">
                     {/* Icon Picker */}
@@ -250,8 +269,11 @@ export default function AddSubscriptionModal() {
                     </View>
 
                     {/* Main Form Group */}
-                    <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6">
-                        <View className="border-b border-neutral-200 dark:border-neutral-800 px-4 flex-row items-center" style={rowStyle}>
+                    <View
+                        className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6"
+                        style={{ backgroundColor: cardBackgroundColor }}
+                    >
+                        <View className="border-b border-neutral-200 dark:border-neutral-800 px-4 flex-row items-center" style={[rowStyle, separatorStyle]}>
                             <Text className="text-neutral-900 dark:text-white" style={labelStyle}>{t('subscription_form.service_name')}:</Text>
                             <TextInput
                                 placeholder={t('subscription_form.service_name_placeholder')}
@@ -263,7 +285,7 @@ export default function AddSubscriptionModal() {
                                 autoFocus
                             />
                         </View>
-                        <View className="border-b border-neutral-200 dark:border-neutral-800 px-4 flex-row items-center" style={rowStyle}>
+                        <View className="border-b border-neutral-200 dark:border-neutral-800 px-4 flex-row items-center" style={[rowStyle, separatorStyle]}>
                             <Text className="text-neutral-900 dark:text-white" style={labelStyle}>{t('subscription_form.plan_name')}:</Text>
                             <TextInput
                                 placeholder={t('subscription_form.plan_name_placeholder')}
@@ -274,7 +296,7 @@ export default function AddSubscriptionModal() {
                                 onChangeText={setPlanName}
                             />
                         </View>
-                        <View className="border-b border-neutral-200 dark:border-neutral-800 px-4 flex-row items-center" style={rowStyle}>
+                        <View className="border-b border-neutral-200 dark:border-neutral-800 px-4 flex-row items-center" style={[rowStyle, separatorStyle]}>
                             <Text className="text-neutral-900 dark:text-white" style={labelStyle}>{t('subscription_form.amount')}:</Text>
                             <TextInput
                                 placeholder={`${CURRENCIES.find(c => c.id === currency)?.symbol ?? currency} 0`}
@@ -300,10 +322,14 @@ export default function AddSubscriptionModal() {
                     </View>
 
                     {/* Payment Details Group */}
-                    <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6">
+                    <View
+                        className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6"
+                        style={{ backgroundColor: cardBackgroundColor }}
+                    >
                         <Pressable
                             onPress={() => setShowDatePicker(!showDatePicker)}
                             className="border-b border-neutral-200 dark:border-neutral-800 p-4 pl-4 flex-row items-center justify-between"
+                            style={separatorStyle}
                         >
                             <Text className="text-neutral-900 dark:text-white text-base">{t('subscription_form.next_payment_date')}</Text>
                             <View className="flex-row items-center">
@@ -313,7 +339,7 @@ export default function AddSubscriptionModal() {
                         </Pressable>
 
                         {showDatePicker && (
-                            <View className="border-b border-neutral-200 dark:border-neutral-800">
+                            <View className="border-b border-neutral-200 dark:border-neutral-800" style={separatorStyle}>
                                 <DateTimePicker
                                     value={nextPaymentDate}
                                     mode="date"
@@ -329,6 +355,7 @@ export default function AddSubscriptionModal() {
                         <Pressable
                             onPress={() => router.push('/settings/billing-cycle')}
                             className="border-b border-neutral-200 dark:border-neutral-800 p-4 pl-4 flex-row items-center justify-between"
+                            style={separatorStyle}
                         >
                             <Text className="text-neutral-900 dark:text-white text-base">{t('subscription_form.billing_cycle_label')}</Text>
                             <View className="flex-row items-center">
@@ -349,7 +376,10 @@ export default function AddSubscriptionModal() {
                     </View>
 
                     {/* Memo / Notes Group */}
-                    <View className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6">
+                    <View
+                        className="bg-white dark:bg-[#1C1C1E] rounded-xl overflow-hidden mb-6"
+                        style={{ backgroundColor: cardBackgroundColor }}
+                    >
                         <TextInput
                             placeholder={t('subscription_form.memo_placeholder')}
                             placeholderTextColor={isDark ? "#52525B" : "#A1A1AA"}
@@ -363,73 +393,24 @@ export default function AddSubscriptionModal() {
                 </View>
             </ScrollView>
 
-            <Modal
-                transparent
-                animationType="fade"
+            <IconSourceSheet
+                visible={showIconSourceSheet}
+                isDark={isDark}
+                onClose={() => setShowIconSourceSheet(false)}
+                onSelect={(option) => {
+                    if (option === 'library') setShowIconPickerModal(true);
+                    else void pickIcon(option);
+                }}
+            />
+            <SubscriptionIconPickerSheet
                 visible={showIconPickerModal}
-                onRequestClose={() => setShowIconPickerModal(false)}
-            >
-                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.45)' }}>
-                    <Pressable
-                        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-                        onPress={() => setShowIconPickerModal(false)}
-                    />
-
-                    <View
-                        style={{
-                            width: ICON_PICKER_WIDTH,
-                            borderRadius: 16,
-                            backgroundColor: isDark ? '#1C1C1E' : '#FFFFFF',
-                            paddingHorizontal: 14,
-                            paddingTop: 14,
-                            paddingBottom: 12,
-                            maxHeight: '72%',
-                        }}
-                    >
-                        <Text style={{ fontSize: 16, fontWeight: '700', color: isDark ? '#FFFFFF' : '#111827', marginBottom: 12 }}>
-                            {t('billing.pick_icon_title')}
-                        </Text>
-
-                        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 4 }}>
-                            <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-                                {SUBSCRIPTION_ICON_PRESETS.map((icon, index) => (
-                                    <Pressable
-                                        key={icon.id}
-                                        onPress={() => handleSelectPresetIcon(icon)}
-                                        style={{
-                                            width: ICON_PICKER_TILE_SIZE,
-                                            height: ICON_PICKER_TILE_SIZE,
-                                            borderRadius: 12,
-                                            backgroundColor: isDark ? '#2C2C2E' : '#F3F4F6',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            borderWidth: 1,
-                                            borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
-                                            marginRight: index % 3 === 2 ? 0 : ICON_PICKER_GAP,
-                                            marginBottom: ICON_PICKER_GAP,
-                                        }}
-                                    >
-                                        {icon.pack === 'fontawesome5' ? (
-                                            <FontAwesome5 name={icon.name} size={24} color={icon.color} />
-                                        ) : (
-                                            <Ionicons name={icon.name} size={24} color={icon.color} />
-                                        )}
-                                    </Pressable>
-                                ))}
-                            </View>
-                        </ScrollView>
-
-                        <Pressable
-                            onPress={() => setShowIconPickerModal(false)}
-                            style={{ marginTop: 10, alignItems: 'center', paddingVertical: 8 }}
-                        >
-                            <Text style={{ color: '#3B82F6', fontSize: 14, fontWeight: '600' }}>
-                                {t('billing.cancel')}
-                            </Text>
-                        </Pressable>
-                    </View>
-                </View>
-            </Modal>
+                isDark={isDark}
+                title={t('billing.pick_icon_title')}
+                cancelLabel={t('billing.cancel')}
+                comingSoonMessage={t('billing.icon_customization_coming_soon')}
+                onClose={() => setShowIconPickerModal(false)}
+                onSelect={handleSelectPresetIcon}
+            />
         </KeyboardAvoidingView>
     );
 }

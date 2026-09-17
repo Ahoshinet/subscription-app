@@ -1,4 +1,10 @@
 {
+    "tabs": {
+        "home": "ホーム",
+        "calendar": "カレンダー",
+        "settings": "設定",
+        "search": "検索"
+    },
     "settings": {
         "title": "設定",
         "account": "アカウント",
@@ -32,6 +38,12 @@
     "profile": {
         "title": "プロフィール",
         "name": "氏名",
+        "name_title": "名前",
+        "clear_name": "名前を消去",
+        "name_required": "名前を入力してください。",
+        "save_failed": "名前を保存できませんでした。",
+        "discard_keep": "編集を続ける",
+        "discard_confirm": "変更を破棄",
         "email": "メールアドレス",
         "save": "変更を保存"
     },
@@ -40,7 +52,12 @@
         "current": "現在のパスワード",
         "new": "新しいパスワード",
         "confirm": "新しいパスワード(確認)",
-        "update": "パスワードを更新"
+        "update": "パスワードを更新",
+        "mismatch": "パスワードが一致しません",
+        "too_short": "パスワードは8文字以上で入力してください",
+        "success_title": "完了",
+        "success_message": "パスワードを更新しました",
+        "update_failed": "パスワードの更新に失敗しました"
     },
     "billing": {
         "title": "支払方法",
@@ -61,6 +78,7 @@
         "method_name_placeholder": "例: マイカード",
         "label": "ラベル",
         "back_to_brands": "戻る",
+        "brand_not_found": "この支払方法が見つかりませんでした。",
         "delete_confirm": "この支払方法を削除しますか？",
         "delete": "削除",
         "cancel": "キャンセル",
@@ -69,9 +87,13 @@
         "save": "保存",
         "icon_source_title": "アイコンを追加",
         "icon_source_message": "追加方法を選択してください。",
-        "icon_source_upload": "アップロード",
+        "icon_source_photos": "フォトライブラリ",
+        "icon_source_files": "ファイル",
+        "icon_file_invalid": "選択したファイルを画像として開けませんでした。",
         "icon_source_library": "用意済みアイコンから選ぶ",
         "pick_icon_title": "アイコンを選択",
+        "icon_customization_coming_soon": "絞り込みとカラー変更は今後のアップデートで対応予定です。",
+        "add_duplicate": "同じ名前の支払方法が既に存在します。別の名前を指定してください。",
         "add_failed": "支払方法の追加に失敗しました。もう一度お試しください。",
         "update_failed": "支払方法の更新に失敗しました。もう一度お試しください。",
         "delete_failed": "支払方法の削除に失敗しました。"
@@ -176,9 +198,11 @@
         "empty": "サブスクリプションが見つかりません。+ をタップして追加してください。",
         "standard_plan": "スタンダードプラン",
         "search_placeholder": "サブスクを検索...",
+        "search_hint": "検索ワードを入力すると、サブスクリプションを検索できます。",
         "sort_name": "名前順",
         "sort_amount": "金額順",
         "sort_date": "日付順",
+        "show_inactive": "非アクティブを表示",
         "no_results": "一致するサブスクリプションが見つかりません。",
         "end_of_list": "リストの末尾"
     },
@@ -207,7 +231,16 @@
         "license": "ライセンス",
         "report_issue": "バグを報告",
         "role_developer": "開発者",
-        "role_org": "Organization"
+        "role_org": "Organization",
+        "acknowledgements": "謝辞"
+    },
+    "acknowledgements": {
+        "title": "謝辞",
+        "intro_body": "Subscription Manager は、多くのオープンソースソフトウェアとそのコミュニティの成果の上に成り立っています。日々の開発・保守に携わるすべての開発者・貢献者の皆さまに心より感謝いたします。",
+        "section_libraries": "オープンソースライブラリ",
+        "libraries_note": "本アプリが直接利用しているライブラリの一覧です。各項目をタップするとリポジトリを開きます。",
+        "full_licenses": "ライセンス全文を見る",
+        "full_licenses_note": "各ライブラリのライセンス本文は GitHub 上で公開しています。"
     },
     "common": {
         "cancel": "キャンセル",
@@ -215,6 +248,7 @@
         "input_error": "入力エラー"
     },
     "login": {
+        "title": "おかえりなさい",
         "subtitle": "サブスクの世界へようこそ",
         "username": "ユーザー名",
         "username_placeholder": "ユーザー名を入力",
@@ -308,7 +342,7 @@
         "error_failed": "サブスクリプションの追加に失敗しました"
     },
     "edit": {
-        "title": "編集",
+        "title": "サブスクリプションを編集",
         "submit": "保存",
         "error_failed": "更新に失敗しました",
         "not_found": "サブスクリプションが見つかりません",

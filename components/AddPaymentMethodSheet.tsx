@@ -1,16 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     Modal, View, Text, Pressable, Animated,
     ScrollView, TextInput, Image,
-    Platform, Dimensions, KeyboardAvoidingView, Alert,
+    Dimensions, KeyboardAvoidingView, Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import * as ImagePicker from 'expo-image-picker';
+import { InvalidIconImageError, pickIconImage, type IconSource } from '@/lib/iconPicker';
+import IconSourceSheet from '@/components/IconSourceSheet';
 import { usePaymentMethodStore } from '@/store/usePaymentMethodStore';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { singleLineTextInputStyle } from '@/lib/textInputStyles';
 import type { IoniconsName } from '@/lib/iconName';
+import { CARD_BRANDS, CUSTOM_ICON_PRESETS, PRESET_BRANDS, type PresetBrand } from '@/lib/paymentMethodPresets';
+import { paymentMethodAddErrorKey } from '@/lib/paymentMethodErrors';
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 const SHEET_HORIZONTAL_PADDING = 20;
@@ -22,44 +25,13 @@ const ICON_PICKER_WIDTH = Math.min(SCREEN_WIDTH - 32, 340);
 const ICON_PICKER_GAP = 10;
 const ICON_PICKER_TILE_SIZE = Math.floor((ICON_PICKER_WIDTH - 28 - ICON_PICKER_GAP * 2) / 3);
 
-export const PRESET_BRANDS = [
-    { id: 'paypal',       label: 'PayPal',         iconName: 'logo-paypal',  color: '#003087' },
-    { id: 'apple-pay',    label: 'Apple Pay',       iconName: 'logo-apple',   color: '#000000' },
-    { id: 'app-store',    label: 'App Store決済',   iconName: 'logo-apple',   color: '#0D84F1' },
-    { id: 'google-pay',   label: 'Google Pay',      iconName: 'logo-google',  color: '#4285F4' },
-    { id: 'google-play',  label: 'Google Play決済', iconName: 'logo-google',  color: '#01875F' },
-    { id: 'paidy',        label: 'Paidy',           iconName: 'card-outline', color: '#6C47FF' },
-    { id: 'amazon-pay',   label: 'Amazon Pay',      iconName: 'cart-outline', color: '#FF9900' },
-] as const satisfies readonly {
-    id: string;
-    label: string;
-    iconName: IoniconsName;
-    color: string;
-}[];
-
-const CARD_BRANDS = ['Visa', 'Mastercard', 'JCB', 'Amex', 'その他'];
-
-const CUSTOM_ICON_PRESETS = [
-    { id: 'wallet', iconName: 'wallet-outline', color: '#6B7280' },
-    { id: 'card', iconName: 'card-outline', color: '#6B7280' },
-    { id: 'cash', iconName: 'cash-outline', color: '#22C55E' },
-    { id: 'shopping', iconName: 'cart-outline', color: '#F59E0B' },
-    { id: 'streaming', iconName: 'play-circle-outline', color: '#EF4444' },
-    { id: 'game', iconName: 'game-controller-outline', color: '#8B5CF6' },
-    { id: 'paypal', iconName: 'logo-paypal', color: '#003087' },
-    { id: 'apple', iconName: 'logo-apple', color: '#111827' },
-    { id: 'google', iconName: 'logo-google', color: '#4285F4' },
-] as const satisfies readonly {
-    id: string;
-    iconName: IoniconsName;
-    color: string;
-}[];
-
 interface Props {
     visible: boolean;
     onClose: () => void;
 }
 
+// Android's animated bottom sheet. iOS uses the native `add-payment-method`
+// route (app/add-payment-method.tsx) for a real Stack.Screen header instead.
 export function AddPaymentMethodSheet({ visible, onClose }: Props) {
     'use no memo';
     const colorScheme = useColorScheme();
@@ -79,12 +51,25 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
         useState<IoniconsName | null>(null);
     const [customIconColor, setCustomIconColor] = useState('#6B7280');
     const [showIconPresetModal, setShowIconPresetModal] = useState(false);
+    const [showIconSourceSheet, setShowIconSourceSheet] = useState(false);
 
     // Brand label step
-    const [selectedBrand, setSelectedBrand] = useState<(typeof PRESET_BRANDS)[number] | null>(null);
+    const [selectedBrand, setSelectedBrand] = useState<PresetBrand | null>(null);
     const [brandMemo, setBrandMemo] = useState('');
     const [cardMemo, setCardMemo] = useState('');
     const [customMemo, setCustomMemo] = useState('');
+
+    // close() animates before unmounting, so a second tap during the animation
+    // would submit again (server: 409 label already exists). The sheet stays
+    // mounted between uses, so the guard is reset once the close completes.
+    const submittedRef = useRef(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const beginSubmit = () => {
+        if (submittedRef.current) return false;
+        submittedRef.current = true;
+        setIsSubmitting(true);
+        return true;
+    };
 
     useEffect(() => {
         if (visible) {
@@ -130,17 +115,19 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
             setBrandMemo('');
             setCardMemo('');
             setCustomMemo('');
+            submittedRef.current = false;
+            setIsSubmitting(false);
             onClose();
         });
     };
 
-    const handleSelectBrand = (brand: (typeof PRESET_BRANDS)[number]) => {
+    const handleSelectBrand = (brand: PresetBrand) => {
         setSelectedBrand(brand);
         setBrandMemo('');
     };
 
     const handleConfirmBrand = async () => {
-        if (!selectedBrand) return;
+        if (!selectedBrand || !beginSubmit()) return;
         close();
         try {
             await addMethod({
@@ -150,13 +137,13 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                 iconName: selectedBrand.iconName,
                 color: selectedBrand.color,
             });
-        } catch {
-            Alert.alert(t('common.error'), t('billing.add_failed'));
+        } catch (error) {
+            Alert.alert(t('common.error'), t(paymentMethodAddErrorKey(error)));
         }
     };
 
     const handleAddCard = async () => {
-        if (cardLast4.length !== 4) return;
+        if (cardLast4.length !== 4 || !beginSubmit()) return;
         close();
         try {
             await addMethod({
@@ -168,13 +155,13 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                 last4: cardLast4,
                 cardBrand,
             });
-        } catch {
-            Alert.alert(t('common.error'), t('billing.add_failed'));
+        } catch (error) {
+            Alert.alert(t('common.error'), t(paymentMethodAddErrorKey(error)));
         }
     };
 
     const handleAddCustom = async () => {
-        if (!customLabel.trim()) return;
+        if (!customLabel.trim() || !beginSubmit()) return;
         close();
         try {
             await addMethod({
@@ -185,22 +172,24 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                 iconName: customIconUri ? undefined : (customIconName ?? 'wallet-outline'),
                 color: customIconColor,
             });
-        } catch {
-            Alert.alert(t('common.error'), t('billing.add_failed'));
+        } catch (error) {
+            Alert.alert(t('common.error'), t(paymentMethodAddErrorKey(error)));
         }
     };
 
-    const pickIcon = async () => {
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 0.8,
-        });
-        if (!result.canceled && result.assets[0]) {
-            setCustomIconUri(result.assets[0].uri);
+    const pickIcon = async (source: IconSource) => {
+        try {
+            const asset = await pickIconImage(source, { allowsEditing: true });
+            if (!asset) return;
+            setCustomIconUri(asset.uri);
             setCustomIconName(null);
             setCustomIconColor('#6B7280');
+        } catch (error) {
+            if (error instanceof InvalidIconImageError) {
+                Alert.alert(t('common.error'), t('billing.icon_file_invalid'));
+                return;
+            }
+            throw error;
         }
     };
 
@@ -211,17 +200,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
         setShowIconPresetModal(false);
     };
 
-    const openIconSourcePicker = () => {
-        Alert.alert(
-            t('billing.icon_source_title'),
-            t('billing.icon_source_message'),
-            [
-                { text: t('billing.cancel'), style: 'cancel' },
-                { text: t('billing.icon_source_upload'), onPress: () => { void pickIcon(); } },
-                { text: t('billing.icon_source_library'), onPress: () => setShowIconPresetModal(true) },
-            ]
-        );
-    };
+    const openIconSourcePicker = () => setShowIconSourceSheet(true);
 
     if (!visible) return null;
 
@@ -236,19 +215,23 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
         { key: 'card',   label: t('billing.tab_card') },
         { key: 'custom', label: t('billing.tab_custom') },
     ];
+    const selectSection = (nextSection: 'brand' | 'card' | 'custom') => {
+        setSection(nextSection);
+        setSelectedBrand(null);
+        setBrandMemo('');
+    };
 
     return (
         <Modal
+            testID="add-payment-method-sheet"
             transparent
             animationType="none"
+            presentationStyle="overFullScreen"
             visible
             statusBarTranslucent
             onRequestClose={close}
         >
-            <KeyboardAvoidingView
-                style={{ flex: 1, justifyContent: 'flex-end' }}
-                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            >
+            <KeyboardAvoidingView style={{ flex: 1, justifyContent: 'flex-end' }}>
                 {/* Backdrop */}
                 <Animated.View
                     style={{
@@ -308,7 +291,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                         {tabs.map(({ key, label }) => (
                             <Pressable
                                 key={key}
-                                onPress={() => { setSection(key); setSelectedBrand(null); setBrandMemo(''); }}
+                                onPress={() => selectSection(key)}
                                 style={{
                                     flex: 1, paddingVertical: 7, borderRadius: 8, alignItems: 'center',
                                     backgroundColor: section === key ? bg : 'transparent',
@@ -329,7 +312,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
 
                     <ScrollView
                         style={{ paddingHorizontal: 20 }}
-                        contentContainerStyle={{ paddingBottom: Platform.OS === 'ios' ? 44 : 24 }}
+                        contentContainerStyle={{ paddingBottom: 24 }}
                         keyboardShouldPersistTaps="handled"
                         keyboardDismissMode="on-drag"
                         showsVerticalScrollIndicator={false}
@@ -456,6 +439,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
 
                                 <Pressable
                                     onPress={handleConfirmBrand}
+                                    disabled={isSubmitting}
                                     style={{
                                         backgroundColor: '#3B82F6',
                                         borderRadius: 14, paddingVertical: 16, alignItems: 'center',
@@ -566,7 +550,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
 
                                 <Pressable
                                     onPress={handleAddCard}
-                                    disabled={cardLast4.length !== 4}
+                                    disabled={cardLast4.length !== 4 || isSubmitting}
                                     style={{
                                         backgroundColor: cardLast4.length === 4 ? '#3B82F6' : segBg,
                                         borderRadius: 14, paddingVertical: 16, alignItems: 'center',
@@ -671,7 +655,7 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
 
                                 <Pressable
                                     onPress={handleAddCustom}
-                                    disabled={!customLabel.trim()}
+                                    disabled={!customLabel.trim() || isSubmitting}
                                     style={{
                                         backgroundColor: customLabel.trim() ? '#3B82F6' : segBg,
                                         borderRadius: 14, paddingVertical: 16, alignItems: 'center',
@@ -692,6 +676,15 @@ export function AddPaymentMethodSheet({ visible, onClose }: Props) {
                 </Animated.View>
             </KeyboardAvoidingView>
 
+            <IconSourceSheet
+                visible={showIconSourceSheet}
+                isDark={isDark}
+                onClose={() => setShowIconSourceSheet(false)}
+                onSelect={(option) => {
+                    if (option === 'library') setShowIconPresetModal(true);
+                    else void pickIcon(option);
+                }}
+            />
             <Modal
                 transparent
                 animationType="fade"

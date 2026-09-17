@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 
 import { fetchWithTimeout } from './fetchWithTimeout';
-import { checkRepositoryUpdate } from './versionCheck';
+import { checkRepositoryUpdate, resolveAppVersion } from './versionCheck';
 
 jest.mock('./fetchWithTimeout', () => ({
     fetchWithTimeout: jest.fn(),
@@ -14,6 +14,20 @@ const response = (status: number, data: unknown): Response => ({
     status,
     json: jest.fn(async () => data),
 } as unknown as Response);
+
+describe('resolveAppVersion', () => {
+    test('preserves a beta suffix from release metadata', () => {
+        expect(resolveAppVersion('2.0.0-beta5', '2.0.0', '2.0.0')).toBe('2.0.0-beta5');
+    });
+
+    test('uses the bundled package version when release metadata is unavailable', () => {
+        expect(resolveAppVersion(undefined, '2.0.0-beta5', '2.0.0')).toBe('2.0.0-beta5');
+    });
+
+    test('normalizes a leading tag prefix', () => {
+        expect(resolveAppVersion('v2.0.0-beta5', undefined, '2.0.0')).toBe('2.0.0-beta5');
+    });
+});
 
 describe('checkRepositoryUpdate', () => {
     beforeEach(() => {
@@ -58,6 +72,36 @@ describe('checkRepositoryUpdate', () => {
             latestVersion: '1.0.0',
             releaseUrl: 'https://github.com/Ahoshinet/subscription-app/tree/v1.0.0',
         });
+    });
+
+    test('tells a beta install about the stable release of the same version', async () => {
+        fetchWithTimeoutMock.mockResolvedValue(response(200, {
+            tag_name: 'v2.0.0',
+            html_url: 'https://github.com/Ahoshinet/subscription-app/releases/tag/v2.0.0',
+        }));
+
+        await expect(checkRepositoryUpdate('2.0.0-beta32')).resolves.toEqual({
+            currentVersion: '2.0.0-beta32',
+            latestVersion: '2.0.0',
+            releaseUrl: 'https://github.com/Ahoshinet/subscription-app/releases/tag/v2.0.0',
+        });
+    });
+
+    test('does not offer a beta release that is not flagged as a prerelease', async () => {
+        fetchWithTimeoutMock
+            .mockResolvedValueOnce(response(200, { tag_name: 'v2.0.0-beta32' }))
+            .mockResolvedValueOnce(response(200, [
+                { name: 'v2.0.0-beta32' },
+                { name: 'v1.3.0' },
+            ]));
+
+        await expect(checkRepositoryUpdate('1.3.0')).resolves.toBeNull();
+    });
+
+    test('does not treat an older stable release as newer than a later beta', async () => {
+        fetchWithTimeoutMock.mockResolvedValue(response(200, { tag_name: 'v1.3.0' }));
+
+        await expect(checkRepositoryUpdate('2.0.0-beta32')).resolves.toBeNull();
     });
 
     test('returns null when the installed version is current', async () => {

@@ -16,7 +16,7 @@ import Animated, {
 import { scheduleOnRN } from 'react-native-worklets';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from 'expo-router';
+import { useRouter, useScrollToTop } from 'expo-router';
 import { useSubscriptionStore } from '../../store/useSubscriptionStore';
 import { getEffectiveNextPaymentDate, parseDateOnly } from '../../lib/dateUtils';
 import { getTodayDateInTimeZone } from '../../lib/timeZone';
@@ -24,6 +24,7 @@ import { useSettingsStore } from '../../store/useSettingsStore';
 import { CURRENCY_SYMBOLS } from '../../lib/currency';
 import { parseSubscriptionPresetIconValue } from '../../lib/subscriptionIcon';
 import { Subscription, resolveIconUrl } from '../../lib/api';
+import { CALENDAR_DARK_BACKGROUND } from '../../constants/calendar-theme';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const CELL_WIDTH = Math.floor(SCREEN_WIDTH / 7);
@@ -105,6 +106,9 @@ export default function CalendarScreen() {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
     const router = useRouter();
+    const scrollRef = useRef<ScrollView>(null);
+    // The fixed calendar prevents native tabs from discovering the payment list.
+    useScrollToTop(scrollRef);
     const { subscriptions, fetchSubscriptions } = useSubscriptionStore();
     const { timeZone } = useSettingsStore();
 
@@ -292,7 +296,10 @@ export default function CalendarScreen() {
         : null;
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: isDark ? '#0a0a0a' : '#fafafa' }}>
+        <SafeAreaView
+            edges={Platform.OS === 'ios' ? ['top', 'left', 'right'] : undefined}
+            style={{ flex: 1, backgroundColor: isDark ? CALENDAR_DARK_BACKGROUND : '#fafafa' }}
+        >
             {/* Header */}
             <View className="flex-row items-center justify-between px-4 pt-5 pb-3">
                 <TouchableOpacity
@@ -426,6 +433,7 @@ export default function CalendarScreen() {
             {/* Subscription list */}
             <View style={{ flex: 1 }}>
             <ScrollView
+                ref={scrollRef}
                 contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 100 }}
             >
                 <View key={selectedDay == null ? 'month' : `day-${selectedDay}`}>

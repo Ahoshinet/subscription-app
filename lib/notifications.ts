@@ -15,6 +15,7 @@ function getNotifications(): NotificationsModule | null {
     if (Platform.OS === 'android' && Constants.expoGoConfig != null) return null;
     if (_notifications) return _notifications;
     try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports -- must be a sync require, not a static/dynamic import, so this stays lazy and conditional
         _notifications = require('expo-notifications') as NotificationsModule;
         _notifications.setNotificationHandler({
             handleNotification: async () => ({

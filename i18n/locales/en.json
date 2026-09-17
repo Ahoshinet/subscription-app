@@ -1,4 +1,10 @@
 {
+    "tabs": {
+        "home": "Home",
+        "calendar": "Calendar",
+        "settings": "Settings",
+        "search": "Search"
+    },
     "settings": {
         "title": "Settings",
         "account": "Account",
@@ -32,6 +38,12 @@
     "profile": {
         "title": "Profile",
         "name": "Name",
+        "name_title": "Name",
+        "clear_name": "Clear name",
+        "name_required": "Enter a name.",
+        "save_failed": "Failed to save your name.",
+        "discard_keep": "Keep Editing",
+        "discard_confirm": "Discard Changes",
         "email": "Email Address",
         "save": "Save Changes"
     },
@@ -40,7 +52,12 @@
         "current": "Current Password",
         "new": "New Password",
         "confirm": "Confirm New Password",
-        "update": "Update Password"
+        "update": "Update Password",
+        "mismatch": "New passwords do not match",
+        "too_short": "Password must be at least 8 characters",
+        "success_title": "Success",
+        "success_message": "Password updated successfully",
+        "update_failed": "Failed to update password"
     },
     "billing": {
         "title": "Billing Methods",
@@ -61,6 +78,7 @@
         "method_name_placeholder": "e.g. My Card",
         "label": "Label",
         "back_to_brands": "Back",
+        "brand_not_found": "This payment method could not be found.",
         "delete_confirm": "Are you sure you want to remove this payment method?",
         "delete": "Remove",
         "cancel": "Cancel",
@@ -69,9 +87,13 @@
         "save": "Save",
         "icon_source_title": "Add Icon",
         "icon_source_message": "Choose how to add an icon.",
-        "icon_source_upload": "Upload",
+        "icon_source_photos": "Photo Library",
+        "icon_source_files": "Files",
+        "icon_file_invalid": "The selected file could not be opened as an image.",
         "icon_source_library": "Choose from built-in icons",
         "pick_icon_title": "Pick an Icon",
+        "icon_customization_coming_soon": "Filtering and color customization are planned for a future update.",
+        "add_duplicate": "A payment method with this name already exists. Please choose a different name.",
         "add_failed": "Failed to add payment method. Please try again.",
         "update_failed": "Failed to update payment method. Please try again.",
         "delete_failed": "Failed to remove payment method."
@@ -176,9 +198,11 @@
         "empty": "No subscriptions found. Tap the + to add one.",
         "standard_plan": "Standard Plan",
         "search_placeholder": "Search subscriptions...",
+        "search_hint": "Enter a search term to find subscriptions.",
         "sort_name": "Sort by Name",
         "sort_amount": "Sort by Amount",
         "sort_date": "Sort by Date",
+        "show_inactive": "Show Inactive",
         "no_results": "No matching subscriptions found.",
         "end_of_list": "End of list"
     },
@@ -207,7 +231,16 @@
         "license": "License",
         "report_issue": "Report Issue",
         "role_developer": "Developer",
-        "role_org": "Organization"
+        "role_org": "Organization",
+        "acknowledgements": "Acknowledgements"
+    },
+    "acknowledgements": {
+        "title": "Acknowledgements",
+        "intro_body": "Subscription Manager is built on the work of many open-source projects and their communities. Our sincere thanks go to every developer and contributor who builds and maintains them.",
+        "section_libraries": "Open-source libraries",
+        "libraries_note": "Libraries used directly by this app. Tap an item to open its repository.",
+        "full_licenses": "View full license texts",
+        "full_licenses_note": "The full license text for every library is published on GitHub."
     },
     "common": {
         "cancel": "Cancel",
@@ -215,6 +248,7 @@
         "input_error": "Input Error"
     },
     "login": {
+        "title": "Welcome Back",
         "subtitle": "Welcome to the world of subscriptions",
         "username": "Username",
         "username_placeholder": "Enter your username",
@@ -308,7 +342,7 @@
         "error_failed": "Failed to add subscription."
     },
     "edit": {
-        "title": "Edit",
+        "title": "Edit Subscription",
         "submit": "Save",
         "error_failed": "Failed to update.",
         "not_found": "Subscription not found.",

@@ -12,6 +12,7 @@ import { resolveIconUrl } from '@/lib/api';
 import { singleLineTextInputStyle } from '@/lib/textInputStyles';
 import { getErrorMessage } from '@/lib/errors';
 import { getIoniconsName } from '@/lib/iconName';
+import { SETTINGS_DARK_BACKGROUND } from '@/constants/settings-theme';
 
 export default function PaymentMethodDetailScreen() {
     const params = useLocalSearchParams<{ id: string }>();
@@ -28,7 +29,7 @@ export default function PaymentMethodDetailScreen() {
 
     if (!method) return null;
 
-    const bg = isDark ? '#0A0A0A' : '#F2F2F7';
+    const bg = isDark ? SETTINGS_DARK_BACKGROUND : '#F2F2F7';
     const cardBg = isDark ? '#1C1C1E' : '#FFFFFF';
     const textPrimary = isDark ? '#FFFFFF' : '#000000';
     const textSub = isDark ? '#8E8E93' : '#6B7280';
@@ -78,7 +79,7 @@ export default function PaymentMethodDetailScreen() {
                     title: t('billing.title'),
                     headerBackTitle: ' ',
                     headerBackButtonDisplayMode: 'minimal',
-                    headerStyle: { backgroundColor: isDark ? '#0A0A0A' : '#F2F2F7' },
+                    headerStyle: { backgroundColor: bg },
                     headerTintColor: textPrimary,
                     headerShadowVisible: false,
                 }}

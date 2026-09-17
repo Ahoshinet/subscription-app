@@ -3,6 +3,9 @@
 const appConfig = require('../app.json');
 const packageConfig = require('../package.json');
 
+const PRERELEASE_SUFFIX_PATTERN = /-(?:beta[1-9]\d*|rc\.[1-9]\d*)$/;
+const RELEASE_VERSION_PATTERN = /^\d+\.\d+\.\d+(?:-beta[1-9]\d*|-rc\.[1-9]\d*)?$/;
+
 function verifyReleaseTag(tag) {
   const nativeVersion = appConfig.expo?.version;
   const releaseVersion = appConfig.expo?.extra?.releaseVersion;
@@ -15,7 +18,7 @@ function verifyReleaseTag(tag) {
   }
   if (
     typeof releaseVersion !== 'string'
-    || !/^\d+\.\d+\.\d+(?:-rc\.[1-9]\d*)?$/.test(releaseVersion)
+    || !RELEASE_VERSION_PATTERN.test(releaseVersion)
   ) {
     throw new Error(
       `app.json has an invalid release version: ${releaseVersion}`,
@@ -26,7 +29,7 @@ function verifyReleaseTag(tag) {
       `package.json (${packageVersion}) and app.json release version (${releaseVersion}) differ`,
     );
   }
-  const releaseNativeVersion = releaseVersion.replace(/-rc\.[1-9]\d*$/, '');
+  const releaseNativeVersion = releaseVersion.replace(PRERELEASE_SUFFIX_PATTERN, '');
   if (releaseNativeVersion !== nativeVersion) {
     throw new Error(
       `release version ${releaseVersion} does not map to native version ${nativeVersion}`,
@@ -37,7 +40,7 @@ function verifyReleaseTag(tag) {
   if (tag !== expectedTag) {
     throw new Error(`tag ${tag} does not match ${expectedTag}`);
   }
-  const isReleaseCandidate = /-rc\.[1-9]\d*$/.test(releaseVersion);
+  const isReleaseCandidate = PRERELEASE_SUFFIX_PATTERN.test(releaseVersion);
   const isStable = !isReleaseCandidate;
 
   const versionCode = appConfig.expo?.android?.versionCode;

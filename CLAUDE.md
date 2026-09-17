@@ -15,6 +15,8 @@ pnpm lint         # ESLint
 
 **Routing**: Expo Router (file-based) in `app/`. Tab layout: index (dashboard), calendar, settings. Stack routes: add, login, register, edit, detail.
 
+**Platform-split screens**: Routes that have a dedicated iOS design stay thin and re-export a component that Metro resolves per platform (`foo-screen.tsx` = Android/default, `foo-screen.ios.tsx` = iOS). Currently: every `app/settings/*` route → `components/settings/`, `app/edit.tsx` → `components/subscription/edit-screen` (shared state/handlers live in `use-edit-subscription-form.ts`), and `app/login.tsx` / `app/register.tsx` → `components/auth/`. Never import a `.ios` file explicitly from a route; see `docs/ios-settings-design.md` for the conventions (the Settings-specific rules there, such as the pure-black surface, extend to `components/auth/` and the Home/Calendar/Detail iOS screens too, since they all follow the same full-black iOS surface).
+
 **State**: Zustand stores in `store/`:
 - `useAuthStore.ts` — JWT auth (login/register/logout), token persisted via expo-secure-store
 - `useSubscriptionStore.ts` — Subscription CRUD
@@ -32,10 +34,18 @@ pnpm lint         # ESLint
 
 ### Dark mode surfaces
 
-- Use `#0A0A0A` for standard screen backgrounds and matching navigation headers. Do not use pure black (`#000000`) for ordinary app screens.
+- Use `#0A0A0A` for standard (Android/default) screen backgrounds and matching navigation headers. Do not use pure black (`#000000`) there. The dedicated iOS-native full-screen surfaces (Settings, auth, Home, Calendar, Detail) are an intentional exception that use `#000000`, documented in [`docs/ios-settings-design.md`](./docs/ios-settings-design.md); modal sheets (e.g. the add flow) stay on the layered `#1C1C1E` sheet palette instead.
 - Use `#1C1C1C` for elevated or grouped surfaces such as cards, settings rows, and input containers so the surface hierarchy remains visible.
 - Keep a pushed settings screen's root background and header consistent with its parent settings screen to avoid a pure-black flash or visual break during navigation.
-- Reserve pure black for an intentionally full-black experience, such as image cropping or media presentation.
+- Reserve pure black for an intentionally full-black experience such as media presentation. The image crop screen is always dark but uses the standard `#0A0A0A`, with a native header (`#0A0A0A`, no shadow) and SF Symbol `xmark` / `checkmark` items on iOS.
+
+### iOS Settings
+
+Follow [`docs/ios-settings-design.md`](./docs/ios-settings-design.md) when changing
+the Settings tab or any iOS Settings child screen. It defines the platform-file
+split, iOS-only colors, borders, separators, SF Symbols, row density, native
+search, legal-document layout, About layout, and regression checks. Preserve the
+default Android implementation for its later Material Design work.
 
 **i18n**: English and Japanese via react-i18next. Translation files in `i18n/`. Add new keys to both `en.json` and `ja.json`.
 

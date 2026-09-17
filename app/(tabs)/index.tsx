@@ -4,6 +4,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { SubscriptionCard } from '@/components/SubscriptionCard';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
+import Menu from '@expo/ui/community/menu';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -19,6 +20,8 @@ import { getErrorMessage } from '@/lib/errors';
 import { getTodayDateInTimeZone } from '@/lib/timeZone';
 import { singleLineTextInputStyle } from '@/lib/textInputStyles';
 import { subscriptionApi, type Subscription } from '@/lib/api';
+import { HOME_DARK_BACKGROUND } from '@/constants/home-theme';
+import { filterSubscriptionsByQuery } from '@/lib/subscriptionSearch';
 
 type SortKey = 'name' | 'amount' | 'date';
 
@@ -35,6 +38,7 @@ export default function HomeScreen() {
   const [spendingExpanded, setSpendingExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('date');
+  const [showInactive, setShowInactive] = useState(true);
   const [actionInFlightId, setActionInFlightId] = useState<number | null>(null);
   const todayDate = getTodayDateInTimeZone(timeZone);
 
@@ -159,17 +163,26 @@ export default function HomeScreen() {
     };
   }, [subscriptions, gmailSignedIn, paidyAmount]);
 
+  // The stored next_payment_date is an anchor that isn't rolled forward on
+  // its own, so a subscription can go stale (e.g. still 2024-10-01) while
+  // its actual upcoming charge is months away. Sorting/day-count math must
+  // use this resolved date, not the raw field, or a stale anchor sorts as
+  // if it were the earliest upcoming payment.
+  const effectiveDateFor = useCallback((sub: Subscription): string => (
+    sub.id === -1
+      ? sub.next_payment_date
+      : getEffectiveNextPaymentDate(sub.next_payment_date, sub.billing_cycle, todayDate, sub.billing_anchor_day)
+  ), [todayDate]);
+
   const filteredAndSorted = useMemo(() => {
     let result: Subscription[] = paidyVirtualSub
       ? [...subscriptions, paidyVirtualSub]
       : [...subscriptions];
 
-    if (searchQuery.trim()) {
-      const q = searchQuery.trim().toLowerCase();
-      result = result.filter((sub) =>
-        sub.service_name.toLowerCase().includes(q) ||
-        (sub.plan_name && sub.plan_name.toLowerCase().includes(q))
-      );
+    result = filterSubscriptionsByQuery(result, searchQuery);
+
+    if (!showInactive) {
+      result = result.filter(sub => sub.status !== 'inactive');
     }
 
     result.sort((a, b) => {
@@ -180,19 +193,13 @@ export default function HomeScreen() {
           return b.amount - a.amount;
         case 'date':
         default:
-          return a.next_payment_date.localeCompare(b.next_payment_date);
+          return effectiveDateFor(a).localeCompare(effectiveDateFor(b));
       }
     });
 
     return result;
-  }, [subscriptions, paidyVirtualSub, searchQuery, sortKey]);
+  }, [subscriptions, paidyVirtualSub, searchQuery, sortKey, showInactive, effectiveDateFor]);
 
-
-  const nextSortKey = (): SortKey => {
-    if (sortKey === 'date') return 'name';
-    if (sortKey === 'name') return 'amount';
-    return 'date';
-  };
 
   const sortLabel = () => {
     switch (sortKey) {
@@ -203,7 +210,11 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-neutral-50 dark:bg-neutral-950">
+    <SafeAreaView
+      edges={Platform.OS === 'ios' ? ['top', 'left', 'right'] : undefined}
+      className="flex-1 bg-neutral-50 dark:bg-neutral-950"
+      style={{ backgroundColor: isDark ? HOME_DARK_BACKGROUND : '#fafafa' }}
+    >
       <StatusBar style="auto" />
       <ScrollView
         contentContainerStyle={{ padding: 20 }}
@@ -262,6 +273,8 @@ export default function HomeScreen() {
 
           <Pressable
             onPress={() => router.push('/add')}
+            accessibilityRole="button"
+            accessibilityLabel={t('add.title')}
             className={
               Platform.OS === 'ios'
                 ? 'w-16 h-11 bg-blue-500 rounded-full items-center justify-center'
@@ -275,32 +288,60 @@ export default function HomeScreen() {
         {/* Search & Sort */}
         {subscriptions.length > 0 && (
           <View className="mb-4">
-            <View className="bg-white dark:bg-[#1C1C1E] rounded-xl flex-row items-center px-3 mb-3" style={{ height: 44 }}>
-              <Ionicons name="search" size={18} color={isDark ? '#6B7280' : '#9CA3AF'} />
-              <TextInput
-                placeholder={t('home.search_placeholder')}
-                placeholderTextColor={isDark ? '#52525B' : '#A1A1AA'}
-                className="flex-1 text-base text-neutral-900 dark:text-white ml-2"
-                style={[{ height: 44 }, singleLineTextInputStyle]}
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-                autoCorrect={false}
-              />
-              {searchQuery.length > 0 && (
-                <Pressable onPress={() => setSearchQuery('')}>
-                  <Ionicons name="close-circle" size={18} color={isDark ? '#6B7280' : '#9CA3AF'} />
-                </Pressable>
-              )}
-            </View>
-            <Pressable
-              onPress={() => setSortKey(nextSortKey())}
-              className="flex-row items-center self-end"
+            {Platform.OS !== 'ios' ? (
+              <View className="bg-white dark:bg-[#1C1C1E] rounded-xl flex-row items-center px-3 mb-3" style={{ height: 44 }}>
+                <Ionicons name="search" size={18} color={isDark ? '#6B7280' : '#9CA3AF'} />
+                <TextInput
+                  placeholder={t('home.search_placeholder')}
+                  placeholderTextColor={isDark ? '#52525B' : '#A1A1AA'}
+                  className="flex-1 text-base text-neutral-900 dark:text-white ml-2"
+                  style={[{ height: 44 }, singleLineTextInputStyle]}
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  autoCorrect={false}
+                />
+                {searchQuery.length > 0 && (
+                  <Pressable onPress={() => setSearchQuery('')}>
+                    <Ionicons name="close-circle" size={18} color={isDark ? '#6B7280' : '#9CA3AF'} />
+                  </Pressable>
+                )}
+              </View>
+            ) : null}
+            <Menu
+              onPressAction={({ nativeEvent: { event } }) => {
+                if (event === 'toggle-inactive') {
+                  setShowInactive(v => !v);
+                  return;
+                }
+                setSortKey(event as SortKey);
+              }}
+              actions={[
+                { id: 'date', title: t('home.sort_date'), image: 'calendar', state: sortKey === 'date' ? 'on' : 'off' },
+                { id: 'name', title: t('home.sort_name'), image: 'textformat', state: sortKey === 'name' ? 'on' : 'off' },
+                { id: 'amount', title: t('home.sort_amount'), image: 'banknote', state: sortKey === 'amount' ? 'on' : 'off' },
+                {
+                  id: 'filters',
+                  title: '',
+                  displayInline: true,
+                  subactions: [
+                    {
+                      id: 'toggle-inactive',
+                      title: t('home.show_inactive'),
+                      image: 'eye',
+                      state: showInactive ? 'on' : 'off',
+                    },
+                  ],
+                },
+              ]}
+              style={{ alignSelf: 'flex-end' }}
             >
-              <Ionicons name="swap-vertical" size={16} color={isDark ? '#6B7280' : '#9CA3AF'} />
-              <Text className="text-sm text-neutral-500 dark:text-neutral-400 ml-1">
-                {sortLabel()}
-              </Text>
-            </Pressable>
+              <View className="flex-row items-center">
+                <Ionicons name="swap-vertical" size={16} color={isDark ? '#6B7280' : '#9CA3AF'} />
+                <Text className="text-sm text-neutral-500 dark:text-neutral-400 ml-1">
+                  {sortLabel()}
+                </Text>
+              </View>
+            </Menu>
           </View>
         )}
 
@@ -335,15 +376,7 @@ export default function HomeScreen() {
             )}
 
             {filteredAndSorted.map((sub) => {
-              const effectiveDate = sub.id === -1
-                ? sub.next_payment_date
-                : getEffectiveNextPaymentDate(
-                  sub.next_payment_date,
-                  sub.billing_cycle,
-                  todayDate,
-                  sub.billing_anchor_day,
-                );
-              const daysRemaining = Math.max(0, daysBetweenDateOnly(todayDate, effectiveDate));
+              const daysRemaining = Math.max(0, daysBetweenDateOnly(todayDate, effectiveDateFor(sub)));
 
               return (
                 <SubscriptionCard

@@ -1,0 +1,92 @@
+import { describe, expect, jest, test } from '@jest/globals';
+import { render } from '@testing-library/react-native';
+import React from 'react';
+import { StyleSheet } from 'react-native';
+
+import AboutScreen from './about-screen.ios';
+
+let mockHeaderOptions: { headerShadowVisible?: boolean } | undefined;
+const mockSymbolView = jest.fn((_props: unknown) => null);
+
+jest.mock('expo-constants', () => ({
+  __esModule: true,
+  default: {
+    expoConfig: {
+      orientation: 'portrait',
+      scheme: 'subscriptionapp',
+    },
+  },
+}));
+
+jest.mock('expo-router', () => ({
+  useRouter: () => ({ push: jest.fn() }),
+  Stack: {
+    Screen: ({ options }: { options: { headerShadowVisible?: boolean } }) => {
+      mockHeaderOptions = options;
+      return null;
+    },
+  },
+}));
+
+jest.mock('expo-symbols', () => ({
+  SymbolView: (props: unknown) => mockSymbolView(props),
+}));
+
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({ t: (key: string) => key }),
+}));
+
+jest.mock('@/hooks/use-color-scheme', () => ({
+  useColorScheme: () => 'dark',
+}));
+
+jest.mock('@/lib/api', () => ({
+  isUsingPublicApi: () => true,
+  versionApi: { getServerVersion: () => new Promise(() => {}) },
+}));
+
+jest.mock('@/lib/versionCheck', () => ({
+  getCurrentAppVersion: () => '2.0.0-beta10',
+}));
+
+jest.mock('@/store/useSettingsStore', () => ({
+  useSettingsStore: () => ({ language: 'en', theme: 'dark' }),
+}));
+
+describe('iOS about screen', () => {
+  test('matches the grouped General layout with SF Symbols', async () => {
+    const screen = await render(<AboutScreen />);
+    const surfaceIds = [
+      'ios-about-hero-card',
+      'ios-about-app-card',
+      'ios-about-environment-card',
+      'ios-about-creator-card',
+      'ios-about-credits-card',
+    ];
+    const separatorStyle = StyleSheet.flatten(
+      screen.getByTestId('ios-about-separator-app-name').props.style,
+    );
+    const heroStyle = StyleSheet.flatten(
+      screen.getByTestId('ios-about-hero-card').props.style,
+    );
+
+    for (const id of surfaceIds) {
+      expect(screen.getByTestId(id).props.className).not.toContain('border');
+    }
+    expect(screen.queryByText('about.section_app')).toBeNull();
+    expect(screen.queryByText('about.section_device')).toBeNull();
+    expect(screen.queryByText('about.section_credits')).toBeNull();
+    expect(screen.getByText('darui3018823 / Ahoshinet').props).toMatchObject({
+      adjustsFontSizeToFit: true,
+      minimumFontScale: 0.85,
+      numberOfLines: 1,
+    });
+    expect(heroStyle).toMatchObject({ alignItems: 'flex-start' });
+    expect(separatorStyle).toMatchObject({ left: 16, right: 16 });
+    expect(mockHeaderOptions?.headerShadowVisible).toBe(false);
+    expect(mockSymbolView.mock.calls.map(([props]) => (
+      props as { name: string }
+    ).name)).toEqual(['chevron.right', 'chevron.right', 'chevron.right']);
+    await screen.unmount();
+  });
+});
