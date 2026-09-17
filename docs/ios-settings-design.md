@@ -11,8 +11,11 @@ iOS settings experience without changing the Android design.
   Design.
 - Do not implement the iOS appearance with large `Platform.OS` branches inside a
   shared screen. Use platform-specific component files.
-- Pure black is an intentional exception for this iOS Settings surface. Ordinary
-  app screens continue to follow the dark-surface rules in `CLAUDE.md`.
+- Pure black is an intentional exception for the dedicated iOS-native full-screen
+  surfaces: Settings, auth (`components/auth/`), and the Home/Calendar/Detail
+  screens. Modal sheets (e.g. the add flow) and the Android/default
+  implementation continue to follow the standard dark-surface rules in
+  `CLAUDE.md`.
 
 ## Platform separation
 
