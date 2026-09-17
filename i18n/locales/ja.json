@@ -73,6 +73,7 @@
         "method_name_placeholder": "例: マイカード",
         "label": "ラベル",
         "back_to_brands": "戻る",
+        "brand_not_found": "この支払方法が見つかりませんでした。",
         "delete_confirm": "この支払方法を削除しますか？",
         "delete": "削除",
         "cancel": "キャンセル",

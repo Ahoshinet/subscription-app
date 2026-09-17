@@ -22,8 +22,8 @@ export default function AddPaymentMethodBrandScreen() {
     const { addMethod } = usePaymentMethodStore();
 
     const [memo, setMemo] = useState('');
-    // goBack() dismisses asynchronously; guard against a second tap during
-    // the animation submitting the same method twice.
+    // Guard against a second tap firing another addMethod call while the
+    // first is still in flight.
     const submittedRef = useRef(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -36,16 +36,38 @@ export default function AddPaymentMethodBrandScreen() {
     const brandIconBg = isDark ? '#2C2C2E' : '#E5E5EA';
     const brandIconTint = isDark ? '#98989D' : '#636366';
 
-    if (!brand) return null;
+    if (!brand) {
+        return (
+            <View style={{ flex: 1, backgroundColor: bg }}>
+                <Stack.Screen
+                    options={{
+                        title: '',
+                        headerBackTitle: ' ',
+                        headerBackButtonDisplayMode: 'minimal',
+                        headerStyle: { backgroundColor: bg },
+                        headerTintColor: textPrimary,
+                        headerShadowVisible: false,
+                        headerShown: true,
+                    }}
+                />
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+                    <Text style={{ fontSize: 16, color: textSub, textAlign: 'center', marginBottom: 24 }}>
+                        {t('billing.brand_not_found')}
+                    </Text>
+                    <Pressable onPress={() => navigation.getParent()?.goBack()}>
+                        <Text style={{ fontSize: 16, fontWeight: '600', color: '#3B82F6' }}>
+                            {t('billing.back_to_brands')}
+                        </Text>
+                    </Pressable>
+                </View>
+            </View>
+        );
+    }
 
     const handleConfirm = async () => {
         if (submittedRef.current) return;
         submittedRef.current = true;
         setIsSubmitting(true);
-        // Close the whole modal sheet (this nested Stack) in one go, back to
-        // whatever screen launched the flow. A plain back() would only pop
-        // this screen inside the sheet.
-        navigation.getParent()?.goBack();
         try {
             await addMethod({
                 type: 'preset',
@@ -54,7 +76,13 @@ export default function AddPaymentMethodBrandScreen() {
                 iconName: brand.iconName,
                 color: brand.color,
             });
+            // Close the whole modal sheet (this nested Stack) in one go, back
+            // to whatever screen launched the flow. A plain back() would only
+            // pop this screen inside the sheet.
+            navigation.getParent()?.goBack();
         } catch (error) {
+            submittedRef.current = false;
+            setIsSubmitting(false);
             Alert.alert(t('common.error'), t(paymentMethodAddErrorKey(error)));
         }
     };

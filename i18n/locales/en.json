@@ -73,6 +73,7 @@
         "method_name_placeholder": "e.g. My Card",
         "label": "Label",
         "back_to_brands": "Back",
+        "brand_not_found": "This payment method could not be found.",
         "delete_confirm": "Are you sure you want to remove this payment method?",
         "delete": "Remove",
         "cancel": "Cancel",
