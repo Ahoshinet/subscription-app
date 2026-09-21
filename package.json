@@ -27,7 +27,7 @@
     "version:build": "node update-version.js build"
   },
   "dependencies": {
-    "@expo/ui": "~57.0.18",
+    "@expo/ui": "~58.0.3",
     "@expo/vector-icons": "^15.1.1",
     "@gorhom/bottom-sheet": "^5.2.14",
     "@react-native-async-storage/async-storage": "2.2.0",
@@ -53,7 +53,7 @@
     "expo-system-ui": "~57.0.4",
     "expo-web-browser": "~57.0.3",
     "i18next": "^26.4.2",
-    "nativewind": "^4.2.6",
+    "nativewind": "^4.2.7",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-i18next": "^17.0.13",
@@ -68,7 +68,7 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
-    "@react-native/jest-preset": "~0.86.2",
+    "@react-native/jest-preset": "~0.86.3",
     "@testing-library/react-native": "^14.0.1",
     "@types/jest": "^29.5.14",
     "@types/react": "~19.2.14",
