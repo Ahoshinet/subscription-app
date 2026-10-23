@@ -10,13 +10,13 @@ overrides:
   'minimatch@>=9.0.0 <9.0.7': 9.0.7
   'minimatch@>=10.0.0 <10.2.3': 10.2.3
   # GHSA-rgw5-rvv9-x895 (high): transitive via Expo CLI > minimatch
-  'brace-expansion@<=5.0.8': 5.0.9
+  'brace-expansion@<5.0.12': 5.0.12
   'tar@<=7.5.10': 7.5.11
   'flatted@<=3.4.1': 3.4.2
   'picomatch@<2.3.2': 2.3.2
   'picomatch@>=4.0.0 <4.0.4': 4.0.4
   # GHSA-395f-4hp3-45gv (high): transitive via react-native > react-devtools-core
-  'shell-quote@<=1.8.4': 1.10.0
+  'shell-quote@<1.11.0': 1.11.0
   # GHSA-w5hq-g745-h8pq (moderate): transitive via Expo config plugins > xcode
   'uuid@<11.1.1': 11.1.1
   # GHSA-96hv-2xvq-fx4p (high): transitive via react-native > ws
@@ -33,6 +33,8 @@ overrides:
   'nanoid@<3.3.18': 3.3.18
   # GHSA-vcc3-ghjq-m6fr (moderate): transitive via expo-router > query-string > decode-uri-component
   'decode-uri-component@<=0.4.2': 0.5.0
+  # GHSA-68fv-2mgg-jv7q (high): transitive via Expo metro-config > postcss > source-map-js
+  'source-map-js@>=1.0.0 <1.2.2': 1.2.2
 minimumReleaseAgeExclude:
   - postcss@8.5.23
   - '@expo/cli@57.0.11'
@@ -49,7 +51,7 @@ minimumReleaseAgeExclude:
   - 'expo-image-manipulator@57.0.7'
   - 'expo-image-picker@57.0.7'
   - 'expo-modules-core@57.0.8'
-  - 'expo-notifications@57.0.8'
+  - expo-notifications@57.0.8 || 57.0.24
   - 'expo-router@57.0.9'
   - 'expo-system-ui@57.0.2'
   - 'expo@57.0.9'
